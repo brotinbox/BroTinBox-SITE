@@ -301,7 +301,7 @@ export function CurvedBoxCard({
                   <div className="md:col-span-7 lg:col-span-7 space-y-5">
                     {/* Header */}
                     <div>
-                      <span className="text-xs font-bold text-[#899545] uppercase tracking-wider block mb-1">
+                      <span className="text-xs font-bold text-accent uppercase tracking-wider block mb-1">
                         Daily Signature Protein Bento
                       </span>
                       <h2 className="font-heading font-black text-2xl sm:text-3xl text-gray-900 tracking-tight">
@@ -312,7 +312,7 @@ export function CurvedBoxCard({
                       </p>
                       {/* Day Box Badge moved after description */}
                       <div className="mt-3 flex items-center gap-2">
-                        <span className="inline-flex items-center text-xs font-bold px-3 py-1 rounded-full bg-[#F5F8EC] text-[#124233] border border-[#124233]/15">
+                        <span className="inline-flex items-center text-xs font-bold px-3 py-1 rounded-full bg-sand text-ink border border-ink/15">
                           {dayInfo?.dayName || menu.dayOfWeek} Box
                         </span>
                       </div>
@@ -358,7 +358,7 @@ export function CurvedBoxCard({
                           5 Items Digitally Weighed Inside
                         </span>
                         <span className="shrink-0 whitespace-nowrap text-[10px] sm:text-[11px] font-mono text-gray-600 bg-white px-2.5 py-1 rounded-full border border-gray-200 font-bold shadow-2xs">
-                          Net Meal: <span className="text-[#124233] font-black">~620g</span>
+                          Net Meal: <span className="text-ink font-black">~620g</span>
                         </span>
                       </div>
 
@@ -465,7 +465,7 @@ export function CurvedBoxCard({
                   <Link
                     href={orderUrl}
                     onClick={() => setShowDetailsModal(false)}
-                    className="flex-1 sm:flex-initial bg-gray-900 hover:bg-[#124233] text-white font-bold text-xs sm:text-sm py-3 px-5 rounded-2xl transition-all text-center flex items-center justify-center gap-1.5 tap-active"
+                    className="flex-1 sm:flex-initial bg-gray-900 hover:bg-ink text-white font-bold text-xs sm:text-sm py-3 px-5 rounded-2xl transition-all text-center flex items-center justify-center gap-1.5 tap-active"
                   >
                     <span>Order Single (₹{price})</span>
                     <ArrowRight className="w-4 h-4" />

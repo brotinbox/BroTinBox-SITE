@@ -82,7 +82,7 @@ const BADGE: Record<string, string> = {
   contacted: 'bg-amber-50 text-amber-800 border-amber-200',
   converted: 'bg-emerald-50 text-emerald-700 border-emerald-200',
   lost: 'bg-gray-100 text-gray-600 border-gray-200',
-  super_admin: 'bg-[#0E3529] text-white border-[#0E3529]',
+  super_admin: 'bg-ink-soft text-white border-ink-soft',
   admin: 'bg-primary-light text-primary border-green-200',
 };
 

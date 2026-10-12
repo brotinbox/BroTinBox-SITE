@@ -47,7 +47,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
             <p className="text-gray-600">{a.recipient_name} · {a.phone}<br />{a.flat}, {a.street}{a.landmark ? `, ${a.landmark}` : ''}<br />{a.area}, {a.city} {a.pincode}</p>
           </section>
         )}
-        <Link href="/my-plan" className="inline-block text-sm font-bold text-[#124233]">See my meals →</Link>
+        <Link href="/my-plan" className="inline-block text-sm font-bold text-ink">See my meals →</Link>
       </div>
     </AccountShell>
   );

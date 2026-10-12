@@ -49,12 +49,12 @@ export function HomeHero() {
   ];
 
   return (
-    <section className="relative w-full overflow-visible bg-gradient-to-b from-[#E2ECBA] via-[#EDF5D3] to-[#F5F8EC] text-[#124233] pt-6 sm:pt-10 lg:pt-12 pb-0 select-none">
+    <section className="relative w-full overflow-visible bg-gradient-to-b from-accent-soft via-paper to-sand text-ink pt-6 sm:pt-10 lg:pt-12 pb-0 select-none">
       {/* Main Hero Stage (Headline) */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-4 sm:pt-6 lg:pt-8 pb-8 sm:pb-12 md:pb-16 flex flex-col items-center justify-center text-center">
         {/* Headline */}
         <div className="max-w-4xl mx-auto">
-          <h1 className="font-heading font-[900] text-3xl sm:text-4xl lg:text-5xl text-[#124233] tracking-tight leading-tight sm:leading-snug">
+          <h1 className="font-heading font-[900] text-3xl sm:text-4xl lg:text-5xl text-ink tracking-tight leading-tight sm:leading-snug">
             Fresh daily protein meals.
           </h1>
         </div>
@@ -71,13 +71,13 @@ export function HomeHero() {
             >
               {/* Clean Title Bar (Sharp corners, no buttons) */}
               <div className="py-2.5 sm:py-3.5 px-2 sm:px-4 text-center bg-white border-b border-black/5">
-                <h3 className="font-heading font-[900] text-[11px] sm:text-xs md:text-sm lg:text-base text-[#124233] tracking-tight group-hover:text-[#899545] transition-colors uppercase leading-tight line-clamp-1">
+                <h3 className="font-heading font-[900] text-[11px] sm:text-xs md:text-sm lg:text-base text-ink tracking-tight group-hover:text-accent transition-colors uppercase leading-tight line-clamp-1">
                   {card.title}
                 </h3>
               </div>
 
               {/* Seamless Attached Mockup Image (Edge-to-Edge Sharp) */}
-              <div className="relative w-full aspect-[4/3] overflow-hidden bg-[#FAFAF8]">
+              <div className="relative w-full aspect-[4/3] overflow-hidden bg-paper">
                 <Image
                   src={card.image}
                   alt={card.imageAlt}

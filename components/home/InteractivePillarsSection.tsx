@@ -93,7 +93,7 @@ const PLANS_DATA: CardItem[] = [
     description:
       'Our most popular routine. 6 different protein meals from Monday to Saturday. Never repeat dishes, skip any day with one tap.',
     priceNote: '₹1,532 / week • Free Delivery',
-    bgColor: 'bg-[#143E2B]', // Forest Green
+    bgColor: 'bg-[#3A1A0D]', // Forest Green
     accentColor: 'text-emerald-300',
     image: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?auto=format&fit=crop&w=800&q=80',
     icon: Calendar,
@@ -194,7 +194,7 @@ const PEOPLE_DATA: CardItem[] = [
     description:
       'Heavy strength training, crossfit, or sports conditioning. Double chicken cuts, boiled farm eggs, and clean carbs for intense muscle recovery.',
     priceNote: '~720 kcal • 60g+ High Protein',
-    bgColor: 'bg-[#143E2B]', // Forest Green
+    bgColor: 'bg-[#3A1A0D]', // Forest Green
     accentColor: 'text-emerald-300',
     image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80',
     icon: Zap,
@@ -257,7 +257,7 @@ export function InteractivePillarsSection() {
   };
 
   return (
-    <section className="py-16 sm:py-20 md:py-24 bg-[#FAFAF5] text-gray-900 border-b border-gray-100 relative">
+    <section className="py-16 sm:py-20 md:py-24 bg-paper text-gray-900 border-b border-gray-100 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header & One-Word Switcher at Top */}
         <div className="flex flex-col items-center text-center max-w-2xl mx-auto mb-12 sm:mb-16">
@@ -420,7 +420,7 @@ export function InteractivePillarsSection() {
               className="relative z-10 w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100 flex flex-col max-h-[85vh]"
             >
               {/* Header */}
-              <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-[#FAFAF5]">
+              <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-paper">
                 <div className="flex items-center gap-3">
                   <div className={`w-10 h-10 rounded-xl ${selectedCard.bgColor} text-white flex items-center justify-center`}>
                     <selectedCard.icon className="w-5 h-5" />
@@ -556,7 +556,7 @@ export function InteractivePillarsSection() {
               </div>
 
               {/* Footer */}
-              <div className="p-4 sm:p-5 border-t border-gray-100 bg-[#FAFAF5] flex items-center justify-between">
+              <div className="p-4 sm:p-5 border-t border-gray-100 bg-paper flex items-center justify-between">
                 <span className="text-xs text-gray-500 font-medium">
                   {selectedCard.priceNote}
                 </span>

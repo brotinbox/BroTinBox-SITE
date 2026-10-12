@@ -44,21 +44,21 @@ export default function CustomBoxComingSoonPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FBFDF8] text-[#124233] pb-32">
+    <div className="min-h-screen bg-paper text-ink pb-32">
       {/* 1. Header */}
-      <section className="bg-gradient-to-b from-[#E8F1D4] via-[#F2F7E4] to-[#FBFDF8] pt-10 pb-12 border-b border-[#124233]/10">
+      <section className="bg-gradient-to-b from-accent-soft via-sand to-paper pt-10 pb-12 border-b border-ink/10">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#124233] text-white text-xs font-bold tracking-wide mb-4 shadow-xs">
-            <Sparkles className="w-3.5 h-3.5 text-[#E8F1D4]" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-ink text-white text-xs font-bold tracking-wide mb-4 shadow-xs">
+            <Sparkles className="w-3.5 h-3.5 text-accent-soft" />
             <span>Coming Soon • Beta Feature</span>
           </div>
 
-          <h1 className="font-heading font-black text-3xl sm:text-5xl lg:text-6xl text-[#124233] tracking-tight leading-[1.1]">
+          <h1 className="font-heading font-black text-3xl sm:text-5xl lg:text-6xl text-ink tracking-tight leading-[1.1]">
             Build Your Own Box. <br />
-            <span className="text-[#899545]">Dial Your Exact Grams.</span>
+            <span className="text-accent">Dial Your Exact Grams.</span>
           </h1>
 
-          <p className="text-sm sm:text-base lg:text-lg text-[#124233]/80 font-medium max-w-2xl mx-auto mt-4 leading-relaxed">
+          <p className="text-sm sm:text-base lg:text-lg text-ink/80 font-medium max-w-2xl mx-auto mt-4 leading-relaxed">
             In addition to our rotating kitchen menus, our digital kitchen will soon allow you to dial custom protein grams, select your favourite meats, and customize every single compartment.
           </p>
 
@@ -77,12 +77,12 @@ export default function CustomBoxComingSoonPage() {
           <div className="lg:col-span-7 bg-white rounded-3xl p-6 sm:p-8 border border-black/5 shadow-md space-y-6">
             <div className="flex items-center justify-between pb-4 border-b border-gray-100">
               <div>
-                <span className="text-[10px] font-black uppercase tracking-wider text-[#899545]">Interactive Simulator</span>
-                <h3 className="font-heading font-black text-xl text-[#124233] mt-0.5">
+                <span className="text-[10px] font-black uppercase tracking-wider text-accent">Interactive Simulator</span>
+                <h3 className="font-heading font-black text-xl text-ink mt-0.5">
                   Future Custom Box Dialer
                 </h3>
               </div>
-              <span className="text-xs font-bold bg-[#E8F1D4] text-[#124233] px-3 py-1 rounded-full">
+              <span className="text-xs font-bold bg-accent-soft text-ink px-3 py-1 rounded-full">
                 Interactive Preview
               </span>
             </div>
@@ -91,10 +91,10 @@ export default function CustomBoxComingSoonPage() {
             <div className="space-y-3">
               <div className="flex justify-between items-center text-xs">
                 <span className="font-bold text-gray-700 flex items-center gap-1.5">
-                  <Dumbbell className="w-4 h-4 text-[#899545]" />
+                  <Dumbbell className="w-4 h-4 text-accent" />
                   <span>Target Protein per Box:</span>
                 </span>
-                <span className="font-heading font-black text-lg text-[#124233] font-mono">
+                <span className="font-heading font-black text-lg text-ink font-mono">
                   {targetProtein}g
                 </span>
               </div>
@@ -105,7 +105,7 @@ export default function CustomBoxComingSoonPage() {
                 step="5"
                 value={targetProtein}
                 onChange={(e) => setTargetProtein(Number(e.target.value))}
-                className="w-full accent-[#124233] cursor-pointer"
+                className="w-full accent-ink cursor-pointer"
               />
               <div className="flex justify-between text-[10px] text-gray-400 font-mono">
                 <span>35g (Moderate)</span>
@@ -118,10 +118,10 @@ export default function CustomBoxComingSoonPage() {
             <div className="space-y-3">
               <div className="flex justify-between items-center text-xs">
                 <span className="font-bold text-gray-700 flex items-center gap-1.5">
-                  <Wheat className="w-4 h-4 text-[#899545]" />
+                  <Wheat className="w-4 h-4 text-accent" />
                   <span>Target Carbohydrates:</span>
                 </span>
-                <span className="font-heading font-black text-lg text-[#124233] font-mono">
+                <span className="font-heading font-black text-lg text-ink font-mono">
                   {targetCarbs}g
                 </span>
               </div>
@@ -132,7 +132,7 @@ export default function CustomBoxComingSoonPage() {
                 step="5"
                 value={targetCarbs}
                 onChange={(e) => setTargetCarbs(Number(e.target.value))}
-                className="w-full accent-[#899545] cursor-pointer"
+                className="w-full accent-accent cursor-pointer"
               />
               <div className="flex justify-between text-[10px] text-gray-400 font-mono">
                 <span>20g (Keto / Low-Carb)</span>
@@ -160,7 +160,7 @@ export default function CustomBoxComingSoonPage() {
                     className={cn(
                       "p-2.5 rounded-xl border text-center font-bold transition-all tap-active text-xs",
                       selectedProteinSource === item.id
-                        ? "bg-[#124233] text-white border-[#124233] shadow-xs"
+                        ? "bg-ink text-white border-ink shadow-xs"
                         : "bg-gray-50 text-gray-700 border-gray-200 hover:border-gray-300"
                     )}
                   >
@@ -171,16 +171,16 @@ export default function CustomBoxComingSoonPage() {
             </div>
 
             {/* Calculated Scale Readout */}
-            <div className="p-4 rounded-2xl bg-[#F5F8EC] border border-[#124233]/15 flex items-center justify-between text-xs">
+            <div className="p-4 rounded-2xl bg-sand border border-ink/15 flex items-center justify-between text-xs">
               <div>
                 <span className="text-[10px] uppercase font-bold text-gray-400 block">Simulated Kitchen Portion</span>
-                <span className="font-heading font-black text-base text-[#124233] mt-0.5 block">
+                <span className="font-heading font-black text-base text-ink mt-0.5 block">
                   ~{estimatedMeatGrams}g Cooked Base
                 </span>
               </div>
               <div className="text-right">
                 <span className="text-[10px] uppercase font-bold text-gray-400 block">Estimated Calories</span>
-                <span className="font-heading font-black text-base text-[#899545] mt-0.5 block">
+                <span className="font-heading font-black text-base text-accent mt-0.5 block">
                   ~{estimatedCalories} kcal
                 </span>
               </div>
@@ -188,12 +188,12 @@ export default function CustomBoxComingSoonPage() {
           </div>
 
           {/* Right Column: Phone Waitlist Form */}
-          <div className="lg:col-span-5 bg-white rounded-3xl p-6 sm:p-8 border border-black/5 shadow-xl shadow-[#124233]/5 space-y-6">
+          <div className="lg:col-span-5 bg-white rounded-3xl p-6 sm:p-8 border border-black/5 shadow-xl shadow-ink/5 space-y-6">
             {!isSubmitted ? (
               <form onSubmit={handleSubmitWaitlist} className="space-y-4">
                 <div className="pb-3 border-b border-gray-100">
                   <span className="text-[10px] font-black uppercase tracking-wider text-emerald-800">Priority Coimbatore Beta</span>
-                  <h3 className="font-heading font-black text-2xl text-[#124233] mt-1">
+                  <h3 className="font-heading font-black text-2xl text-ink mt-1">
                     Get Early Access
                   </h3>
                   <p className="text-xs text-gray-500 mt-1">
@@ -212,7 +212,7 @@ export default function CustomBoxComingSoonPage() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="e.g. Rahul Sharma"
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#124233]"
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-ink"
                   />
                 </div>
 
@@ -227,7 +227,7 @@ export default function CustomBoxComingSoonPage() {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="+91 98421 23456"
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#124233]"
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-ink"
                   />
                 </div>
 
@@ -239,7 +239,7 @@ export default function CustomBoxComingSoonPage() {
                   <select
                     value={fitnessGoal}
                     onChange={(e) => setFitnessGoal(e.target.value as any)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#124233] bg-white"
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-ink bg-white"
                   >
                     <option value="fat-loss">Fat Loss / Shredding (High Protein, Calorie Deficit)</option>
                     <option value="muscle-gain">Muscle Hypertrophy / Bulking (High Protein + Carbs)</option>
@@ -249,7 +249,7 @@ export default function CustomBoxComingSoonPage() {
 
                 <button
                   type="submit"
-                  className="w-full bg-[#124233] hover:bg-[#0E3529] text-white py-3.5 px-6 rounded-2xl font-heading font-bold text-xs sm:text-sm tracking-wide shadow-md shadow-[#124233]/25 flex items-center justify-center gap-2 tap-active transition-all group mt-2"
+                  className="w-full bg-ink hover:bg-ink-soft text-white py-3.5 px-6 rounded-2xl font-heading font-bold text-xs sm:text-sm tracking-wide shadow-md shadow-ink/25 flex items-center justify-center gap-2 tap-active transition-all group mt-2"
                 >
                   <span>Join Priority Waitlist</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -264,7 +264,7 @@ export default function CustomBoxComingSoonPage() {
                 <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto">
                   <CheckCircle2 className="w-8 h-8" />
                 </div>
-                <h3 className="font-heading font-black text-2xl text-[#124233]">
+                <h3 className="font-heading font-black text-2xl text-ink">
                   You&apos;re on the VIP Waitlist!
                 </h3>
                 <p className="text-xs text-gray-600 max-w-sm mx-auto leading-relaxed">
@@ -273,13 +273,13 @@ export default function CustomBoxComingSoonPage() {
                 <div className="pt-4 border-t border-gray-100 flex flex-col gap-2">
                   <Link
                     href="/tomorrow"
-                    className="w-full bg-[#124233] text-white py-3 px-4 rounded-xl text-xs font-bold text-center tap-active"
+                    className="w-full bg-ink text-white py-3 px-4 rounded-xl text-xs font-bold text-center tap-active"
                   >
                     Explore Tomorrow’s Rotating Box &rarr;
                   </Link>
                   <Link
                     href="/weekly"
-                    className="w-full bg-[#F5F8EC] text-[#124233] py-2.5 px-4 rounded-xl text-xs font-bold text-center tap-active"
+                    className="w-full bg-sand text-ink py-2.5 px-4 rounded-xl text-xs font-bold text-center tap-active"
                   >
                     View Weekly 6-Day Routine
                   </Link>

@@ -35,15 +35,15 @@ export default function PricingPage() {
   const p2MonthlyTotal = isNV ? 12672 : 11232; // (269 * 2 - 10) * 24
 
   return (
-    <div className="min-h-screen bg-[#FBFDF8] text-[#124233]">
+    <div className="min-h-screen bg-paper text-ink">
       {/* 1. Centered Header & Dual Interactive Switchers */}
       <section className="pt-8 sm:pt-14 pb-8 sm:pb-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <span className="text-xs font-black uppercase tracking-wider text-[#899545]">
+          <span className="text-xs font-black uppercase tracking-wider text-accent">
             Transparent Pricing
           </span>
 
-          <h1 className="font-heading font-black text-2xl sm:text-4xl lg:text-5xl text-[#124233] mt-2 tracking-tight">
+          <h1 className="font-heading font-black text-2xl sm:text-4xl lg:text-5xl text-ink mt-2 tracking-tight">
             Simple, Honest Subscription Plans
           </h1>
 
@@ -61,7 +61,7 @@ export default function PricingPage() {
                 className={cn(
                   'flex items-center justify-center gap-2 px-5 sm:px-6 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold transition-all tap-active whitespace-nowrap',
                   diet === 'non-veg'
-                    ? 'bg-[#124233] text-white shadow-xs'
+                    ? 'bg-ink text-white shadow-xs'
                     : 'text-gray-600 hover:text-gray-900'
                 )}
               >
@@ -79,7 +79,7 @@ export default function PricingPage() {
                 className={cn(
                   'flex items-center justify-center gap-2 px-5 sm:px-6 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold transition-all tap-active whitespace-nowrap',
                   diet === 'veg'
-                    ? 'bg-[#124233] text-white shadow-xs'
+                    ? 'bg-ink text-white shadow-xs'
                     : 'text-gray-600 hover:text-gray-900'
                 )}
               >
@@ -100,7 +100,7 @@ export default function PricingPage() {
                 className={cn(
                   "px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold transition-all tap-active whitespace-nowrap",
                   billingCycle === 'weekly'
-                    ? "bg-[#124233] text-white shadow-xs"
+                    ? "bg-ink text-white shadow-xs"
                     : "text-gray-600 hover:text-gray-900"
                 )}
               >
@@ -113,12 +113,12 @@ export default function PricingPage() {
                 className={cn(
                   "px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold transition-all tap-active flex items-center gap-1.5 whitespace-nowrap",
                   billingCycle === 'monthly'
-                    ? "bg-[#124233] text-white shadow-xs"
+                    ? "bg-ink text-white shadow-xs"
                     : "text-gray-600 hover:text-gray-900"
                 )}
               >
                 <span>Monthly (24 days)</span>
-                <span className="bg-[#84cc16] text-[#0f2e23] font-black text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">
+                <span className="bg-accent text-ink-deep font-black text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">
                   SAVE 12%
                 </span>
               </button>
@@ -137,7 +137,7 @@ export default function PricingPage() {
                 <h3 className="font-heading font-black text-2xl text-gray-900 tracking-tight">
                   {billingCycle === 'weekly' ? '6-Day Weekly Plan' : '24-Day Monthly Plan'}
                 </h3>
-                <span className="text-xs font-bold bg-[#E8F1D4] text-[#124233] px-2.5 py-1 rounded-full whitespace-nowrap">
+                <span className="text-xs font-bold bg-accent-soft text-ink px-2.5 py-1 rounded-full whitespace-nowrap">
                   1 Meal/day
                 </span>
               </div>
@@ -151,7 +151,7 @@ export default function PricingPage() {
               {/* Price Banner */}
               <div className="mt-5 p-4 rounded-2xl bg-gray-50 border border-gray-100 text-center">
                 <div className="flex items-baseline justify-center gap-1">
-                  <span className="font-heading font-black text-3xl sm:text-4xl text-[#124233]">
+                  <span className="font-heading font-black text-3xl sm:text-4xl text-ink">
                     {formatCurrency(billingCycle === 'weekly' ? p1WeeklyTotal : p1MonthlyTotal)}
                   </span>
                   <span className="text-xs text-gray-500 font-medium">
@@ -160,7 +160,7 @@ export default function PricingPage() {
                 </div>
 
                 <div className="mt-1 flex items-center justify-center gap-2 text-xs">
-                  <span className="font-bold text-emerald-800">
+                  <span className="font-bold text-accent">
                     {formatCurrency(billingCycle === 'weekly' ? p1WeeklyPerMeal : p1MonthlyPerMeal)} / meal
                   </span>
                   <span className="text-gray-400 line-through">
@@ -186,21 +186,21 @@ export default function PricingPage() {
               {/* Features */}
               <div className="mt-6 space-y-2.5 text-xs text-gray-700">
                 <div className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <Check className="w-4 h-4 text-accent shrink-0 mt-0.5" />
                   <span>
                     {billingCycle === 'weekly' ? '6 fresh daily boxes' : '24 fresh daily boxes'} (Mon–Sat rotation)
                   </span>
                 </div>
                 <div className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <Check className="w-4 h-4 text-accent shrink-0 mt-0.5" />
                   <span>Digital scale calories &amp; protein printed on every box</span>
                 </div>
                 <div className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <Check className="w-4 h-4 text-accent shrink-0 mt-0.5" />
                   <span>9:00 PM previous-night pause &amp; skip cutoff</span>
                 </div>
                 <div className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <Check className="w-4 h-4 text-accent shrink-0 mt-0.5" />
                   <span>100% free doorstep delivery across Coimbatore</span>
                 </div>
               </div>
@@ -209,7 +209,7 @@ export default function PricingPage() {
             <div className="mt-8 pt-4 border-t border-gray-100">
               <Link
                 href={billingCycle === 'weekly' ? `/weekly?diet=${diet}` : `/monthly?diet=${diet}`}
-                className="w-full py-3.5 px-4 rounded-2xl font-heading font-bold text-xs sm:text-sm bg-[#124233] hover:bg-[#0c2e23] text-white flex items-center justify-center gap-2 transition-all tap-active shadow-sm"
+                className="w-full py-3.5 px-4 rounded-2xl font-heading font-bold text-xs sm:text-sm bg-ink hover:bg-ink-soft text-white flex items-center justify-center gap-2 transition-all tap-active shadow-sm"
               >
                 <span>Choose {billingCycle === 'weekly' ? 'Weekly 1-Meal' : 'Monthly 1-Meal'}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -218,11 +218,11 @@ export default function PricingPage() {
           </div>
 
           {/* Card 2: 2 Meals / Day Plan (MOST POPULAR) */}
-          <div className="bg-[#FAFDF6] rounded-3xl p-6 sm:p-8 border-2 border-[#124233] shadow-xl shadow-[#124233]/10 hover:shadow-2xl transition-all duration-300 flex flex-col justify-between relative md:-translate-y-2">
+          <div className="bg-paper rounded-3xl p-6 sm:p-8 border-2 border-ink shadow-xl shadow-ink/10 hover:shadow-2xl transition-all duration-300 flex flex-col justify-between relative md:-translate-y-2">
             {/* Top Popular Floating Ribbon */}
             <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-              <span className="bg-[#124233] text-white text-[10px] font-black uppercase tracking-wider px-3.5 py-1 rounded-full shadow-md flex items-center gap-1.5 whitespace-nowrap">
-                <Sparkles className="w-3 h-3 text-[#E2ECBA]" />
+              <span className="bg-ink text-white text-[10px] font-black uppercase tracking-wider px-3.5 py-1 rounded-full shadow-md flex items-center gap-1.5 whitespace-nowrap">
+                <Sparkles className="w-3 h-3 text-accent-muted" />
                 <span>MOST POPULAR • Save ₹10 on 2nd Meal</span>
               </span>
             </div>
@@ -232,7 +232,7 @@ export default function PricingPage() {
                 <h3 className="font-heading font-black text-2xl text-gray-900 tracking-tight">
                   {billingCycle === 'weekly' ? '12-Meal Weekly Plan' : '48-Meal Monthly Plan'}
                 </h3>
-                <span className="text-xs font-bold bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full whitespace-nowrap">
+                <span className="text-xs font-bold bg-ink text-white px-2.5 py-1 rounded-full whitespace-nowrap">
                   2 Meals/day
                 </span>
               </div>
@@ -242,9 +242,9 @@ export default function PricingPage() {
               </p>
 
               {/* Price Banner */}
-              <div className="mt-5 p-4 rounded-2xl bg-white border border-[#124233]/15 text-center shadow-xs">
+              <div className="mt-5 p-4 rounded-2xl bg-white border border-ink/15 text-center shadow-xs">
                 <div className="flex items-baseline justify-center gap-1">
-                  <span className="font-heading font-black text-3xl sm:text-4xl text-[#124233]">
+                  <span className="font-heading font-black text-3xl sm:text-4xl text-ink">
                     {formatCurrency(billingCycle === 'weekly' ? p2WeeklyTotal : p2MonthlyTotal)}
                   </span>
                   <span className="text-xs text-gray-500 font-medium">
@@ -253,7 +253,7 @@ export default function PricingPage() {
                 </div>
 
                 <div className="mt-1 flex items-center justify-center gap-2 text-xs">
-                  <span className="font-bold text-emerald-800">
+                  <span className="font-bold text-accent">
                     {formatCurrency(billingCycle === 'weekly' ? p2WeeklyPerMeal : p2MonthlyPerMeal)} / meal
                   </span>
                   <span className="text-gray-400 line-through">
@@ -279,32 +279,32 @@ export default function PricingPage() {
               {/* Features */}
               <div className="mt-6 space-y-2.5 text-xs text-gray-800">
                 <div className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5 stroke-[2.5]" />
+                  <Check className="w-4 h-4 text-accent shrink-0 mt-0.5 stroke-[2.5]" />
                   <span>
                     <strong>2 boxes/day:</strong> Morning (7:00–9:00 AM) &amp; Dinner (7:00–9:00 PM)
                   </span>
                 </div>
                 <div className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5 stroke-[2.5]" />
+                  <Check className="w-4 h-4 text-accent shrink-0 mt-0.5 stroke-[2.5]" />
                   <span>
                     <strong>Second meal discount:</strong> ₹10 off every evening box automatically
                   </span>
                 </div>
                 <div className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5 stroke-[2.5]" />
+                  <Check className="w-4 h-4 text-accent shrink-0 mt-0.5 stroke-[2.5]" />
                   <span>Single-tap pause or skip any day before 9:00 PM</span>
                 </div>
                 <div className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5 stroke-[2.5]" />
+                  <Check className="w-4 h-4 text-accent shrink-0 mt-0.5 stroke-[2.5]" />
                   <span>Dedicated WhatsApp dietitian consultation included</span>
                 </div>
               </div>
             </div>
 
-            <div className="mt-8 pt-4 border-t border-[#124233]/10">
+            <div className="mt-8 pt-4 border-t border-ink/10">
               <Link
                 href={billingCycle === 'weekly' ? `/weekly?diet=${diet}` : `/monthly?diet=${diet}`}
-                className="w-full py-4 px-4 rounded-2xl font-heading font-black text-xs sm:text-sm bg-[#124233] hover:bg-[#0c2e23] text-white flex items-center justify-center gap-2 transition-all tap-active shadow-lg shadow-[#124233]/25"
+                className="w-full py-4 px-4 rounded-2xl font-heading font-black text-xs sm:text-sm bg-ink hover:bg-ink-soft text-white flex items-center justify-center gap-2 transition-all tap-active shadow-lg shadow-ink/25"
               >
                 <span>Choose {billingCycle === 'weekly' ? '12-Meal Weekly' : '48-Meal Monthly'}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -331,7 +331,7 @@ export default function PricingPage() {
               {/* Price Banner */}
               <div className="mt-5 p-4 rounded-2xl bg-gray-50 border border-gray-100 text-center">
                 <div className="flex items-baseline justify-center gap-1">
-                  <span className="font-heading font-black text-3xl sm:text-4xl text-[#124233]">
+                  <span className="font-heading font-black text-3xl sm:text-4xl text-ink">
                     {formatCurrency(trialPrice)}
                   </span>
                   <span className="text-xs text-gray-500 font-medium">
@@ -366,19 +366,19 @@ export default function PricingPage() {
               {/* Features */}
               <div className="mt-6 space-y-2.5 text-xs text-gray-700">
                 <div className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <Check className="w-4 h-4 text-accent shrink-0 mt-0.5" />
                   <span>1 freshly cooked 5-compartment chef bento box</span>
                 </div>
                 <div className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <Check className="w-4 h-4 text-accent shrink-0 mt-0.5" />
                   <span>Choose exact delivery time (Morning or Dinner)</span>
                 </div>
                 <div className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <Check className="w-4 h-4 text-accent shrink-0 mt-0.5" />
                   <span>9:00 PM previous-night cutoff lock guarantee</span>
                 </div>
                 <div className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <Check className="w-4 h-4 text-accent shrink-0 mt-0.5" />
                   <span>Zero automatic renewal or hidden recurring charge</span>
                 </div>
               </div>
@@ -387,7 +387,7 @@ export default function PricingPage() {
             <div className="mt-8 pt-4 border-t border-gray-100">
               <Link
                 href={`/tomorrow?diet=${diet}`}
-                className="w-full py-3.5 px-4 rounded-2xl font-heading font-bold text-xs sm:text-sm border-2 border-[#124233] text-[#124233] hover:bg-[#124233] hover:text-white flex items-center justify-center gap-2 transition-all tap-active"
+                className="w-full py-3.5 px-4 rounded-2xl font-heading font-bold text-xs sm:text-sm border-2 border-ink text-ink hover:bg-ink hover:text-white flex items-center justify-center gap-2 transition-all tap-active"
               >
                 <span>Book Tomorrow&apos;s Trial Box</span>
                 <ArrowRight className="w-4 h-4" />

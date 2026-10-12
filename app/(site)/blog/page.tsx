@@ -13,11 +13,11 @@ export const metadata: Metadata = {
 export default async function BlogPage() {
   const posts = await getPublishedPosts();
   return (
-    <div className="min-h-screen bg-[#FBFDF8] pb-24">
+    <div className="min-h-screen bg-paper pb-24">
       <div className="max-w-6xl mx-auto px-4 pt-10">
         <div className="text-center max-w-2xl mx-auto">
-          <span className="inline-flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-[#899545]"><BookOpen className="w-4 h-4" /> {BRAND.name} journal</span>
-          <h1 className="font-heading font-black text-3xl sm:text-4xl text-[#124233] mt-2">Eat well, measured</h1>
+          <span className="inline-flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-accent"><BookOpen className="w-4 h-4" /> {BRAND.name} journal</span>
+          <h1 className="font-heading font-black text-3xl sm:text-4xl text-ink mt-2">Eat well, measured</h1>
           <p className="text-sm text-gray-600 mt-2">Practical articles on protein, portions and building routines that last.</p>
         </div>
         <BlogList posts={posts.map((p) => ({

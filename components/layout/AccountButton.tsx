@@ -42,7 +42,7 @@ export function AccountButton({ variant = 'desktop' }: { variant?: 'desktop' | '
   }, [open]);
 
   if (!authReady) {
-    return <span className="inline-block rounded-full bg-[#124233]/10 animate-pulse" style={{ width: variant === 'mobile' ? 72 : 96, height: size }} aria-hidden="true" />;
+    return <span className="inline-block rounded-full bg-ink/10 animate-pulse" style={{ width: variant === 'mobile' ? 72 : 96, height: size }} aria-hidden="true" />;
   }
 
   if (!isLoggedIn) {
@@ -51,12 +51,14 @@ export function AccountButton({ variant = 'desktop' }: { variant?: 'desktop' | '
         type="button"
         onClick={() => setAuthDrawerOpen(true)}
         className={cn(
-          'inline-flex items-center gap-1.5 rounded-full font-bold bg-[#124233] hover:bg-[#0E3529] text-white transition-all shadow-xs active:scale-95',
-          variant === 'mobile' ? 'px-3 py-1.5 text-[11px]' : 'px-4 py-2 text-xs'
+          'inline-flex items-center gap-1.5 rounded-full transition-all active:scale-95',
+          variant === 'mobile'
+            ? 'px-3 py-1.5 text-[11px] font-bold bg-ink hover:bg-ink-soft text-white shadow-xs'
+            : 'px-4 py-2 text-sm font-semibold bg-sand hover:bg-sand-deep text-ink'
         )}
       >
-        <UserPlus className={variant === 'mobile' ? 'w-3 h-3' : 'w-3.5 h-3.5'} />
-        <span>{variant === 'mobile' ? 'Sign in' : 'Sign in / Sign up'}</span>
+        {variant === 'mobile' && <UserPlus className="w-3 h-3" />}
+        <span>Sign in</span>
       </button>
     );
   }
@@ -69,10 +71,10 @@ export function AccountButton({ variant = 'desktop' }: { variant?: 'desktop' | '
         aria-label="Your account"
         aria-haspopup="menu"
         aria-expanded={open}
-        className="flex items-center gap-1 p-0.5 rounded-full ring-2 ring-[#124233]/20 hover:ring-[#124233] focus:outline-none focus-visible:ring-[#124233] transition-all"
+        className="flex items-center gap-1 p-0.5 rounded-full ring-2 ring-ink/20 hover:ring-ink focus:outline-none focus-visible:ring-ink transition-all"
       >
         <UserAvatar size={size} />
-        {variant === 'desktop' && <ChevronDown className={cn('w-3.5 h-3.5 text-[#124233] mr-1 transition-transform', open && 'rotate-180')} />}
+        {variant === 'desktop' && <ChevronDown className={cn('w-3.5 h-3.5 text-ink mr-1 transition-transform', open && 'rotate-180')} />}
       </button>
 
       {open && (
@@ -87,7 +89,7 @@ export function AccountButton({ variant = 'desktop' }: { variant?: 'desktop' | '
           <div className="p-1.5">
             {LINKS.map(({ href, label, icon: Icon }) => (
               <Link key={href} href={href} role="menuitem" onClick={() => setOpen(false)}
-                className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:text-[#124233]">
+                className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:text-ink">
                 <Icon className="w-4 h-4" /> {label}
               </Link>
             ))}

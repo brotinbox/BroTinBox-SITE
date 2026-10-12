@@ -32,8 +32,8 @@ export function LegalPage({ title, current, summary, sections }: {
           <p className="text-gray-500 text-xs mt-1.5">Effective {LEGAL.effectiveDate}</p>
         </header>
 
-        <aside className="mt-6 rounded-2xl bg-[#E8F1D4]/50 border border-[#124233]/10 p-4 sm:p-5">
-          <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#124233]">In short</p>
+        <aside className="mt-6 rounded-2xl bg-accent-soft/50 border border-ink/10 p-4 sm:p-5">
+          <p className="text-[11px] font-extrabold uppercase tracking-wider text-ink">In short</p>
           <ul className="mt-2 space-y-1.5 list-disc pl-5 text-[13px] text-gray-800">
             {summary.map((s, i) => <li key={i}>{s}</li>)}
           </ul>
@@ -44,14 +44,14 @@ export function LegalPage({ title, current, summary, sections }: {
           <p className="text-[11px] font-extrabold uppercase tracking-wider text-gray-500">Contents</p>
           <ol className="mt-2 grid sm:grid-cols-2 gap-x-6 gap-y-1 text-[13px]">
             {sections.map((s, i) => (
-              <li key={s.id}><a href={`#${s.id}`} className="text-[#124233] hover:underline">{i + 1}. {s.title}</a></li>
+              <li key={s.id}><a href={`#${s.id}`} className="text-ink hover:underline">{i + 1}. {s.title}</a></li>
             ))}
           </ol>
         </nav>
 
         <div className="mt-8 space-y-8">
           {sections.map((s, i) => (
-            <section key={s.id} id={s.id} className="scroll-mt-24 space-y-2.5 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:space-y-1 [&_a]:text-[#124233] [&_a]:underline [&_strong]:text-gray-900">
+            <section key={s.id} id={s.id} className="scroll-mt-24 space-y-2.5 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:space-y-1 [&_a]:text-ink [&_a]:underline [&_strong]:text-gray-900">
               <h2 className="font-heading font-bold text-base sm:text-lg text-gray-900">{i + 1}. {s.title}</h2>
               {s.body}
             </section>
@@ -63,7 +63,7 @@ export function LegalPage({ title, current, summary, sections }: {
           <ul className="mt-2 flex flex-wrap gap-2">
             {LEGAL_PAGES.filter((p) => p.href !== current).map((p) => (
               <li key={p.href}>
-                <Link href={p.href} className="inline-block px-3 py-1.5 rounded-lg border border-gray-200 text-xs font-bold text-gray-700 hover:border-[#124233]">{p.label}</Link>
+                <Link href={p.href} className="inline-block px-3 py-1.5 rounded-lg border border-gray-200 text-xs font-bold text-gray-700 hover:border-ink">{p.label}</Link>
               </li>
             ))}
           </ul>

@@ -206,7 +206,7 @@ export function BoxDetailClient({
                       cy="50"
                       r={radius}
                       fill="transparent"
-                      stroke="#059669"
+                      stroke="#EA580C"
                       strokeWidth="12"
                       strokeDasharray={circumference}
                       strokeDashoffset={proteinOffset}
@@ -342,7 +342,7 @@ export function BoxDetailClient({
             <div className="space-y-3">
               {box.benefits.map((b, i) => (
                 <div key={i} className="flex items-start gap-2.5 text-xs text-gray-700">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <Check className="w-4 h-4 text-accent shrink-0 mt-0.5" />
                   <span>{b}</span>
                 </div>
               ))}

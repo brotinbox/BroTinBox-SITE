@@ -11,10 +11,10 @@ export default async function StaffLoginPage() {
   if (await getStaffContext()) redirect(adminHref('/'));
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-[#0E3529] to-[#124233]">
+    <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-ink-soft to-ink">
       <div className="w-full max-w-sm bg-white rounded-3xl shadow-2xl p-7">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-xl bg-[#0E3529] flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-ink-soft flex items-center justify-center">
             <ShieldCheck className="w-5 h-5 text-lime-brand" />
           </div>
           <div>

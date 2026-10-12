@@ -68,7 +68,7 @@ export default function CheckoutPage() {
           <h1 className="font-heading font-black text-2xl text-gray-900">Nothing to check out yet</h1>
           <p className="text-sm text-gray-600">Choose a plan first. Try a single day, or pick a weekly or monthly plan.</p>
           <div className="flex justify-center gap-2 pt-2">
-            <Link href="/weekly" className="px-4 py-2.5 rounded-xl bg-[#124233] text-white text-sm font-bold">Weekly plan</Link>
+            <Link href="/weekly" className="px-4 py-2.5 rounded-xl bg-ink text-white text-sm font-bold">Weekly plan</Link>
             <Link href="/monthly" className="px-4 py-2.5 rounded-xl border border-gray-300 text-sm font-bold text-gray-800">Monthly plan</Link>
           </div>
         </div>
@@ -90,7 +90,7 @@ export default function CheckoutPage() {
   const newAddrValid = addr.recipientName.trim().length >= 2 && /^[6-9]\d{9}$/.test(addr.phone) && addr.flat.trim() && addr.street.trim().length >= 2 && addr.area.trim().length >= 2 && /^\d{6}$/.test(addr.pincode);
 
   return (
-    <div className="min-h-screen bg-[#FBFDF8] pb-24">
+    <div className="min-h-screen bg-paper pb-24">
       <div className="bg-white border-b border-gray-200 py-4 px-4">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
           <button onClick={() => router.back()} className="flex items-center gap-1.5 text-xs font-bold text-gray-700"><ChevronLeft className="w-4 h-4" /> Back</button>
@@ -99,16 +99,16 @@ export default function CheckoutPage() {
       </div>
 
       <div className="max-w-3xl mx-auto px-4 py-6 space-y-4">
-        <h1 className="font-heading font-black text-2xl text-[#124233]">{cartBase.title}</h1>
+        <h1 className="font-heading font-black text-2xl text-ink">{cartBase.title}</h1>
         <p className="text-xs text-gray-500">{cartBase.mealsPerDay} meal{cartBase.mealsPerDay > 1 ? 's' : ''} a day · starts {cartBase.days[0]?.date}</p>
 
         {/* Address */}
         <section className="bg-white rounded-2xl border border-gray-200 p-5 space-y-3">
-          <h2 className="font-heading font-bold text-sm text-gray-900 flex items-center gap-2"><MapPin className="w-4 h-4 text-[#124233]" /> Delivery address</h2>
+          <h2 className="font-heading font-bold text-sm text-gray-900 flex items-center gap-2"><MapPin className="w-4 h-4 text-ink" /> Delivery address</h2>
           {addresses.length > 0 && (
             <div className="space-y-2">
               {addresses.map((a) => (
-                <label key={a.id} className={cn('flex gap-3 p-3 rounded-xl border cursor-pointer', !useNew && (selectedAddressId || addresses[0]?.id) === a.id ? 'border-[#124233] bg-[#FAFDF6]' : 'border-gray-200')}>
+                <label key={a.id} className={cn('flex gap-3 p-3 rounded-xl border cursor-pointer', !useNew && (selectedAddressId || addresses[0]?.id) === a.id ? 'border-ink bg-paper' : 'border-gray-200')}>
                   <input type="radio" name="addr" checked={!useNew && (selectedAddressId || addresses[0]?.id) === a.id} onChange={() => { setUseNew(false); setSelectedAddressId(a.id); }} className="mt-1" />
                   <span className="text-sm">
                     <b>{a.name}</b> · {a.phone}<br />
@@ -116,7 +116,7 @@ export default function CheckoutPage() {
                   </span>
                 </label>
               ))}
-              <button type="button" onClick={() => setUseNew(true)} className="flex items-center gap-1 text-xs font-bold text-[#124233]"><Plus className="w-3.5 h-3.5" /> Add another address</button>
+              <button type="button" onClick={() => setUseNew(true)} className="flex items-center gap-1 text-xs font-bold text-ink"><Plus className="w-3.5 h-3.5" /> Add another address</button>
             </div>
           )}
           {useNew && (
@@ -128,7 +128,7 @@ export default function CheckoutPage() {
                 <input key={k} placeholder={label} maxLength={max} value={addr[k] ?? ''}
                   inputMode={k === 'phone' || k === 'pincode' ? 'numeric' : undefined}
                   onChange={(e) => setAddr({ ...addr, [k]: k === 'phone' || k === 'pincode' ? e.target.value.replace(/\D/g, '') : e.target.value })}
-                  className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:bg-white focus:border-[#124233] focus:outline-none" />
+                  className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:bg-white focus:border-ink focus:outline-none" />
               ))}
             </div>
           )}
@@ -136,10 +136,10 @@ export default function CheckoutPage() {
 
         {/* Coupon */}
         <section className="bg-white rounded-2xl border border-gray-200 p-5 space-y-2">
-          <h2 className="font-heading font-bold text-sm text-gray-900 flex items-center gap-2"><Tag className="w-4 h-4 text-[#124233]" /> Coupon</h2>
+          <h2 className="font-heading font-bold text-sm text-gray-900 flex items-center gap-2"><Tag className="w-4 h-4 text-ink" /> Coupon</h2>
           <form onSubmit={(e) => { e.preventDefault(); setCoupon(couponInput.trim().toUpperCase() || undefined); }} className="flex gap-2">
             <input value={couponInput} onChange={(e) => setCouponInput(e.target.value)} maxLength={30} placeholder="Enter code"
-              className="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm uppercase focus:bg-white focus:border-[#124233] focus:outline-none" />
+              className="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm uppercase focus:bg-white focus:border-ink focus:outline-none" />
             <button className="px-4 rounded-xl bg-gray-900 text-white text-xs font-bold">Apply</button>
           </form>
           {q?.couponMessage && <p className={cn('text-xs font-semibold', q.couponApplied ? 'text-emerald-700' : 'text-rose-700')}>{q.couponMessage}</p>}
@@ -174,7 +174,7 @@ export default function CheckoutPage() {
           type="button"
           onClick={handlePlace}
           disabled={placing || (useNew ? !newAddrValid : !q)}
-          className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl bg-[#124233] hover:bg-[#0E3529] disabled:opacity-50 text-white font-heading font-black text-sm shadow-lg"
+          className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl bg-ink hover:bg-ink-soft disabled:opacity-50 text-white font-heading font-black text-sm shadow-lg"
         >
           <Lock className="w-4 h-4" />
           {placing ? 'Placing your order…' : q ? `Place order · ${inr(q.total)}` : 'Place order'}

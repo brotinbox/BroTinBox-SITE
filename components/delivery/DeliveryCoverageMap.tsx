@@ -322,7 +322,7 @@ export function DeliveryCoverageMap({
 
         {/* Layer 2: Custom Geofence & Location Boundary Vector Map (Active in 'boundary' mode) */}
         {mapView === 'boundary' && (
-          <div className="relative w-full h-full bg-[#0b1c15] text-white overflow-hidden select-none flex items-center justify-center">
+          <div className="relative w-full h-full bg-ink-deep text-white overflow-hidden select-none flex items-center justify-center">
             {/* Background Grid Pattern */}
             <div
               className="absolute inset-0 opacity-25 pointer-events-none"
@@ -341,12 +341,12 @@ export function DeliveryCoverageMap({
             >
               <defs>
                 <radialGradient id="hubPulse" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="#10b981" stopOpacity="0.4" />
-                  <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
+                  <stop offset="0%" stopColor="#F97316" stopOpacity="0.4" />
+                  <stop offset="100%" stopColor="#F97316" stopOpacity="0" />
                 </radialGradient>
                 <linearGradient id="activeGeofenceGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#059669" stopOpacity="0.25" />
-                  <stop offset="100%" stopColor="#10b981" stopOpacity="0.08" />
+                  <stop offset="0%" stopColor="#EA580C" stopOpacity="0.25" />
+                  <stop offset="100%" stopColor="#F97316" stopOpacity="0.08" />
                 </linearGradient>
               </defs>
 
@@ -354,7 +354,7 @@ export function DeliveryCoverageMap({
               <polygon
                 points="340,430 460,300 620,440 480,560"
                 fill="url(#activeGeofenceGrad)"
-                stroke="#10b981"
+                stroke="#F97316"
                 strokeWidth="3"
                 className="animate-pulse"
               />
@@ -370,12 +370,12 @@ export function DeliveryCoverageMap({
               />
 
               {/* Express Radius Circles from Kitchen Hub (Kuniyamuthur Semmozhi Nagar: ~460, 440) */}
-              <circle cx="460" cy="440" r="90" fill="none" stroke="#10b981" strokeWidth="1" strokeOpacity="0.5" strokeDasharray="4 4" />
-              <circle cx="460" cy="440" r="180" fill="none" stroke="#10b981" strokeWidth="1" strokeOpacity="0.3" strokeDasharray="4 4" />
+              <circle cx="460" cy="440" r="90" fill="none" stroke="#F97316" strokeWidth="1" strokeOpacity="0.5" strokeDasharray="4 4" />
+              <circle cx="460" cy="440" r="180" fill="none" stroke="#F97316" strokeWidth="1" strokeOpacity="0.3" strokeDasharray="4 4" />
               <circle cx="460" cy="440" r="140" fill="url(#hubPulse)" />
 
               {/* Radius Labels */}
-              <text x="460" y="340" fill="#34d399" fontSize="10" fontWeight="bold" textAnchor="middle" opacity="0.7">
+              <text x="460" y="340" fill="#FB923C" fontSize="10" fontWeight="bold" textAnchor="middle" opacity="0.7">
                 CURRENT ACTIVE ZONE (15-20 MINS)
               </text>
               <text x="460" y="245" fill="#9ca3af" fontSize="10" fontWeight="bold" textAnchor="middle" opacity="0.5">
@@ -563,7 +563,7 @@ export function DeliveryCoverageMap({
                     <span>Avg: ~{selectedZone.avgDeliveryMinutes} mins</span>
                   </div>
                   <div className="flex items-center gap-1.5 text-emerald-700 font-bold">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <CheckCircle2 className="w-3.5 h-3.5 text-accent shrink-0" />
                     <span>Free Delivery</span>
                   </div>
                 </div>

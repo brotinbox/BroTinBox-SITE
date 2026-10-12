@@ -130,14 +130,14 @@ export function BottomNav() {
                     className={cn(
                       "relative w-7 h-7 rounded-full overflow-hidden transition-all duration-200 group-hover:scale-105",
                       isActive
-                        ? "ring-2 ring-[#124233] shadow-xs"
+                        ? "ring-2 ring-ink shadow-xs"
                         : "ring-1 ring-white/70 opacity-80 hover:opacity-100"
                     )}
                   >
                     {isLoggedIn ? (
                       <UserAvatar size={28} />
                     ) : (
-                      <span className="w-full h-full flex items-center justify-center bg-white/70 text-[#124233]">
+                      <span className="w-full h-full flex items-center justify-center bg-white/70 text-ink">
                         <UserIcon className="w-4 h-4" />
                       </span>
                     )}
@@ -167,7 +167,7 @@ export function BottomNav() {
                 {isActive && (
                   <motion.span
                     layoutId="liquidGlassSelectedDot"
-                    className="absolute bottom-1 w-1.5 h-1.5 rounded-full bg-[#124233] shadow-[0_0_6px_rgba(18,66,51,0.6)] pointer-events-none"
+                    className="absolute bottom-1 w-1.5 h-1.5 rounded-full bg-ink shadow-[0_0_6px_rgba(18,66,51,0.6)] pointer-events-none"
                     transition={{
                       type: "spring",
                       stiffness: 420,

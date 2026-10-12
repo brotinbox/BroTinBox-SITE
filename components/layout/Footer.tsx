@@ -8,7 +8,7 @@ import { MapPin, Phone, Mail, ShieldCheck, Heart, Instagram, MessageCircle, Twit
 
 export function Footer() {
   return (
-    <footer className="bg-[#052e16] text-white pt-16 pb-28 md:pb-12 border-t border-primary/40">
+    <footer className="bg-ink-deep text-white pt-16 pb-28 md:pb-12 border-t border-primary/40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-white/10">
           {/* Brand Intro */}
@@ -74,7 +74,7 @@ export function Footer() {
               <li>
                 <Link href="/blog" className="hover:text-white transition-colors flex items-center gap-1.5">
                   <span>Nutrition & Health Blog</span>
-                  <span className="text-[10px] font-bold bg-[#899545] text-white px-1.5 py-0.2 rounded-sm">NEW</span>
+                  <span className="text-[10px] font-bold bg-accent text-white px-1.5 py-0.2 rounded-sm">NEW</span>
                 </Link>
               </li>
               <li>

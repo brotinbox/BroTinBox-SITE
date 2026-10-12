@@ -110,7 +110,7 @@ export function PlansTeaser({ plans }: PlansTeaserProps) {
                     </div>
 
                     <div className="mt-1 flex items-center justify-center gap-2 text-xs">
-                      <span className="font-bold text-emerald-700">
+                      <span className="font-bold text-accent">
                         {formatCurrency(perMeal)} / meal
                       </span>
                       <span className="text-gray-400 line-through">
@@ -135,7 +135,7 @@ export function PlansTeaser({ plans }: PlansTeaserProps) {
                   <div className="mt-6 space-y-2.5">
                     {plan.features.slice(0, 5).map((f) => (
                       <div key={f} className="flex items-start gap-2.5 text-xs text-gray-700">
-                        <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                        <Check className="w-4 h-4 text-accent shrink-0 mt-0.5" />
                         <span>{f}</span>
                       </div>
                     ))}
@@ -165,9 +165,9 @@ export function PlansTeaser({ plans }: PlansTeaserProps) {
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4 text-center">
           <Link
             href="/pricing"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-emerald-50 text-xs font-bold text-emerald-800 border border-emerald-200 hover:bg-emerald-100 transition-colors"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-accent-soft text-xs font-bold text-ink border border-accent-muted hover:bg-accent-muted transition-colors"
           >
-            <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+            <Sparkles className="w-3.5 h-3.5 text-accent" />
             <span>View Full Subscription Pricing & Feature Comparison &rarr;</span>
           </Link>
           <Link

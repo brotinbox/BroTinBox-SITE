@@ -60,8 +60,8 @@ export default async function DashboardPage() {
         ))}
 
         {isNew && (
-          <section className="rounded-3xl bg-[#124233] text-white p-5 sm:p-6">
-            <p className="text-[11px] font-extrabold uppercase tracking-wider text-[#C8E88C]">Get started</p>
+          <section className="rounded-3xl bg-ink text-white p-5 sm:p-6">
+            <p className="text-[11px] font-extrabold uppercase tracking-wider text-accent-bright">Get started</p>
             <h2 className="font-heading font-black text-xl sm:text-2xl mt-1">How would you like to start?</h2>
             <p className="text-xs text-white/70 mt-1">Fresh, macro-counted meals delivered across Coimbatore. Pay by UPI in under a minute.</p>
             <div className="grid sm:grid-cols-2 gap-3 mt-4">
@@ -72,40 +72,40 @@ export default async function DashboardPage() {
                 </span>
                 <span className="font-heading font-black text-base">Try a Trial Box</span>
                 <span className="text-xs text-gray-600">One box tomorrow to taste the food first. {inr(pricing.trial[diet])} per meal.</span>
-                <span className="mt-auto inline-flex items-center gap-1 text-xs font-bold text-[#124233]">Order for tomorrow <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" /></span>
+                <span className="mt-auto inline-flex items-center gap-1 text-xs font-bold text-ink">Order for tomorrow <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" /></span>
               </Link>
               <div className="rounded-2xl bg-white text-gray-900 p-4 flex flex-col gap-2">
                 <span className="flex items-center justify-between">
-                  <span className="w-9 h-9 rounded-xl bg-[#E8F1D4] text-[#124233] flex items-center justify-center"><Repeat className="w-4 h-4" /></span>
-                  <span className="text-[10px] font-bold bg-[#E8F1D4] text-[#124233] px-2 py-0.5 rounded-full">Best value</span>
+                  <span className="w-9 h-9 rounded-xl bg-accent-soft text-ink flex items-center justify-center"><Repeat className="w-4 h-4" /></span>
+                  <span className="text-[10px] font-bold bg-accent-soft text-ink px-2 py-0.5 rounded-full">Best value</span>
                 </span>
                 <span className="font-heading font-black text-base">Subscribe &amp; save</span>
                 <span className="text-xs text-gray-600">Meals 6 days a week, from {inr(pricing.monthly[diet])} per meal. Skip or pause any day.</span>
                 <span className="mt-auto grid grid-cols-2 gap-2 pt-1">
-                  <Link href="/weekly" className="text-center px-3 py-2 rounded-xl border border-gray-200 text-xs font-bold hover:border-[#124233]">Weekly</Link>
-                  <Link href="/monthly" className="text-center px-3 py-2 rounded-xl bg-[#124233] text-white text-xs font-bold hover:bg-[#0E3529]">Monthly</Link>
+                  <Link href="/weekly" className="text-center px-3 py-2 rounded-xl border border-gray-200 text-xs font-bold hover:border-ink">Weekly</Link>
+                  <Link href="/monthly" className="text-center px-3 py-2 rounded-xl bg-ink text-white text-xs font-bold hover:bg-ink-soft">Monthly</Link>
                 </span>
               </div>
             </div>
-            <Link href="/pricing" className="inline-block mt-3 text-xs font-bold text-[#C8E88C] hover:underline">Compare all plans →</Link>
+            <Link href="/pricing" className="inline-block mt-3 text-xs font-bold text-accent-bright hover:underline">Compare all plans →</Link>
           </section>
         )}
 
         <ProfileProgress percent={completion.percent} missing={completion.missing} href="/profile#body" />
 
         <div className="grid sm:grid-cols-2 gap-3">
-          <div className="rounded-2xl border border-[#124233]/15 bg-white p-4">
+          <div className="rounded-2xl border border-ink/15 bg-white p-4">
             <p className="text-[11px] font-extrabold uppercase tracking-wider text-gray-500 flex items-center gap-1.5"><Target className="w-3.5 h-3.5" /> Daily targets</p>
             {profile.target_calories ? (
               <p className="font-heading font-black text-xl text-gray-900 mt-1">{profile.target_calories} kcal · {profile.target_protein} g protein</p>
             ) : (
               <Link href="/profile#body" className="block text-sm text-gray-600 mt-1">
-                Add age, height and weight to unlock your personal targets. <span className="font-bold text-[#124233]">Add now →</span>
+                Add age, height and weight to unlock your personal targets. <span className="font-bold text-ink">Add now →</span>
               </Link>
             )}
             <p className="text-xs text-gray-500 mt-0.5 capitalize">Goal: {profile.goal?.replace('-', ' ') ?? '—'}</p>
           </div>
-          <div className="rounded-2xl border border-[#124233]/15 bg-white p-4">
+          <div className="rounded-2xl border border-ink/15 bg-white p-4">
             <p className="text-[11px] font-extrabold uppercase tracking-wider text-gray-500 flex items-center gap-1.5"><CalendarDays className="w-3.5 h-3.5" /> Your plan</p>
             {live.length ? live.map((s) => (
               <Link key={s.id} href="/subscription" className="block mt-1">
@@ -118,7 +118,7 @@ export default async function DashboardPage() {
               <>
                 <p className="text-sm text-gray-600 mt-1">No active plan yet.</p>
                 <div className="flex gap-2 mt-2">
-                  <Link href="/tomorrow" className="px-3 py-1.5 rounded-lg bg-[#124233] text-white text-xs font-bold">Try a day</Link>
+                  <Link href="/tomorrow" className="px-3 py-1.5 rounded-lg bg-ink text-white text-xs font-bold">Try a day</Link>
                   <Link href="/weekly" className="px-3 py-1.5 rounded-lg border border-gray-200 text-xs font-bold">Weekly</Link>
                   <Link href="/monthly" className="px-3 py-1.5 rounded-lg border border-gray-200 text-xs font-bold">Monthly</Link>
                 </div>
@@ -130,7 +130,7 @@ export default async function DashboardPage() {
         {!isNew && <div>
           <div className="flex items-center justify-between pt-2 mb-3">
             <h2 className="font-heading font-black text-lg text-gray-900 flex items-center gap-2"><Flame className="w-5 h-5 text-orange-500" /> Coming up</h2>
-            <Link href="/my-plan" className="text-xs font-bold text-[#124233]">All meals →</Link>
+            <Link href="/my-plan" className="text-xs font-bold text-ink">All meals →</Link>
           </div>
           {upcoming.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-gray-300 p-6 text-center text-sm text-gray-600">
@@ -150,9 +150,9 @@ export default async function DashboardPage() {
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
             <Link
               href="/menu"
-              className="group p-3.5 rounded-2xl bg-white border border-[#124233]/15 hover:border-[#124233] transition-all shadow-2xs hover:shadow-xs flex flex-col justify-between"
+              className="group p-3.5 rounded-2xl bg-white border border-ink/15 hover:border-ink transition-all shadow-2xs hover:shadow-xs flex flex-col justify-between"
             >
-              <div className="w-8 h-8 rounded-xl bg-[#E8F1D4] text-[#124233] flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
+              <div className="w-8 h-8 rounded-xl bg-accent-soft text-ink flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
                 <Utensils className="w-4 h-4" />
               </div>
               <div>
@@ -163,7 +163,7 @@ export default async function DashboardPage() {
 
             <Link
               href="/pricing"
-              className="group p-3.5 rounded-2xl bg-white border border-[#124233]/15 hover:border-[#124233] transition-all shadow-2xs hover:shadow-xs flex flex-col justify-between"
+              className="group p-3.5 rounded-2xl bg-white border border-ink/15 hover:border-ink transition-all shadow-2xs hover:shadow-xs flex flex-col justify-between"
             >
               <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
                 <Sparkles className="w-4 h-4" />
@@ -176,7 +176,7 @@ export default async function DashboardPage() {
 
             <Link
               href="/tomorrow"
-              className="group p-3.5 rounded-2xl bg-white border border-[#124233]/15 hover:border-[#124233] transition-all shadow-2xs hover:shadow-xs flex flex-col justify-between"
+              className="group p-3.5 rounded-2xl bg-white border border-ink/15 hover:border-ink transition-all shadow-2xs hover:shadow-xs flex flex-col justify-between"
             >
               <div className="w-8 h-8 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
                 <CalendarDays className="w-4 h-4" />
@@ -189,7 +189,7 @@ export default async function DashboardPage() {
 
             <Link
               href="/delivery-areas"
-              className="group p-3.5 rounded-2xl bg-white border border-[#124233]/15 hover:border-[#124233] transition-all shadow-2xs hover:shadow-xs flex flex-col justify-between"
+              className="group p-3.5 rounded-2xl bg-white border border-ink/15 hover:border-ink transition-all shadow-2xs hover:shadow-xs flex flex-col justify-between"
             >
               <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
                 <MapPin className="w-4 h-4" />
@@ -202,7 +202,7 @@ export default async function DashboardPage() {
 
             <Link
               href="/blog"
-              className="group p-3.5 rounded-2xl bg-white border border-[#124233]/15 hover:border-[#124233] transition-all shadow-2xs hover:shadow-xs flex flex-col justify-between"
+              className="group p-3.5 rounded-2xl bg-white border border-ink/15 hover:border-ink transition-all shadow-2xs hover:shadow-xs flex flex-col justify-between"
             >
               <div className="w-8 h-8 rounded-xl bg-sky-50 text-sky-700 flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
                 <BookOpen className="w-4 h-4" />
@@ -215,7 +215,7 @@ export default async function DashboardPage() {
 
             <Link
               href="/faq"
-              className="group p-3.5 rounded-2xl bg-white border border-[#124233]/15 hover:border-[#124233] transition-all shadow-2xs hover:shadow-xs flex flex-col justify-between"
+              className="group p-3.5 rounded-2xl bg-white border border-ink/15 hover:border-ink transition-all shadow-2xs hover:shadow-xs flex flex-col justify-between"
             >
               <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
                 <HelpCircle className="w-4 h-4" />
@@ -229,10 +229,10 @@ export default async function DashboardPage() {
         </div>
 
         {/* WhatsApp Nutritionist Support & FSSAI Trust Card */}
-        <div className="rounded-2xl border border-[#124233]/15 bg-gradient-to-br from-[#E8F1D4]/40 to-white p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="rounded-2xl border border-ink/15 bg-gradient-to-br from-accent-soft/40 to-white p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <p className="font-heading font-black text-sm sm:text-base text-gray-900 flex items-center gap-2">
-              <MessageCircle className="w-4 h-4 text-[#124233]" />
+              <MessageCircle className="w-4 h-4 text-ink" />
               Need help with your meals or subscription?
             </p>
             <p className="text-xs text-gray-600">

@@ -68,22 +68,22 @@ export default function MenuBrowserPage() {
   const todayStr = useMemo(() => formatDateToYMD(new Date()), []);
 
   return (
-    <div className="min-h-screen bg-[#FBFDF8] text-[#124233] pt-6 sm:pt-10 pb-24 selection:bg-[#899545]/30 selection:text-[#124233]">
+    <div className="min-h-screen bg-paper text-ink pt-6 sm:pt-10 pb-24 selection:bg-accent/30 selection:text-ink">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Heading: Title on Left, Non-Veg/Veg Toggle on Right */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 sm:mb-10">
           <div>
-            <h1 className="font-heading font-black text-2xl sm:text-3xl lg:text-4xl text-[#124233] tracking-tight">
+            <h1 className="font-heading font-black text-2xl sm:text-3xl lg:text-4xl text-ink tracking-tight">
               Six Dedicated Protein Boxes
             </h1>
-            <p className="text-xs sm:text-sm text-[#124233]/70 font-medium mt-1">
+            <p className="text-xs sm:text-sm text-ink/70 font-medium mt-1">
               Fresh 5-compartment chef rotation weighed to the gram on digital kitchen scales.
             </p>
           </div>
 
           {/* Non-Veg & Veg Pill Switcher */}
           <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
-            <div className="inline-flex items-center p-1 rounded-full bg-white border border-[#124233]/15 shadow-sm shadow-[#124233]/5">
+            <div className="inline-flex items-center p-1 rounded-full bg-white border border-ink/15 shadow-sm shadow-ink/5">
               {/* Non-Veg Button */}
               <button
                 type="button"
@@ -91,8 +91,8 @@ export default function MenuBrowserPage() {
                 className={cn(
                   'flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all tap-active',
                   diet === 'non-veg'
-                    ? 'bg-[#124233] text-white shadow-xs'
-                    : 'text-gray-500 hover:text-[#124233]'
+                    ? 'bg-ink text-white shadow-xs'
+                    : 'text-gray-500 hover:text-ink'
                 )}
               >
                 {/* Brown Triangle */}
@@ -109,8 +109,8 @@ export default function MenuBrowserPage() {
                 className={cn(
                   'flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all tap-active',
                   diet === 'veg'
-                    ? 'bg-[#124233] text-white shadow-xs'
-                    : 'text-gray-500 hover:text-[#124233]'
+                    ? 'bg-ink text-white shadow-xs'
+                    : 'text-gray-500 hover:text-ink'
                 )}
               >
                 {/* Green Dot */}
@@ -142,9 +142,9 @@ export default function MenuBrowserPage() {
         </div>
 
         {/* Natural Homemade Juices Strip */}
-        <div className="mt-14 sm:mt-18 pt-10 border-t border-[#124233]/10">
+        <div className="mt-14 sm:mt-18 pt-10 border-t border-ink/10">
           <div className="mb-6 sm:mb-8">
-            <h2 className="font-heading font-black text-2xl sm:text-3xl text-[#124233] tracking-tight">
+            <h2 className="font-heading font-black text-2xl sm:text-3xl text-ink tracking-tight">
               Natural Homemade Juices
             </h2>
           </div>
@@ -153,7 +153,7 @@ export default function MenuBrowserPage() {
             {addonsData.map((juice) => (
               <div
                 key={juice.id}
-                className="bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 border border-[#124233]/10 shadow-sm shadow-[#124233]/5 hover:shadow-md transition-all flex flex-col justify-between group"
+                className="bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 border border-ink/10 shadow-sm shadow-ink/5 hover:shadow-md transition-all flex flex-col justify-between group"
               >
                 <div className="relative aspect-square w-full rounded-xl sm:rounded-2xl overflow-hidden mb-3 bg-gray-100">
                   <Image
@@ -166,10 +166,10 @@ export default function MenuBrowserPage() {
                 </div>
 
                 <div className="flex items-center justify-between gap-2 pt-1">
-                  <h3 className="font-heading font-bold text-xs sm:text-sm text-[#124233] truncate">
+                  <h3 className="font-heading font-bold text-xs sm:text-sm text-ink truncate">
                     {juice.name}
                   </h3>
-                  <span className="font-heading font-black text-xs sm:text-sm text-[#124233] shrink-0">
+                  <span className="font-heading font-black text-xs sm:text-sm text-ink shrink-0">
                     ₹{juice.price}
                   </span>
                 </div>
@@ -179,9 +179,9 @@ export default function MenuBrowserPage() {
         </div>
 
         {/* Bottom Banner Linking to Weekly Subscription Plan */}
-        <div className="mt-12 sm:mt-16 bg-gradient-to-r from-[#124233] to-[#1e5845] rounded-3xl p-6 sm:p-8 text-white shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div className="mt-12 sm:mt-16 bg-gradient-to-r from-ink to-ink-soft rounded-3xl p-6 sm:p-8 text-white shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="space-y-1 text-center sm:text-left">
-            <div className="flex items-center justify-center sm:justify-start gap-2 text-lime-300 text-xs font-bold uppercase tracking-wider">
+            <div className="flex items-center justify-center sm:justify-start gap-2 text-accent-bright text-xs font-bold uppercase tracking-wider">
               <ShieldCheck className="w-4 h-4" />
               <span>Full 6-Day Routine • Mon to Sat</span>
             </div>

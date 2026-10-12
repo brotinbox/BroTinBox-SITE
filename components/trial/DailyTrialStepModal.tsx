@@ -158,16 +158,16 @@ export function DailyTrialStepModal() {
   return (
     <div
       ref={modalRef}
-      className="w-full max-w-2xl mx-auto bg-white rounded-2xl sm:rounded-[36px] border border-[#124233]/10 shadow-xl sm:shadow-2xl shadow-[#124233]/10 overflow-hidden flex flex-col scroll-mt-20 sm:scroll-mt-6 transition-[min-height] duration-200"
+      className="w-full max-w-2xl mx-auto bg-white rounded-2xl sm:rounded-[36px] border border-ink/10 shadow-xl sm:shadow-2xl shadow-ink/10 overflow-hidden flex flex-col scroll-mt-20 sm:scroll-mt-6 transition-[min-height] duration-200"
     >
       {/* Top Header: Progress Indicator */}
-      <div className="bg-[#FAFDF6] border-b border-[#124233]/10 px-4 sm:px-8 py-3 sm:py-5">
+      <div className="bg-paper border-b border-ink/10 px-4 sm:px-8 py-3 sm:py-5">
         <div className="flex items-center justify-between gap-2 mb-2 sm:mb-3">
           <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-            <span className="font-heading font-black text-xs sm:text-base text-[#124233] truncate">
+            <span className="font-heading font-black text-xs sm:text-base text-ink truncate">
               Single Day Trial
             </span>
-            <span className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider bg-[#899545]/20 text-[#124233] px-2 py-0.5 rounded-full shrink-0">
+            <span className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider bg-accent/20 text-ink px-2 py-0.5 rounded-full shrink-0">
               Step {step}/5
             </span>
           </div>
@@ -189,9 +189,9 @@ export function DailyTrialStepModal() {
               className={cn(
                 'h-1.5 sm:h-2 rounded-full transition-all duration-300',
                 step === s
-                  ? 'bg-[#124233]'
+                  ? 'bg-ink'
                   : step > s
-                  ? 'bg-[#899545]'
+                  ? 'bg-accent'
                   : 'bg-gray-200'
               )}
             />
@@ -208,7 +208,7 @@ export function DailyTrialStepModal() {
         {step === 1 && (
           <div className="space-y-3.5 sm:space-y-5 animate-in fade-in duration-200">
             <div>
-              <h2 className="font-heading font-black text-xl sm:text-3xl text-[#124233]">
+              <h2 className="font-heading font-black text-xl sm:text-3xl text-ink">
                 Choose your diet
               </h2>
               <p className="text-[11px] sm:text-sm text-gray-600 mt-0.5 sm:mt-1">
@@ -224,7 +224,7 @@ export function DailyTrialStepModal() {
                 className={cn(
                   'relative text-left p-4 sm:p-6 rounded-2xl sm:rounded-3xl border-2 transition-all tap-active flex flex-col justify-between active:scale-[0.99]',
                   diet === 'non-veg'
-                    ? 'border-[#124233] bg-[#FAFDF6] ring-2 sm:ring-4 ring-[#124233]/10 shadow-md sm:shadow-lg'
+                    ? 'border-ink bg-paper ring-2 sm:ring-4 ring-ink/10 shadow-md sm:shadow-lg'
                     : 'border-gray-200 hover:border-gray-300 bg-white'
                 )}
               >
@@ -237,7 +237,7 @@ export function DailyTrialStepModal() {
                       className={cn(
                         'w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center transition-colors',
                         diet === 'non-veg'
-                          ? 'border-[#124233] bg-[#124233] text-white'
+                          ? 'border-ink bg-ink text-white'
                           : 'border-gray-300'
                       )}
                     >
@@ -257,7 +257,7 @@ export function DailyTrialStepModal() {
                   <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-emerald-800 bg-emerald-100 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full">
                     ~80g+ Clean Protein
                   </span>
-                  <span className="font-heading font-black text-sm sm:text-base text-[#124233]">
+                  <span className="font-heading font-black text-sm sm:text-base text-ink">
                     ₹{PRICING.trial['non-veg']}
                   </span>
                 </div>
@@ -270,7 +270,7 @@ export function DailyTrialStepModal() {
                 className={cn(
                   'relative text-left p-4 sm:p-6 rounded-2xl sm:rounded-3xl border-2 transition-all tap-active flex flex-col justify-between active:scale-[0.99]',
                   diet === 'veg'
-                    ? 'border-[#124233] bg-[#FAFDF6] ring-2 sm:ring-4 ring-[#124233]/10 shadow-md sm:shadow-lg'
+                    ? 'border-ink bg-paper ring-2 sm:ring-4 ring-ink/10 shadow-md sm:shadow-lg'
                     : 'border-gray-200 hover:border-gray-300 bg-white'
                 )}
               >
@@ -283,7 +283,7 @@ export function DailyTrialStepModal() {
                       className={cn(
                         'w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center transition-colors',
                         diet === 'veg'
-                          ? 'border-[#124233] bg-[#124233] text-white'
+                          ? 'border-ink bg-ink text-white'
                           : 'border-gray-300'
                       )}
                     >
@@ -303,7 +303,7 @@ export function DailyTrialStepModal() {
                   <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-emerald-800 bg-emerald-100 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full">
                     ~45g+ Clean Protein
                   </span>
-                  <span className="font-heading font-black text-sm sm:text-base text-[#124233]">
+                  <span className="font-heading font-black text-sm sm:text-base text-ink">
                     ₹{PRICING.trial.veg}
                   </span>
                 </div>
@@ -316,7 +316,7 @@ export function DailyTrialStepModal() {
         {step === 2 && (
           <div className="space-y-4 sm:space-y-6 animate-in fade-in duration-200">
             <div>
-              <h2 className="font-heading font-black text-xl sm:text-3xl text-[#124233]">
+              <h2 className="font-heading font-black text-xl sm:text-3xl text-ink">
                 When should we deliver?
               </h2>
               <p className="text-[11px] sm:text-sm text-gray-600 mt-0.5 sm:mt-1">
@@ -340,14 +340,14 @@ export function DailyTrialStepModal() {
                       className={cn(
                         'p-2.5 sm:p-4 rounded-xl sm:rounded-2xl border-2 text-center transition-all tap-active flex flex-col justify-center items-center active:scale-[0.98]',
                         isSelected
-                          ? 'border-[#124233] bg-[#124233] text-white shadow-md'
+                          ? 'border-ink bg-ink text-white shadow-md'
                           : 'border-gray-200 bg-white hover:border-gray-300 text-gray-800'
                       )}
                     >
                       <span
                         className={cn(
                           'text-[9px] sm:text-[10px] uppercase font-black block tracking-tight truncate max-w-full',
-                          isSelected ? 'text-[#899545]' : 'text-gray-400'
+                          isSelected ? 'text-accent' : 'text-gray-400'
                         )}
                       >
                         {index === 0 ? 'Earliest' : 'Available'}
@@ -383,8 +383,8 @@ export function DailyTrialStepModal() {
               </div>
 
               {mealsPerDay === 2 && (
-                <div className="p-2.5 sm:p-3 bg-[#FAFDF6] border border-[#124233]/15 rounded-xl sm:rounded-2xl text-[11px] sm:text-xs text-[#124233] flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#899545] shrink-0" />
+                <div className="p-2.5 sm:p-3 bg-paper border border-ink/15 rounded-xl sm:rounded-2xl text-[11px] sm:text-xs text-ink flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-accent shrink-0" />
                   <span>
                     <strong>2 Meals Selected:</strong> Both fresh Morning and fresh Dinner deliveries are included to your doorstep!
                   </span>
@@ -405,7 +405,7 @@ export function DailyTrialStepModal() {
                   className={cn(
                     'p-3 sm:p-4 rounded-xl sm:rounded-2xl border-2 text-left transition-all tap-active flex items-center justify-between active:scale-[0.99]',
                     mealsPerDay === 2 || mealSlot === 'lunch'
-                      ? 'border-[#124233] bg-[#FAFDF6] ring-2 ring-[#124233]/15'
+                      ? 'border-ink bg-paper ring-2 ring-ink/15'
                       : 'border-gray-200 hover:border-gray-300 bg-white'
                   )}
                 >
@@ -431,7 +431,7 @@ export function DailyTrialStepModal() {
                     className={cn(
                       'w-5 h-5 rounded-full border-2 flex items-center justify-center',
                       mealsPerDay === 2 || mealSlot === 'lunch'
-                        ? 'border-[#124233] bg-[#124233] text-white'
+                        ? 'border-ink bg-ink text-white'
                         : 'border-gray-300'
                     )}
                   >
@@ -452,7 +452,7 @@ export function DailyTrialStepModal() {
                   className={cn(
                     'p-3 sm:p-4 rounded-xl sm:rounded-2xl border-2 text-left transition-all tap-active flex items-center justify-between active:scale-[0.99]',
                     mealsPerDay === 2 || mealSlot === 'dinner'
-                      ? 'border-[#124233] bg-[#FAFDF6] ring-2 ring-[#124233]/15'
+                      ? 'border-ink bg-paper ring-2 ring-ink/15'
                       : 'border-gray-200 hover:border-gray-300 bg-white'
                   )}
                 >
@@ -478,7 +478,7 @@ export function DailyTrialStepModal() {
                     className={cn(
                       'w-5 h-5 rounded-full border-2 flex items-center justify-center',
                       mealsPerDay === 2 || mealSlot === 'dinner'
-                        ? 'border-[#124233] bg-[#124233] text-white'
+                        ? 'border-ink bg-ink text-white'
                         : 'border-gray-300'
                     )}
                   >
@@ -500,7 +500,7 @@ export function DailyTrialStepModal() {
                   className={cn(
                     'p-3 sm:p-3.5 rounded-xl sm:rounded-2xl border-2 text-center transition-all tap-active active:scale-[0.99]',
                     mealsPerDay === 1
-                      ? 'border-[#124233] bg-[#FAFDF6] font-bold text-[#124233] ring-2 ring-[#124233]/15'
+                      ? 'border-ink bg-paper font-bold text-ink ring-2 ring-ink/15'
                       : 'border-gray-200 text-gray-600 bg-white hover:border-gray-300'
                   )}
                 >
@@ -514,7 +514,7 @@ export function DailyTrialStepModal() {
                   className={cn(
                     'p-3 sm:p-3.5 rounded-xl sm:rounded-2xl border-2 text-center transition-all tap-active active:scale-[0.99]',
                     mealsPerDay === 2
-                      ? 'border-[#124233] bg-[#FAFDF6] font-bold text-[#124233] ring-2 ring-[#124233]/15'
+                      ? 'border-ink bg-paper font-bold text-ink ring-2 ring-ink/15'
                       : 'border-gray-200 text-gray-600 bg-white hover:border-gray-300'
                   )}
                 >
@@ -552,7 +552,7 @@ export function DailyTrialStepModal() {
             <div className="space-y-3.5 sm:space-y-5 animate-in fade-in duration-200">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2 pb-2.5 sm:pb-3 border-b border-gray-100">
                 <div>
-                  <span className="text-[10px] sm:text-[11px] uppercase font-extrabold text-[#899545]">
+                  <span className="text-[10px] sm:text-[11px] uppercase font-extrabold text-accent">
                     {selectedDayInfo?.dayName} • {diet === 'non-veg' ? 'Non-Veg Protein' : 'Vegetarian Protein'} •{' '}
                     {activeSlotName}
                   </span>
@@ -564,7 +564,7 @@ export function DailyTrialStepModal() {
                   <span className="text-[11px] sm:text-xs text-gray-400 block">
                     {mealsPerDay === 2 ? 'Total (2 Meals Combo)' : 'Single Box Price'}
                   </span>
-                  <span className="font-heading font-black text-xl sm:text-2xl text-[#124233]">
+                  <span className="font-heading font-black text-xl sm:text-2xl text-ink">
                     ₹{mealTotal}
                   </span>
                 </div>
@@ -572,14 +572,14 @@ export function DailyTrialStepModal() {
 
               {/* If 2 meals selected, show Lunch / Dinner tab toggle */}
               {mealsPerDay === 2 && (
-                <div className="flex items-center gap-1.5 sm:gap-2 bg-[#FAFDF6] border border-[#124233]/15 p-1 sm:p-1.5 rounded-xl sm:rounded-2xl">
+                <div className="flex items-center gap-1.5 sm:gap-2 bg-paper border border-ink/15 p-1 sm:p-1.5 rounded-xl sm:rounded-2xl">
                   <button
                     type="button"
                     onClick={() => setInspectedSlot('lunch')}
                     className={cn(
                       'flex-1 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-heading font-bold transition-all tap-active flex items-center justify-center gap-1',
                       inspectedSlot === 'lunch'
-                        ? 'bg-[#124233] text-white shadow-sm'
+                        ? 'bg-ink text-white shadow-sm'
                         : 'text-gray-600 hover:text-gray-900 bg-transparent'
                     )}
                   >
@@ -593,7 +593,7 @@ export function DailyTrialStepModal() {
                     className={cn(
                       'flex-1 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-heading font-bold transition-all tap-active flex items-center justify-center gap-1',
                       inspectedSlot === 'dinner'
-                        ? 'bg-[#124233] text-white shadow-sm'
+                        ? 'bg-ink text-white shadow-sm'
                         : 'text-gray-600 hover:text-gray-900 bg-transparent'
                     )}
                   >
@@ -604,7 +604,7 @@ export function DailyTrialStepModal() {
               )}
 
               {/* Macro Summary Strip */}
-              <div className="grid grid-cols-4 gap-1.5 sm:gap-2 bg-[#FAFDF6] p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl border border-[#124233]/10 text-center">
+              <div className="grid grid-cols-4 gap-1.5 sm:gap-2 bg-paper p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl border border-ink/10 text-center">
                 <div>
                   <span className="text-[9px] sm:text-[10px] text-gray-500 font-bold uppercase block">Calories</span>
                   <span className="font-heading font-black text-xs sm:text-base text-gray-900">
@@ -702,7 +702,7 @@ export function DailyTrialStepModal() {
         {step === 4 && (
           <div className="space-y-4 sm:space-y-5 animate-in fade-in duration-200">
             <div>
-              <h2 className="font-heading font-black text-xl sm:text-3xl text-[#124233]">
+              <h2 className="font-heading font-black text-xl sm:text-3xl text-ink">
                 Delivery Address
               </h2>
               <p className="text-[11px] sm:text-sm text-gray-600 mt-0.5 sm:mt-1">
@@ -731,13 +731,13 @@ export function DailyTrialStepModal() {
                       className={cn(
                         'p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border-2 cursor-pointer transition-all flex items-start justify-between tap-active active:scale-[0.99]',
                         isSelected
-                          ? 'border-[#124233] bg-[#FAFDF6] ring-2 ring-[#124233]/15'
+                          ? 'border-ink bg-paper ring-2 ring-ink/15'
                           : 'border-gray-200 hover:border-gray-300 bg-white'
                       )}
                     >
                       <div>
                         <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                          <span className="font-heading font-bold text-xs sm:text-sm text-[#124233]">
+                          <span className="font-heading font-bold text-xs sm:text-sm text-ink">
                             {addr.tag} ({addr.area})
                           </span>
                           <span className="text-[9px] bg-emerald-100 text-emerald-800 font-extrabold px-1.5 py-0.2 rounded-full uppercase">
@@ -754,7 +754,7 @@ export function DailyTrialStepModal() {
                         className={cn(
                           'w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5',
                           isSelected
-                            ? 'border-[#124233] bg-[#124233] text-white'
+                            ? 'border-ink bg-ink text-white'
                             : 'border-gray-300'
                         )}
                       >
@@ -767,7 +767,7 @@ export function DailyTrialStepModal() {
                 <button
                   type="button"
                   onClick={() => setUseNewAddress(true)}
-                  className="w-full py-2.5 border-2 border-dashed border-gray-300 hover:border-[#124233] rounded-xl sm:rounded-2xl text-xs font-bold text-gray-600 hover:text-[#124233] flex items-center justify-center gap-1.5 transition-colors"
+                  className="w-full py-2.5 border-2 border-dashed border-gray-300 hover:border-ink rounded-xl sm:rounded-2xl text-xs font-bold text-gray-600 hover:text-ink flex items-center justify-center gap-1.5 transition-colors"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Enter New Address Instead</span>
@@ -786,7 +786,7 @@ export function DailyTrialStepModal() {
                     <button
                       type="button"
                       onClick={() => setUseNewAddress(false)}
-                      className="text-xs font-bold text-[#124233] hover:underline"
+                      className="text-xs font-bold text-ink hover:underline"
                     >
                       Use Saved Address
                     </button>
@@ -803,7 +803,7 @@ export function DailyTrialStepModal() {
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       placeholder="Your full name"
-                      className="w-full p-2.5 rounded-xl border border-gray-200 bg-white font-medium text-xs sm:text-sm focus:border-[#124233] focus:outline-none"
+                      className="w-full p-2.5 rounded-xl border border-gray-200 bg-white font-medium text-xs sm:text-sm focus:border-ink focus:outline-none"
                     />
                   </div>
 
@@ -816,7 +816,7 @@ export function DailyTrialStepModal() {
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder="e.g. 9842123456"
-                      className="w-full p-2.5 rounded-xl border border-gray-200 bg-white font-medium text-xs sm:text-sm focus:border-[#124233] focus:outline-none"
+                      className="w-full p-2.5 rounded-xl border border-gray-200 bg-white font-medium text-xs sm:text-sm focus:border-ink focus:outline-none"
                     />
                   </div>
                 </div>
@@ -830,7 +830,7 @@ export function DailyTrialStepModal() {
                     value={flatNumber}
                     onChange={(e) => setFlatNumber(e.target.value)}
                     placeholder="e.g. Flat 4B, Green Acres"
-                    className="w-full p-2.5 rounded-xl border border-gray-200 bg-white font-medium text-xs sm:text-sm focus:border-[#124233] focus:outline-none"
+                    className="w-full p-2.5 rounded-xl border border-gray-200 bg-white font-medium text-xs sm:text-sm focus:border-ink focus:outline-none"
                   />
                 </div>
 
@@ -843,7 +843,7 @@ export function DailyTrialStepModal() {
                     value={street}
                     onChange={(e) => setStreet(e.target.value)}
                     placeholder="e.g. East Sambandam Road, Near Avila Convent"
-                    className="w-full p-2.5 rounded-xl border border-gray-200 bg-white font-medium text-xs sm:text-sm focus:border-[#124233] focus:outline-none"
+                    className="w-full p-2.5 rounded-xl border border-gray-200 bg-white font-medium text-xs sm:text-sm focus:border-ink focus:outline-none"
                   />
                 </div>
 
@@ -857,7 +857,7 @@ export function DailyTrialStepModal() {
                       value={area}
                       onChange={(e) => setArea(e.target.value)}
                       placeholder="e.g. RS Puram / Gandhipuram"
-                      className="w-full p-2.5 rounded-xl border border-gray-200 bg-white font-medium text-xs sm:text-sm focus:border-[#124233] focus:outline-none"
+                      className="w-full p-2.5 rounded-xl border border-gray-200 bg-white font-medium text-xs sm:text-sm focus:border-ink focus:outline-none"
                     />
                   </div>
 
@@ -870,7 +870,7 @@ export function DailyTrialStepModal() {
                       value={pincode}
                       onChange={(e) => setPincode(e.target.value)}
                       placeholder="e.g. 641002"
-                      className="w-full p-2.5 rounded-xl border border-gray-200 bg-white font-medium text-xs sm:text-sm focus:border-[#124233] focus:outline-none"
+                      className="w-full p-2.5 rounded-xl border border-gray-200 bg-white font-medium text-xs sm:text-sm focus:border-ink focus:outline-none"
                     />
                   </div>
                 </div>
@@ -883,7 +883,7 @@ export function DailyTrialStepModal() {
         {step === 5 && (
           <div className="space-y-4 sm:space-y-5 animate-in fade-in duration-200">
             <div>
-              <h2 className="font-heading font-black text-xl sm:text-3xl text-[#124233]">
+              <h2 className="font-heading font-black text-xl sm:text-3xl text-ink">
                 Order Summary & Prepay
               </h2>
               <p className="text-[11px] sm:text-sm text-gray-600 mt-0.5 sm:mt-1">
@@ -892,10 +892,10 @@ export function DailyTrialStepModal() {
             </div>
 
             {/* Bill Details */}
-            <div className="bg-[#FAFDF6] rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-[#124233]/15 space-y-2.5 sm:space-y-3 text-xs">
+            <div className="bg-paper rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-ink/15 space-y-2.5 sm:space-y-3 text-xs">
               <div className="flex justify-between items-start pb-2.5 sm:pb-3 border-b border-gray-200">
                 <div>
-                  <span className="font-heading font-black text-sm sm:text-base text-[#124233] block">
+                  <span className="font-heading font-black text-sm sm:text-base text-ink block">
                     {mealsPerDay === 2
                       ? `${menu.lunch.items.main.name} + ${menu.dinner.items.main.name}`
                       : (mealSlot === 'dinner' ? menu.dinner : menu.lunch).items.main.name}
@@ -905,7 +905,7 @@ export function DailyTrialStepModal() {
                     {mealsPerDay === 2 ? '2 Meals (Morning & Dinner Combo)' : '1 Meal'}
                   </span>
                 </div>
-                <span className="font-heading font-black text-lg sm:text-xl text-[#124233]">
+                <span className="font-heading font-black text-lg sm:text-xl text-ink">
                   ₹{mealTotal}
                 </span>
               </div>
@@ -958,14 +958,14 @@ export function DailyTrialStepModal() {
                   </span>
                   <p className="text-[9px] sm:text-[10px] text-gray-400">All taxes & packaging included</p>
                 </div>
-                <span className="font-heading font-black text-2xl sm:text-3xl text-[#124233]">
+                <span className="font-heading font-black text-2xl sm:text-3xl text-ink">
                   ₹{finalTotal}
                 </span>
               </div>
             </div>
 
             {/* Payment */}
-            <div className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl border border-[#124233]/15 bg-[#FAFDF6] text-[11px] sm:text-xs text-gray-700 flex items-start gap-2">
+            <div className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl border border-ink/15 bg-paper text-[11px] sm:text-xs text-gray-700 flex items-start gap-2">
               <QrCode className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
               <span>Next you&apos;ll see our UPI ID and QR code. Pay from any UPI app (GPay, PhonePe, Paytm) and enter the reference number. We confirm and schedule your box.</span>
             </div>
@@ -988,7 +988,7 @@ export function DailyTrialStepModal() {
       {step === 5 && <OrderTerms className="mx-3 sm:mx-6 mt-2 text-center" />}
 
       {/* Bottom Sticky Action Controls */}
-      <div className="bg-[#FAFDF6] border-t border-[#124233]/10 p-3 sm:p-6 flex items-center justify-between gap-2 sm:gap-3">
+      <div className="bg-paper border-t border-ink/10 p-3 sm:p-6 flex items-center justify-between gap-2 sm:gap-3">
         {step > 1 ? (
           <button
             type="button"
@@ -1011,7 +1011,7 @@ export function DailyTrialStepModal() {
               (step === 4 && !canGoNextFromStep4)
             }
             onClick={() => setStep((s) => (s + 1) as any)}
-            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 sm:gap-2 px-5 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-heading font-black bg-[#124233] text-white hover:bg-[#0c2e23] disabled:opacity-50 disabled:pointer-events-none transition-all tap-active active:scale-[0.98] shadow-md sm:shadow-lg shadow-[#124233]/15"
+            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 sm:gap-2 px-5 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-heading font-black bg-ink text-white hover:bg-ink-soft disabled:opacity-50 disabled:pointer-events-none transition-all tap-active active:scale-[0.98] shadow-md sm:shadow-lg shadow-ink/15"
           >
             <span>
               {step === 1 && 'Next: Choose Date & Time'}
@@ -1026,7 +1026,7 @@ export function DailyTrialStepModal() {
             type="button"
             disabled={isProcessing}
             onClick={handlePay}
-            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 sm:gap-2 px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-heading font-black bg-[#124233] text-white hover:bg-[#0c2e23] disabled:opacity-60 transition-all tap-active active:scale-[0.98] shadow-lg sm:shadow-xl shadow-[#124233]/20"
+            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 sm:gap-2 px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-heading font-black bg-ink text-white hover:bg-ink-soft disabled:opacity-60 transition-all tap-active active:scale-[0.98] shadow-lg sm:shadow-xl shadow-ink/20"
           >
             {isProcessing ? (
               <>

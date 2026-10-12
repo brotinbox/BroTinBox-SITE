@@ -47,6 +47,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
     headline: post.title,
+    url: `${BRAND.siteUrl}/blog/${post.slug}`,
+    mainEntityOfPage: `${BRAND.siteUrl}/blog/${post.slug}`,
     description: post.excerpt,
     image: post.cover_image_url ? [post.cover_image_url] : undefined,
     datePublished: post.published_at,
@@ -56,19 +58,19 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   };
 
   return (
-    <article className="min-h-screen bg-[#FBFDF8] pb-24">
+    <article className="min-h-screen bg-paper pb-24">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
       <ViewCounter slug={post.slug} />
       <div className="max-w-3xl mx-auto px-4 pt-8">
-        <Link href="/blog" className="text-xs font-bold text-[#124233]">← All articles</Link>
+        <Link href="/blog" className="text-xs font-bold text-ink">← All articles</Link>
         <div className="mt-6 flex flex-wrap items-center gap-2">
           {post.blog_categories && (
-            <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#899545]">
+            <span className="text-[11px] font-extrabold uppercase tracking-wider text-accent">
               {post.blog_categories.name}
             </span>
           )}
           {post.macros_highlight && (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#124233]/10 text-[#124233]">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-ink/10 text-ink">
               ⚡ {post.macros_highlight}
             </span>
           )}
@@ -81,7 +83,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         </p>
         {post.cover_image_url && (
           <div className="relative aspect-[16/9] mt-6 rounded-3xl overflow-hidden">
-            <Image src={post.cover_image_url} alt="" fill sizes="(min-width: 768px) 768px, 100vw" className="object-cover" priority />
+            <Image src={post.cover_image_url} alt={post.title} fill sizes="(min-width: 768px) 768px, 100vw" className="object-cover" priority />
           </div>
         )}
         <div className="prose-blog mt-8" dangerouslySetInnerHTML={{ __html: renderMarkdown(post.content) }} />
@@ -95,10 +97,10 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             ))}
           </div>
         )}
-        <div className="mt-12 p-6 rounded-3xl bg-[#124233] text-white text-center">
+        <div className="mt-12 p-6 rounded-3xl bg-ink text-white text-center">
           <p className="font-heading font-black text-xl">Try measured meals for a day</p>
           <p className="text-sm text-white/80 mt-1">Every box weighed, delivered fresh in Coimbatore.</p>
-          <Link href="/tomorrow" className="inline-block mt-4 px-5 py-3 rounded-xl bg-lime-brand text-[#124233] font-black text-sm">Order a trial box</Link>
+          <Link href="/tomorrow" className="inline-block mt-4 px-5 py-3 rounded-xl bg-lime-brand text-ink font-black text-sm">Order a trial box</Link>
         </div>
       </div>
     </article>

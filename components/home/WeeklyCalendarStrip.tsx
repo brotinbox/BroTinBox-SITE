@@ -70,17 +70,17 @@ export function WeeklyCalendarStrip({ boxes, schedule }: WeeklyCalendarStripProp
         {/* Section Heading: Title on Left, Non-Veg/Veg Toggle on Right */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 sm:mb-10">
           <div>
-            <h2 className="font-heading font-black text-2xl sm:text-3xl lg:text-4xl text-[#124233] tracking-tight">
+            <h2 className="font-heading font-black text-2xl sm:text-3xl lg:text-4xl text-ink tracking-tight">
               Six Dedicated Protein Boxes
             </h2>
-            <p className="text-xs sm:text-sm text-[#124233]/70 font-medium mt-1">
+            <p className="text-xs sm:text-sm text-ink/70 font-medium mt-1">
               Fresh 5-compartment chef rotation weighed to the gram on digital kitchen scales.
             </p>
           </div>
 
           {/* Non-Veg & Pure Veg Pill Switcher with crisp SVG FSSAI symbols */}
           <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
-            <div className="p-1 sm:p-1.5 bg-white rounded-full border border-[#124233]/15 shadow-sm inline-flex items-center gap-1">
+            <div className="p-1 sm:p-1.5 bg-white rounded-full border border-ink/15 shadow-sm inline-flex items-center gap-1">
               {/* Non-Veg Button */}
               <button
                 type="button"
@@ -88,8 +88,8 @@ export function WeeklyCalendarStrip({ boxes, schedule }: WeeklyCalendarStripProp
                 className={cn(
                   'flex items-center justify-center gap-2 px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-bold transition-all tap-active whitespace-nowrap',
                   diet === 'non-veg'
-                    ? 'bg-[#124233] text-white shadow-xs'
-                    : 'text-gray-600 hover:text-[#124233]'
+                    ? 'bg-ink text-white shadow-xs'
+                    : 'text-gray-600 hover:text-ink'
                 )}
               >
                 {/* Indian FSSAI Non-Veg Symbol with solid Brown Triangle */}
@@ -107,8 +107,8 @@ export function WeeklyCalendarStrip({ boxes, schedule }: WeeklyCalendarStripProp
                 className={cn(
                   'flex items-center justify-center gap-2 px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-bold transition-all tap-active whitespace-nowrap',
                   diet === 'veg'
-                    ? 'bg-[#124233] text-white shadow-xs'
-                    : 'text-gray-600 hover:text-[#124233]'
+                    ? 'bg-ink text-white shadow-xs'
+                    : 'text-gray-600 hover:text-ink'
                 )}
               >
                 {/* Indian FSSAI Pure Veg Symbol with solid Green Circle */}
@@ -141,9 +141,9 @@ export function WeeklyCalendarStrip({ boxes, schedule }: WeeklyCalendarStripProp
         </div>
 
         {/* Bottom Banner Linking to Weekly Subscription Plan */}
-        <div className="mt-12 sm:mt-16 bg-gradient-to-r from-[#124233] to-[#1e5845] rounded-3xl p-6 sm:p-8 text-white shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div className="mt-12 sm:mt-16 bg-gradient-to-r from-ink to-ink-soft rounded-3xl p-6 sm:p-8 text-white shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="space-y-1 text-center sm:text-left">
-            <div className="flex items-center justify-center sm:justify-start gap-2 text-lime-300 text-xs font-bold uppercase tracking-wider">
+            <div className="flex items-center justify-center sm:justify-start gap-2 text-accent-bright text-xs font-bold uppercase tracking-wider">
               <ShieldCheck className="w-4 h-4" />
               <span>Full 6-Day Routine • Mon to Sat</span>
             </div>

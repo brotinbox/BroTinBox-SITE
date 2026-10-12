@@ -13,7 +13,7 @@ export function MealCard({ meal, showCustomise = false }: { meal: UpcomingMeal; 
   const off = meal.status === 'skipped' || meal.status === 'paused';
   const veg = meal.diet === 'veg';
   return (
-    <div className={cn('rounded-2xl border p-4 bg-white', off ? 'border-gray-200 opacity-70' : 'border-[#124233]/15')}>
+    <div className={cn('rounded-2xl border p-4 bg-white', off ? 'border-gray-200 opacity-70' : 'border-ink/15')}>
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-[11px] font-extrabold uppercase tracking-wider text-gray-500">
@@ -25,7 +25,7 @@ export function MealCard({ meal, showCustomise = false }: { meal: UpcomingMeal; 
           </p>
         </div>
         <span className={cn('shrink-0 text-[11px] font-bold px-2 py-0.5 rounded-full border',
-          off ? 'bg-gray-100 text-gray-600 border-gray-200' : meal.status === 'delivered' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-[#F5F8EC] text-[#124233] border-[#124233]/15')}>
+          off ? 'bg-gray-100 text-gray-600 border-gray-200' : meal.status === 'delivered' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-sand text-ink border-ink/15')}>
           {STATUS_TEXT[meal.status] ?? meal.status}
         </span>
       </div>

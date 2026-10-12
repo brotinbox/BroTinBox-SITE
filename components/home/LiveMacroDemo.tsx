@@ -43,7 +43,7 @@ export function LiveMacroDemo() {
   return (
     <section className="py-12 bg-white border-y border-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-gradient-to-br from-primary-dark via-primary to-[#0f4022] rounded-3xl p-6 sm:p-10 text-white shadow-2xl relative overflow-hidden">
+        <div className="bg-gradient-to-br from-primary-dark via-primary to-ink-deep rounded-3xl p-6 sm:p-10 text-white shadow-2xl relative overflow-hidden">
           {/* Subtle background glow */}
           <div className="absolute -right-20 -bottom-20 w-80 h-80 rounded-full bg-lime-brand/10 blur-3xl pointer-events-none" />
 

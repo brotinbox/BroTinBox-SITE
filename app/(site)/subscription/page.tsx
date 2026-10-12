@@ -30,14 +30,14 @@ export default async function SubscriptionPage() {
         <div className="rounded-2xl border border-dashed border-gray-300 p-8 text-center space-y-3">
           <p className="text-sm text-gray-600">You don&apos;t have a plan yet.</p>
           <div className="flex justify-center gap-2">
-            <Link href="/weekly" className="px-4 py-2 rounded-xl bg-[#124233] text-white text-xs font-bold">Weekly plan</Link>
+            <Link href="/weekly" className="px-4 py-2 rounded-xl bg-ink text-white text-xs font-bold">Weekly plan</Link>
             <Link href="/monthly" className="px-4 py-2 rounded-xl border border-gray-200 text-xs font-bold">Monthly plan</Link>
           </div>
         </div>
       ) : (
         <div className="space-y-4">
           {subs.map((s) => (
-            <section key={s.id} className="rounded-2xl border border-[#124233]/15 bg-white p-5 space-y-4">
+            <section key={s.id} className="rounded-2xl border border-ink/15 bg-white p-5 space-y-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <h2 className="font-heading font-black text-lg text-gray-900 capitalize">{s.plans?.name ?? `${s.type} plan`}</h2>
@@ -46,7 +46,7 @@ export default async function SubscriptionPage() {
                     {(s.preferences as { diet_variation?: string } | null)?.diet_variation === 'mixed' && ' (mixed days)'}
                   </p>
                 </div>
-                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#F5F8EC] text-[#124233] border border-[#124233]/15">{STATUS[s.status] ?? s.status}</span>
+                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-sand text-ink border border-ink/15">{STATUS[s.status] ?? s.status}</span>
               </div>
 
               <dl className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">

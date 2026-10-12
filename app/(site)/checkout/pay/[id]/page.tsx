@@ -52,11 +52,11 @@ export default async function PayPage({ params, searchParams }: { params: Promis
   const waLink = `https://wa.me/${BRAND.whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent(`Hi ${BRAND.name}, I placed order ${order.order_number} (${inr(order.total)}). How do I pay?`)}`;
 
   return (
-    <div className="min-h-screen bg-[#FBFDF8] py-8 px-4">
+    <div className="min-h-screen bg-paper py-8 px-4">
       <div className="max-w-lg mx-auto space-y-4">
         <div className="text-center">
           <p className="text-xs font-bold uppercase tracking-wider text-gray-500">Order {order.order_number}</p>
-          <h1 className="font-heading font-black text-3xl text-[#124233] mt-1">{inr(order.total)}</h1>
+          <h1 className="font-heading font-black text-3xl text-ink mt-1">{inr(order.total)}</h1>
           <p className="text-xs text-gray-500 mt-1 capitalize">{order.type} plan</p>
         </div>
 
@@ -65,7 +65,7 @@ export default async function PayPage({ params, searchParams }: { params: Promis
             <CheckCircle2 className="w-12 h-12 text-emerald-600 mx-auto" />
             <h2 className="font-heading font-black text-xl text-gray-900">Payment confirmed</h2>
             <p className="text-sm text-gray-600">Your meals are scheduled. You can skip or pause days until 9 PM the night before.</p>
-            <Link href="/dashboard" className="inline-block px-5 py-3 rounded-xl bg-[#124233] text-white font-bold text-sm">Go to my dashboard</Link>
+            <Link href="/dashboard" className="inline-block px-5 py-3 rounded-xl bg-ink text-white font-bold text-sm">Go to my dashboard</Link>
           </div>
         )}
 
@@ -118,7 +118,7 @@ export default async function PayPage({ params, searchParams }: { params: Promis
                   <div className="flex justify-between mt-1"><span className="text-gray-500">Note</span><span className="font-mono">{order.order_number}</span></div>
                 </div>
                 {upiLink && (
-                  <a href={upiLink} className="block text-center w-full py-3 rounded-xl border-2 border-[#124233] text-[#124233] font-heading font-black text-sm sm:hidden">
+                  <a href={upiLink} className="block text-center w-full py-3 rounded-xl border-2 border-ink text-ink font-heading font-black text-sm sm:hidden">
                     Open UPI app
                   </a>
                 )}

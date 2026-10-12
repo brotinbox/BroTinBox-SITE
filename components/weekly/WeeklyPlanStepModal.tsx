@@ -220,16 +220,16 @@ export function WeeklyPlanStepModal() {
   return (
     <div
       ref={modalRef}
-      className="w-full max-w-2xl mx-auto bg-white rounded-2xl sm:rounded-[36px] border border-[#124233]/10 shadow-xl sm:shadow-2xl shadow-[#124233]/10 overflow-hidden flex flex-col scroll-mt-20 sm:scroll-mt-6 transition-[min-height] duration-200"
+      className="w-full max-w-2xl mx-auto bg-white rounded-2xl sm:rounded-[36px] border border-ink/10 shadow-xl sm:shadow-2xl shadow-ink/10 overflow-hidden flex flex-col scroll-mt-20 sm:scroll-mt-6 transition-[min-height] duration-200"
     >
       {/* Top Header: Progress Indicator */}
-      <div className="bg-[#FAFDF6] border-b border-[#124233]/10 px-4 sm:px-8 py-3 sm:py-5">
+      <div className="bg-paper border-b border-ink/10 px-4 sm:px-8 py-3 sm:py-5">
         <div className="flex items-center justify-between gap-2 mb-2 sm:mb-3">
           <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-            <span className="font-heading font-black text-xs sm:text-base text-[#124233] truncate">
+            <span className="font-heading font-black text-xs sm:text-base text-ink truncate">
               6-Day Weekly Routine
             </span>
-            <span className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider bg-[#899545]/20 text-[#124233] px-2 py-0.5 rounded-full shrink-0">
+            <span className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider bg-accent/20 text-ink px-2 py-0.5 rounded-full shrink-0">
               Step {step}/5
             </span>
           </div>
@@ -251,9 +251,9 @@ export function WeeklyPlanStepModal() {
               className={cn(
                 'h-1.5 sm:h-2 rounded-full transition-all duration-300',
                 step === s
-                  ? 'bg-[#124233]'
+                  ? 'bg-ink'
                   : step > s
-                  ? 'bg-[#899545]'
+                  ? 'bg-accent'
                   : 'bg-gray-200'
               )}
             />
@@ -270,7 +270,7 @@ export function WeeklyPlanStepModal() {
         {step === 1 && (
           <div className="space-y-3.5 sm:space-y-5 animate-in fade-in duration-200">
             <div>
-              <h2 className="font-heading font-black text-xl sm:text-3xl text-[#124233]">
+              <h2 className="font-heading font-black text-xl sm:text-3xl text-ink">
                 Choose your weekly diet
               </h2>
               <p className="text-[11px] sm:text-sm text-gray-600 mt-0.5 sm:mt-1">
@@ -286,7 +286,7 @@ export function WeeklyPlanStepModal() {
                 className={cn(
                   'p-3.5 sm:p-5 rounded-2xl border-2 text-left transition-all tap-active flex items-start justify-between active:scale-[0.99]',
                   dietVariation === 'non-veg'
-                    ? 'border-[#124233] bg-[#FAFDF6] ring-2 ring-[#124233]/15'
+                    ? 'border-ink bg-paper ring-2 ring-ink/15'
                     : 'border-gray-200 hover:border-gray-300 bg-white'
                 )}
               >
@@ -305,7 +305,7 @@ export function WeeklyPlanStepModal() {
                       <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">
                         ~75g+ Protein / Day
                       </span>
-                      <span className="text-xs font-bold text-[#899545]">
+                      <span className="text-xs font-bold text-accent">
                         from ₹{PRICING.weekly.veg} / day
                       </span>
                     </div>
@@ -316,7 +316,7 @@ export function WeeklyPlanStepModal() {
                   className={cn(
                     'w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center transition-colors shrink-0 mt-1',
                     dietVariation === 'non-veg'
-                      ? 'border-[#124233] bg-[#124233] text-white'
+                      ? 'border-ink bg-ink text-white'
                       : 'border-gray-300'
                   )}
                 >
@@ -331,7 +331,7 @@ export function WeeklyPlanStepModal() {
                 className={cn(
                   'p-3.5 sm:p-5 rounded-2xl border-2 text-left transition-all tap-active flex items-start justify-between active:scale-[0.99]',
                   dietVariation === 'mixed'
-                    ? 'border-[#124233] bg-[#FAFDF6] ring-2 ring-[#124233]/15'
+                    ? 'border-ink bg-paper ring-2 ring-ink/15'
                     : 'border-gray-200 hover:border-gray-300 bg-white'
                 )}
               >
@@ -355,7 +355,7 @@ export function WeeklyPlanStepModal() {
                       <span className="text-[10px] font-extrabold uppercase tracking-wider text-blue-800 bg-blue-100 px-2 py-0.5 rounded-full">
                         ~65g+ Avg Protein
                       </span>
-                      <span className="text-xs font-bold text-[#899545]">
+                      <span className="text-xs font-bold text-accent">
                         ₹279 / day avg
                       </span>
                     </div>
@@ -366,7 +366,7 @@ export function WeeklyPlanStepModal() {
                   className={cn(
                     'w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center transition-colors shrink-0 mt-1',
                     dietVariation === 'mixed'
-                      ? 'border-[#124233] bg-[#124233] text-white'
+                      ? 'border-ink bg-ink text-white'
                       : 'border-gray-300'
                   )}
                 >
@@ -381,7 +381,7 @@ export function WeeklyPlanStepModal() {
                 className={cn(
                   'p-3.5 sm:p-5 rounded-2xl border-2 text-left transition-all tap-active flex items-start justify-between active:scale-[0.99]',
                   dietVariation === 'veg'
-                    ? 'border-[#124233] bg-[#FAFDF6] ring-2 ring-[#124233]/15'
+                    ? 'border-ink bg-paper ring-2 ring-ink/15'
                     : 'border-gray-200 hover:border-gray-300 bg-white'
                 )}
               >
@@ -400,7 +400,7 @@ export function WeeklyPlanStepModal() {
                       <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">
                         ~45g+ Clean Protein
                       </span>
-                      <span className="text-xs font-bold text-[#899545]">
+                      <span className="text-xs font-bold text-accent">
                         ₹259 / day
                       </span>
                     </div>
@@ -411,7 +411,7 @@ export function WeeklyPlanStepModal() {
                   className={cn(
                     'w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center transition-colors shrink-0 mt-1',
                     dietVariation === 'veg'
-                      ? 'border-[#124233] bg-[#124233] text-white'
+                      ? 'border-ink bg-ink text-white'
                       : 'border-gray-300'
                   )}
                 >
@@ -426,7 +426,7 @@ export function WeeklyPlanStepModal() {
         {step === 2 && (
           <div className="space-y-4 sm:space-y-5 animate-in fade-in duration-200">
             <div>
-              <h2 className="font-heading font-black text-xl sm:text-3xl text-[#124233]">
+              <h2 className="font-heading font-black text-xl sm:text-3xl text-ink">
                 Your 6-day schedule
               </h2>
               <p className="text-[11px] sm:text-sm text-gray-600 mt-0.5 sm:mt-1">
@@ -440,7 +440,7 @@ export function WeeklyPlanStepModal() {
                 <label className="text-[11px] sm:text-xs font-bold text-gray-700 uppercase tracking-wider block">
                   Tap to Skip or Include Days
                 </label>
-                <span className="text-xs font-extrabold text-[#124233]">
+                <span className="text-xs font-extrabold text-ink">
                   {pricingCalculations.activeCount} of 6 Days Active
                 </span>
               </div>
@@ -457,7 +457,7 @@ export function WeeklyPlanStepModal() {
                         'p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border-2 text-center transition-all tap-active flex flex-col items-center justify-between min-h-[90px] active:scale-[0.98]',
                         isSkipped
                           ? 'border-dashed border-gray-300 bg-gray-50/70 text-gray-400 opacity-70'
-                          : 'border-[#124233] bg-[#FAFDF6] text-gray-900 shadow-xs'
+                          : 'border-ink bg-paper text-gray-900 shadow-xs'
                       )}
                     >
                       <span className="text-[10px] font-mono text-gray-400 block">
@@ -483,7 +483,7 @@ export function WeeklyPlanStepModal() {
               </div>
 
               {/* Status Banner */}
-              <div className="p-3 rounded-xl bg-[#F5F8EC] border border-[#124233]/10 flex items-center justify-between text-xs text-[#124233]">
+              <div className="p-3 rounded-xl bg-sand border border-ink/10 flex items-center justify-between text-xs text-ink">
                 <span className="font-medium">
                   {pricingCalculations.skippedCount > 0 ? (
                     <>
@@ -512,7 +512,7 @@ export function WeeklyPlanStepModal() {
                   className={cn(
                     'p-3 rounded-xl sm:rounded-2xl border-2 text-left transition-all tap-active flex items-center justify-between',
                     mealsPerDay === 1
-                      ? 'border-[#124233] bg-[#FAFDF6] ring-1 ring-[#124233]/15'
+                      ? 'border-ink bg-paper ring-1 ring-ink/15'
                       : 'border-gray-200 bg-white hover:border-gray-300'
                   )}
                 >
@@ -525,7 +525,7 @@ export function WeeklyPlanStepModal() {
                   <div
                     className={cn(
                       'w-4 h-4 rounded-full border flex items-center justify-center',
-                      mealsPerDay === 1 ? 'border-[#124233] bg-[#124233] text-white' : 'border-gray-300'
+                      mealsPerDay === 1 ? 'border-ink bg-ink text-white' : 'border-gray-300'
                     )}
                   >
                     {mealsPerDay === 1 && <Check className="w-2.5 h-2.5 stroke-[3]" />}
@@ -538,7 +538,7 @@ export function WeeklyPlanStepModal() {
                   className={cn(
                     'p-3 rounded-xl sm:rounded-2xl border-2 text-left transition-all tap-active flex items-center justify-between',
                     mealsPerDay === 2
-                      ? 'border-[#124233] bg-[#FAFDF6] ring-1 ring-[#124233]/15'
+                      ? 'border-ink bg-paper ring-1 ring-ink/15'
                       : 'border-gray-200 bg-white hover:border-gray-300'
                   )}
                 >
@@ -556,7 +556,7 @@ export function WeeklyPlanStepModal() {
                   <div
                     className={cn(
                       'w-4 h-4 rounded-full border flex items-center justify-center',
-                      mealsPerDay === 2 ? 'border-[#124233] bg-[#124233] text-white' : 'border-gray-300'
+                      mealsPerDay === 2 ? 'border-ink bg-ink text-white' : 'border-gray-300'
                     )}
                   >
                     {mealsPerDay === 2 && <Check className="w-2.5 h-2.5 stroke-[3]" />}
@@ -571,7 +571,7 @@ export function WeeklyPlanStepModal() {
         {step === 3 && (
           <div className="space-y-4 animate-in fade-in duration-200">
             <div>
-              <h2 className="font-heading font-black text-xl sm:text-3xl text-[#124233]">
+              <h2 className="font-heading font-black text-xl sm:text-3xl text-ink">
                 Preview your week's boxes
               </h2>
               <p className="text-[11px] sm:text-sm text-gray-600 mt-0.5 sm:mt-1">
@@ -589,7 +589,7 @@ export function WeeklyPlanStepModal() {
                   className={cn(
                     'px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all tap-active flex items-center gap-1',
                     inspectedDayIndex === idx
-                      ? 'bg-[#124233] text-white shadow-xs'
+                      ? 'bg-ink text-white shadow-xs'
                       : day.isSkipped
                       ? 'bg-gray-100 text-gray-400 line-through'
                       : 'bg-white text-gray-700 border border-gray-200 hover:border-gray-300'
@@ -609,10 +609,10 @@ export function WeeklyPlanStepModal() {
 
               return (
                 <div className="space-y-3.5">
-                  <div className="p-3.5 sm:p-4 rounded-2xl bg-[#FAFDF6] border border-[#124233]/15 flex items-center justify-between">
+                  <div className="p-3.5 sm:p-4 rounded-2xl bg-paper border border-ink/15 flex items-center justify-between">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-heading font-black text-sm sm:text-base text-[#124233]">
+                        <span className="font-heading font-black text-sm sm:text-base text-ink">
                           {currentDay.dayName} Box
                         </span>
                         <span className="text-[10px] font-bold text-gray-500">
@@ -660,7 +660,7 @@ export function WeeklyPlanStepModal() {
                             className="p-2.5 rounded-xl bg-white border border-gray-100 flex items-center justify-between"
                           >
                             <div className="flex items-center gap-2">
-                              <span className="w-5 h-5 rounded-md bg-[#899545]/15 text-[#124233] font-bold text-[10px] flex items-center justify-center">
+                              <span className="w-5 h-5 rounded-md bg-accent/15 text-ink font-bold text-[10px] flex items-center justify-center">
                                 {c.num}
                               </span>
                               <div>
@@ -686,7 +686,7 @@ export function WeeklyPlanStepModal() {
         {step === 4 && (
           <div className="space-y-4 sm:space-y-5 animate-in fade-in duration-200">
             <div>
-              <h2 className="font-heading font-black text-xl sm:text-3xl text-[#124233]">
+              <h2 className="font-heading font-black text-xl sm:text-3xl text-ink">
                 Where should we deliver?
               </h2>
               <p className="text-[11px] sm:text-sm text-gray-600 mt-0.5 sm:mt-1">
@@ -704,7 +704,7 @@ export function WeeklyPlanStepModal() {
                   <button
                     type="button"
                     onClick={() => setUseNewAddress(true)}
-                    className="text-xs font-bold text-[#899545] hover:text-[#124233] flex items-center gap-1"
+                    className="text-xs font-bold text-accent hover:text-ink flex items-center gap-1"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>Add New</span>
@@ -721,7 +721,7 @@ export function WeeklyPlanStepModal() {
                         className={cn(
                           'p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border-2 cursor-pointer transition-all flex items-start justify-between tap-active',
                           isSelected
-                            ? 'border-[#124233] bg-[#FAFDF6] ring-2 ring-[#124233]/15'
+                            ? 'border-ink bg-paper ring-2 ring-ink/15'
                             : 'border-gray-200 hover:border-gray-300 bg-white'
                         )}
                       >
@@ -742,7 +742,7 @@ export function WeeklyPlanStepModal() {
                         <div
                           className={cn(
                             'w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5',
-                            isSelected ? 'border-[#124233] bg-[#124233] text-white' : 'border-gray-300'
+                            isSelected ? 'border-ink bg-ink text-white' : 'border-gray-300'
                           )}
                         >
                           {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
@@ -778,7 +778,7 @@ export function WeeklyPlanStepModal() {
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       placeholder="Receiver name"
-                      className="w-full text-xs font-medium bg-[#FAFDF6] border border-gray-200 rounded-xl p-2.5 focus:outline-none focus:ring-1 focus:ring-[#124233]"
+                      className="w-full text-xs font-medium bg-paper border border-gray-200 rounded-xl p-2.5 focus:outline-none focus:ring-1 focus:ring-ink"
                     />
                   </div>
                   <div>
@@ -790,7 +790,7 @@ export function WeeklyPlanStepModal() {
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder="10-digit mobile"
-                      className="w-full text-xs font-medium bg-[#FAFDF6] border border-gray-200 rounded-xl p-2.5 focus:outline-none focus:ring-1 focus:ring-[#124233]"
+                      className="w-full text-xs font-medium bg-paper border border-gray-200 rounded-xl p-2.5 focus:outline-none focus:ring-1 focus:ring-ink"
                     />
                   </div>
                 </div>
@@ -804,7 +804,7 @@ export function WeeklyPlanStepModal() {
                     value={flatNumber}
                     onChange={(e) => setFlatNumber(e.target.value)}
                     placeholder="e.g. 4B, Green Acres Apartment"
-                    className="w-full text-xs font-medium bg-[#FAFDF6] border border-gray-200 rounded-xl p-2.5 focus:outline-none focus:ring-1 focus:ring-[#124233]"
+                    className="w-full text-xs font-medium bg-paper border border-gray-200 rounded-xl p-2.5 focus:outline-none focus:ring-1 focus:ring-ink"
                   />
                 </div>
 
@@ -818,7 +818,7 @@ export function WeeklyPlanStepModal() {
                       value={street}
                       onChange={(e) => setStreet(e.target.value)}
                       placeholder="e.g. Sambandam Road"
-                      className="w-full text-xs font-medium bg-[#FAFDF6] border border-gray-200 rounded-xl p-2.5 focus:outline-none focus:ring-1 focus:ring-[#124233]"
+                      className="w-full text-xs font-medium bg-paper border border-gray-200 rounded-xl p-2.5 focus:outline-none focus:ring-1 focus:ring-ink"
                     />
                   </div>
                   <div>
@@ -830,7 +830,7 @@ export function WeeklyPlanStepModal() {
                       value={area}
                       onChange={(e) => setArea(e.target.value)}
                       placeholder="e.g. RS Puram / Saibaba Colony"
-                      className="w-full text-xs font-medium bg-[#FAFDF6] border border-gray-200 rounded-xl p-2.5 focus:outline-none focus:ring-1 focus:ring-[#124233]"
+                      className="w-full text-xs font-medium bg-paper border border-gray-200 rounded-xl p-2.5 focus:outline-none focus:ring-1 focus:ring-ink"
                     />
                   </div>
                 </div>
@@ -845,7 +845,7 @@ export function WeeklyPlanStepModal() {
                     value={pincode}
                     onChange={(e) => setPincode(e.target.value.replace(/\D/g, ''))}
                     placeholder="641002"
-                    className="w-full text-xs font-mono font-bold bg-[#FAFDF6] border border-gray-200 rounded-xl p-2.5 focus:outline-none focus:ring-1 focus:ring-[#124233]"
+                    className="w-full text-xs font-mono font-bold bg-paper border border-gray-200 rounded-xl p-2.5 focus:outline-none focus:ring-1 focus:ring-ink"
                   />
                     {detectedZone ? (
                       <div className="flex items-center gap-1.5 mt-1 text-[11px] text-emerald-700 font-semibold">
@@ -868,7 +868,7 @@ export function WeeklyPlanStepModal() {
         {step === 5 && (
           <div className="space-y-4 sm:space-y-5 animate-in fade-in duration-200">
             <div>
-              <h2 className="font-heading font-black text-xl sm:text-3xl text-[#124233]">
+              <h2 className="font-heading font-black text-xl sm:text-3xl text-ink">
                 Confirm & start routine
               </h2>
               <p className="text-[11px] sm:text-sm text-gray-600 mt-0.5 sm:mt-1">
@@ -877,10 +877,10 @@ export function WeeklyPlanStepModal() {
             </div>
 
             {/* Plan Breakdown Card */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-[#FAFDF6] border border-[#124233]/15 space-y-3">
+            <div className="p-4 sm:p-5 rounded-2xl bg-paper border border-ink/15 space-y-3">
               <div className="flex items-center justify-between pb-3 border-b border-gray-200/80">
                 <div>
-                  <span className="font-heading font-black text-sm sm:text-base text-[#124233] block">
+                  <span className="font-heading font-black text-sm sm:text-base text-ink block">
                     6-Day Weekly Routine
                   </span>
                   <span className="text-xs text-gray-500">
@@ -916,7 +916,7 @@ export function WeeklyPlanStepModal() {
               <div className="pt-3 border-t border-gray-200/80 flex items-center justify-between">
                 <div>
                   <span className="text-[10px] uppercase font-bold text-gray-500 block">Total Payable</span>
-                  <span className="font-heading font-black text-xl sm:text-2xl text-[#124233]">
+                  <span className="font-heading font-black text-xl sm:text-2xl text-ink">
                     {formatCurrency(pricingCalculations.total)}
                   </span>
                 </div>
@@ -930,7 +930,7 @@ export function WeeklyPlanStepModal() {
             </div>
 
             {/* Payment */}
-            <div className="p-3 rounded-xl border border-[#124233]/15 bg-[#FAFDF6] text-[11px] sm:text-xs text-gray-700 flex items-start gap-2">
+            <div className="p-3 rounded-xl border border-ink/15 bg-paper text-[11px] sm:text-xs text-gray-700 flex items-start gap-2">
               <QrCode className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
               <span>Next you&apos;ll see our UPI ID and QR code. Pay from any UPI app and enter the reference number. We confirm and schedule your week.</span>
             </div>
@@ -947,7 +947,7 @@ export function WeeklyPlanStepModal() {
       {step === 5 && <OrderTerms className="mx-3 sm:mx-6 mt-2 text-center" />}
 
       {/* Bottom Sticky Action Controls */}
-      <div className="bg-[#FAFDF6] border-t border-[#124233]/10 p-3 sm:p-6 flex items-center justify-between gap-2 sm:gap-3">
+      <div className="bg-paper border-t border-ink/10 p-3 sm:p-6 flex items-center justify-between gap-2 sm:gap-3">
         {step > 1 ? (
           <button
             type="button"
@@ -970,7 +970,7 @@ export function WeeklyPlanStepModal() {
               (step === 4 && !canGoNextFromStep4)
             }
             onClick={() => setStep((s) => (s + 1) as any)}
-            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 sm:gap-2 px-5 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-heading font-black bg-[#124233] text-white hover:bg-[#0c2e23] disabled:opacity-50 disabled:pointer-events-none transition-all tap-active active:scale-[0.98] shadow-md sm:shadow-lg shadow-[#124233]/15"
+            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 sm:gap-2 px-5 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-heading font-black bg-ink text-white hover:bg-ink-soft disabled:opacity-50 disabled:pointer-events-none transition-all tap-active active:scale-[0.98] shadow-md sm:shadow-lg shadow-ink/15"
           >
             <span>
               {step === 1 && 'Next: Choose Days & Meals'}
@@ -985,7 +985,7 @@ export function WeeklyPlanStepModal() {
             type="button"
             disabled={isProcessing}
             onClick={handlePay}
-            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 sm:gap-2 px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-heading font-black bg-[#124233] text-white hover:bg-[#0c2e23] disabled:opacity-60 transition-all tap-active active:scale-[0.98] shadow-lg sm:shadow-xl shadow-[#124233]/20"
+            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 sm:gap-2 px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-heading font-black bg-ink text-white hover:bg-ink-soft disabled:opacity-60 transition-all tap-active active:scale-[0.98] shadow-lg sm:shadow-xl shadow-ink/20"
           >
             {isProcessing ? (
               <>
@@ -994,7 +994,7 @@ export function WeeklyPlanStepModal() {
               </>
             ) : (
               <>
-                <Lock className="w-4 h-4 text-[#899545]" />
+                <Lock className="w-4 h-4 text-accent" />
                 <span>Place order · {formatCurrency(pricingCalculations.total)}</span>
               </>
             )}

@@ -7,7 +7,7 @@ import { submitReference, type RefState } from './actions';
 function Submit() {
   const { pending } = useFormStatus();
   return (
-    <button disabled={pending} className="w-full py-3 rounded-xl bg-[#124233] hover:bg-[#0E3529] disabled:opacity-60 text-white font-heading font-black text-sm">
+    <button disabled={pending} className="w-full py-3 rounded-xl bg-ink hover:bg-ink-soft disabled:opacity-60 text-white font-heading font-black text-sm">
       {pending ? 'Sending…' : 'I have paid: send reference'}
     </button>
   );
@@ -29,7 +29,7 @@ export function ReferenceForm({ orderId, existing }: { orderId: string; existing
           pattern="[A-Za-z0-9 ]{6,40}"
           inputMode="text"
           placeholder="e.g. 428917365012"
-          className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm font-mono font-bold focus:bg-white focus:border-[#124233] focus:outline-none"
+          className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm font-mono font-bold focus:bg-white focus:border-ink focus:outline-none"
         />
         <span className="block text-[11px] text-gray-500 mt-1">Find it in your UPI app under the payment details (12 digits for most apps).</span>
       </label>

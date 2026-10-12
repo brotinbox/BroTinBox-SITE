@@ -27,7 +27,8 @@ async function stripAiMetadata(rawBuffer: Buffer): Promise<Buffer> {
 export async function generateAndUploadCoverImage(
   prompt: string,
   slug: string,
-  openAiKey: string
+  openAiKey: string,
+  promptSuffix = 'Natural food photography, authentic South Indian meal, realistic warm morning lighting, top-down perspective, fresh and appetizing, zero artificial styling, no watermarks, no text.'
 ): Promise<string> {
   const r2AccessKey = process.env.CLOUDFLARE_R2_ACCESS_KEY_ID;
   const r2SecretKey = process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY;
@@ -41,23 +42,26 @@ export async function generateAndUploadCoverImage(
   }
 
   const primaryModel = process.env.OPENAI_IMAGE_MODEL || 'gpt-image-2.5-sunburst';
-  const fallbackModel = 'dall-e-3';
+  // OPENAI_IMAGE_FALLBACK_MODEL=none disables the (≈4× pricier) DALL·E retry.
+  const fallbackModel = process.env.OPENAI_IMAGE_FALLBACK_MODEL || 'dall-e-3';
 
   let rawBuffer: Buffer | null = null;
 
   // Try primary model first, fallback to dall-e-3 if endpoint rejects
-  for (const modelToUse of [primaryModel, fallbackModel]) {
+  const models = fallbackModel === 'none' ? [primaryModel] : [primaryModel, fallbackModel];
+  for (const modelToUse of models) {
     try {
       console.log(`🎨 Generating image via OpenAI with model [${modelToUse}] (quality: low)...`);
-      const isSunburst = modelToUse.includes('sunburst');
+      const isGptImage = modelToUse.startsWith('gpt-image');
       
       const payload: Record<string, any> = {
         model: modelToUse,
-        prompt: `${prompt}. Natural food photography, authentic South Indian meal, realistic warm morning lighting, top-down perspective, fresh and appetizing, zero artificial styling, no watermarks, no text.`,
+        prompt: `${prompt}. ${promptSuffix}`,
         n: 1,
-        size: isSunburst ? '1536x1024' : '1024x1024',
-        quality: isSunburst ? 'low' : 'standard',
-        response_format: 'b64_json',
+        size: isGptImage ? '1536x1024' : '1024x1024',
+        quality: isGptImage ? 'low' : 'standard',
+        // gpt-image models always return b64 and reject response_format; only DALL·E takes it.
+        ...(modelToUse.startsWith('dall-e') ? { response_format: 'b64_json' } : {}),
       };
 
       const response = await fetch('https://api.openai.com/v1/images/generations', {
@@ -112,7 +116,8 @@ export async function generateAndUploadCoverImage(
       console.log('☁️  Uploading sanitized WebP cover to Cloudflare R2...');
       const s3Client = new S3Client({
         region: 'auto',
-        endpoint: r2Endpoint,
+        // Account origin only: an endpoint ending in /<bucket> makes the SDK prefix every key with the bucket name.
+        endpoint: new URL(r2Endpoint).origin,
         credentials: {
           accessKeyId: r2AccessKey,
           secretAccessKey: r2SecretKey,

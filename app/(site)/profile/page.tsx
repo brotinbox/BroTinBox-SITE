@@ -12,7 +12,7 @@ import { ageFromDob, profileCompletion } from '@/lib/customer/profile-completion
 export const metadata = { title: 'My profile', robots: { index: false } };
 export const dynamic = 'force-dynamic';
 
-const input = 'w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:bg-white focus:border-[#124233] focus:outline-none';
+const input = 'w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:bg-white focus:border-ink focus:outline-none';
 const label = 'block text-[11px] font-extrabold uppercase tracking-wider text-gray-600 mb-1';
 const Opt = () => <span className="normal-case font-semibold text-gray-400">(optional)</span>;
 
@@ -54,7 +54,7 @@ export default async function ProfilePage() {
               <p className="text-xs text-gray-500 mt-0.5">Add age, height and weight and we&apos;ll work out your daily calorie and protein targets.</p>
             </div>
             {p.target_calories ? (
-              <p className="text-sm font-bold text-[#124233] bg-[#E8F1D4]/60 rounded-xl px-3 py-2">
+              <p className="text-sm font-bold text-ink bg-accent-soft/60 rounded-xl px-3 py-2">
                 Your target: {p.target_calories} kcal · {p.target_protein} g protein · {p.target_carbs} g carbs · {p.target_fat} g fat
               </p>
             ) : null}
@@ -92,7 +92,7 @@ export default async function ProfilePage() {
           <h2 className="font-heading font-bold text-gray-900">Delivery addresses</h2>
           {(addresses ?? []).map((a) => (
             <div key={a.id} className="p-3 rounded-xl border border-gray-100 bg-gray-50/60 text-sm">
-              <p className="font-bold">{a.label}{a.is_default && <span className="ml-2 text-[10px] font-bold text-[#124233]">DEFAULT</span>}{!a.zone_id && <span className="ml-2 text-[10px] font-bold text-amber-700">NOT IN DELIVERY AREA</span>}</p>
+              <p className="font-bold">{a.label}{a.is_default && <span className="ml-2 text-[10px] font-bold text-ink">DEFAULT</span>}{!a.zone_id && <span className="ml-2 text-[10px] font-bold text-amber-700">NOT IN DELIVERY AREA</span>}</p>
               <p className="text-xs text-gray-600">{a.recipient_name} · {a.phone}<br />{a.flat}, {a.street}{a.landmark ? `, ${a.landmark}` : ''}, {a.area} {a.pincode}</p>
               <div className="flex gap-2 mt-2">
                 {!a.is_default && (

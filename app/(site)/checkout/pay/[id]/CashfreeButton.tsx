@@ -41,7 +41,7 @@ export function CashfreeButton({ orderId, amountLabel }: { orderId: string; amou
         type="button"
         onClick={pay}
         disabled={busy}
-        className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-[#124233] hover:bg-[#0E3529] disabled:opacity-60 text-white font-heading font-black text-sm"
+        className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-ink hover:bg-ink-soft disabled:opacity-60 text-white font-heading font-black text-sm"
       >
         {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Lock className="w-4 h-4" />}
         {busy ? 'Opening secure payment…' : `Pay ${amountLabel}`}

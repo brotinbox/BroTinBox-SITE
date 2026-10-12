@@ -113,16 +113,16 @@ export function FinalCtaBand() {
   )}`;
 
   return (
-    <section id="enquiry" className="py-10 sm:py-16 md:py-20 bg-gradient-to-b from-[#124233] via-[#0E3529] to-[#0A261D] text-white relative overflow-hidden">
+    <section id="enquiry" className="py-10 sm:py-16 md:py-20 bg-gradient-to-b from-ink via-ink-soft to-ink-deep text-white relative overflow-hidden">
       {/* Subtle Glow backgrounds */}
-      <div className="absolute top-0 left-1/4 w-[400px] sm:w-[500px] h-[400px] sm:h-[500px] bg-[#899545]/15 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 right-1/4 w-[400px] sm:w-[500px] h-[400px] sm:h-[500px] bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-0 left-1/4 w-[400px] sm:w-[500px] h-[400px] sm:h-[500px] bg-accent/15 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 right-1/4 w-[400px] sm:w-[500px] h-[400px] sm:h-[500px] bg-accent/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 relative z-10">
         {/* Header Section */}
         <div className="text-center max-w-xl mx-auto mb-6 sm:mb-8">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-[#E8F1D4] text-[11px] sm:text-xs font-extrabold uppercase tracking-wider mb-2.5 shadow-xs">
-            <Sparkles className="w-3.5 h-3.5 text-[#E8F1D4]" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-accent-soft text-[11px] sm:text-xs font-extrabold uppercase tracking-wider mb-2.5 shadow-xs">
+            <Sparkles className="w-3.5 h-3.5 text-accent-soft" />
             <span>Coimbatore Meal Subscription</span>
           </div>
 
@@ -139,12 +139,12 @@ export function FinalCtaBand() {
         <div className="bg-white text-gray-900 rounded-2xl sm:rounded-3xl p-4 sm:p-7 md:p-8 shadow-2xl border border-white/20">
           {submitted ? (
             <div className="text-center py-6 sm:py-10 space-y-4 animate-in fade-in zoom-in-95 duration-200">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#E8F1D4] text-[#124233] flex items-center justify-center mx-auto shadow-inner">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-accent-soft text-ink flex items-center justify-center mx-auto shadow-inner">
                 <CheckCircle2 className="w-8 h-8 sm:w-10 sm:h-10 stroke-[2.5]" />
               </div>
 
               <div className="space-y-1.5">
-                <h3 className="font-heading font-black text-xl sm:text-2xl text-[#124233]">
+                <h3 className="font-heading font-black text-xl sm:text-2xl text-ink">
                   Enquiry Received!
                 </h3>
                 <p className="text-xs sm:text-sm text-gray-600 max-w-md mx-auto leading-relaxed">
@@ -152,22 +152,22 @@ export function FinalCtaBand() {
                 </p>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-[#F5F8EC] border border-[#124233]/15 max-w-sm mx-auto text-left text-xs space-y-1.5 text-gray-700">
+              <div className="p-3.5 rounded-xl bg-sand border border-ink/15 max-w-sm mx-auto text-left text-xs space-y-1.5 text-gray-700">
                 <div className="flex justify-between">
                   <span className="text-gray-500">Diet Preference:</span>
-                  <span className="font-bold text-[#124233] uppercase">{diet}</span>
+                  <span className="font-bold text-ink uppercase">{diet}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">Plan:</span>
-                  <span className="font-bold text-[#124233]">{mealPlan}</span>
+                  <span className="font-bold text-ink">{mealPlan}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">Delivery Window:</span>
-                  <span className="font-bold text-[#124233]">{preferredSlot}</span>
+                  <span className="font-bold text-ink">{preferredSlot}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">Area:</span>
-                  <span className="font-bold text-[#124233] truncate max-w-[180px]">{area}</span>
+                  <span className="font-bold text-ink truncate max-w-[180px]">{area}</span>
                 </div>
               </div>
 
@@ -219,7 +219,7 @@ export function FinalCtaBand() {
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="e.g. Karthik Raja"
-                      className="w-full pl-9 pr-3 py-2.5 sm:py-3 rounded-xl border border-gray-200 focus:border-[#124233] focus:ring-2 focus:ring-[#124233]/15 text-xs sm:text-sm font-medium outline-hidden transition-all bg-gray-50/50 hover:bg-white"
+                      className="w-full pl-9 pr-3 py-2.5 sm:py-3 rounded-xl border border-gray-200 focus:border-ink focus:ring-2 focus:ring-ink/15 text-xs sm:text-sm font-medium outline-hidden transition-all bg-gray-50/50 hover:bg-white"
                     />
                   </div>
                 </div>
@@ -241,7 +241,7 @@ export function FinalCtaBand() {
                         value={phone}
                         onChange={(e) => setPhone(e.target.value.replace(/[^0-9]/g, ''))}
                         placeholder="98765 43210"
-                        className="w-full pl-9 pr-3 py-2.5 sm:py-3 rounded-r-xl border border-gray-200 focus:border-[#124233] focus:ring-2 focus:ring-[#124233]/15 text-xs sm:text-sm font-medium outline-hidden transition-all bg-gray-50/50 hover:bg-white font-mono"
+                        className="w-full pl-9 pr-3 py-2.5 sm:py-3 rounded-r-xl border border-gray-200 focus:border-ink focus:ring-2 focus:ring-ink/15 text-xs sm:text-sm font-medium outline-hidden transition-all bg-gray-50/50 hover:bg-white font-mono"
                       />
                     </div>
                   </div>
@@ -261,7 +261,7 @@ export function FinalCtaBand() {
                   <select
                     value={area}
                     onChange={(e) => setArea(e.target.value)}
-                    className="w-full pl-9 pr-8 py-2.5 sm:py-3 rounded-xl border border-gray-200 focus:border-[#124233] focus:ring-2 focus:ring-[#124233]/15 text-xs sm:text-sm font-semibold outline-hidden transition-all bg-gray-50/50 hover:bg-white appearance-none cursor-pointer"
+                    className="w-full pl-9 pr-8 py-2.5 sm:py-3 rounded-xl border border-gray-200 focus:border-ink focus:ring-2 focus:ring-ink/15 text-xs sm:text-sm font-semibold outline-hidden transition-all bg-gray-50/50 hover:bg-white appearance-none cursor-pointer"
                   >
                     {COIMBATORE_AREAS.map((a) => (
                       <option key={a} value={a}>
@@ -282,7 +282,7 @@ export function FinalCtaBand() {
                 {/* Diet Selection */}
                 <div>
                   <label className="block text-[11px] sm:text-xs font-extrabold uppercase tracking-wider text-gray-600 mb-1 flex items-center gap-1">
-                    <UtensilsCrossed className="w-3.5 h-3.5 text-[#899545]" />
+                    <UtensilsCrossed className="w-3.5 h-3.5 text-accent" />
                     <span>Diet Preference</span>
                   </label>
                   <div className="grid grid-cols-3 gap-1.5">
@@ -293,7 +293,7 @@ export function FinalCtaBand() {
                       className={cn(
                         'py-2 px-1 rounded-xl border text-center transition-all tap-active flex flex-col items-center justify-center gap-1 text-[11px] font-bold active:scale-95',
                         diet === 'non-veg'
-                          ? 'border-[#124233] bg-[#124233] text-white shadow-xs'
+                          ? 'border-ink bg-ink text-white shadow-xs'
                           : 'border-gray-200 bg-white hover:border-gray-300 text-gray-700'
                       )}
                     >
@@ -311,7 +311,7 @@ export function FinalCtaBand() {
                       className={cn(
                         'py-2 px-1 rounded-xl border text-center transition-all tap-active flex flex-col items-center justify-center gap-1 text-[11px] font-bold active:scale-95',
                         diet === 'veg'
-                          ? 'border-[#124233] bg-[#124233] text-white shadow-xs'
+                          ? 'border-ink bg-ink text-white shadow-xs'
                           : 'border-gray-200 bg-white hover:border-gray-300 text-gray-700'
                       )}
                     >
@@ -329,7 +329,7 @@ export function FinalCtaBand() {
                       className={cn(
                         'py-2 px-1 rounded-xl border text-center transition-all tap-active flex flex-col items-center justify-center gap-1 text-[11px] font-bold active:scale-95',
                         diet === 'mixed'
-                          ? 'border-[#124233] bg-[#899545] text-white shadow-xs'
+                          ? 'border-ink bg-accent text-white shadow-xs'
                           : 'border-gray-200 bg-white hover:border-gray-300 text-gray-700'
                       )}
                     >
@@ -342,7 +342,7 @@ export function FinalCtaBand() {
                 {/* Plan Selection */}
                 <div>
                   <label className="block text-[11px] sm:text-xs font-extrabold uppercase tracking-wider text-gray-600 mb-1 flex items-center gap-1">
-                    <Package className="w-3.5 h-3.5 text-[#899545]" />
+                    <Package className="w-3.5 h-3.5 text-accent" />
                     <span>Interested Plan</span>
                   </label>
                   <div className="grid grid-cols-3 gap-1.5">
@@ -356,7 +356,7 @@ export function FinalCtaBand() {
                           className={cn(
                             'py-2.5 px-1 rounded-xl border text-center transition-all tap-active flex flex-col items-center justify-center text-[11px] font-bold active:scale-95 leading-tight',
                             isSelected
-                              ? 'border-[#124233] bg-[#124233] text-white shadow-xs'
+                              ? 'border-ink bg-ink text-white shadow-xs'
                               : 'border-gray-200 bg-white hover:border-gray-300 text-gray-700'
                           )}
                         >
@@ -371,7 +371,7 @@ export function FinalCtaBand() {
               {/* 4. Preferred Delivery Window - Mobile Optimized 3-Column Touch Buttons */}
               <div>
                 <label className="block text-[11px] sm:text-xs font-extrabold uppercase tracking-wider text-gray-600 mb-1 flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5 text-[#899545]" />
+                  <Clock className="w-3.5 h-3.5 text-accent" />
                   <span>Delivery Window (Coimbatore Fresh Dispatch)</span>
                 </label>
                 <div className="grid grid-cols-3 gap-1.5">
@@ -385,7 +385,7 @@ export function FinalCtaBand() {
                         className={cn(
                           'py-2 px-1.5 rounded-xl border text-center transition-all tap-active flex flex-col items-center justify-center gap-0.5 active:scale-95',
                           isSelected
-                            ? 'border-[#124233] bg-[#F5F8EC] text-[#124233] shadow-xs ring-1 ring-[#124233]/20 font-bold'
+                            ? 'border-ink bg-sand text-ink shadow-xs ring-1 ring-ink/20 font-bold'
                             : 'border-gray-200 bg-white hover:border-gray-300 text-gray-700 font-semibold'
                         )}
                       >
@@ -413,7 +413,7 @@ export function FinalCtaBand() {
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
                   placeholder="e.g. Need high calorie for bulking, allergic to peanuts..."
-                  className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-[#124233] focus:ring-2 focus:ring-[#124233]/15 text-xs sm:text-sm font-medium outline-hidden transition-all bg-gray-50/50 hover:bg-white resize-none"
+                  className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-ink focus:ring-2 focus:ring-ink/15 text-xs sm:text-sm font-medium outline-hidden transition-all bg-gray-50/50 hover:bg-white resize-none"
                 />
               </div>
 
@@ -422,7 +422,7 @@ export function FinalCtaBand() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3.5 sm:py-4 px-4 rounded-xl sm:rounded-2xl font-heading font-black text-sm sm:text-base bg-[#124233] hover:bg-[#0E3529] disabled:bg-gray-400 text-white flex items-center justify-center gap-2 transition-all tap-active shadow-lg shadow-[#124233]/20 active:scale-[0.99] cursor-pointer"
+                  className="w-full py-3.5 sm:py-4 px-4 rounded-xl sm:rounded-2xl font-heading font-black text-sm sm:text-base bg-ink hover:bg-ink-soft disabled:bg-gray-400 text-white flex items-center justify-center gap-2 transition-all tap-active shadow-lg shadow-ink/20 active:scale-[0.99] cursor-pointer"
                 >
                   {loading ? (
                     <>
@@ -441,15 +441,15 @@ export function FinalCtaBand() {
               {/* Trust Badges - Tight and legible */}
               <div className="pt-2.5 border-t border-gray-100 flex items-center justify-center gap-3 sm:gap-6 text-[10.5px] text-gray-500 font-semibold flex-wrap">
                 <span className="flex items-center gap-1">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <ShieldCheck className="w-3.5 h-3.5 text-accent shrink-0" />
                   <span>100% Privacy</span>
                 </span>
                 <span className="flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-accent shrink-0" />
                   <span>Clinical Review</span>
                 </span>
                 <span className="flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <Clock className="w-3.5 h-3.5 text-accent shrink-0" />
                   <span>15-Min Callback</span>
                 </span>
               </div>

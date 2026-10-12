@@ -76,17 +76,17 @@ export function LocationSelector({ variant = 'desktop', className }: LocationSel
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center gap-2 text-[#124233] tap-active -ml-1 p-1 rounded-xl text-left"
+          className="flex items-center gap-2 text-ink tap-active -ml-1 p-1 rounded-xl text-left"
         >
-          <div className="w-8 h-8 rounded-full bg-[#124233]/10 flex items-center justify-center shrink-0">
-            <MapPin className="w-4 h-4 text-[#124233]" />
+          <div className="w-8 h-8 rounded-full bg-ink/10 flex items-center justify-center shrink-0">
+            <MapPin className="w-4 h-4 text-ink" />
           </div>
           <div className="leading-tight">
-            <div className="flex items-center gap-1 font-heading font-black text-sm text-[#124233]">
+            <div className="flex items-center gap-1 font-heading font-black text-sm text-ink">
               <span className="truncate max-w-[160px] sm:max-w-[200px]">{displayArea}</span>
               <ChevronDown
                 className={cn(
-                  "w-3.5 h-3.5 text-[#124233]/70 transition-transform duration-200",
+                  "w-3.5 h-3.5 text-ink/70 transition-transform duration-200",
                   isOpen && "rotate-180"
                 )}
               />
@@ -105,15 +105,15 @@ export function LocationSelector({ variant = 'desktop', className }: LocationSel
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-white/85 hover:bg-white text-xs sm:text-sm font-bold text-[#124233] transition-all border border-[#124233]/10 shadow-xs hover:shadow-sm"
+        className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-white hover:bg-sand/70 text-sm font-semibold text-ink transition-colors border border-ink/10"
       >
-        <MapPin className="w-4 h-4 text-[#899545] shrink-0" />
+        <MapPin className="w-4 h-4 text-accent shrink-0" />
         <span className="truncate max-w-[160px] sm:max-w-[200px]">
           {displayArea}, {displayPincode}
         </span>
         <ChevronDown
           className={cn(
-            "w-3.5 h-3.5 text-[#124233]/70 shrink-0 transition-transform duration-200",
+            "w-3.5 h-3.5 text-ink/70 shrink-0 transition-transform duration-200",
             isOpen && "rotate-180"
           )}
         />
@@ -138,8 +138,8 @@ export function LocationSelector({ variant = 'desktop', className }: LocationSel
           )}
         >
           {/* Header */}
-          <div className="px-4 pt-4 pb-3 border-b border-gray-100 bg-[#F5F8EC]/50">
-            <h4 className="font-heading font-black text-sm text-[#124233]">
+          <div className="px-4 pt-4 pb-3 border-b border-gray-100 bg-sand/50">
+            <h4 className="font-heading font-black text-sm text-ink">
               Select Delivery Location
             </h4>
             <p className="text-[11px] text-gray-500 mt-0.5">
@@ -154,7 +154,7 @@ export function LocationSelector({ variant = 'desktop', className }: LocationSel
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search area or pincode (e.g. RS Puram, 641002)"
-                className="w-full pl-8 pr-3 py-1.5 rounded-xl border border-gray-200 text-xs text-gray-800 placeholder-gray-400 bg-white focus:outline-none focus:border-[#124233]"
+                className="w-full pl-8 pr-3 py-1.5 rounded-xl border border-gray-200 text-xs text-gray-800 placeholder-gray-400 bg-white focus:outline-none focus:border-ink"
               />
             </div>
           </div>
@@ -174,7 +174,7 @@ export function LocationSelector({ variant = 'desktop', className }: LocationSel
                   className={cn(
                     "w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left transition-colors",
                     isSelected
-                      ? "bg-[#F5F8EC] text-[#124233] font-bold"
+                      ? "bg-sand text-ink font-bold"
                       : "hover:bg-gray-50 text-gray-700"
                   )}
                 >
@@ -182,7 +182,7 @@ export function LocationSelector({ variant = 'desktop', className }: LocationSel
                     <MapPin
                       className={cn(
                         "w-3.5 h-3.5 shrink-0",
-                        isSelected ? "text-[#899545]" : "text-gray-400"
+                        isSelected ? "text-accent" : "text-gray-400"
                       )}
                     />
                     <span className="font-semibold text-gray-900">{zone.area}</span>
@@ -190,7 +190,7 @@ export function LocationSelector({ variant = 'desktop', className }: LocationSel
                       ({zone.pincode})
                     </span>
                   </div>
-                  {isSelected && <Check className="w-4 h-4 text-[#124233] stroke-[3]" />}
+                  {isSelected && <Check className="w-4 h-4 text-ink stroke-[3]" />}
                 </button>
               );
             })}
@@ -213,8 +213,8 @@ export function LocationSelector({ variant = 'desktop', className }: LocationSel
           </div>
 
           {/* Bottom WhatsApp / Call Order Assistance */}
-          <div className="p-3.5 bg-[#F5F8EC] border-t border-[#124233]/10">
-            <p className="text-[11px] font-bold text-[#124233] mb-2">
+          <div className="p-3.5 bg-sand border-t border-ink/10">
+            <p className="text-[11px] font-bold text-ink mb-2">
               Don&apos;t see your area? Tell us your area &amp; pincode and we&apos;ll reach out.
             </p>
             <div className="grid grid-cols-2 gap-2">
@@ -233,7 +233,7 @@ export function LocationSelector({ variant = 'desktop', className }: LocationSel
               </a>
               <a
                 href={`tel:${BRAND.whatsappNumber}`}
-                className="flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl bg-[#124233] hover:bg-[#0E3529] active:scale-[0.98] text-white font-bold text-[11px] sm:text-xs whitespace-nowrap transition-all shadow-2xs"
+                className="flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl bg-ink hover:bg-ink-soft active:scale-[0.98] text-white font-bold text-[11px] sm:text-xs whitespace-nowrap transition-all shadow-2xs"
               >
                 <Phone className="w-3.5 h-3.5 shrink-0" />
                 <span>Call Kitchen</span>

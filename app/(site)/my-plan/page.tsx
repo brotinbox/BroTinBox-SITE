@@ -20,7 +20,7 @@ export default async function MyMealsPage() {
         <div className="rounded-2xl border border-dashed border-gray-300 p-8 text-center space-y-3">
           <p className="text-sm text-gray-600">No upcoming meals.</p>
           <div className="flex justify-center gap-2">
-            <Link href="/tomorrow" className="px-4 py-2 rounded-xl bg-[#124233] text-white text-xs font-bold">Try a day</Link>
+            <Link href="/tomorrow" className="px-4 py-2 rounded-xl bg-ink text-white text-xs font-bold">Try a day</Link>
             <Link href="/weekly" className="px-4 py-2 rounded-xl border border-gray-200 text-xs font-bold">Weekly plan</Link>
           </div>
         </div>

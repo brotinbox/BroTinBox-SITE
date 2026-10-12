@@ -11,7 +11,7 @@ function Submit() {
     <button
       type="submit"
       disabled={pending}
-      className="w-full py-3 rounded-xl bg-[#0E3529] hover:bg-[#124233] disabled:opacity-60 text-white font-heading font-black text-sm transition-colors"
+      className="w-full py-3 rounded-xl bg-ink-soft hover:bg-ink disabled:opacity-60 text-white font-heading font-black text-sm transition-colors"
     >
       {pending ? 'Signing in…' : 'Sign in'}
     </button>
@@ -32,7 +32,7 @@ export function LoginForm() {
             required
             maxLength={254}
             autoComplete="username"
-            className="w-full rounded-xl border border-gray-200 pl-9 pr-3 py-2.5 text-sm focus:outline-none focus:border-[#0E3529] focus:ring-2 focus:ring-[#0E3529]/15"
+            className="w-full rounded-xl border border-gray-200 pl-9 pr-3 py-2.5 text-sm focus:outline-none focus:border-ink-soft focus:ring-2 focus:ring-ink-soft/15"
           />
         </div>
       </label>
@@ -47,7 +47,7 @@ export function LoginForm() {
             minLength={8}
             maxLength={128}
             autoComplete="current-password"
-            className="w-full rounded-xl border border-gray-200 pl-9 pr-3 py-2.5 text-sm focus:outline-none focus:border-[#0E3529] focus:ring-2 focus:ring-[#0E3529]/15"
+            className="w-full rounded-xl border border-gray-200 pl-9 pr-3 py-2.5 text-sm focus:outline-none focus:border-ink-soft focus:ring-2 focus:ring-ink-soft/15"
           />
         </div>
       </label>

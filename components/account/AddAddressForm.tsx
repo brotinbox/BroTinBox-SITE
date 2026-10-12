@@ -18,7 +18,7 @@ export function AddAddressForm() {
   const [busy, setBusy] = useState(false);
 
   if (!open) {
-    return <button onClick={() => setOpen(true)} className="text-xs font-bold text-[#124233]">+ Add address</button>;
+    return <button onClick={() => setOpen(true)} className="text-xs font-bold text-ink">+ Add address</button>;
   }
 
   async function submit(e: React.FormEvent) {
@@ -43,7 +43,7 @@ export function AddAddressForm() {
           <input key={k} placeholder={label} maxLength={max} value={v[k] ?? ''}
             inputMode={k === 'phone' || k === 'pincode' ? 'numeric' : undefined}
             onChange={(e) => setV({ ...v, [k]: k === 'phone' || k === 'pincode' ? e.target.value.replace(/\D/g, '') : e.target.value })}
-            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:bg-white focus:border-[#124233] focus:outline-none" />
+            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:bg-white focus:border-ink focus:outline-none" />
         ))}
       </div>
       <label className="flex items-center gap-2 text-xs text-gray-700">
@@ -51,7 +51,7 @@ export function AddAddressForm() {
       </label>
       {msg && <p className={msg.ok ? 'text-xs font-semibold text-emerald-700' : 'text-xs font-semibold text-rose-700'}>{msg.text}</p>}
       <div className="flex gap-2">
-        <button disabled={busy} className="px-4 py-2 rounded-xl bg-[#124233] text-white text-xs font-bold disabled:opacity-60">{busy ? 'Saving…' : 'Save address'}</button>
+        <button disabled={busy} className="px-4 py-2 rounded-xl bg-ink text-white text-xs font-bold disabled:opacity-60">{busy ? 'Saving…' : 'Save address'}</button>
         <button type="button" onClick={() => setOpen(false)} className="px-4 py-2 rounded-xl border border-gray-200 text-xs font-bold">Cancel</button>
       </div>
     </form>

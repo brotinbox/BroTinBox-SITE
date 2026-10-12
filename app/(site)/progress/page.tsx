@@ -47,7 +47,7 @@ export default async function ProgressPage() {
             <div className="flex items-end gap-1 h-36" role="img" aria-label="Weight over time">
               {series.map((l) => (
                 <div key={l.log_date} className="flex-1 flex flex-col justify-end group relative">
-                  <div className="bg-[#124233]/80 rounded-t" style={{ height: `${((Number(l.weight_kg) - min) / (max - min)) * 100}%` }} />
+                  <div className="bg-ink/80 rounded-t" style={{ height: `${((Number(l.weight_kg) - min) / (max - min)) * 100}%` }} />
                   <span className="pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 hidden group-hover:block whitespace-nowrap bg-gray-900 text-white text-[10px] px-2 py-0.5 rounded">{dateLabel(l.log_date)} · {l.weight_kg} kg</span>
                 </div>
               ))}

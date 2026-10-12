@@ -85,7 +85,7 @@ const FOUR_PLANS_DATA: CardItem[] = [
     description:
       'Our most popular routine. 6 different protein meals from Monday to Saturday. Never repeat dishes, skip with one tap.',
     priceNote: '₹1,532 / week • Free Delivery',
-    bgColor: 'bg-[#143E2B]', // Deep Forest Green
+    bgColor: 'bg-[#3A1A0D]', // Deep Forest Green
     accentColor: 'text-emerald-300',
     image: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?auto=format&fit=crop&w=800&q=80',
     recommendedBoxes: [
@@ -188,7 +188,7 @@ const FOUR_PEOPLE_DATA: CardItem[] = [
     description:
       'Heavy strength training, crossfit, or sports conditioning. Double chicken cuts, boiled farm eggs, and clean carbs.',
     priceNote: '~720 kcal • 60g+ High Protein',
-    bgColor: 'bg-[#143E2B]',
+    bgColor: 'bg-[#3A1A0D]',
     accentColor: 'text-emerald-300',
     image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80',
     recommendedBoxes: [
@@ -300,7 +300,7 @@ export function HeroAndPillarsTransition() {
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-[220vh] sm:h-[240vh] bg-[#FAFAF5]"
+      className="relative w-full h-[220vh] sm:h-[240vh] bg-paper"
     >
       {/* Pinned Sticky Stage */}
       <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-between">
@@ -311,7 +311,7 @@ export function HeroAndPillarsTransition() {
         >
           {/* Section Header */}
           <div className="flex flex-col items-center text-center max-w-2xl mx-auto shrink-0 mb-3 sm:mb-4">
-            <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-[#14532D]/80 mb-1 bg-primary/10 px-3 py-0.5 rounded-full">
+            <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-ink/80 mb-1 bg-primary/10 px-3 py-0.5 rounded-full">
               Choose Your Fit
             </span>
 
@@ -413,7 +413,7 @@ export function HeroAndPillarsTransition() {
                             card.id === 'per-day'
                               ? 'text-[#182338]'
                               : card.id === 'per-week'
-                              ? 'text-[#143E2B]'
+                              ? 'text-[#3A1A0D]'
                               : card.id === 'per-month'
                               ? 'text-[#2E1A33]'
                               : 'text-[#18181B]'
@@ -427,7 +427,7 @@ export function HeroAndPillarsTransition() {
 
                         {/* Circular Action Button nested in the notch */}
                         <div className="relative w-12 h-12 flex items-end justify-end p-1">
-                          <div className="w-9 h-9 rounded-full bg-[#0F172A] text-white flex items-center justify-center shadow-lg group-hover:bg-[#14532D] transition-all transform group-hover:scale-110">
+                          <div className="w-9 h-9 rounded-full bg-[#0F172A] text-white flex items-center justify-center shadow-lg group-hover:bg-ink transition-all transform group-hover:scale-110">
                             <ArrowUpRight className="w-4 h-4 stroke-[2.5]" />
                           </div>
                         </div>
@@ -444,7 +444,7 @@ export function HeroAndPillarsTransition() {
         {/* On scroll: Shrinks to width of middle 2 cards, translates down, and sits half-shown at bottom */}
         <div
           onClick={handleHeroTrayClick}
-          className={`absolute z-20 bg-gradient-to-b from-[#EDF7F1] via-[#E1F1E6] to-[#D4EADC] text-[#14532D] flex flex-col justify-between py-4 sm:py-6 select-none border border-[#C8E4D3] shadow-[0_25px_70px_rgba(0,0,0,0.35)] origin-bottom ${
+          className={`absolute z-20 bg-gradient-to-b from-sand via-sand to-sand-deep text-ink flex flex-col justify-between py-4 sm:py-6 select-none border border-sand-deep shadow-[0_25px_70px_rgba(0,0,0,0.35)] origin-bottom ${
             scrollProgress > 0.3 ? 'cursor-pointer' : ''
           }`}
           style={{
@@ -465,7 +465,7 @@ export function HeroAndPillarsTransition() {
           <div className="w-full max-w-7xl mx-auto px-4 sm:px-8 flex items-center justify-between z-30 shrink-0">
             {/* Left symmetrical spacer / city badge */}
             <div className="w-10 sm:w-11 shrink-0 flex items-center">
-              <span className="hidden sm:inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-[#14532D]/75 bg-white/40 backdrop-blur-xs px-2.5 py-1 rounded-full border border-[#14532D]/15">
+              <span className="hidden sm:inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-ink/75 bg-white/40 backdrop-blur-xs px-2.5 py-1 rounded-full border border-ink/15">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
                 Coimbatore
               </span>
@@ -503,22 +503,22 @@ export function HeroAndPillarsTransition() {
               <div className="animate-marquee-slow-loop flex items-center">
                 {marqueeItems.map((idx) => (
                   <div key={`group1-${idx}`} className="flex items-center shrink-0">
-                    <span className="font-heading font-black text-[#14532D] uppercase tracking-tight text-5xl sm:text-7xl md:text-8xl lg:text-[135px] xl:text-[150px] leading-none whitespace-nowrap">
+                    <span className="font-heading font-black text-ink uppercase tracking-tight text-5xl sm:text-7xl md:text-8xl lg:text-[135px] xl:text-[150px] leading-none whitespace-nowrap">
                       YOUR DAILY PROTEIN. SORTED.
                     </span>
                     <span className="mx-6 sm:mx-10 lg:mx-16 inline-flex items-center justify-center shrink-0">
-                      <span className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 rounded-full bg-[#14532D] shadow-xs inline-block" />
+                      <span className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 rounded-full bg-ink shadow-xs inline-block" />
                     </span>
                   </div>
                 ))}
 
                 {marqueeItems.map((idx) => (
                   <div key={`group2-${idx}`} className="flex items-center shrink-0">
-                    <span className="font-heading font-black text-[#14532D] uppercase tracking-tight text-5xl sm:text-7xl md:text-8xl lg:text-[135px] xl:text-[150px] leading-none whitespace-nowrap">
+                    <span className="font-heading font-black text-ink uppercase tracking-tight text-5xl sm:text-7xl md:text-8xl lg:text-[135px] xl:text-[150px] leading-none whitespace-nowrap">
                       YOUR DAILY PROTEIN. SORTED.
                     </span>
                     <span className="mx-6 sm:mx-10 lg:mx-16 inline-flex items-center justify-center shrink-0">
-                      <span className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 rounded-full bg-[#14532D] shadow-xs inline-block" />
+                      <span className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 rounded-full bg-ink shadow-xs inline-block" />
                     </span>
                   </div>
                 ))}
@@ -545,7 +545,7 @@ export function HeroAndPillarsTransition() {
             style={{ opacity: Math.max(0, 1 - scrollProgress * 3.5) }}
           >
             <div className="text-center space-y-3 max-w-xl mx-auto">
-              <p className="text-xs sm:text-sm text-[#14532D]/85 font-medium leading-relaxed">
+              <p className="text-xs sm:text-sm text-ink/85 font-medium leading-relaxed">
                 Fresh homestyle meals cooked every morning in Coimbatore
                 <br className="hidden sm:inline" /> digitally weighed for exact calories and protein.
               </p>
@@ -553,7 +553,7 @@ export function HeroAndPillarsTransition() {
               <div>
                 <Link
                   href="/plans"
-                  className="inline-block border-2 border-[#14532D] hover:bg-[#14532D] text-[#14532D] hover:text-white px-6 sm:px-8 py-2 rounded-none text-xs sm:text-sm font-bold tracking-[0.25em] uppercase transition-all shadow-sm bg-white/40 backdrop-blur-xs"
+                  className="inline-block border-2 border-ink hover:bg-ink text-ink hover:text-white px-6 sm:px-8 py-2 rounded-none text-xs sm:text-sm font-bold tracking-[0.25em] uppercase transition-all shadow-sm bg-white/40 backdrop-blur-xs"
                 >
                   STARTING FROM ₹269 / DAY
                 </Link>
@@ -561,8 +561,8 @@ export function HeroAndPillarsTransition() {
             </div>
 
             {/* Bottom Corner Anchors */}
-            <div className="flex items-center justify-between pt-4 sm:pt-6 text-xs text-[#14532D]/60 tracking-wider">
-              <span className="font-mono text-[11px] sm:text-xs tracking-widest text-[#14532D]/70 flex items-center gap-1">
+            <div className="flex items-center justify-between pt-4 sm:pt-6 text-xs text-ink/60 tracking-wider">
+              <span className="font-mono text-[11px] sm:text-xs tracking-widest text-ink/70 flex items-center gap-1">
                 <span>(Scroll)</span>
                 <ChevronDown className="w-3.5 h-3.5 animate-bounce" />
               </span>
@@ -570,10 +570,10 @@ export function HeroAndPillarsTransition() {
               <div className="flex items-center gap-2">
                 <Link
                   href="/menu"
-                  className="inline-flex items-center gap-2 border border-[#14532D]/30 hover:border-[#14532D] bg-white/70 hover:bg-white text-[#14532D] px-3.5 py-1.5 rounded-sm text-xs font-semibold tracking-wide transition-all shadow-xs"
+                  className="inline-flex items-center gap-2 border border-ink/30 hover:border-ink bg-white/70 hover:bg-white text-ink px-3.5 py-1.5 rounded-sm text-xs font-semibold tracking-wide transition-all shadow-xs"
                 >
                   <span>Our Menu</span>
-                  <span className="text-[#14532D] font-mono text-[10px]">⸬</span>
+                  <span className="text-ink font-mono text-[10px]">⸬</span>
                 </Link>
               </div>
             </div>

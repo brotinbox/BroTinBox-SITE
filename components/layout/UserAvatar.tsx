@@ -21,7 +21,7 @@ export function UserAvatar({ size = 36, className }: { size?: number; className?
 
   return (
     <span
-      className={cn('relative inline-flex items-center justify-center rounded-full overflow-hidden bg-[#124233] text-white font-heading font-black select-none shrink-0', className)}
+      className={cn('relative inline-flex items-center justify-center rounded-full overflow-hidden bg-ink text-white font-heading font-black select-none shrink-0', className)}
       style={{ width: size, height: size, fontSize: Math.max(10, Math.round(size * 0.38)) }}
       aria-hidden="true"
     >

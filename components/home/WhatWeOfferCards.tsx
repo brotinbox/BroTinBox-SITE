@@ -49,7 +49,7 @@ const OFFERS: OfferCard[] = [
     description:
       'No guessing your diet. Every portion is weighed on a digital kitchen scale before packing. Exact grams of protein, carbs, fat & calories printed on the lid.',
     highlight: 'Real Grams • Kitchen Scales',
-    bgColor: 'bg-[#143E2B]', // Deep Forest Green like Reference
+    bgColor: 'bg-[#3A1A0D]', // Deep Forest Green like Reference
     accentColor: 'text-emerald-300',
     textColor: 'text-white',
     image: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?auto=format&fit=crop&w=800&q=80',
@@ -95,7 +95,7 @@ const OFFERS: OfferCard[] = [
 
 export function WhatWeOfferCards() {
   return (
-    <section className="py-16 sm:py-20 md:py-24 bg-[#FAFAF5] text-gray-900 border-b border-gray-100">
+    <section className="py-16 sm:py-20 md:py-24 bg-paper text-gray-900 border-b border-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Simple Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">

@@ -26,7 +26,7 @@ export function Btn({ children, variant = 'primary', confirm, pendingText = '…
 }) {
   const { pending } = useFormStatus();
   const styles = {
-    primary: 'bg-[#124233] text-white hover:bg-[#0E3529]',
+    primary: 'bg-ink text-white hover:bg-ink-soft',
     ghost: 'bg-white border border-gray-200 text-gray-800 hover:bg-gray-50',
     danger: 'bg-white border border-rose-200 text-rose-700 hover:bg-rose-50',
   };

@@ -75,14 +75,14 @@ export function AdminSidebar({ base, groups, userName, roleLabel, logoutAction }
   return (
     <>
       {/* Mobile top bar */}
-      <div className="lg:hidden sticky top-0 z-30 flex items-center justify-between px-4 h-14 bg-[#0E3529] text-white">
+      <div className="lg:hidden sticky top-0 z-30 flex items-center justify-between px-4 h-14 bg-ink-soft text-white">
         <span className="font-heading font-black">BroTin Box · Console</span>
         <button onClick={() => setOpen(true)} aria-label="Open menu" className="p-2 -mr-2"><Menu className="w-5 h-5" /></button>
       </div>
       {open && (
         <div className="lg:hidden fixed inset-0 z-40">
           <div className="absolute inset-0 bg-black/50" onClick={() => setOpen(false)} />
-          <aside className="absolute left-0 top-0 bottom-0 w-72 bg-[#0E3529] p-4 overflow-y-auto flex flex-col justify-between">
+          <aside className="absolute left-0 top-0 bottom-0 w-72 bg-ink-soft p-4 overflow-y-auto flex flex-col justify-between">
             <div>
               <div className="flex justify-end mb-2">
                 <button onClick={() => setOpen(false)} aria-label="Close menu" className="p-2 text-white"><X className="w-5 h-5" /></button>
@@ -94,7 +94,7 @@ export function AdminSidebar({ base, groups, userName, roleLabel, logoutAction }
         </div>
       )}
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex fixed inset-y-0 left-0 w-64 bg-[#0E3529] p-4 flex-col justify-between overflow-y-auto">
+      <aside className="hidden lg:flex fixed inset-y-0 left-0 w-64 bg-ink-soft p-4 flex-col justify-between overflow-y-auto">
         <div>
           <div className="px-3 mb-6">
             <p className="font-heading font-black text-white text-lg leading-tight">BroTin Box</p>

@@ -17,7 +17,7 @@ export function DrinksStrip({ addons }: DrinksStripProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 text-emerald-800 font-extrabold text-xs uppercase tracking-wider mb-2">
+            <div className="inline-flex items-center gap-2 text-ink font-extrabold text-xs uppercase tracking-wider mb-2">
               <GlassWater className="w-4 h-4" />
               <span>100% Cold-Pressed • Zero Refined Sugar</span>
             </div>
@@ -52,7 +52,7 @@ export function DrinksStrip({ addons }: DrinksStripProps) {
                     fill
                     className="object-cover"
                   />
-                  <span className="absolute top-3 left-3 bg-emerald-600 text-white text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full shadow-md">
+                  <span className="absolute top-3 left-3 bg-ink text-white text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full shadow-md">
                     {drink.volume}
                   </span>
                 </div>

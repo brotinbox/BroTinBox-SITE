@@ -70,16 +70,16 @@ export function AuthSidebar() {
       <div className="relative w-full max-w-md bg-white h-full shadow-2xl z-10 flex flex-col justify-between overflow-y-auto animate-in slide-in-from-right duration-300">
         <div>
           {/* Header */}
-          <div className="p-5 sm:p-6 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-[#124233] to-[#0E3529] text-white">
+          <div className="p-5 sm:p-6 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-ink to-ink-soft text-white">
             <div className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center border border-white/15">
-                <Lock className="w-4 h-4 text-[#E8F1D4]" />
+                <Lock className="w-4 h-4 text-accent-soft" />
               </div>
               <div>
                 <h3 className="font-heading font-black text-base tracking-tight leading-tight">
                   {isLoggedIn ? 'Your BroTin Box Account' : 'Sign In'}
                 </h3>
-                <p className="text-[11px] text-[#E8F1D4]/80">
+                <p className="text-[11px] text-accent-soft/80">
                   Coimbatore Daily Macro Meals
                 </p>
               </div>
@@ -100,12 +100,12 @@ export function AuthSidebar() {
             {isLoggedIn ? (
               /* Already Logged In State */
               <div className="space-y-5 animate-in fade-in">
-                <div className="p-4 rounded-2xl bg-[#F5F8EC] border border-[#124233]/15 flex items-center gap-3.5">
-                  <div className="w-12 h-12 rounded-full bg-[#124233] text-white flex items-center justify-center font-heading font-black text-lg">
+                <div className="p-4 rounded-2xl bg-sand border border-ink/15 flex items-center gap-3.5">
+                  <div className="w-12 h-12 rounded-full bg-ink text-white flex items-center justify-center font-heading font-black text-lg">
                     {user?.fullName?.charAt(0)?.toUpperCase() || 'U'}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-heading font-bold text-sm text-[#124233] truncate">
+                    <h4 className="font-heading font-bold text-sm text-ink truncate">
                       {user?.fullName || user?.email || 'Your account'}
                     </h4>
                     <p className="text-xs text-gray-600 font-mono truncate">
@@ -121,7 +121,7 @@ export function AuthSidebar() {
                     className="w-full flex items-center justify-between p-3.5 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-800 text-xs sm:text-sm font-bold transition-all group"
                   >
                     <div className="flex items-center gap-2.5">
-                      <User className="w-4 h-4 text-[#124233]" />
+                      <User className="w-4 h-4 text-ink" />
                       <span>Member Dashboard & Meals</span>
                     </div>
                     <ChevronRight className="w-4 h-4 text-gray-400 group-hover:translate-x-0.5 transition-transform" />
@@ -133,7 +133,7 @@ export function AuthSidebar() {
                     className="w-full flex items-center justify-between p-3.5 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-800 text-xs sm:text-sm font-bold transition-all group"
                   >
                     <div className="flex items-center gap-2.5">
-                      <Sparkles className="w-4 h-4 text-[#899545]" />
+                      <Sparkles className="w-4 h-4 text-accent" />
                       <span>Track Active Orders & History</span>
                     </div>
                     <ChevronRight className="w-4 h-4 text-gray-400 group-hover:translate-x-0.5 transition-transform" />
@@ -145,7 +145,7 @@ export function AuthSidebar() {
                     className="w-full flex items-center justify-between p-3.5 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-800 text-xs sm:text-sm font-bold transition-all group"
                   >
                     <div className="flex items-center gap-2.5">
-                      <RotateCcw className="w-4 h-4 text-[#124233]" />
+                      <RotateCcw className="w-4 h-4 text-ink" />
                       <span>Meal Swaps & Pause Calendar</span>
                     </div>
                     <ChevronRight className="w-4 h-4 text-gray-400 group-hover:translate-x-0.5 transition-transform" />
@@ -167,8 +167,8 @@ export function AuthSidebar() {
             ) : (
               <div className="space-y-4 animate-in fade-in">
                 <div>
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#F5F8EC] text-[#124233] text-[10px] font-extrabold uppercase tracking-wider mb-2">
-                    <Sparkles className="w-3 h-3 text-[#899545]" />
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-sand text-ink text-[10px] font-extrabold uppercase tracking-wider mb-2">
+                    <Sparkles className="w-3 h-3 text-accent" />
                     <span>One-tap sign in</span>
                   </div>
                   <h4 className="font-heading font-black text-lg text-gray-900 leading-tight">
