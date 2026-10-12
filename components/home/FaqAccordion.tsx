@@ -2,12 +2,13 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import faqsData from '@/data/faqs.json';
+import { useFaqs } from '@/components/providers/CatalogProvider';
 import { ChevronDown, HelpCircle, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function FaqAccordion() {
-  const [openId, setOpenId] = useState<string | null>(faqsData[0]?.id || null);
+  const faqsData = useFaqs();
+  const [openId, setOpenId] = useState<string | null>(null);
 
   const toggle = (id: string) => {
     setOpenId(openId === id ? null : id);

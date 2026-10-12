@@ -1,95 +1,116 @@
+'use client';
+
 import React from 'react';
-import Image from 'next/image';
-import { Scale, HeartHandshake, ShieldCheck, Flame, Clock, Stethoscope } from 'lucide-react';
+import { Scale, UtensilsCrossed, Sparkles, Clock, Quote, CheckCircle2 } from 'lucide-react';
+import { BRAND } from '@/config/brand';
 
 export function WhyUsSection() {
   const points = [
     {
       icon: Scale,
-      title: 'Real Measured Macros',
-      description: 'We do not guess nutrition. Raw ingredients are measured on digital commercial scales, ensuring protein and calorie counts you can rely on.',
+      title: 'Digitally Weighed Portions',
+      description: 'We never guess macros. Every ingredient is measured on digital commercial scales before cooking, so your protein and calories are accurate to the gram.',
     },
     {
-      icon: HeartHandshake,
-      title: 'Kongu Home-Style Flavours',
-      description: 'Zero bland boiled food. We cook using hand-pounded shallots, black pepper, moringa leaves, and cold-pressed sesame oil. Tastes like home.',
+      icon: UtensilsCrossed,
+      title: 'Home-Style Kongu Flavours',
+      description: 'Zero bland boiled meals. Cooked fresh with shallots, black pepper, moringa, and cold-pressed sesame oil—familiar comfort food that tastes like home.',
     },
     {
-      icon: Stethoscope,
-      title: 'Pharmacist-Designed Formulations',
-      description: 'Founded with clinical pharmaceutical backing. Every recipe is balanced for low glycemic index, gentle digestion, and cardiovascular protection.',
+      icon: Sparkles,
+      title: 'Designed for Steady Energy',
+      description: 'Formulated by clinical health professionals for light digestion and sustained fullness—no afternoon sluggishness, food comas, or heavy bloating.',
     },
     {
       icon: Clock,
-      title: 'Punctual Coimbatore Delivery',
-      description: 'Hot delivery to offices and homes in RS Puram, Race Course, Peelamedu, Gandhipuram, Saravanampatti, and surrounding suburbs.',
+      title: 'Fresh & Punctual Delivery',
+      description: 'Cooked fresh twice daily and delivered hot to your doorstep or office desk across Coimbatore, right on time for your lunch or dinner window.',
     },
   ];
 
   return (
-    <section className="py-16 bg-white border-y border-gray-100">
+    <section className="py-16 sm:py-20 bg-white border-y border-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          {/* Left: Founder Note & Clinical Philosophy */}
-          <div className="lg:col-span-5 bg-gradient-to-br from-primary-dark via-primary to-[#063318] text-white p-8 sm:p-10 rounded-3xl shadow-xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-6 opacity-10">
-              <Scale className="w-32 h-32" />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-stretch">
+          {/* Left: Founder Note */}
+          <div className="lg:col-span-5 bg-gradient-to-br from-[#0c2e23] via-[#124233] to-[#07241b] text-white p-7 sm:p-10 rounded-3xl shadow-xl relative overflow-hidden flex flex-col justify-between">
+            {/* Background Accent */}
+            <div className="absolute top-0 right-0 p-6 opacity-10 pointer-events-none">
+              <Quote className="w-28 h-28 text-white rotate-180" />
             </div>
 
-            <div className="flex items-center gap-2 text-lime-brand text-xs font-bold uppercase tracking-wider mb-4">
-              <Stethoscope className="w-3.5 h-3.5" />
-              <span>Founder & Clinical Note</span>
+            <div>
+              <div className="inline-flex items-center gap-2 text-[#E2ECBA] text-xs font-bold uppercase tracking-wider mb-4 px-3 py-1 rounded-full bg-white/10 backdrop-blur-xs">
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#899545]" />
+                <span>Founder's Note</span>
+              </div>
+
+              <h3 className="font-heading font-black text-2xl sm:text-3xl text-white leading-snug tracking-tight">
+                "Diet food fails when you can't stick to it for 6 months."
+              </h3>
+
+              <div className="space-y-3.5 mt-5 text-sm text-gray-200/90 leading-relaxed font-normal">
+                <p>
+                  Most health diets fail because they are impossible to maintain. You shouldn't have to punish yourself with bland, boiled food or wonder how many calories were actually in your meal.
+                </p>
+                <p>
+                  We started {BRAND.name} to give Coimbatore clean, honest food: the comfort of rasam, millets, country chicken, and fresh paneer—with every single gram of protein and calorie clearly measured on your box.
+                </p>
+              </div>
             </div>
 
-            <h3 className="font-heading font-black text-2xl sm:text-3xl text-white leading-snug">
-              "Diet food fails when you can't stick to it for 6 months."
-            </h3>
-
-            <p className="text-sm text-gray-200 mt-4 leading-relaxed">
-              As a healthcare professional in Coimbatore, I saw hundreds of people struggle with diabetes, fatty liver, and gym plateaus. People tried crash diets, bland boiled broccoli, or restaurant food masquerading as healthy.
-            </p>
-
-            <p className="text-sm text-gray-200 mt-3 leading-relaxed">
-              We started MuscleGrow to give Coimbatore honest food: the comfort of rasam, millets, Chettinad spices, and country chicken, but with every gram of protein and calorie measured on the label.
-            </p>
-
+            {/* Founder Signature Card */}
             <div className="pt-6 mt-6 border-t border-white/15 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-white/20 border-2 border-lime-brand flex items-center justify-center font-heading font-black text-lg text-lime-brand">
+              <div className="w-12 h-12 rounded-2xl bg-white/15 border border-[#E2ECBA]/30 flex items-center justify-center font-heading font-black text-base text-[#E2ECBA] shrink-0 shadow-inner">
                 DR
               </div>
-              <div>
-                <p className="font-heading font-bold text-base text-white">Dr. Vigneshwaran K.</p>
-                <p className="text-xs text-lime-brand font-medium">Pharm.D • Founder & Clinical Nutritionist</p>
-                <p className="text-[11px] text-gray-400">Coimbatore Central Kitchen</p>
+              <div className="min-w-0">
+                <p className="font-heading font-bold text-base text-white truncate">
+                  Dr. Vigneshwaran K.
+                </p>
+                <p className="text-xs text-[#E2ECBA] font-semibold">
+                  Pharm.D • Founder & Clinical Nutritionist
+                </p>
+                <p className="text-[11px] text-gray-400 mt-0.5">
+                  Coimbatore Central Kitchen
+                </p>
               </div>
             </div>
           </div>
 
-          {/* Right: 4 Pillar Points */}
-          <div className="lg:col-span-7 space-y-6">
-            <div className="mb-6">
-              <span className="text-xs font-extrabold uppercase tracking-wider text-primary">
+          {/* Right: 4 Clean Value Pillars */}
+          <div className="lg:col-span-7 flex flex-col justify-center space-y-6">
+            <div>
+              <span className="text-xs font-black uppercase tracking-wider text-[#899545]">
                 Why Choose Us
               </span>
-              <h2 className="font-heading font-black text-3xl sm:text-4xl text-gray-900 mt-2">
-                Nutrition you can see, taste you can enjoy
+              <h2 className="font-heading font-black text-2xl sm:text-4xl text-gray-900 mt-1 tracking-tight">
+                Nutrition you can track. Food you enjoy.
               </h2>
+              <p className="text-xs sm:text-sm text-gray-500 mt-2">
+                Simple, honest, and scientifically balanced meals crafted for everyday life in Coimbatore.
+              </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 pt-2">
               {points.map((p) => {
                 const Icon = p.icon;
                 return (
-                  <div key={p.title} className="p-5 rounded-2xl bg-background border border-gray-100 hover:border-primary/30 transition-all">
-                    <div className="w-10 h-10 rounded-xl bg-primary text-lime-brand flex items-center justify-center mb-3">
-                      <Icon className="w-5 h-5" />
+                  <div
+                    key={p.title}
+                    className="p-5 sm:p-6 rounded-2xl bg-[#FBFDF8] border border-gray-200/80 hover:border-[#124233]/30 hover:shadow-md transition-all duration-200 flex flex-col justify-between"
+                  >
+                    <div>
+                      <div className="w-10 h-10 rounded-xl bg-[#124233] text-[#E2ECBA] flex items-center justify-center mb-3 shadow-2xs">
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      <h4 className="font-heading font-bold text-base text-gray-900 tracking-tight">
+                        {p.title}
+                      </h4>
+                      <p className="text-xs text-gray-600 mt-2 leading-relaxed">
+                        {p.description}
+                      </p>
                     </div>
-                    <h4 className="font-heading font-bold text-base text-gray-900">
-                      {p.title}
-                    </h4>
-                    <p className="text-xs text-gray-600 mt-1.5 leading-relaxed">
-                      {p.description}
-                    </p>
                   </div>
                 );
               })}

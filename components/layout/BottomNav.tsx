@@ -7,11 +7,13 @@ import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useAppStore } from '@/store/useAppStore';
 import { cn } from '@/lib/utils';
+import { UserAvatar } from '@/components/layout/UserAvatar';
+import { User as UserIcon } from 'lucide-react';
 
 function getActiveTabId(pathname: string, isDrawerOpen: boolean): string {
   if (isDrawerOpen) return 'account';
-  if (pathname === '/tomorrow' || pathname === '/box' || pathname === '/menu') return 'trial';
-  if (pathname === '/weekly' || pathname === '/monthly' || pathname === '/plans' || pathname === '/build-plan' || pathname === '/my-plan') return 'plans';
+  if (pathname === '/menu' || pathname === '/tomorrow' || pathname === '/box') return 'menu';
+  if (pathname === '/pricing' || pathname === '/weekly' || pathname === '/monthly' || pathname === '/plans') return 'pricing';
   if (pathname === '/profile' || pathname === '/dashboard' || pathname === '/orders' || pathname === '/progress' || pathname === '/login') return 'account';
   return 'home';
 }
@@ -19,7 +21,7 @@ function getActiveTabId(pathname: string, isDrawerOpen: boolean): string {
 export function BottomNav() {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
-  const { setNavDrawerOpen, isNavDrawerOpen } = useAppStore();
+  const { setNavDrawerOpen, isNavDrawerOpen, isDetailsModalOpen, isLoggedIn, setAuthDrawerOpen } = useAppStore();
   const [activeTabId, setActiveTabId] = useState<string>(() => getActiveTabId(pathname, isNavDrawerOpen));
 
   useEffect(() => {
@@ -40,35 +42,36 @@ export function BottomNav() {
   const tabs = [
     {
       id: 'home',
-      ariaLabel: 'Gramwise Home',
+      ariaLabel: 'BroTin Box Home',
       href: '/',
       imageSrc: '/logo.png',
-      imageAlt: 'Gramwise Logo',
+      imageAlt: 'BroTin Box Logo',
       imageSize: 'w-8 h-6',
     },
     {
-      id: 'trial',
-      ariaLabel: 'Tomorrow Trial Box',
-      href: '/tomorrow',
+      id: 'menu',
+      ariaLabel: 'Weekly Menu',
+      href: '/menu',
       imageSrc: '/icons/icons8-fork-100.png',
-      imageAlt: 'Trial Fork Icon',
+      imageAlt: 'Menu Icon',
       imageSize: 'w-6 h-6',
     },
     {
-      id: 'plans',
-      ariaLabel: 'Weekly & Monthly Plans',
-      href: '/weekly',
+      id: 'pricing',
+      ariaLabel: 'Pricing Plans',
+      href: '/pricing',
       imageSrc: '/icons/icons8-calender-100.png',
-      imageAlt: 'Calendar Plans Icon',
+      imageAlt: 'Pricing Plans Icon',
       imageSize: 'w-6 h-6',
     },
     {
       id: 'account',
-      ariaLabel: 'Profile & Account',
+      ariaLabel: isLoggedIn ? 'Your account' : 'Sign in',
       isProfileAvatar: true,
       onClick: () => {
         setActiveTabId('account');
-        setNavDrawerOpen(true);
+        if (isLoggedIn) setNavDrawerOpen(true);
+        else setAuthDrawerOpen(true);
       },
     },
   ];
@@ -77,7 +80,7 @@ export function BottomNav() {
     <div
       className={cn(
         "md:hidden fixed bottom-4 inset-x-0 z-40 flex justify-center px-4 pointer-events-none select-none transition-all duration-300 ease-in-out",
-        isNavDrawerOpen
+        (isNavDrawerOpen || isDetailsModalOpen)
           ? "translate-y-28 opacity-0 pointer-events-none"
           : "translate-y-0 opacity-100"
       )}
@@ -131,13 +134,13 @@ export function BottomNav() {
                         : "ring-1 ring-white/70 opacity-80 hover:opacity-100"
                     )}
                   >
-                    <Image
-                      src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80"
-                      alt="User Profile"
-                      fill
-                      sizes="28px"
-                      className="object-cover"
-                    />
+                    {isLoggedIn ? (
+                      <UserAvatar size={28} />
+                    ) : (
+                      <span className="w-full h-full flex items-center justify-center bg-white/70 text-[#124233]">
+                        <UserIcon className="w-4 h-4" />
+                      </span>
+                    )}
                   </div>
                 ) : null}
               </div>

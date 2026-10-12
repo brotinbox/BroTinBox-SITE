@@ -1,6 +1,6 @@
-# Gramwise Backend Migration & Architecture Plan
+# BroTin Box Backend Migration & Architecture Plan
 
-This document outlines the database schema, API contracts, kitchen batch aggregation logic, and third-party integrations required to transition Gramwise from mock JSON files to a production relational database (e.g. Supabase, PostgreSQL) and API backend.
+This document outlines the database schema, API contracts, kitchen batch aggregation logic, and third-party integrations required to transition BroTin Box from mock JSON files to a production relational database (e.g. Supabase, PostgreSQL) and API backend.
 
 ---
 

@@ -176,7 +176,6 @@ export interface UserLocation {
   deliveryFee: number;
   isDeliverable: boolean;
   formattedAddress?: string;
-  detectedViaGps?: boolean;
 }
 
 export interface UserProfile {
@@ -184,6 +183,8 @@ export interface UserProfile {
   phone: string;
   fullName: string;
   email?: string;
+  /** Profile photo (from Google sign-in); initials are shown when absent. */
+  avatarUrl?: string;
   goal: GoalType;
   gender: 'male' | 'female' | 'other';
   age: number;
@@ -366,6 +367,8 @@ export interface WeeklyOrderConfig {
 
 export interface MonthlyOrderConfig {
   startMonthDate: string;
+  /** Exact delivery dates and diet per date, sent to the server at checkout. */
+  schedule?: { date: string; diet: 'veg' | 'non-veg' }[];
   dietVariation: 'non-veg' | 'veg' | 'mixed';
   mealsPerDay: 1 | 2;
   skippedDays: string[];

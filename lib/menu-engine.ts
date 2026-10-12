@@ -60,6 +60,43 @@ export interface DailyMenuResult {
   labVerifiedNote: string;
 }
 
+
+// ==========================================
+// LIVE DATA (database): dishes, rotation, per-date overrides, closures.
+// Loaded in the browser by <MenuDataSync /> from Supabase; when present it
+// replaces the bundled JSON so admin changes appear on every menu view.
+// ==========================================
+
+type SlotKey = 'lunch' | 'dinner';
+type PartCodes = { main?: string | null; proteinSide?: string | null; salad?: string | null; legume?: string | null; carb?: string | null };
+export type LiveMenuData = {
+  items: Map<string, MenuItem>;                 // by code (NVM1, CD2…)
+  rotation: Map<string, Required<PartCodes>>;   // `${day}|${diet}|${slot}`
+  overrides: Map<string, PartCodes>;            // `${date}|${diet}|${slot}`
+  closures: Map<string, string>;                // date → reason
+};
+
+let liveMenu: LiveMenuData | null = null;
+let liveVersion = 0;
+const liveListeners = new Set<() => void>();
+
+export function setLiveMenuData(data: LiveMenuData, opts: { silent?: boolean } = {}) {
+  liveMenu = data;
+  liveVersion += 1;
+  if (!opts.silent) notifyLiveMenu();
+}
+/** Tell subscribed components the live menu changed (call outside render). */
+export function notifyLiveMenu() {
+  liveListeners.forEach((l) => l());
+}
+export function subscribeLiveMenu(listener: () => void) {
+  liveListeners.add(listener);
+  return () => { liveListeners.delete(listener); };
+}
+export function getLiveMenuVersion() {
+  return liveVersion;
+}
+
 // ==========================================
 // 30-DAY CATALOG & ROTATION CONSTANTS
 // ==========================================
@@ -91,22 +128,23 @@ export const LEGUMES: MenuItem[] = Object.values(CATALOG_30_DAYS.legumes) as Men
 export const CARBS: MenuItem[] = Object.values(CATALOG_30_DAYS.carbs) as MenuItem[];
 
 // ==========================================
-// PRICING MATRIX (Calibrated to Gramwise Scenarios Model)
-// Weighted Targets: Non-Veg ₹292, Veg ₹262 (30% Trial, 40% Weekly, 30% Monthly)
+// PRICING MATRIX: fallback only. Live prices come from the database
+// (pricing_rules, editable in admin) via usePricing(); the server always
+// charges the database price. Defaults match the menu workbook › Settings.
 // ==========================================
 
 export const PRICING = {
   trial: {
-    'non-veg': 319,
-    'veg': 289,
+    'non-veg': 309,
+    'veg': 279,
   },
   weekly: {
     'non-veg': 289,
     'veg': 259,
   },
   monthly: {
-    'non-veg': 269,
-    'veg': 239,
+    'non-veg': 279,
+    'veg': 249,
   },
   secondMealDiscount: 10, // second meal per day is -₹10
 };
@@ -208,7 +246,7 @@ export function getMenuForDate(dateInput: Date | string, diet: DietType = 'non-v
   const dateStr = formatDateToYMD(dateObj);
   const opInfo = getOperatingDayInfo(dateObj);
 
-  const labVerifiedNote = 'All macros are calibrated to the Gramwise 30-Day Master Menu. Digital kitchen weighed. Lab verification certificate pending batch release.';
+  const labVerifiedNote = 'All macros are calibrated to the BroTin Box 30-Day Master Menu. Digital kitchen weighed. Lab verification certificate pending batch release.';
 
   if (opInfo.isClosed) {
     // Sunday default empty meal fallback
@@ -235,7 +273,7 @@ export function getMenuForDate(dateInput: Date | string, diet: DietType = 'non-v
       dayNumber30: -1,
       cycle: -1,
       isClosed: true,
-      closedReason: 'Gramwise Kitchen is closed on Sundays for deep sanitisation. Delivery operates Monday to Saturday.',
+      closedReason: 'BroTin Box Kitchen is closed on Sundays for deep sanitisation. Delivery operates Monday to Saturday.',
       diet,
       dietTag: diet === 'non-veg' ? 'High-Protein Non-Veg' : 'High-Protein Veg',
       lunch: emptyMeal,
@@ -245,6 +283,59 @@ export function getMenuForDate(dateInput: Date | string, diet: DietType = 'non-v
   }
 
   const dayNumber30 = (opInfo as any).dayNumber30 || (Math.abs(opInfo.operatingDayIndex) % 30) + 1;
+
+  if (liveMenu) {
+    const live = liveMenu;
+    const dbDiet = diet === 'veg' ? 'veg' : 'non_veg';
+    const closure = live.closures.get(dateStr);
+    const build = (slot: SlotKey) => {
+      const base = live.rotation.get(`${dayNumber30}|${dbDiet}|${slot}`);
+      const ovr = live.overrides.get(`${dateStr}|${dbDiet}|${slot}`);
+      const pick = (k: keyof PartCodes) => live.items.get((ovr?.[k] ?? base?.[k]) as string);
+      const items = { main: pick('main'), proteinSide: pick('proteinSide'), salad: pick('salad'), legume: pick('legume'), carb: pick('carb') };
+      if (!items.main || !items.proteinSide || !items.salad || !items.legume || !items.carb) return null;
+      const itemArray = [items.main, items.proteinSide, items.salad, items.legume, items.carb];
+      const allergens = Array.from(new Set(itemArray.flatMap((it) => it.allergens ?? []))) as Allergen[];
+      const meal: BoxMeal = {
+        slot,
+        items: items as BoxMeal['items'],
+        itemArray,
+        totals: {
+          calories: Math.round(itemArray.reduce((a, it) => a + (it.calories || 0), 0)),
+          protein: Math.round(itemArray.reduce((a, it) => a + (it.protein || 0), 0) * 10) / 10,
+          carbs: Math.round(itemArray.reduce((a, it) => a + (it.carbs || 0), 0) * 10) / 10,
+          fat: Math.round(itemArray.reduce((a, it) => a + (it.fat || 0), 0) * 10) / 10,
+          fiber: Math.round(itemArray.reduce((a, it) => a + (it.fiber || 0), 0) * 10) / 10,
+          weightG: itemArray.reduce((a, it) => a + (it.grams || 0), 0),
+        },
+        allergens,
+        hasPeanut: allergens.includes('Peanut'),
+      };
+      return meal;
+    };
+    const lunchLive = build('lunch');
+    const dinnerLive = build('dinner');
+    if (closure && lunchLive) {
+      return {
+        date: dateStr, dayOfWeek: opInfo.dayOfWeek, dayName: opInfo.dayName, operatingDayIndex: opInfo.operatingDayIndex,
+        dayNumber30, cycle: Math.floor((dayNumber30 - 1) / 6) + 1, isClosed: true, closedReason: `Kitchen closed: ${closure}`,
+        diet, dietTag: diet === 'non-veg' ? 'High-Protein Non-Veg' : 'High-Protein Veg',
+        lunch: { ...lunchLive, totals: { calories: 0, protein: 0, carbs: 0, fat: 0, weightG: 0 } },
+        dinner: { ...(dinnerLive ?? lunchLive), slot: 'dinner', totals: { calories: 0, protein: 0, carbs: 0, fat: 0, weightG: 0 } },
+        labVerifiedNote,
+      };
+    }
+    if (lunchLive && dinnerLive) {
+      return {
+        date: dateStr, dayOfWeek: opInfo.dayOfWeek, dayName: opInfo.dayName, operatingDayIndex: opInfo.operatingDayIndex,
+        dayNumber30, cycle: Math.floor((dayNumber30 - 1) / 6) + 1, isClosed: false,
+        diet, dietTag: diet === 'non-veg' ? 'High-Protein Non-Veg' : 'High-Protein Veg',
+        lunch: lunchLive, dinner: dinnerLive, labVerifiedNote,
+      };
+    }
+    // Incomplete live data for this day: fall through to the bundled menu.
+  }
+
   const dayEntry = (menu30DayData as any).days.find((d: any) => d.day === dayNumber30) || (menu30DayData as any).days[0];
   const dayBox = diet === 'non-veg' ? dayEntry.nonVeg : dayEntry.veg;
 

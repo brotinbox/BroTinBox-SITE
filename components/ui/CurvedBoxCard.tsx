@@ -1,12 +1,15 @@
 'use client';
 
+import { usePricing } from '@/components/providers/CatalogProvider';
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Box } from '@/types';
-import { DailyMenuResult, DietType, PRICING } from '@/lib/menu-engine';
-import { ArrowUpRight, ArrowRight, ChevronDown, X, Sparkles, CheckCircle2, Info, ShieldCheck } from 'lucide-react';
+import { DailyMenuResult, DietType } from '@/lib/menu-engine';
+import { ArrowUpRight, ArrowRight, ChevronDown, X, Sparkles, CheckCircle2, Info } from 'lucide-react';
 import { cn, formatCurrency } from '@/lib/utils';
+import { useAppStore } from '@/store/useAppStore';
 
 export interface CurvedBoxCardProps {
   menu?: DailyMenuResult;
@@ -29,9 +32,30 @@ export function CurvedBoxCard({
   isToday = false,
   box,
 }: CurvedBoxCardProps) {
+  const PRICING = usePricing();
+  const [mounted, setMounted] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
+  const { setDetailsModalOpen } = useAppStore();
   const CARD_BG = '#ffffff';
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (showDetailsModal || showPurchaseModal) {
+      setDetailsModalOpen(true);
+      document.body.style.overflow = 'hidden';
+    } else {
+      setDetailsModalOpen(false);
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      setDetailsModalOpen(false);
+      document.body.style.overflow = 'unset';
+    };
+  }, [showDetailsModal, showPurchaseModal, setDetailsModalOpen]);
 
   // 1. If dynamic menu is provided (5-item rotation engine)
   if (menu) {
@@ -105,7 +129,7 @@ export function CurvedBoxCard({
 
           {/* Content Section */}
           <div className="pt-4">
-            {/* Title with Indian FSSAI symbol: Green Dot for Veg, Red Triangle for Non-Veg */}
+            {/* Title with Indian FSSAI symbol: Green Dot for Veg, Brown Triangle for Non-Veg */}
             <div className="flex items-start gap-2.5">
               {diet === 'veg' ? (
                 /* FSSAI Green Dot inside square */
@@ -116,12 +140,12 @@ export function CurvedBoxCard({
                   <span className="w-2 h-2 rounded-full bg-emerald-600" />
                 </span>
               ) : (
-                /* FSSAI Red Triangle inside square */
+                /* FSSAI Brown Triangle inside square */
                 <span
-                  className="w-4 h-4 mt-1 rounded-[4px] border-[1.5px] border-red-700 bg-white flex items-center justify-center shrink-0 shadow-2xs"
+                  className="w-4 h-4 mt-1 rounded-[4px] border-[1.5px] border-[#7B3F00] bg-white flex items-center justify-center shrink-0 shadow-2xs"
                   title="Non-Vegetarian"
                 >
-                  <span className="w-0 h-0 border-l-[3.5px] border-l-transparent border-r-[3.5px] border-r-transparent border-b-[6px] border-b-red-700" />
+                  <span className="w-0 h-0 border-l-[3.5px] border-l-transparent border-r-[3.5px] border-r-transparent border-b-[6px] border-b-[#7B3F00]" />
                 </span>
               )}
 
@@ -215,9 +239,9 @@ export function CurvedBoxCard({
         </div>
 
         {/* Box Details Slider from Bottom (Bottom Sheet Drawer) */}
-        {showDetailsModal && (
+        {mounted && showDetailsModal && typeof document !== 'undefined' && createPortal(
           <div
-            className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+            className="fixed inset-0 z-[100] flex items-end justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
             onClick={() => setShowDetailsModal(false)}
           >
             <div
@@ -252,55 +276,23 @@ export function CurvedBoxCard({
                         priority
                       />
 
-                      {/* Top Badges Floating Over Image */}
-                      <div className="absolute top-3.5 left-3.5 flex flex-wrap items-center gap-1.5 z-10">
-                        <span
-                          className={cn(
-                            "text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider backdrop-blur-md shadow-xs flex items-center gap-1.5",
-                            diet === 'veg'
-                              ? "bg-emerald-600/90 text-white"
-                              : "bg-red-600/90 text-white"
-                          )}
-                        >
-                          <span className="w-1.5 h-1.5 rounded-full bg-white" />
-                          <span>{diet === 'veg' ? 'Pure Veg' : 'Non-Veg'}</span>
-                        </span>
-                        <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-white shadow-xs">
-                          {dayInfo?.dayName || menu.dayOfWeek} Box
-                        </span>
-                      </div>
-
-                      {/* Bottom Banner Over Image */}
-                      <div className="absolute bottom-3 left-3 right-3 p-2.5 rounded-2xl bg-white/95 backdrop-blur-md border border-white/40 shadow-sm flex items-center justify-between text-xs z-10">
-                        <span className="font-bold text-gray-800">Fresh Daily Prep</span>
-                        <span className="font-mono font-bold text-emerald-800">
-                          ~{Math.round(meal.totals.protein)}g Protein
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Quality & Scale Guarantee Box */}
-                    <div className="p-4 rounded-2xl bg-[#F5F8EC] border border-[#124233]/10 space-y-2 text-xs text-[#124233]">
-                      <div className="flex items-center gap-2 font-bold text-xs text-[#124233]">
-                        <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0" />
-                        <span>Digital Kitchen Scale Certified</span>
-                      </div>
-                      <p className="text-[11px] text-gray-600 leading-relaxed">
-                        Every ingredient inside this 5-compartment eco bento tray is individually calibrated on digital kitchen scales to guarantee calibrated macros.
-                      </p>
-                      <div className="pt-2 border-t border-[#124233]/10 grid grid-cols-2 gap-2 text-[10px] font-semibold text-gray-700">
-                        <div className="flex items-center gap-1">
-                          <span>✓ 0 Refined Sugar</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <span>✓ Zero Palm Oil</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <span>✓ Twice Daily Fresh</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <span>✓ Hot Insulated Box</span>
-                        </div>
+                      {/* Veg / Non-Veg Indicator Icon Floating Over Image */}
+                      <div className="absolute top-3.5 left-3.5 z-10">
+                        {diet === 'veg' ? (
+                          <span
+                            className="w-5 h-5 rounded-[5px] border-[1.5px] border-emerald-600 bg-white/95 backdrop-blur-md flex items-center justify-center shrink-0 shadow-sm"
+                            title="Vegetarian"
+                          >
+                            <span className="w-2.5 h-2.5 rounded-full bg-emerald-600" />
+                          </span>
+                        ) : (
+                          <span
+                            className="w-5 h-5 rounded-[5px] border-[1.5px] border-[#7B3F00] bg-white/95 backdrop-blur-md flex items-center justify-center shrink-0 shadow-sm"
+                            title="Non-Vegetarian"
+                          >
+                            <span className="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-b-[7px] border-b-[#7B3F00]" />
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -318,6 +310,12 @@ export function CurvedBoxCard({
                       <p className="text-xs sm:text-sm text-gray-600 mt-2 leading-relaxed">
                         {mainItem.description}
                       </p>
+                      {/* Day Box Badge moved after description */}
+                      <div className="mt-3 flex items-center gap-2">
+                        <span className="inline-flex items-center text-xs font-bold px-3 py-1 rounded-full bg-[#F5F8EC] text-[#124233] border border-[#124233]/15">
+                          {dayInfo?.dayName || menu.dayOfWeek} Box
+                        </span>
+                      </div>
                     </div>
 
                     {/* Macro Summary Cards */}
@@ -355,12 +353,12 @@ export function CurvedBoxCard({
 
                     {/* 5 Digitally Weighed Items List */}
                     <div className="p-4 sm:p-5 rounded-2xl bg-gray-50 border border-gray-100">
-                      <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-200/60">
-                        <span className="text-xs font-black uppercase tracking-wider text-gray-700">
+                      <div className="flex flex-row items-center justify-between gap-2 mb-3 pb-2.5 border-b border-gray-200/60">
+                        <span className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-gray-700 min-w-0">
                           5 Items Digitally Weighed Inside
                         </span>
-                        <span className="text-[10px] font-mono text-gray-500 bg-white px-2 py-0.5 rounded-full border border-gray-200 font-bold">
-                          Net Meal: ~620g
+                        <span className="shrink-0 whitespace-nowrap text-[10px] sm:text-[11px] font-mono text-gray-600 bg-white px-2.5 py-1 rounded-full border border-gray-200 font-bold shadow-2xs">
+                          Net Meal: <span className="text-[#124233] font-black">~620g</span>
                         </span>
                       </div>
 
@@ -460,9 +458,8 @@ export function CurvedBoxCard({
                   <Link
                     href={`/weekly?diet=${diet}`}
                     onClick={() => setShowDetailsModal(false)}
-                    className="flex-1 sm:flex-initial bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm py-3 px-5 rounded-2xl transition-all shadow-md text-center flex items-center justify-center gap-1.5 tap-active"
+                    className="flex-1 sm:flex-initial bg-cta hover:bg-cta-hover text-white font-bold text-xs sm:text-sm py-3 px-5 rounded-2xl transition-all shadow-md text-center flex items-center justify-center gap-1.5 tap-active"
                   >
-                    <Sparkles className="w-4 h-4" />
                     <span>Subscribe Weekly (₹{weeklyPrice}/box)</span>
                   </Link>
                   <Link
@@ -476,13 +473,14 @@ export function CurvedBoxCard({
                 </div>
               </div>
             </div>
-          </div>
+          </div>,
+          document.body
         )}
 
         {/* Purchase Options Modal */}
-        {showPurchaseModal && (
+        {mounted && showPurchaseModal && typeof document !== 'undefined' && createPortal(
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150"
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150"
             onClick={() => setShowPurchaseModal(false)}
           >
             <div
@@ -625,7 +623,8 @@ export function CurvedBoxCard({
                 </Link>
               </div>
             </div>
-          </div>
+          </div>,
+          document.body
         )}
       </div>
     );
@@ -734,7 +733,7 @@ export function CurvedBoxCard({
           </span>
           <div className="mt-0.5">
             <span className="font-heading font-black text-2xl text-gray-900 leading-none">
-              ₹289
+              ₹{PRICING.weekly[diet]}
             </span>
           </div>
           <span className="text-[10px] text-gray-400 font-medium block mt-0.5">

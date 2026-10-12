@@ -18,7 +18,7 @@ export function TestimonialsCounter({ reviews }: TestimonialsCounterProps) {
     { value: "[Telemetry Pending]", label: "Grams of Weighed Protein", subtitle: "Awaiting Live Production Aggregations" },
     { value: "[Telemetry Pending]", label: "Boxes Dispatched in Coimbatore", subtitle: "Cutoff Locked At 9:00 PM" },
     { value: "[Telemetry Pending]", label: "Customer Satisfaction Index", subtitle: "Post-Pilot Feedback Pending" },
-    { value: "[Telemetry Pending]", label: "On-Time Dispatch Rate", subtitle: "12:00 PM & 7:00 PM Clusters" },
+    { value: "[Telemetry Pending]", label: "On-Time Dispatch Rate", subtitle: "7:00 AM & 7:00 PM Clusters" },
   ];
 
   const handlePrev = () => {

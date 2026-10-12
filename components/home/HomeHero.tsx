@@ -1,146 +1,167 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { Menu as MenuIcon } from 'lucide-react';
+import { useAppStore } from '@/store/useAppStore';
+import { AccountButton } from '@/components/layout/AccountButton';
+import { LocationSelector } from '@/components/layout/LocationSelector';
 
 export function HomeHero() {
-  const [scrollY, setScrollY] = useState(0);
+  const router = useRouter();
+  const { setNavDrawerOpen } = useAppStore();
 
-  useEffect(() => {
-    let ticking = false;
-
-    const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          setScrollY(window.scrollY);
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  // Parallax calculations matching realevate.agency interaction
-  const textParallaxX = scrollY * 0.45; // Accelerates background marquee horizontally on scroll
-  const imageScale = Math.min(1.06, 1 + scrollY * 0.00025); // Subtle cinematic depth expansion
-  const imageTranslateY = scrollY * 0.08; // Gentle depth float
-  const subtextOpacity = Math.max(0, 1 - scrollY / 300);
-  const scrollHintOpacity = Math.max(0, 1 - scrollY / 90);
-
-  const marqueeItems = [1, 2, 3, 4];
+  const categoryCards = [
+    {
+      id: 'trial',
+      title: 'DAILY TRIAL BOX',
+      subtitle: 'JUST TRY IT',
+      offer: 'FROM ₹289 (V) / ₹319 (NV)',
+      mobileOffer: 'FROM ₹289 (V) / ₹319 (NV)',
+      href: '/tomorrow',
+      image: '/daily.png',
+      imageAlt: 'BroTin Box Daily Trial Box meal',
+    },
+    {
+      id: 'weekly',
+      title: 'WEEKLY PLAN',
+      subtitle: 'SMALL CHANGE MATTERS',
+      offer: 'FROM ₹259/DAY',
+      mobileOffer: 'FROM ₹259/DAY',
+      href: '/weekly',
+      image: '/weekly.png',
+      imageAlt: 'BroTin Box Weekly 6-day protein meal plan boxes',
+    },
+    {
+      id: 'monthly',
+      title: 'MONTHLY PLAN',
+      subtitle: 'WE GOT YOU',
+      offer: 'HABIT ON AUTOPILOT',
+      mobileOffer: 'HABIT ON AUTOPILOT',
+      href: '/monthly',
+      image: '/monthly.png',
+      imageAlt: 'BroTin Box Monthly lifestyle meal plan stack',
+    },
+    {
+      id: 'custom',
+      title: 'BUILD YOUR OWN BOX',
+      subtitle: 'COMING SOON',
+      offer: 'CUSTOMIZE EVERY GRAM',
+      mobileOffer: 'CUSTOMIZE EVERY GRAM',
+      href: '/custom',
+      image: '/custom.png',
+      imageAlt: 'BroTin Box Custom digitally measured diet box',
+    },
+  ];
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-[#EDF7F1] via-[#E1F1E6] to-[#D4EADC] text-[#14532D] min-h-[84vh] md:min-h-[90vh] flex flex-col justify-between py-6 sm:py-10 select-none border-b border-[#C8E4D3]">
-      {/* Background ambient radial highlight */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-white/70 via-transparent to-transparent pointer-events-none" />
+    <section className="relative w-full overflow-visible bg-gradient-to-b from-[#E2ECBA] via-[#EDF5D3] to-[#F5F8EC] text-[#124233] pt-4 sm:pt-7 pb-0 select-none">
+      {/* 1. Top Bar: Mobile Header (Location + Avatar) & Desktop Logo + Nav Links */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6 sm:mb-16 relative z-50">
+        {/* Mobile Header: Location on Left, Menu Slider on Right */}
+        <div className="flex md:hidden items-center justify-between gap-3">
+          <LocationSelector variant="mobile" />
 
-      {/* Top micro brand meta bar: COIMBATORE and EST removed, KNOWGRAMS centered */}
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-8 flex items-center justify-center text-xs tracking-widest uppercase z-10">
-        <span className="font-semibold tracking-[0.35em] text-[#14532D]/75">KNOWGRAMS</span>
-      </div>
-
-      {/* Main Stage: Center 4:3 Image with Slow Looping Marquee Moving Behind & Reacting to Scroll */}
-      <div className="relative my-auto flex items-center justify-center py-6 sm:py-10">
-        {/* Infinite Looping Text Marquee with Scroll Parallax */}
-        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 overflow-hidden pointer-events-none z-0">
-          <div
-            className="will-change-transform"
-            style={{
-              transform: `translate3d(-${textParallaxX}px, 0, 0)`,
-            }}
+          <button
+            type="button"
+            onClick={() => setNavDrawerOpen(true)}
+            aria-label="Open menu"
+            className="w-10 h-10 rounded-full flex items-center justify-center text-[#124233] bg-white border border-[#124233]/15 shadow-xs shrink-0 active:scale-95 transition-all"
           >
-            <div className="animate-marquee-slow-loop flex items-center">
-              {/* Group 1 */}
-              {marqueeItems.map((idx) => (
-                <div key={`group1-${idx}`} className="flex items-center shrink-0">
-                  <span className="font-heading font-black text-[#14532D] uppercase tracking-tight text-6xl sm:text-8xl md:text-9xl lg:text-[145px] xl:text-[165px] leading-none whitespace-nowrap">
-                    YOUR DAILY PROTEIN. SORTED.
-                  </span>
-                  <span className="mx-8 sm:mx-14 lg:mx-20 inline-flex items-center justify-center shrink-0">
-                    <span className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 rounded-full bg-[#14532D] shadow-xs inline-block" />
-                  </span>
-                </div>
-              ))}
-
-              {/* Group 2 (Duplicate for continuous seamless loop) */}
-              {marqueeItems.map((idx) => (
-                <div key={`group2-${idx}`} className="flex items-center shrink-0">
-                  <span className="font-heading font-black text-[#14532D] uppercase tracking-tight text-6xl sm:text-8xl md:text-9xl lg:text-[145px] xl:text-[165px] leading-none whitespace-nowrap">
-                    YOUR DAILY PROTEIN. SORTED.
-                  </span>
-                  <span className="mx-8 sm:mx-14 lg:mx-20 inline-flex items-center justify-center shrink-0">
-                    <span className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 rounded-full bg-[#14532D] shadow-xs inline-block" />
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
+            <MenuIcon className="w-5 h-5" />
+          </button>
         </div>
 
-        {/* Center 4:3 Aspect Ratio Image (Reduced by 2, no border) */}
-        <div
-          className="relative z-10 w-[50vw] max-w-[190px] sm:max-w-[240px] md:max-w-[280px] lg:max-w-[320px] aspect-[4/3] shrink-0 rounded-xl sm:rounded-2xl overflow-hidden shadow-[0_20px_50px_-10px_rgba(20,83,45,0.25)] group transition-transform duration-75 ease-out"
-          style={{
-            transform: `scale(${imageScale}) translateY(${imageTranslateY}px)`,
-          }}
-        >
-          <Image
-            src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=85"
-            alt="Freshly weighed high protein balanced bowl"
-            fill
-            priority
-            sizes="(max-width: 768px) 50vw, 320px"
-            className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-          />
-          {/* Subtle bottom vignette */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent pointer-events-none" />
-        </div>
-      </div>
+        {/* Desktop Header (Brand Logo + Clean Navigation Links + Login Button) */}
+        <div className="hidden md:flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2 group">
+            <Image
+              src="/logo.png"
+              alt="BroTin Box"
+              width={200}
+              height={72}
+              className="h-14 md:h-16 w-auto object-contain transition-transform group-hover:scale-105"
+              priority
+            />
+          </Link>
 
-      {/* Bottom Content Area: Subtitle, Framed Pill Button & Corner Anchors */}
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-8 z-10 pt-2 sm:pt-4">
-        {/* Centered Subtitle & Bordered Price Pill */}
-        <div
-          className="text-center space-y-3.5 max-w-xl mx-auto transition-opacity duration-150"
-          style={{ opacity: subtextOpacity }}
-        >
-          <p className="text-xs sm:text-sm md:text-base text-[#14532D]/85 font-medium leading-relaxed">
-            Fresh homestyle meals cooked every morning in Coimbatore
-            <br className="hidden sm:inline" /> digitally weighed for exact calories and protein.
-          </p>
-
-          <div>
-            <Link
-              href="/plans"
-              className="inline-block border-2 border-[#14532D] hover:bg-[#14532D] text-[#14532D] hover:text-white px-6 sm:px-8 py-2.5 rounded-none text-xs sm:text-sm font-bold tracking-[0.25em] uppercase transition-all shadow-sm bg-white/40 backdrop-blur-xs"
-            >
-              STARTING FROM ₹269 / DAY
-            </Link>
-          </div>
-        </div>
-
-        {/* Bottom Corner Anchors */}
-        <div className="flex items-center justify-between pt-6 text-xs text-[#14532D]/60 tracking-wider">
-          <span
-            className="font-mono text-[11px] sm:text-xs tracking-widest text-[#14532D]/70 transition-opacity duration-150"
-            style={{ opacity: scrollHintOpacity }}
-          >
-            (Scroll)
-          </span>
-
-          <div className="flex items-center gap-2">
+          <nav className="flex items-center gap-6 lg:gap-8">
             <Link
               href="/menu"
-              className="inline-flex items-center gap-2 border border-[#14532D]/30 hover:border-[#14532D] bg-white/70 hover:bg-white text-[#14532D] px-3.5 py-1.5 rounded-sm text-xs font-semibold tracking-wide transition-all shadow-xs"
+              className="text-sm font-bold text-[#124233] hover:text-[#899545] transition-colors tracking-wide"
             >
-              <span>Our Menu</span>
-              <span className="text-[#14532D] font-mono text-[10px]">⸬</span>
+              Menu
             </Link>
+            <Link
+              href="/pricing"
+              className="text-sm font-bold text-[#124233] hover:text-[#899545] transition-colors tracking-wide"
+            >
+              Pricing
+            </Link>
+            <Link
+              href="/blog"
+              className="text-sm font-bold text-[#124233] hover:text-[#899545] transition-colors tracking-wide flex items-center gap-1.5"
+            >
+              <span>Blog</span>
+              <span className="text-[10px] font-bold bg-[#899545] text-white px-1.5 py-0.2 rounded-full">New</span>
+            </Link>
+            <Link
+              href="/delivery-areas"
+              className="text-sm font-bold text-[#124233] hover:text-[#899545] transition-colors tracking-wide"
+            >
+              Delivery Areas
+            </Link>
+          </nav>
+
+          <div className="flex items-center gap-3">
+            <LocationSelector variant="desktop" />
+
+            <AccountButton variant="desktop" />
           </div>
+        </div>
+      </div>
+
+      {/* 2. Main Hero Stage (Headline) */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-4 sm:pt-8 lg:pt-14 pb-8 sm:pb-12 md:pb-16 flex flex-col items-center justify-center text-center">
+        {/* Headline */}
+        <div className="max-w-4xl mx-auto">
+          <h1 className="font-heading font-[900] text-3xl sm:text-4xl lg:text-5xl text-[#124233] tracking-tight leading-tight sm:leading-snug">
+            Fresh daily protein meals.
+          </h1>
+        </div>
+      </div>
+
+      {/* 3. Full-Bleed 1-to-1 Attached Images Strip (Left to Right Edge, 0 Gaps, Sharp Corners, No Buttons) */}
+      <div className="w-full relative z-10 border-t border-black/10 bg-white shadow-2xl">
+        <div className="w-full grid grid-cols-2 md:grid-cols-4 gap-0">
+          {categoryCards.map((card) => (
+            <Link
+              key={card.id}
+              href={card.href}
+              className="group relative flex flex-col bg-white overflow-hidden border-r border-b md:border-b-0 border-black/10 [&:nth-child(2n)]:border-r-0 md:[&:nth-child(2n)]:border-r md:last:border-r-0 transition-all duration-300 tap-active"
+            >
+              {/* Clean Title Bar (Sharp corners, no buttons) */}
+              <div className="py-2.5 sm:py-3.5 px-2 sm:px-4 text-center bg-white border-b border-black/5">
+                <h3 className="font-heading font-[900] text-[11px] sm:text-xs md:text-sm lg:text-base text-[#124233] tracking-tight group-hover:text-[#899545] transition-colors uppercase leading-tight line-clamp-1">
+                  {card.title}
+                </h3>
+              </div>
+
+              {/* Seamless Attached Mockup Image (Edge-to-Edge Sharp) */}
+              <div className="relative w-full aspect-[4/3] overflow-hidden bg-[#FAFAF8]">
+                <Image
+                  src={card.image}
+                  alt={card.imageAlt}
+                  fill
+                  sizes="(max-width: 768px) 50vw, 25vw"
+                  className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                  priority={card.id === 'trial'}
+                />
+              </div>
+            </Link>
+          ))}
         </div>
       </div>
     </section>

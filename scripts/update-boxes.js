@@ -85,8 +85,8 @@ const updatedBoxes = dayBoxSlugs.map((cfg) => {
     isVeg: cfg.isVeg,
     containsEgg: !cfg.isVeg,
     tags: cfg.isVeg
-      ? ['High Protein', 'Vegetarian', 'Gramwise Calibrated']
-      : ['High Protein', cfg.dayNum === 6 ? 'Fish' : 'Chicken', 'Gramwise Calibrated'],
+      ? ['High Protein', 'Vegetarian', 'BroTin Box Calibrated']
+      : ['High Protein', cfg.dayNum === 6 ? 'Fish' : 'Chicken', 'BroTin Box Calibrated'],
     allergens: src.allergens,
     freeFrom: cfg.isVeg ? ['Meat-free', 'Refined sugar-free'] : ['Dairy-free', 'Refined sugar-free'],
     price: cfg.isVeg ? 289 : 319,
@@ -116,9 +116,9 @@ const updatedBoxes = dayBoxSlugs.map((cfg) => {
         },
     suggestedSides: oldBox.suggestedSides || ['side-grilled-chicken'],
     suggestedAddons: oldBox.suggestedAddons || ['drink-beetroot'],
-    labVerifiedNote: 'All macros calibrated to the Gramwise 30-Day Master Menu. Digital kitchen weighed. Lab verification certificate pending batch release.',
+    labVerifiedNote: 'All macros calibrated to the BroTin Box 30-Day Master Menu. Digital kitchen weighed. Lab verification certificate pending batch release.',
   };
 });
 
 fs.writeFileSync(boxesPath, JSON.stringify(updatedBoxes, null, 2), 'utf-8');
-console.log('Successfully updated data/boxes.json to match Gramwise 30-day menu Cycle 1');
+console.log('Successfully updated data/boxes.json to match BroTin Box 30-day menu Cycle 1');

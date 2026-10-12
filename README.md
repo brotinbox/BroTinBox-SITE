@@ -1,8 +1,8 @@
-# Gramwise - Fixed-Rotation Protein Boxes & Measured Subscription (Coimbatore)
+# BroTin Box - Fixed-Rotation Protein Boxes & Measured Subscription (Coimbatore)
 
 > **"Every gram counted. One set cook per day. Delivered fresh in Coimbatore."**
 
-Gramwise operates an optimized, zero-waste meal subscription model: **one batch-cooked protein box per day** (Mon to Sat, Sunday kitchen off). This ensures consistent quality, lean kitchen preparation, exact batch counts, and affordable delivery routes across Coimbatore.
+BroTin Box operates an optimized, zero-waste meal subscription model: **one batch-cooked protein box per day** (Mon to Sat, Sunday kitchen off). This ensures consistent quality, lean kitchen preparation, exact batch counts, and affordable delivery routes across Coimbatore.
 
 ---
 

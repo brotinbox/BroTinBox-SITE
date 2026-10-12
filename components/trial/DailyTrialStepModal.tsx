@@ -1,5 +1,7 @@
 'use client';
 
+import { useMenuVersion } from '@/components/providers/CatalogProvider';
+import { usePricing } from '@/components/providers/CatalogProvider';
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
@@ -14,30 +16,28 @@ import {
   Lock,
   Plus,
   QrCode,
-  CreditCard,
 } from 'lucide-react';
-import confetti from 'canvas-confetti';
 import {
   getMenuForDate,
   getNextBookableDays,
-  PRICING,
   DietType,
   DailyMenuResult,
 } from '@/lib/menu-engine';
 import { useAppStore } from '@/store/useAppStore';
-import { Address, Order, DayOfWeek, MealSlot } from '@/types';
+import { MealSlot } from '@/types';
+import { submitOrder, toDbDiet } from '@/lib/checkout/submit';
 import { cn, formatCurrency } from '@/lib/utils';
-import { getZoneByPincode } from '@/lib/location';
+import { useDeliveryZones } from '@/lib/location';
+import { OrderTerms } from '@/components/legal/OrderTerms';
 
 export function DailyTrialStepModal() {
+  const menuVersion = useMenuVersion();
+  const PRICING = usePricing();
   const router = useRouter();
   const {
     addresses,
     selectedAddressId,
     setSelectedAddressId,
-    addAddress,
-    setTrialOrder,
-    addPlacedOrder,
     user,
   } = useAppStore();
 
@@ -82,7 +82,7 @@ export function DailyTrialStepModal() {
   // Step 3: Kitchen Menu
   const menu: DailyMenuResult = useMemo(() => {
     return getMenuForDate(selectedDateStr || bookableDays[0]?.dateStr, diet);
-  }, [selectedDateStr, diet, bookableDays]);
+  }, [selectedDateStr, diet, bookableDays, menuVersion]);
 
   // Selected Day Information
   const selectedDayInfo = useMemo(() => {
@@ -91,23 +91,24 @@ export function DailyTrialStepModal() {
     );
   }, [bookableDays, selectedDateStr]);
 
+  const { getZoneByPincode } = useDeliveryZones();
+
   // Step 4: Address
   const activeAddress = useMemo(() => {
     return addresses.find((a) => a.id === selectedAddressId) || addresses[0];
   }, [addresses, selectedAddressId]);
 
   const [useNewAddress, setUseNewAddress] = useState(false);
-  const [fullName, setFullName] = useState(user.fullName || 'Mohammed Anas');
-  const [phone, setPhone] = useState(user.phone || '9842123456');
+  const [fullName, setFullName] = useState(user.fullName || '');
+  const [phone, setPhone] = useState((user.phone || '').replace(/^\+91/, ''));
   const [flatNumber, setFlatNumber] = useState(activeAddress?.flatNumber || '');
   const [street, setStreet] = useState(activeAddress?.street || '');
-  const [area, setArea] = useState(activeAddress?.area || 'RS Puram');
-  const [pincode, setPincode] = useState(activeAddress?.pincode || '641002');
+  const [area, setArea] = useState(activeAddress?.area || '');
+  const [pincode, setPincode] = useState(activeAddress?.pincode || '');
+  const [payError, setPayError] = useState('');
 
   // Step 5: Payment method & loading state
-  const [paymentMethod, setPaymentMethod] = useState<'upi_qr' | 'cards'>('upi_qr');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
 
   // Price calculations
   const basePrice = PRICING.trial[diet];
@@ -127,133 +128,31 @@ export function DailyTrialStepModal() {
       phone.trim().length >= 10
     : !!activeAddress;
 
-  // Handle final payment
-  const handlePay = () => {
+  // Place a real order: the server prices it and we go to the UPI payment page.
+  const handlePay = async () => {
+    setPayError('');
     setIsProcessing(true);
-
-    setTimeout(() => {
-      let deliveryAddress: Address = activeAddress;
-      if (useNewAddress || !activeAddress) {
-        const newAddr: Address = {
-          id: `addr-${Date.now()}`,
-          name: fullName,
-          phone,
-          tag: 'Home',
-          flatNumber,
-          street,
-          area,
-          pincode,
-          city: 'Coimbatore',
-          isDefault: true,
-        };
-        addAddress(newAddr);
-        setSelectedAddressId(newAddr.id);
-        deliveryAddress = newAddr;
-      }
-
-      const lunchSlotText = '12:00 PM - 1:30 PM';
-      const dinnerSlotText = '7:00 PM - 8:30 PM';
-      setTrialOrder({
-        dateStr: selectedDateStr,
-        dayName: selectedDayInfo?.dayName || 'Tuesday',
-        diet,
+    const error = await submitOrder(
+      {
+        type: 'trial',
         mealsPerDay,
-        selectedSides: [],
-        selectedDrinks: [],
-        lunchSlot: lunchSlotText,
-        dinnerSlot: dinnerSlotText,
-        price: finalTotal,
-      });
-
-      const orderDisplayId = `GW-${Math.floor(1000 + Math.random() * 9000)}`;
-      const newOrder: Order = {
-        id: `ord-${Date.now()}`,
-        displayId: orderDisplayId,
-        date: selectedDayInfo ? `${selectedDayInfo.dayOfWeek}, ${selectedDayInfo.formatted}` : 'Tomorrow',
-        dayOfWeek: (selectedDayInfo?.dayOfWeek || 'Tue') as DayOfWeek,
-        slot: mealsPerDay === 2 ? 'lunch' : mealSlot,
-        status: 'Preparing',
-        statusStep: 1,
-        items:
-          mealsPerDay === 2
-            ? [
-                {
-                  id: `item-${Date.now()}-lunch`,
-                  itemType: 'box',
-                  name: `${menu.lunch.items.main.name} (Lunch Box)`,
-                  day: (selectedDayInfo?.dayOfWeek || 'Tue') as DayOfWeek,
-                  slot: 'lunch',
-                  quantity: 1,
-                  isVeg: diet === 'veg',
-                  calories: menu.lunch.totals.calories,
-                  protein: menu.lunch.totals.protein,
-                  price: basePrice,
-                },
-                {
-                  id: `item-${Date.now()}-dinner`,
-                  itemType: 'box',
-                  name: `${menu.dinner.items.main.name} (Dinner Box)`,
-                  day: (selectedDayInfo?.dayOfWeek || 'Tue') as DayOfWeek,
-                  slot: 'dinner',
-                  quantity: 1,
-                  isVeg: diet === 'veg',
-                  calories: menu.dinner.totals.calories,
-                  protein: menu.dinner.totals.protein,
-                  price: basePrice - 10,
-                },
-              ]
-            : [
-                {
-                  id: `item-${Date.now()}`,
-                  itemType: 'box',
-                  name: `${(mealSlot === 'dinner' ? menu.dinner : menu.lunch).items.main.name} (5-Compartment Bento)`,
-                  day: (selectedDayInfo?.dayOfWeek || 'Tue') as DayOfWeek,
-                  slot: mealSlot,
-                  quantity: 1,
-                  isVeg: diet === 'veg',
-                  calories: (mealSlot === 'dinner' ? menu.dinner : menu.lunch).totals.calories,
-                  protein: (mealSlot === 'dinner' ? menu.dinner : menu.lunch).totals.protein,
-                  price: finalTotal,
-                },
-              ],
-        deliveryAddress,
-        deliveryAgent: {
-          name: 'Murugan S. (Zone Lead)',
-          phone: '+91 94432 87654',
-        },
-        estimatedDeliveryTime:
-          mealsPerDay === 2 ? '12:45 PM & 7:45 PM' : mealSlot === 'lunch' ? '12:45 PM' : '7:45 PM',
-        totalCalories:
-          mealsPerDay === 2
-            ? menu.lunch.totals.calories + menu.dinner.totals.calories
-            : (mealSlot === 'dinner' ? menu.dinner : menu.lunch).totals.calories,
-        totalProtein:
-          mealsPerDay === 2
-            ? menu.lunch.totals.protein + menu.dinner.totals.protein
-            : (mealSlot === 'dinner' ? menu.dinner : menu.lunch).totals.protein,
-        totalAmount: finalTotal,
-      };
-
-      addPlacedOrder(newOrder);
-
-      try {
-        confetti({
-          particleCount: 90,
-          spread: 60,
-          origin: { y: 0.6 },
-          colors: ['#124233', '#899545', '#16A34A', '#F97316'],
-        });
-      } catch (e) {
-        // ignore
+        slot: mealSlot,
+        days: [{ date: selectedDateStr, diet: toDbDiet(diet) }],
+        addonIds: [],
+        preferences: { isEggFree: false, skipLegume: false },
+        addressId: useNewAddress ? undefined : activeAddress?.id,
+      },
+      {
+        newAddress: useNewAddress || !activeAddress
+          ? { recipientName: fullName, phone, flat: flatNumber, street, area, pincode }
+          : undefined,
+        navigate: (href) => router.push(href),
       }
-
+    );
+    if (error) {
+      setPayError(error);
       setIsProcessing(false);
-      setIsSuccess(true);
-
-      setTimeout(() => {
-        router.push('/dashboard');
-      }, 1400);
-    }, 1200);
+    }
   };
 
   return (
@@ -359,7 +258,7 @@ export function DailyTrialStepModal() {
                     ~80g+ Clean Protein
                   </span>
                   <span className="font-heading font-black text-sm sm:text-base text-[#124233]">
-                    ₹319
+                    ₹{PRICING.trial['non-veg']}
                   </span>
                 </div>
               </button>
@@ -405,7 +304,7 @@ export function DailyTrialStepModal() {
                     ~45g+ Clean Protein
                   </span>
                   <span className="font-heading font-black text-sm sm:text-base text-[#124233]">
-                    ₹289
+                    ₹{PRICING.trial.veg}
                   </span>
                 </div>
               </button>
@@ -487,7 +386,7 @@ export function DailyTrialStepModal() {
                 <div className="p-2.5 sm:p-3 bg-[#FAFDF6] border border-[#124233]/15 rounded-xl sm:rounded-2xl text-[11px] sm:text-xs text-[#124233] flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-[#899545] shrink-0" />
                   <span>
-                    <strong>2 Meals Selected:</strong> Both fresh Lunch and fresh Dinner deliveries are included to your doorstep!
+                    <strong>2 Meals Selected:</strong> Both fresh Morning and fresh Dinner deliveries are included to your doorstep!
                   </span>
                 </div>
               )}
@@ -517,7 +416,7 @@ export function DailyTrialStepModal() {
                     <div>
                       <div className="flex items-center gap-1.5">
                         <span className="font-heading font-bold text-xs sm:text-sm text-gray-900 block">
-                          Lunch Delivery
+                          Morning Delivery
                         </span>
                         {mealsPerDay === 2 && (
                           <span className="text-[8px] sm:text-[9px] font-extrabold uppercase bg-emerald-100 text-emerald-800 px-1.5 py-0.2 rounded">
@@ -525,7 +424,7 @@ export function DailyTrialStepModal() {
                           </span>
                         )}
                       </div>
-                      <span className="text-[11px] sm:text-xs text-gray-500">12:00 PM – 1:30 PM</span>
+                      <span className="text-[11px] sm:text-xs text-gray-500">7:00 AM – 9:00 AM</span>
                     </div>
                   </div>
                   <div
@@ -572,7 +471,7 @@ export function DailyTrialStepModal() {
                           </span>
                         )}
                       </div>
-                      <span className="text-[11px] sm:text-xs text-gray-500">7:00 PM – 8:30 PM</span>
+                      <span className="text-[11px] sm:text-xs text-gray-500">7:00 PM – 9:00 PM</span>
                     </div>
                   </div>
                   <div
@@ -606,7 +505,7 @@ export function DailyTrialStepModal() {
                   )}
                 >
                   <span className="text-xs sm:text-sm font-heading font-black block">1 Meal</span>
-                  <span className="text-[10px] sm:text-[11px] text-gray-500">Lunch OR Dinner</span>
+                  <span className="text-[10px] sm:text-[11px] text-gray-500">Morning OR Dinner</span>
                 </button>
 
                 <button
@@ -622,7 +521,7 @@ export function DailyTrialStepModal() {
                   <span className="text-xs sm:text-sm font-heading font-black block">
                     2 Meals (-₹10 OFF)
                   </span>
-                  <span className="text-[10px] sm:text-[11px] text-emerald-700 font-bold">Both Lunch & Dinner</span>
+                  <span className="text-[10px] sm:text-[11px] text-emerald-700 font-bold">Both Morning & Dinner</span>
                 </button>
               </div>
             </div>
@@ -643,11 +542,11 @@ export function DailyTrialStepModal() {
           const activeSlotName =
             mealsPerDay === 2
               ? inspectedSlot === 'lunch'
-                ? 'Lunch Box (12:00 PM)'
-                : 'Dinner Box (7:00 PM)'
+                ? 'Morning Box (7:00 AM – 9:00 AM)'
+                : 'Dinner Box (7:00 PM – 9:00 PM)'
               : mealSlot === 'lunch'
-              ? 'Lunch Box (12:00 PM)'
-              : 'Dinner Box (7:00 PM)';
+              ? 'Morning Box (7:00 AM – 9:00 AM)'
+              : 'Dinner Box (7:00 PM – 9:00 PM)';
 
           return (
             <div className="space-y-3.5 sm:space-y-5 animate-in fade-in duration-200">
@@ -684,8 +583,8 @@ export function DailyTrialStepModal() {
                         : 'text-gray-600 hover:text-gray-900 bg-transparent'
                     )}
                   >
-                    <span>Lunch Box</span>
-                    <span className="text-[9px] opacity-75">(12:00 PM)</span>
+                    <span>Morning Box</span>
+                    <span className="text-[9px] opacity-75">(7–9 AM)</span>
                   </button>
 
                   <button
@@ -699,7 +598,7 @@ export function DailyTrialStepModal() {
                     )}
                   >
                     <span>Dinner Box</span>
-                    <span className="text-[9px] opacity-75">(7:00 PM)</span>
+                    <span className="text-[9px] opacity-75">(7–9 PM)</span>
                   </button>
                 </div>
               )}
@@ -755,7 +654,7 @@ export function DailyTrialStepModal() {
                   </span>
                   {mealsPerDay === 2 && (
                     <span className="text-[9px] sm:text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
-                      Viewing {inspectedSlot === 'lunch' ? 'Lunch' : 'Dinner'}
+                      Viewing {inspectedSlot === 'lunch' ? 'Morning' : 'Dinner'}
                     </span>
                   )}
                 </div>
@@ -791,7 +690,7 @@ export function DailyTrialStepModal() {
                 <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0" />
                 <span>
                   {mealsPerDay === 2
-                    ? 'Both Lunch and Dinner are weighed to the gram on digital kitchen scales and cooked fresh in separate batches.'
+                    ? 'Both Morning and Dinner are weighed to the gram on digital kitchen scales and cooked fresh in separate batches.'
                     : '100% Digital Kitchen Scale Guarantee. Cooked fresh in cold-pressed groundnut oil.'}
                 </span>
               </div>
@@ -903,7 +802,7 @@ export function DailyTrialStepModal() {
                       type="text"
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
-                      placeholder="e.g. Mohammed Anas"
+                      placeholder="Your full name"
                       className="w-full p-2.5 rounded-xl border border-gray-200 bg-white font-medium text-xs sm:text-sm focus:border-[#124233] focus:outline-none"
                     />
                   </div>
@@ -1003,7 +902,7 @@ export function DailyTrialStepModal() {
                   </span>
                   <span className="text-gray-500 text-[11px] sm:text-xs">
                     {diet === 'non-veg' ? 'Non-Veg Protein' : 'Vegetarian Protein'} •{' '}
-                    {mealsPerDay === 2 ? '2 Meals (Lunch & Dinner Combo)' : '1 Meal'}
+                    {mealsPerDay === 2 ? '2 Meals (Morning & Dinner Combo)' : '1 Meal'}
                   </span>
                 </div>
                 <span className="font-heading font-black text-lg sm:text-xl text-[#124233]">
@@ -1023,10 +922,10 @@ export function DailyTrialStepModal() {
                   <span>Delivery Window:</span>
                   <span className="font-bold text-gray-900 text-right">
                     {mealsPerDay === 2
-                      ? 'Both Windows: Lunch (12:00 PM) & Dinner (7:00 PM)'
+                      ? 'Both Windows: Morning (7–9 AM) & Dinner (7–9 PM)'
                       : mealSlot === 'lunch'
-                      ? 'Lunch (12:00 PM – 1:30 PM)'
-                      : 'Dinner (7:00 PM – 8:30 PM)'}
+                      ? 'Morning (7:00 AM – 9:00 AM)'
+                      : 'Dinner (7:00 PM – 9:00 PM)'}
                   </span>
                 </div>
 
@@ -1065,50 +964,28 @@ export function DailyTrialStepModal() {
               </div>
             </div>
 
-            {/* Payment Method selector */}
-            <div className="space-y-1.5 sm:space-y-2">
-              <label className="text-[11px] sm:text-xs font-bold text-gray-700 uppercase tracking-wider block">
-                Select Payment Method
-              </label>
-              <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod('upi_qr')}
-                  className={cn(
-                    'p-3 sm:p-3.5 rounded-xl sm:rounded-2xl border-2 flex items-center justify-center gap-1.5 sm:gap-2 text-xs font-bold transition-all tap-active active:scale-[0.99]',
-                    paymentMethod === 'upi_qr'
-                      ? 'border-[#124233] bg-[#FAFDF6] text-[#124233] ring-2 ring-[#124233]/15'
-                      : 'border-gray-200 text-gray-600 bg-white'
-                  )}
-                >
-                  <QrCode className="w-4 h-4 text-emerald-700 shrink-0" />
-                  <span>Instant UPI / GPay</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod('cards')}
-                  className={cn(
-                    'p-3 sm:p-3.5 rounded-xl sm:rounded-2xl border-2 flex items-center justify-center gap-1.5 sm:gap-2 text-xs font-bold transition-all tap-active active:scale-[0.99]',
-                    paymentMethod === 'cards'
-                      ? 'border-[#124233] bg-[#FAFDF6] text-[#124233] ring-2 ring-[#124233]/15'
-                      : 'border-gray-200 text-gray-600 bg-white'
-                  )}
-                >
-                  <CreditCard className="w-4 h-4 text-[#899545] shrink-0" />
-                  <span>Cards / NetBanking</span>
-                </button>
-              </div>
+            {/* Payment */}
+            <div className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl border border-[#124233]/15 bg-[#FAFDF6] text-[11px] sm:text-xs text-gray-700 flex items-start gap-2">
+              <QrCode className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
+              <span>Next you&apos;ll see our UPI ID and QR code. Pay from any UPI app (GPay, PhonePe, Paytm) and enter the reference number. We confirm and schedule your box.</span>
             </div>
 
             {/* Guarantees */}
             <div className="p-2.5 sm:p-3 bg-gray-50 rounded-xl sm:rounded-2xl border border-gray-100 text-[10px] sm:text-[11px] text-gray-600 space-y-0.5">
-              <p>✓ 100% money back on any skipped or cancelled days before 9:00 PM</p>
-              <p>✓ Real-time delivery tracking link sent to your registered WhatsApp</p>
+              <p>✓ Price confirmed by our server before you pay</p>
+              <p>✓ Delivery updates on WhatsApp</p>
             </div>
           </div>
         )}
       </div>
+
+      {payError && (
+        <p role="alert" className="mx-3 sm:mx-6 mb-0 mt-2 text-xs font-semibold text-rose-700 bg-rose-50 border border-rose-100 rounded-xl px-3 py-2">
+          {payError}
+        </p>
+      )}
+
+      {step === 5 && <OrderTerms className="mx-3 sm:mx-6 mt-2 text-center" />}
 
       {/* Bottom Sticky Action Controls */}
       <div className="bg-[#FAFDF6] border-t border-[#124233]/10 p-3 sm:p-6 flex items-center justify-between gap-2 sm:gap-3">
@@ -1147,24 +1024,19 @@ export function DailyTrialStepModal() {
         ) : (
           <button
             type="button"
-            disabled={isProcessing || isSuccess}
+            disabled={isProcessing}
             onClick={handlePay}
             className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 sm:gap-2 px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-heading font-black bg-[#124233] text-white hover:bg-[#0c2e23] disabled:opacity-60 transition-all tap-active active:scale-[0.98] shadow-lg sm:shadow-xl shadow-[#124233]/20"
           >
             {isProcessing ? (
               <>
                 <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                <span>Securing Kitchen Slot...</span>
-              </>
-            ) : isSuccess ? (
-              <>
-                <CheckCircle2 className="w-5 h-5 text-[#899545]" />
-                <span>Order Placed! Redirecting...</span>
+                <span>Placing your order…</span>
               </>
             ) : (
               <>
                 <Lock className="w-4 h-4" />
-                <span>Pay {formatCurrency(finalTotal)} to Get Meal</span>
+                <span>Place order · {formatCurrency(finalTotal)}</span>
               </>
             )}
           </button>

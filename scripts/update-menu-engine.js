@@ -37,7 +37,7 @@ export const CARBS: MenuItem[] = Object.values(CATALOG_30_DAYS.carbs) as MenuIte
 `;
 
 // Replace from "// ==========================================\n// ITEM CATALOG POOLS" to end of CARBS
-const poolStartMarker = '// ==========================================\n// ITEM CATALOG POOLS (Gramwise Standard Portions)';
+const poolStartMarker = '// ==========================================\n// ITEM CATALOG POOLS (BroTin Box Standard Portions)';
 const poolEndMarker = 'export const PRICING = {';
 
 const startIndex = code.indexOf(poolStartMarker);
@@ -98,7 +98,7 @@ const newGetMenuForDateCode = `export function getMenuForDate(dateInput: Date | 
   const dateStr = formatDateToYMD(dateObj);
   const opInfo = getOperatingDayInfo(dateObj);
 
-  const labVerifiedNote = 'All macros are calibrated to the Gramwise 30-Day Master Menu. Digital kitchen weighed. Lab verification certificate pending batch release.';
+  const labVerifiedNote = 'All macros are calibrated to the BroTin Box 30-Day Master Menu. Digital kitchen weighed. Lab verification certificate pending batch release.';
 
   if (opInfo.isClosed) {
     // Sunday default empty meal fallback
@@ -125,7 +125,7 @@ const newGetMenuForDateCode = `export function getMenuForDate(dateInput: Date | 
       dayNumber30: -1,
       cycle: -1,
       isClosed: true,
-      closedReason: 'Gramwise Kitchen is closed on Sundays for deep sanitisation. Delivery operates Monday to Saturday.',
+      closedReason: 'BroTin Box Kitchen is closed on Sundays for deep sanitisation. Delivery operates Monday to Saturday.',
       diet,
       dietTag: diet === 'non-veg' ? 'High-Protein Non-Veg' : 'High-Protein Veg',
       lunch: emptyMeal,

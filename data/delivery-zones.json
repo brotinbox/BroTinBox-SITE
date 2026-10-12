@@ -7,7 +7,7 @@
     "deliveryFee": 0,
     "distanceKm": 0.0,
     "avgDeliveryMinutes": 15,
-    "slots": ["12:00 PM - 1:30 PM", "7:00 PM - 8:30 PM"],
+    "slots": ["7:00 AM - 9:00 AM", "7:00 PM - 9:00 PM"],
     "description": "Central Kitchen Hub (Semmozhi Nagar) • Instant Priority Dispatch • Free Delivery"
   },
   {
@@ -18,7 +18,7 @@
     "deliveryFee": 0,
     "distanceKm": 2.6,
     "avgDeliveryMinutes": 20,
-    "slots": ["12:00 PM - 1:30 PM", "7:00 PM - 8:30 PM"],
+    "slots": ["7:00 AM - 9:00 AM", "7:00 PM - 9:00 PM"],
     "description": "Kovaipudhur Township & Ashram area • Daily insulated delivery • Free Delivery"
   },
   {
@@ -29,7 +29,7 @@
     "deliveryFee": 0,
     "distanceKm": 3.6,
     "avgDeliveryMinutes": 20,
-    "slots": ["12:00 PM - 1:30 PM", "7:00 PM - 8:30 PM"],
+    "slots": ["7:00 AM - 9:00 AM", "7:00 PM - 9:00 PM"],
     "description": "Ukkadam Lake & Bypass stretch • Hot insulated box delivery • Free Delivery"
   },
   {
@@ -40,7 +40,7 @@
     "deliveryFee": 0,
     "distanceKm": 3.5,
     "avgDeliveryMinutes": 20,
-    "slots": ["12:00 PM - 1:30 PM", "7:00 PM - 8:30 PM"],
+    "slots": ["7:00 AM - 9:00 AM", "7:00 PM - 9:00 PM"],
     "description": "Pollachi Main Road & SIDCO corridor • Express dispatch • Free Delivery"
   },
   {
@@ -51,7 +51,7 @@
     "deliveryFee": 35,
     "distanceKm": 5.7,
     "avgDeliveryMinutes": 30,
-    "slots": ["12:00 PM - 1:30 PM", "7:00 PM - 8:30 PM"],
+    "slots": ["7:00 AM - 9:00 AM", "7:00 PM - 9:00 PM"],
     "description": "Phase 2 Zone (5.7 km) • ₹35 Delivery Fee applies"
   },
   {
@@ -62,7 +62,7 @@
     "deliveryFee": 35,
     "distanceKm": 5.7,
     "avgDeliveryMinutes": 25,
-    "slots": ["12:00 PM - 1:30 PM", "7:00 PM - 8:30 PM"],
+    "slots": ["7:00 AM - 9:00 AM", "7:00 PM - 9:00 PM"],
     "description": "Phase 2 Zone (5.7 km) • ₹35 Delivery Fee applies"
   },
   {
@@ -73,7 +73,7 @@
     "deliveryFee": 35,
     "distanceKm": 6.0,
     "avgDeliveryMinutes": 30,
-    "slots": ["12:00 PM - 1:30 PM", "7:00 PM - 8:30 PM"],
+    "slots": ["7:00 AM - 9:00 AM", "7:00 PM - 9:00 PM"],
     "description": "Phase 2 Zone (6.0 km) • ₹35 Delivery Fee applies"
   },
   {
@@ -84,7 +84,7 @@
     "deliveryFee": 35,
     "distanceKm": 6.9,
     "avgDeliveryMinutes": 30,
-    "slots": ["12:00 PM - 1:30 PM", "7:00 PM - 8:30 PM"],
+    "slots": ["7:00 AM - 9:00 AM", "7:00 PM - 9:00 PM"],
     "description": "Phase 2 Zone (6.9 km) • ₹35 Delivery Fee applies"
   },
   {
@@ -95,7 +95,7 @@
     "deliveryFee": 35,
     "distanceKm": 7.8,
     "avgDeliveryMinutes": 35,
-    "slots": ["12:00 PM - 1:30 PM", "7:00 PM - 8:30 PM"],
+    "slots": ["7:00 AM - 9:00 AM", "7:00 PM - 9:00 PM"],
     "description": "Phase 2 Zone (7.8 km) • ₹35 Delivery Fee applies"
   },
   {
@@ -106,7 +106,7 @@
     "deliveryFee": 35,
     "distanceKm": 9.2,
     "avgDeliveryMinutes": 35,
-    "slots": ["12:00 PM - 1:30 PM", "7:00 PM - 8:30 PM"],
+    "slots": ["7:00 AM - 9:00 AM", "7:00 PM - 9:00 PM"],
     "description": "Phase 2 Zone (9.2 km) • ₹35 Delivery Fee applies"
   },
   {
@@ -117,7 +117,7 @@
     "deliveryFee": 35,
     "distanceKm": 9.3,
     "avgDeliveryMinutes": 35,
-    "slots": ["12:00 PM - 1:30 PM", "7:00 PM - 8:30 PM"],
+    "slots": ["7:00 AM - 9:00 AM", "7:00 PM - 9:00 PM"],
     "description": "Phase 2 Zone (9.3 km) • ₹35 Delivery Fee applies"
   },
   {
@@ -128,7 +128,7 @@
     "deliveryFee": 35,
     "distanceKm": 9.8,
     "avgDeliveryMinutes": 35,
-    "slots": ["12:00 PM - 1:30 PM", "7:00 PM - 8:30 PM"],
+    "slots": ["7:00 AM - 9:00 AM", "7:00 PM - 9:00 PM"],
     "description": "Phase 2 Zone (9.8 km) • ₹35 Delivery Fee applies"
   },
   {
@@ -139,7 +139,7 @@
     "deliveryFee": 35,
     "distanceKm": 9.9,
     "avgDeliveryMinutes": 40,
-    "slots": ["12:00 PM - 1:30 PM", "7:00 PM - 8:30 PM"],
+    "slots": ["7:00 AM - 9:00 AM", "7:00 PM - 9:00 PM"],
     "description": "Phase 2 Zone (9.9 km) • ₹35 Delivery Fee applies"
   },
   {
@@ -150,7 +150,7 @@
     "deliveryFee": 0,
     "distanceKm": 14.4,
     "avgDeliveryMinutes": 45,
-    "slots": ["12:00 PM - 1:30 PM", "7:00 PM - 8:30 PM"],
+    "slots": ["7:00 AM - 9:00 AM", "7:00 PM - 9:00 PM"],
     "description": "Beyond 10km radius (14.4 km) • Expansion Phase 3 Coming Soon"
   }
 ]

@@ -1,5 +1,6 @@
 'use client';
 
+import { AccountButton } from '@/components/layout/AccountButton';
 import React, { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -479,39 +480,19 @@ export function HeroAndPillarsTransition() {
               >
                 <Image
                   src="/logo.png"
-                  alt="MuscleGrow"
-                  width={160}
-                  height={52}
-                  className="h-9 sm:h-16 w-auto object-contain transition-transform group-hover:scale-105"
+                  alt="BroTin Box"
+                  width={200}
+                  height={72}
+                  className="h-14 md:h-16 w-auto object-contain transition-transform group-hover:scale-105"
                   priority
                 />
               </Link>
              
             </div>
 
-            {/* Right: User Profile Picture Circle Button */}
-            <div className="w-10 sm:w-11 shrink-0 flex items-center justify-end">
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setNavDrawerOpen(true);
-                }}
-                aria-label="Open navigation menu and profile"
-                className="relative p-0.5 rounded-full ring-2 ring-[#14532D]/25 hover:ring-[#14532D] focus:outline-none transition-all tap-active group shadow-sm hover:shadow"
-              >
-                <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-full overflow-hidden relative bg-[#14532D]/10 flex items-center justify-center">
-                  <Image
-                    src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80"
-                    alt="Profile"
-                    fill
-                    sizes="44px"
-                    className="object-cover group-hover:scale-105 transition-transform"
-                  />
-                </div>
-                {/* Active Green Dot Badge */}
-                <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-500 ring-2 ring-white shadow-xs" />
-              </button>
+            {/* Right: account (avatar when signed in, sign-in button otherwise) */}
+            <div className="shrink-0 flex items-center justify-end" onClick={(e) => e.stopPropagation()}>
+              <AccountButton variant="mobile" />
             </div>
           </div>
 

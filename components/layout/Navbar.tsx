@@ -21,27 +21,25 @@ import {
   LogOut,
   Sliders,
   ChevronDown,
-  Search,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { LocationSelector } from '@/components/layout/LocationSelector';
+import { AccountButton } from '@/components/layout/AccountButton';
+import { UserAvatar } from '@/components/layout/UserAvatar';
+import { signOutCustomer } from '@/lib/auth/customer';
+import { Menu as MenuIcon, LayoutDashboard, CalendarDays, Receipt } from 'lucide-react';
+import { BookOpen } from 'lucide-react';
+import { hasFssai } from '@/config/legal';
 
 export function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
-  const { isLoggedIn, user, isNavDrawerOpen, setNavDrawerOpen } = useAppStore();
-  const [searchQuery, setSearchQuery] = useState('');
+  const { isLoggedIn, authReady, user, isNavDrawerOpen, setNavDrawerOpen, setAuthDrawerOpen } = useAppStore();
   const [isMobileNavVisible, setIsMobileNavVisible] = useState(true);
   const lastScrollYRef = useRef(0);
 
   const isHomePage = pathname === '/';
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!searchQuery.trim()) return;
-    router.push(`/tomorrow?search=${encodeURIComponent(searchQuery.trim())}`);
-  };
 
   useEffect(() => {
     setMounted(true);
@@ -142,13 +140,10 @@ export function Navbar() {
   }, [setNavDrawerOpen]);
 
   const navLinks = [
-    { label: 'Home', href: '/', icon: Home, desc: 'Gramwise daily protein overview' },
+    { label: 'Home', href: '/', icon: Home, desc: 'BroTin Box daily protein overview' },
     { label: 'Weekly Menu', href: '/menu', icon: Utensils, desc: 'Rotating 6-day box menu with photos' },
-    { label: 'Daily Trial Box', href: '/tomorrow', icon: Utensils, desc: "Tomorrow's rotating 5-item box" },
-    { label: 'Weekly Plan', href: '/weekly', icon: Calendar, badge: 'Popular', desc: '6-day Mon–Sat routine with skip option' },
-    { label: 'Monthly Lifestyle', href: '/monthly', icon: Calendar, desc: '24-day transformation calendar' },
-    { label: 'Central Kitchen Cook-Sheet', href: '/admin/cook-sheet', icon: Sliders, desc: 'Live daily batches & delivery roster' },
-    { label: 'How It Works', href: '/how-it-works', icon: Sliders, desc: 'Digital kitchen weighing to delivery' },
+    { label: 'Pricing Plans', href: '/pricing', icon: Sparkles, badge: 'Save up to 16%', desc: 'Transparent breakdown: Trial vs Weekly vs Monthly' },
+    { label: 'Nutrition Blog', href: '/blog', icon: BookOpen, badge: 'New', desc: 'Clinical insights, macros & kitchen secrets' },
     { label: 'Delivery Areas', href: '/delivery-areas', icon: MapPin, desc: 'Coimbatore coverage & pincodes' },
     { label: 'FAQ & Support', href: '/faq', icon: HelpCircle, desc: 'Questions about meal rotation & billing' },
   ];
@@ -159,21 +154,21 @@ export function Navbar() {
       {!isHomePage && (
         <header
           className={cn(
-            "sticky top-0 z-40 w-full bg-[#E8F1D4] sm:bg-[#E8F1D4]/95 backdrop-blur-md transition-transform duration-300 ease-in-out will-change-transform",
+            "sticky top-0 z-50 w-full bg-[#E8F1D4] sm:bg-[#E8F1D4]/95 backdrop-blur-md transition-transform duration-300 ease-in-out will-change-transform border-b border-[#124233]/10",
             !isMobileNavVisible ? "-translate-y-full md:translate-y-0" : "translate-y-0"
           )}
         >
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 sm:py-5">
-            {/* Desktop Navbar (Hidden on mobile, undisturbed) */}
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-3">
+            {/* Desktop Navbar (Hidden on mobile) */}
             <div className="hidden md:flex items-center justify-between">
               {/* Left Brand Logo */}
               <Link href="/" className="flex items-center gap-2 group">
                 <Image
                   src="/logo.png"
                   alt={BRAND.name}
-                  width={160}
-                  height={50}
-                  className="h-10 sm:h-12 w-auto object-contain transition-transform group-hover:scale-105"
+                  width={200}
+                  height={72}
+                  className="h-14 md:h-16 w-auto object-contain transition-transform group-hover:scale-105"
                   priority
                 />
               </Link>
@@ -192,37 +187,27 @@ export function Navbar() {
                   Menu
                 </Link>
                 <Link
-                  href="/tomorrow"
+                  href="/pricing"
                   className={cn(
                     "text-sm font-bold tracking-wide transition-colors",
-                    pathname === '/tomorrow'
+                    pathname === '/pricing'
                       ? "text-[#899545]"
                       : "text-[#124233] hover:text-[#899545]"
                   )}
                 >
-                  Daily Trial
+                  Pricing
                 </Link>
                 <Link
-                  href="/weekly"
+                  href="/blog"
                   className={cn(
-                    "text-sm font-bold tracking-wide transition-colors",
-                    pathname === '/weekly'
+                    "text-sm font-bold tracking-wide transition-colors flex items-center gap-1.5",
+                    pathname === '/blog'
                       ? "text-[#899545]"
                       : "text-[#124233] hover:text-[#899545]"
                   )}
                 >
-                  Weekly Plan
-                </Link>
-                <Link
-                  href="/monthly"
-                  className={cn(
-                    "text-sm font-bold tracking-wide transition-colors",
-                    pathname === '/monthly'
-                      ? "text-[#899545]"
-                      : "text-[#124233] hover:text-[#899545]"
-                  )}
-                >
-                  Monthly Plan
+                  <span>Blog</span>
+                  <span className="text-[10px] font-bold bg-[#899545] text-white px-1.5 py-0.2 rounded-full">New</span>
                 </Link>
                 <Link
                   href="/delivery-areas"
@@ -237,55 +222,32 @@ export function Navbar() {
                 </Link>
               </nav>
 
-              {/* Right Profile Circle Button & Location Selector */}
+              {/* Right Profile & Login & Location Selector */}
               <div className="flex items-center gap-3">
                 <LocationSelector variant="desktop" />
 
-                <button
-                  type="button"
-                  onClick={() => setNavDrawerOpen(true)}
-                  aria-label="Open menu and profile"
-                  className="relative p-0.5 rounded-full ring-2 ring-[#124233]/20 hover:ring-[#124233] focus:outline-none transition-all tap-active group shadow-xs hover:shadow"
-                >
-                  <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden relative bg-[#124233]/10 flex items-center justify-center">
-                    <Image
-                      src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80"
-                      alt="Profile"
-                      fill
-                      sizes="44px"
-                      className="object-cover group-hover:scale-105 transition-transform"
-                    />
-                  </div>
-                  <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-600 ring-2 ring-white" />
-                </button>
+                <AccountButton variant="desktop" />
               </div>
             </div>
 
-            {/* Mobile Header: Swiggy style (Location on Left, Profile Avatar on Right - No navbar/logo) */}
-            <div className="flex md:hidden items-center justify-between">
+            {/* Mobile Header (Location on Left, Menu Slider on Right) */}
+            <div className="flex md:hidden items-center justify-between gap-3">
               <LocationSelector variant="mobile" />
 
-              {/* Right Search Bar on Top Right (Replaces Profile Avatar) */}
-              <form onSubmit={handleSearchSubmit} className="relative flex-1 max-w-[200px] sm:max-w-xs">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search dishes..."
-                  className="w-full bg-white text-xs font-medium text-[#124233] placeholder:text-gray-400 pl-3.5 pr-8 py-2 rounded-full shadow-sm shadow-[#124233]/5 border border-black/5 focus:outline-none focus:ring-1 focus:ring-[#899545]"
-                />
-                <button
-                  type="submit"
-                  aria-label="Search"
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#124233] transition-colors"
-                >
-                  <Search className="w-3.5 h-3.5" />
-                </button>
-              </form>
+              <button
+                type="button"
+                onClick={() => setNavDrawerOpen(true)}
+                aria-label="Open menu"
+                className="w-10 h-10 rounded-full flex items-center justify-center text-[#124233] bg-white border border-[#124233]/15 shadow-xs shrink-0 active:scale-95 transition-all"
+              >
+                <MenuIcon className="w-5 h-5" />
+              </button>
             </div>
           </div>
         </header>
       )}
+
+      {/* Slide-out Drawer & Overlay */}
 
       {/* Slide-out Drawer & Overlay */}
       {isNavDrawerOpen && (
@@ -303,26 +265,44 @@ export function Navbar() {
             <div>
               <div className="p-5 sm:p-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/70">
                 {/* User Profile Card Summary */}
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full overflow-hidden relative border-2 border-primary/20 shadow-sm shrink-0">
-                    <Image
-                      src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80"
-                      alt="Profile"
-                      fill
-                      sizes="48px"
-                      className="object-cover"
-                    />
-                  </div>
-                  <div>
-                    <h3 className="font-heading font-bold text-gray-900 text-sm sm:text-base leading-tight">
-                      {mounted && user?.fullName ? user.fullName : 'Mohammed Anas'}
-                    </h3>
-                    <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
-                      <MapPin className="w-3 h-3 text-primary" />
-                      <span>Coimbatore, Tamil Nadu</span>
-                    </p>
-                  </div>
-                </div>
+                {mounted && authReady && isLoggedIn ? (
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setNavDrawerOpen(false)}
+                    className="flex items-center gap-3 min-w-0 group cursor-pointer"
+                  >
+                    <UserAvatar size={48} className="border-2 border-primary/20 shadow-sm group-hover:scale-105 transition-transform" />
+                    <div className="min-w-0">
+                      <h3 className="font-heading font-bold text-gray-900 text-sm sm:text-base leading-tight truncate group-hover:text-primary transition-colors">
+                        {user?.fullName || 'My account'}
+                      </h3>
+                      <p className="text-xs text-gray-500 truncate mt-0.5">
+                        {user?.email || 'View dashboard →'}
+                      </p>
+                    </div>
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNavDrawerOpen(false);
+                      setAuthDrawerOpen(true);
+                    }}
+                    className="flex items-center gap-3 min-w-0 text-left group cursor-pointer"
+                  >
+                    <span className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center shrink-0 group-hover:bg-primary-light transition-colors">
+                      <UserIcon className="w-5 h-5 text-gray-500 group-hover:text-primary transition-colors" />
+                    </span>
+                    <div className="min-w-0">
+                      <h3 className="font-heading font-bold text-gray-900 text-sm sm:text-base leading-tight truncate">
+                        Welcome
+                      </h3>
+                      <p className="text-xs text-[#124233] font-bold truncate mt-0.5">
+                        Sign in / Sign up →
+                      </p>
+                    </div>
+                  </button>
+                )}
 
                 {/* Close Button */}
                 <button
@@ -406,17 +386,38 @@ export function Navbar() {
                     Account & Orders
                   </p>
 
-                  <Link
-                    href={mounted && isLoggedIn ? "/dashboard" : "/login"}
-                    onClick={() => setNavDrawerOpen(false)}
-                    className="flex items-center justify-between p-2.5 rounded-xl text-sm font-semibold text-gray-800 hover:bg-white hover:text-primary transition-all"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <UserIcon className="w-4 h-4 text-primary" />
-                      <span>{mounted && isLoggedIn ? "Member Dashboard" : "Sign In / Register"}</span>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-gray-400" />
-                  </Link>
+                  {mounted && isLoggedIn ? (
+                    <>
+                      {[
+                        { href: '/dashboard', label: 'Dashboard', Icon: LayoutDashboard },
+                        { href: '/my-plan', label: 'My meals', Icon: CalendarDays },
+                        { href: '/orders', label: 'Orders', Icon: Receipt },
+                        { href: '/profile', label: 'Profile', Icon: UserIcon },
+                      ].map(({ href, label, Icon }) => (
+                        <Link key={href} href={href} onClick={() => setNavDrawerOpen(false)}
+                          className="flex items-center justify-between p-2.5 rounded-xl text-sm font-semibold text-gray-800 hover:bg-white hover:text-primary transition-all">
+                          <div className="flex items-center gap-2.5"><Icon className="w-4 h-4 text-primary" /><span>{label}</span></div>
+                          <ChevronRight className="w-4 h-4 text-gray-400" />
+                        </Link>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={async () => { setNavDrawerOpen(false); await signOutCustomer(); router.push('/'); router.refresh(); }}
+                        className="w-full flex items-center gap-2.5 p-2.5 rounded-xl text-sm font-semibold text-rose-700 hover:bg-white transition-all text-left"
+                      >
+                        <LogOut className="w-4 h-4" /><span>Sign out</span>
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => { setNavDrawerOpen(false); setAuthDrawerOpen(true); }}
+                      className="w-full flex items-center justify-between p-2.5 rounded-xl text-sm font-semibold text-gray-800 hover:bg-white hover:text-primary transition-all text-left"
+                    >
+                      <div className="flex items-center gap-2.5"><UserIcon className="w-4 h-4 text-primary" /><span>Sign in / Sign up</span></div>
+                      <ChevronRight className="w-4 h-4 text-gray-400" />
+                    </button>
+                  )}
 
                   <Link
                     href="/delivery-areas"
@@ -438,18 +439,22 @@ export function Navbar() {
             {/* Drawer Footer: Support & FSSAI Trust */}
             <div className="p-5 border-t border-gray-100 bg-gray-50/50 space-y-3">
               <a
-                href="https://wa.me/919876543210?text=Hi%20MuscleGrow%20Team,%20I%20have%20a%20question%20about%20your%20meal%20boxes"
+                href="https://wa.me/917604909848?text=Hi%20BroTin%20Box%20Team,%20I%20have%20a%20question%20about%20your%20meal%20boxes"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2.5 px-4 rounded-xl shadow-xs transition-all"
+                className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-bold py-2.5 px-4 rounded-xl shadow-xs transition-all"
               >
-                <MessageCircle className="w-4 h-4" />
+                <img
+                  src="https://img.icons8.com/color/480/whatsapp--v1.png"
+                  alt="WhatsApp"
+                  className="w-4 h-4 object-contain"
+                />
                 <span>Chat with Nutritionist on WhatsApp</span>
               </a>
 
               <div className="flex items-center justify-center gap-2 text-[11px] text-gray-400 font-medium">
                 <ShieldCheck className="w-3.5 h-3.5 text-primary" />
-                <span>100% Digitally Weighed • FSSAI Licensed Kitchen</span>
+                <span>100% Digitally Weighed{hasFssai() ? ' • FSSAI Licensed Kitchen' : ''}</span>
               </div>
             </div>
           </div>

@@ -162,7 +162,14 @@ export function PlansTeaser({ plans }: PlansTeaserProps) {
           })}
         </div>
 
-        <div className="mt-8 text-center">
+        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4 text-center">
+          <Link
+            href="/pricing"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-emerald-50 text-xs font-bold text-emerald-800 border border-emerald-200 hover:bg-emerald-100 transition-colors"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+            <span>View Full Subscription Pricing & Feature Comparison &rarr;</span>
+          </Link>
           <Link
             href="/weekly"
             className="text-xs font-bold text-primary hover:underline underline-offset-4"

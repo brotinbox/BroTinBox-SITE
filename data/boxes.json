@@ -16,7 +16,7 @@
     "tags": [
       "High Protein",
       "Chicken",
-      "Gramwise Calibrated"
+      "BroTin Box Calibrated"
     ],
     "allergens": [
       "Dairy",
@@ -109,7 +109,7 @@
       "drink-beetroot",
       "drink-cucumber-mint"
     ],
-    "labVerifiedNote": "All macros calibrated to the Gramwise 30-Day Master Menu. Digital kitchen weighed. Lab verification certificate pending batch release."
+    "labVerifiedNote": "All macros calibrated to the BroTin Box 30-Day Master Menu. Digital kitchen weighed. Lab verification certificate pending batch release."
   },
   {
     "id": "box-tue",
@@ -128,7 +128,7 @@
     "tags": [
       "High Protein",
       "Vegetarian",
-      "Gramwise Calibrated"
+      "BroTin Box Calibrated"
     ],
     "allergens": [
       "Dairy",
@@ -212,7 +212,7 @@
       "drink-carrot",
       "drink-cucumber-mint"
     ],
-    "labVerifiedNote": "All macros calibrated to the Gramwise 30-Day Master Menu. Digital kitchen weighed. Lab verification certificate pending batch release."
+    "labVerifiedNote": "All macros calibrated to the BroTin Box 30-Day Master Menu. Digital kitchen weighed. Lab verification certificate pending batch release."
   },
   {
     "id": "box-wed",
@@ -231,7 +231,7 @@
     "tags": [
       "High Protein",
       "Chicken",
-      "Gramwise Calibrated"
+      "BroTin Box Calibrated"
     ],
     "allergens": [
       "Egg",
@@ -323,7 +323,7 @@
       "drink-orange",
       "drink-cucumber-mint"
     ],
-    "labVerifiedNote": "All macros calibrated to the Gramwise 30-Day Master Menu. Digital kitchen weighed. Lab verification certificate pending batch release."
+    "labVerifiedNote": "All macros calibrated to the BroTin Box 30-Day Master Menu. Digital kitchen weighed. Lab verification certificate pending batch release."
   },
   {
     "id": "box-thu",
@@ -342,7 +342,7 @@
     "tags": [
       "High Protein",
       "Chicken",
-      "Gramwise Calibrated"
+      "BroTin Box Calibrated"
     ],
     "allergens": [
       "Egg",
@@ -435,7 +435,7 @@
       "drink-beetroot",
       "drink-orange"
     ],
-    "labVerifiedNote": "All macros calibrated to the Gramwise 30-Day Master Menu. Digital kitchen weighed. Lab verification certificate pending batch release."
+    "labVerifiedNote": "All macros calibrated to the BroTin Box 30-Day Master Menu. Digital kitchen weighed. Lab verification certificate pending batch release."
   },
   {
     "id": "box-fri",
@@ -454,7 +454,7 @@
     "tags": [
       "High Protein",
       "Chicken",
-      "Gramwise Calibrated"
+      "BroTin Box Calibrated"
     ],
     "allergens": [
       "Dairy",
@@ -547,7 +547,7 @@
       "drink-carrot",
       "drink-cucumber-mint"
     ],
-    "labVerifiedNote": "All macros calibrated to the Gramwise 30-Day Master Menu. Digital kitchen weighed. Lab verification certificate pending batch release."
+    "labVerifiedNote": "All macros calibrated to the BroTin Box 30-Day Master Menu. Digital kitchen weighed. Lab verification certificate pending batch release."
   },
   {
     "id": "box-sat",
@@ -566,7 +566,7 @@
     "tags": [
       "High Protein",
       "Fish",
-      "Gramwise Calibrated"
+      "BroTin Box Calibrated"
     ],
     "allergens": [
       "Egg",
@@ -659,6 +659,6 @@
       "drink-beetroot",
       "drink-cucumber-mint"
     ],
-    "labVerifiedNote": "All macros calibrated to the Gramwise 30-Day Master Menu. Digital kitchen weighed. Lab verification certificate pending batch release."
+    "labVerifiedNote": "All macros calibrated to the BroTin Box 30-Day Master Menu. Digital kitchen weighed. Lab verification certificate pending batch release."
   }
 ]

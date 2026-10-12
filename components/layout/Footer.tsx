@@ -2,6 +2,8 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { BRAND } from '@/config/brand';
+import { LEGAL, hasFssai } from '@/config/legal';
+import { LEGAL_PAGES } from '@/components/legal/LegalPage';
 import { MapPin, Phone, Mail, ShieldCheck, Heart, Instagram, MessageCircle, Twitter } from 'lucide-react';
 
 export function Footer() {
@@ -41,14 +43,16 @@ export function Footer() {
               </div>
             </div>
 
-            {/* FSSAI Badge */}
-            <div className="inline-flex items-center gap-2.5 bg-white/5 border border-white/10 px-3.5 py-2 rounded-xl text-xs">
-              <ShieldCheck className="w-5 h-5 text-lime-brand" />
-              <div>
-                <p className="font-semibold text-white">FSSAI Central License</p>
-                <p className="text-[11px] text-gray-400">Lic. No. {BRAND.fssaiNumber}</p>
+            {/* FSSAI badge: shown only once a real licence number is set in config/legal.ts */}
+            {hasFssai() && (
+              <div className="inline-flex items-center gap-2.5 bg-white/5 border border-white/10 px-3.5 py-2 rounded-xl text-xs">
+                <ShieldCheck className="w-5 h-5 text-lime-brand" />
+                <div>
+                  <p className="font-semibold text-white">FSSAI {LEGAL.fssai.licenseType || 'Licence'}</p>
+                  <p className="text-[11px] text-gray-400">Lic. No. {LEGAL.fssai.licenseNumber}</p>
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Quick Links */}
@@ -63,18 +67,14 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/plans" className="hover:text-white transition-colors">
-                  Subscription Plans
+                <Link href="/pricing" className="hover:text-white transition-colors">
+                  Pricing & Subscriptions
                 </Link>
               </li>
               <li>
-                <Link href="/build-plan" className="hover:text-white transition-colors">
-                  Custom Meal Builder
-                </Link>
-              </li>
-              <li>
-                <Link href="/how-it-works" className="hover:text-white transition-colors">
-                  How It Works
+                <Link href="/blog" className="hover:text-white transition-colors flex items-center gap-1.5">
+                  <span>Nutrition & Health Blog</span>
+                  <span className="text-[10px] font-bold bg-[#899545] text-white px-1.5 py-0.2 rounded-sm">NEW</span>
                 </Link>
               </li>
               <li>
@@ -116,11 +116,6 @@ export function Footer() {
                   Weight & Macro Progress
                 </Link>
               </li>
-              <li>
-                <Link href="/admin/dishes" className="text-white/40 hover:text-white transition-colors text-xs">
-                  Kitchen Portal (Admin)
-                </Link>
-              </li>
             </ul>
           </div>
 
@@ -136,6 +131,11 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/blog" className="hover:text-white transition-colors">
+                  Clinical & Nutrition Blog
+                </Link>
+              </li>
+              <li>
                 <Link href="/faq" className="hover:text-white transition-colors">
                   Frequently Asked Questions
                 </Link>
@@ -145,28 +145,20 @@ export function Footer() {
                   Contact Support
                 </Link>
               </li>
-              <li>
-                <Link href="/terms" className="hover:text-white transition-colors">
-                  Terms of Service
-                </Link>
-              </li>
-              <li>
-                <Link href="/privacy" className="hover:text-white transition-colors">
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link href="/refund-policy" className="hover:text-white transition-colors">
-                  Refund & Cancellation
-                </Link>
-              </li>
+              {LEGAL_PAGES.map((p) => (
+                <li key={p.href}>
+                  <Link href={p.href} className="hover:text-white transition-colors">
+                    {p.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
         </div>
 
         {/* Bottom bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-400">
-          <p>© {new Date().getFullYear()} {BRAND.legalName}. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} {LEGAL.entityName || BRAND.name}. All rights reserved.</p>
           <p className="flex items-center gap-1 text-gray-400">
             Cooked with <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500 inline" /> in Coimbatore, Tamil Nadu
           </p>

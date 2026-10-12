@@ -1,5 +1,7 @@
 'use client';
 
+import { useMenuVersion } from '@/components/providers/CatalogProvider';
+import { usePricing } from '@/components/providers/CatalogProvider';
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
@@ -24,28 +26,26 @@ import {
   Dumbbell,
   AlertTriangle,
 } from 'lucide-react';
-import confetti from 'canvas-confetti';
 import {
   getNextWeekOperatingDays,
   getMenuForDate,
-  PRICING,
   DietType,
   DailyMenuResult,
 } from '@/lib/menu-engine';
 import { useAppStore } from '@/store/useAppStore';
-import { Address, Order, DayOfWeek, MealSlot } from '@/types';
+import { submitOrder, toDbDiet } from '@/lib/checkout/submit';
 import { cn, formatCurrency } from '@/lib/utils';
-import { getZoneByPincode } from '@/lib/location';
+import { useDeliveryZones } from '@/lib/location';
+import { OrderTerms } from '@/components/legal/OrderTerms';
 
 export function WeeklyPlanStepModal() {
+  const menuVersion = useMenuVersion();
+  const PRICING = usePricing();
   const router = useRouter();
   const {
     addresses,
     selectedAddressId,
     setSelectedAddressId,
-    addAddress,
-    setWeeklyOrder,
-    addPlacedOrder,
     user,
   } = useAppStore();
 
@@ -74,6 +74,8 @@ export function WeeklyPlanStepModal() {
     }
   }, [step]);
 
+  const { getZoneByPincode } = useDeliveryZones();
+
   // Operating 6 days (Mon-Sat)
   const nextWeekDays = useMemo(() => getNextWeekOperatingDays(), []);
 
@@ -83,8 +85,8 @@ export function WeeklyPlanStepModal() {
   // Step 2: Schedule & Skip Days & Meals per Day
   const [skippedDays, setSkippedDays] = useState<string[]>([]);
   const [mealsPerDay, setMealsPerDay] = useState<1 | 2>(1);
-  const [lunchSlot, setLunchSlot] = useState('12:00 PM - 1:30 PM');
-  const [dinnerSlot, setDinnerSlot] = useState('7:00 PM - 8:30 PM');
+  const [lunchSlot, setLunchSlot] = useState('7:00 AM - 9:00 AM');
+  const [dinnerSlot, setDinnerSlot] = useState('7:00 PM - 9:00 PM');
 
   // Toggle skipping a day
   const toggleSkipDay = (dateStr: string) => {
@@ -122,7 +124,7 @@ export function WeeklyPlanStepModal() {
         isSkipped: skippedDays.includes(d.dateStr),
       };
     });
-  }, [nextWeekDays, dietVariation, skippedDays]);
+  }, [nextWeekDays, dietVariation, skippedDays, menuVersion]);
 
   // Step 3: Tab Inspection
   const [inspectedDayIndex, setInspectedDayIndex] = useState(0);
@@ -157,7 +159,7 @@ export function WeeklyPlanStepModal() {
       activeCount: activeDays.length,
       skippedCount: skippedDays.length,
     };
-  }, [activeDays, mealsPerDay, skippedDays]);
+  }, [activeDays, mealsPerDay, skippedDays, PRICING]);
 
   // Step 4: Address
   const activeAddress = useMemo(() => {
@@ -165,18 +167,17 @@ export function WeeklyPlanStepModal() {
   }, [addresses, selectedAddressId]);
 
   const [useNewAddress, setUseNewAddress] = useState(addresses.length === 0);
-  const [fullName, setFullName] = useState(user?.fullName || 'Mohammed Anas');
-  const [phone, setPhone] = useState(user?.phone || '9842123456');
+  const [fullName, setFullName] = useState(user?.fullName || '');
+  const [phone, setPhone] = useState((user?.phone || '').replace(/^\+91/, ''));
   const [flatNumber, setFlatNumber] = useState('');
   const [street, setStreet] = useState('');
   const [area, setArea] = useState('');
-  const [pincode, setPincode] = useState('641002');
-  const [paymentMethod, setPaymentMethod] = useState<'upi' | 'card'>('upi');
+  const [pincode, setPincode] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [payError, setPayError] = useState('');
 
   // Pincode validation & zone detection
-  const detectedZone = useMemo(() => getZoneByPincode(pincode), [pincode]);
+  const detectedZone = useMemo(() => getZoneByPincode(pincode), [getZoneByPincode, pincode]);
 
   // Step validations
   const canGoNextFromStep1 = true;
@@ -189,103 +190,31 @@ export function WeeklyPlanStepModal() {
       Boolean(detectedZone)
     : Boolean(activeAddress);
 
-  // Handle Weekly Order Payment & Registration
-  const handlePay = () => {
+  // Place a real order: the server prices it and we go to the UPI payment page.
+  const handlePay = async () => {
+    setPayError('');
     setIsProcessing(true);
-
-    setTimeout(() => {
-      let deliveryAddress: Address;
-      if (useNewAddress || !activeAddress) {
-        const newAddr: Address = {
-          id: `addr-${Date.now()}`,
-          name: fullName,
-          phone,
-          tag: 'Home',
-          flatNumber,
-          street,
-          area,
-          pincode,
-          city: 'Coimbatore',
-          isDefault: true,
-        };
-        addAddress(newAddr);
-        setSelectedAddressId(newAddr.id);
-        deliveryAddress = newAddr;
-      } else {
-        deliveryAddress = activeAddress;
-      }
-
-      // Store in App Store Weekly Order
-      setWeeklyOrder({
-        weekStartDate: nextWeekDays[0].dateStr,
-        dietVariation,
+    const error = await submitOrder(
+      {
+        type: 'weekly',
         mealsPerDay,
-        skippedDays,
-        selectedSides: [],
-        selectedDrinks: [],
-        lunchSlot,
-        dinnerSlot,
-        price: pricingCalculations.total,
-      });
-
-      // Register live Order on dashboard
-      const orderDisplayId = `GW-WK-${Math.floor(1000 + Math.random() * 9000)}`;
-      const newOrder: Order = {
-        id: `ord-wk-${Date.now()}`,
-        displayId: orderDisplayId,
-        date: `Week Starting ${nextWeekDays[0].formatted}`,
-        dayOfWeek: 'Mon',
-        slot: mealsPerDay === 2 ? 'lunch' : 'lunch',
-        status: 'Preparing',
-        statusStep: 1,
-        items: [
-          {
-            id: `item-wk-${Date.now()}`,
-            itemType: 'box',
-            name: `6-Day Weekly Routine (${pricingCalculations.activeCount} Days Active)`,
-            day: 'Mon',
-            slot: 'lunch',
-            quantity: pricingCalculations.activeCount * mealsPerDay,
-            isVeg: dietVariation === 'veg',
-            calories: 820,
-            protein: dietVariation === 'non-veg' ? 75 : dietVariation === 'veg' ? 42 : 65,
-            price: pricingCalculations.total,
-          },
-        ],
-        deliveryAddress,
-        deliveryAgent: {
-          name: 'Murugan S. (Zone Lead)',
-          phone: '+91 94432 87654',
-        },
-        estimatedDeliveryTime:
-          mealsPerDay === 2 ? '12:45 PM & 7:45 PM' : '12:45 PM',
-        totalCalories: 820 * pricingCalculations.activeCount,
-        totalProtein:
-          (dietVariation === 'non-veg' ? 75 : dietVariation === 'veg' ? 42 : 65) *
-          pricingCalculations.activeCount,
-        totalAmount: pricingCalculations.total,
-      };
-
-      addPlacedOrder(newOrder);
-
-      try {
-        confetti({
-          particleCount: 100,
-          spread: 70,
-          origin: { y: 0.6 },
-          colors: ['#124233', '#899545', '#16A34A', '#F97316'],
-        });
-      } catch (e) {
-        // ignore
+        slot: 'lunch',
+        days: activeDays.map((d) => ({ date: d.dateStr, diet: toDbDiet(d.diet) })),
+        addonIds: [],
+        preferences: { isEggFree: false, skipLegume: false, dietVariation },
+        addressId: useNewAddress ? undefined : activeAddress?.id,
+      },
+      {
+        newAddress: useNewAddress || !activeAddress
+          ? { recipientName: fullName, phone, flat: flatNumber, street, area, pincode }
+          : undefined,
+        navigate: (href) => router.push(href),
       }
-
+    );
+    if (error) {
+      setPayError(error);
       setIsProcessing(false);
-      setIsSuccess(true);
-
-      setTimeout(() => {
-        router.push('/dashboard');
-      }, 1400);
-    }, 1200);
+    }
   };
 
   return (
@@ -377,7 +306,7 @@ export function WeeklyPlanStepModal() {
                         ~75g+ Protein / Day
                       </span>
                       <span className="text-xs font-bold text-[#899545]">
-                        ₹289 / day
+                        from ₹{PRICING.weekly.veg} / day
                       </span>
                     </div>
                   </div>
@@ -591,7 +520,7 @@ export function WeeklyPlanStepModal() {
                     <span className="font-heading font-bold text-xs sm:text-sm text-gray-900 block">
                       1 Meal / Day
                     </span>
-                    <span className="text-[10px] text-gray-500">Lunch only</span>
+                    <span className="text-[10px] text-gray-500">Morning or Dinner</span>
                   </div>
                   <div
                     className={cn(
@@ -622,7 +551,7 @@ export function WeeklyPlanStepModal() {
                         -₹10
                       </span>
                     </div>
-                    <span className="text-[10px] text-gray-500">Lunch + Dinner</span>
+                    <span className="text-[10px] text-gray-500">Morning + Dinner</span>
                   </div>
                   <div
                     className={cn(
@@ -1000,64 +929,22 @@ export function WeeklyPlanStepModal() {
               </div>
             </div>
 
-            {/* Payment Method Selector */}
-            <div className="space-y-2">
-              <label className="text-[11px] sm:text-xs font-bold text-gray-700 uppercase tracking-wider block">
-                Payment Method
-              </label>
-              <div className="grid grid-cols-2 gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod('upi')}
-                  className={cn(
-                    'p-3 rounded-xl border-2 text-left flex items-center justify-between transition-all tap-active',
-                    paymentMethod === 'upi'
-                      ? 'border-[#124233] bg-[#FAFDF6] ring-1 ring-[#124233]/15'
-                      : 'border-gray-200 bg-white'
-                  )}
-                >
-                  <div className="flex items-center gap-2">
-                    <QrCode className="w-4 h-4 text-emerald-700" />
-                    <span className="text-xs font-bold text-gray-900">Instant UPI</span>
-                  </div>
-                  <div
-                    className={cn(
-                      'w-3.5 h-3.5 rounded-full border flex items-center justify-center',
-                      paymentMethod === 'upi' ? 'border-[#124233] bg-[#124233] text-white' : 'border-gray-300'
-                    )}
-                  >
-                    {paymentMethod === 'upi' && <Check className="w-2 h-2 stroke-[3]" />}
-                  </div>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod('card')}
-                  className={cn(
-                    'p-3 rounded-xl border-2 text-left flex items-center justify-between transition-all tap-active',
-                    paymentMethod === 'card'
-                      ? 'border-[#124233] bg-[#FAFDF6] ring-1 ring-[#124233]/15'
-                      : 'border-gray-200 bg-white'
-                  )}
-                >
-                  <div className="flex items-center gap-2">
-                    <CreditCard className="w-4 h-4 text-gray-700" />
-                    <span className="text-xs font-bold text-gray-900">Card / NetBanking</span>
-                  </div>
-                  <div
-                    className={cn(
-                      'w-3.5 h-3.5 rounded-full border flex items-center justify-center',
-                      paymentMethod === 'card' ? 'border-[#124233] bg-[#124233] text-white' : 'border-gray-300'
-                    )}
-                  >
-                    {paymentMethod === 'card' && <Check className="w-2 h-2 stroke-[3]" />}
-                  </div>
-                </button>
-              </div>
+            {/* Payment */}
+            <div className="p-3 rounded-xl border border-[#124233]/15 bg-[#FAFDF6] text-[11px] sm:text-xs text-gray-700 flex items-start gap-2">
+              <QrCode className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
+              <span>Next you&apos;ll see our UPI ID and QR code. Pay from any UPI app and enter the reference number. We confirm and schedule your week.</span>
             </div>
           </div>
         )}
       </div>
+
+      {payError && (
+        <p role="alert" className="mx-3 sm:mx-6 mt-2 text-xs font-semibold text-rose-700 bg-rose-50 border border-rose-100 rounded-xl px-3 py-2">
+          {payError}
+        </p>
+      )}
+
+      {step === 5 && <OrderTerms className="mx-3 sm:mx-6 mt-2 text-center" />}
 
       {/* Bottom Sticky Action Controls */}
       <div className="bg-[#FAFDF6] border-t border-[#124233]/10 p-3 sm:p-6 flex items-center justify-between gap-2 sm:gap-3">
@@ -1096,24 +983,19 @@ export function WeeklyPlanStepModal() {
         ) : (
           <button
             type="button"
-            disabled={isProcessing || isSuccess}
+            disabled={isProcessing}
             onClick={handlePay}
             className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 sm:gap-2 px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-heading font-black bg-[#124233] text-white hover:bg-[#0c2e23] disabled:opacity-60 transition-all tap-active active:scale-[0.98] shadow-lg sm:shadow-xl shadow-[#124233]/20"
           >
             {isProcessing ? (
               <>
                 <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                <span>Securing Kitchen Schedule...</span>
-              </>
-            ) : isSuccess ? (
-              <>
-                <CheckCircle2 className="w-4 h-4 text-emerald-300" />
-                <span>Routine Confirmed!</span>
+                <span>Placing your order…</span>
               </>
             ) : (
               <>
                 <Lock className="w-4 h-4 text-[#899545]" />
-                <span>Pay {formatCurrency(pricingCalculations.total)} & Start Routine</span>
+                <span>Place order · {formatCurrency(pricingCalculations.total)}</span>
               </>
             )}
           </button>

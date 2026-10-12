@@ -32,7 +32,7 @@ export const COIMBATORE_ZONES_WITH_COORDS: DeliveryMapZone[] = [
     area: 'Kuniyamuthur',
     isDeliverable: true,
     avgDeliveryMinutes: 15,
-    slots: ['12:00 PM - 1:30 PM', '7:00 PM - 8:30 PM'],
+    slots: ['7:00 AM - 9:00 AM', '7:00 PM - 9:00 PM'],
     lat: 10.9575,
     lng: 76.9530,
     status: 'active',
@@ -44,7 +44,7 @@ export const COIMBATORE_ZONES_WITH_COORDS: DeliveryMapZone[] = [
     area: 'Ukkadam',
     isDeliverable: true,
     avgDeliveryMinutes: 20,
-    slots: ['12:00 PM - 1:30 PM', '7:00 PM - 8:30 PM'],
+    slots: ['7:00 AM - 9:00 AM', '7:00 PM - 9:00 PM'],
     lat: 10.9880,
     lng: 76.9630,
     status: 'active',
@@ -55,7 +55,7 @@ export const COIMBATORE_ZONES_WITH_COORDS: DeliveryMapZone[] = [
     area: 'Kovaipudhur',
     isDeliverable: true,
     avgDeliveryMinutes: 20,
-    slots: ['12:00 PM - 1:30 PM', '7:00 PM - 8:30 PM'],
+    slots: ['7:00 AM - 9:00 AM', '7:00 PM - 9:00 PM'],
     lat: 10.9415,
     lng: 76.9360,
     status: 'active',
@@ -66,7 +66,7 @@ export const COIMBATORE_ZONES_WITH_COORDS: DeliveryMapZone[] = [
     area: 'Sundarapuram',
     isDeliverable: true,
     avgDeliveryMinutes: 20,
-    slots: ['12:00 PM - 1:30 PM', '7:00 PM - 8:30 PM'],
+    slots: ['7:00 AM - 9:00 AM', '7:00 PM - 9:00 PM'],
     lat: 10.9575,
     lng: 76.9850,
     status: 'active',
@@ -79,7 +79,7 @@ export const COIMBATORE_ZONES_WITH_COORDS: DeliveryMapZone[] = [
     area: 'RS Puram',
     isDeliverable: false,
     avgDeliveryMinutes: 30,
-    slots: ['12:00 PM - 1:30 PM', '7:00 PM - 8:30 PM'],
+    slots: ['7:00 AM - 9:00 AM', '7:00 PM - 9:00 PM'],
     lat: 11.0089,
     lng: 76.9500,
     status: 'coming-soon',
@@ -90,7 +90,7 @@ export const COIMBATORE_ZONES_WITH_COORDS: DeliveryMapZone[] = [
     area: 'Race Course',
     isDeliverable: false,
     avgDeliveryMinutes: 25,
-    slots: ['12:00 PM - 1:30 PM', '7:00 PM - 8:30 PM'],
+    slots: ['7:00 AM - 9:00 AM', '7:00 PM - 9:00 PM'],
     lat: 11.0038,
     lng: 76.9744,
     status: 'coming-soon',
@@ -101,7 +101,7 @@ export const COIMBATORE_ZONES_WITH_COORDS: DeliveryMapZone[] = [
     area: 'Gandhipuram',
     isDeliverable: false,
     avgDeliveryMinutes: 30,
-    slots: ['12:00 PM - 1:30 PM', '7:00 PM - 8:30 PM'],
+    slots: ['7:00 AM - 9:00 AM', '7:00 PM - 9:00 PM'],
     lat: 11.0183,
     lng: 76.9644,
     status: 'coming-soon',
@@ -112,7 +112,7 @@ export const COIMBATORE_ZONES_WITH_COORDS: DeliveryMapZone[] = [
     area: 'Ramanathapuram',
     isDeliverable: false,
     avgDeliveryMinutes: 30,
-    slots: ['12:00 PM - 1:30 PM', '7:00 PM - 8:30 PM'],
+    slots: ['7:00 AM - 9:00 AM', '7:00 PM - 9:00 PM'],
     lat: 10.9942,
     lng: 76.9936,
     status: 'coming-soon',
@@ -123,7 +123,7 @@ export const COIMBATORE_ZONES_WITH_COORDS: DeliveryMapZone[] = [
     area: 'Saibaba Colony',
     isDeliverable: false,
     avgDeliveryMinutes: 35,
-    slots: ['12:00 PM - 1:30 PM', '7:00 PM - 8:30 PM'],
+    slots: ['7:00 AM - 9:00 AM', '7:00 PM - 9:00 PM'],
     lat: 11.0268,
     lng: 76.9442,
     status: 'coming-soon',
@@ -134,7 +134,7 @@ export const COIMBATORE_ZONES_WITH_COORDS: DeliveryMapZone[] = [
     area: 'Peelamedu',
     isDeliverable: false,
     avgDeliveryMinutes: 35,
-    slots: ['12:00 PM - 1:30 PM', '7:00 PM - 8:30 PM'],
+    slots: ['7:00 AM - 9:00 AM', '7:00 PM - 9:00 PM'],
     lat: 11.0289,
     lng: 77.0097,
     status: 'coming-soon',
@@ -145,7 +145,7 @@ export const COIMBATORE_ZONES_WITH_COORDS: DeliveryMapZone[] = [
     area: 'Singanallur',
     isDeliverable: false,
     avgDeliveryMinutes: 35,
-    slots: ['12:00 PM - 1:30 PM', '7:00 PM - 8:30 PM'],
+    slots: ['7:00 AM - 9:00 AM', '7:00 PM - 9:00 PM'],
     lat: 10.9995,
     lng: 77.0270,
     status: 'coming-soon',
@@ -156,7 +156,7 @@ export const COIMBATORE_ZONES_WITH_COORDS: DeliveryMapZone[] = [
     area: 'Saravanampatti',
     isDeliverable: false,
     avgDeliveryMinutes: 45,
-    slots: ['12:00 PM - 1:30 PM', '7:00 PM - 8:30 PM'],
+    slots: ['7:00 AM - 9:00 AM', '7:00 PM - 9:00 PM'],
     lat: 11.0797,
     lng: 76.9997,
     status: 'coming-soon',
@@ -167,7 +167,7 @@ export const COIMBATORE_ZONES_WITH_COORDS: DeliveryMapZone[] = [
     area: 'Vadavalli',
     isDeliverable: false,
     avgDeliveryMinutes: 40,
-    slots: ['12:00 PM - 1:30 PM', '7:00 PM - 8:30 PM'],
+    slots: ['7:00 AM - 9:00 AM', '7:00 PM - 9:00 PM'],
     lat: 11.0232,
     lng: 76.9023,
     status: 'coming-soon',
@@ -178,7 +178,7 @@ export const COIMBATORE_ZONES_WITH_COORDS: DeliveryMapZone[] = [
     area: 'Ganapathy',
     isDeliverable: false,
     avgDeliveryMinutes: 35,
-    slots: ['12:00 PM - 1:30 PM', '7:00 PM - 8:30 PM'],
+    slots: ['7:00 AM - 9:00 AM', '7:00 PM - 9:00 PM'],
     lat: 11.0425,
     lng: 76.9754,
     status: 'coming-soon',
@@ -570,7 +570,7 @@ export function DeliveryCoverageMap({
 
                 <div className="mt-3.5 pt-3 border-t border-gray-100 flex items-center justify-between gap-2">
                   <span className="text-[10px] text-gray-500 font-medium">
-                    2 daily hot slots: Lunch & Dinner
+                    2 daily hot slots: Morning & Dinner
                   </span>
                   <Link
                     href="/weekly"
@@ -587,7 +587,7 @@ export function DeliveryCoverageMap({
                   We are expanding our delivery fleet to {selectedZone.area} soon.
                 </p>
                 <a
-                  href={`https://wa.me/919876543210?text=Hi%2C%20I%20would%20like%20to%20request%20MuscleGrow%20delivery%20in%20${encodeURIComponent(selectedZone.area)}%20(${selectedZone.pincode})`}
+                  href={`https://wa.me/917604909848?text=Hi%2C%20I%20would%20like%20to%20request%20BroTin%20Box%20delivery%20in%20${encodeURIComponent(selectedZone.area)}%20(${selectedZone.pincode})`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-3 inline-flex items-center gap-1.5 bg-[#25D366] text-white text-xs font-bold px-4 py-2 rounded-xl"

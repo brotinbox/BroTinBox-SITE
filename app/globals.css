@@ -77,3 +77,19 @@
 }
 
 
+
+/* Blog article body (rendered from Markdown by lib/content/markdown.ts) */
+.prose-blog { color: #1f2937; font-size: 1rem; line-height: 1.75; }
+.prose-blog h2 { font-family: var(--font-jakarta); font-weight: 900; font-size: 1.5rem; margin: 2rem 0 0.75rem; color: #111827; }
+.prose-blog h3 { font-family: var(--font-jakarta); font-weight: 800; font-size: 1.25rem; margin: 1.5rem 0 0.5rem; color: #111827; }
+.prose-blog h4 { font-weight: 800; font-size: 1.05rem; margin: 1.25rem 0 0.5rem; }
+.prose-blog p { margin: 0 0 1rem; }
+.prose-blog ul, .prose-blog ol { margin: 0 0 1rem 1.25rem; }
+.prose-blog ul { list-style: disc; }
+.prose-blog ol { list-style: decimal; }
+.prose-blog li { margin: 0.25rem 0; }
+.prose-blog a { color: #14532d; font-weight: 600; text-decoration: underline; }
+.prose-blog blockquote { border-left: 4px solid #a3e635; padding: 0.25rem 1rem; color: #374151; margin: 1rem 0; background: #f7fee7; border-radius: 0 0.5rem 0.5rem 0; }
+.prose-blog code { background: #f3f4f6; padding: 0.1rem 0.35rem; border-radius: 0.25rem; font-size: 0.9em; }
+.prose-blog hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+.prose-blog strong { font-weight: 700; color: #111827; }

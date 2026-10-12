@@ -1,10 +1,10 @@
 /**
- * Gramwise Business Model & Unit Economics
+ * BroTin Box Business Model & Unit Economics
  * Grounded in /public/Gramwise_30Day_Menu_and_Profit_Model - Scenarios.csv
  */
 
 export const BUSINESS_MODEL = {
-  name: 'Gramwise',
+  name: 'BroTin Box',
   operatingDaysPerMonth: 26, // Mon to Sat (Sundays closed for sanitisation)
   operatingSchedule: 'Monday to Saturday',
   

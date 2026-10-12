@@ -7,7 +7,6 @@ import {
   PlanTier,
   Address,
   Coupon,
-  Subscription,
   Box,
   SideBox,
   AddonDrink,
@@ -16,7 +15,6 @@ import {
   WeeklyOrderConfig,
   MonthlyOrderConfig,
   UserLocation,
-  Order,
 } from '@/types';
 import boxesData from '@/data/boxes.json';
 import sidesData from '@/data/sides.json';
@@ -34,47 +32,27 @@ const defaultLocation: UserLocation = {
   deliveryFee: 0,
   isDeliverable: true,
   formattedAddress: 'Kuniyamuthur, 641008, Coimbatore',
-  detectedViaGps: false,
 };
 
-const defaultProfile: UserProfile = {
-  id: "user-1",
-  phone: "9876543210",
-  fullName: "Mohammed Anas",
-  email: "anas@example.com",
-  goal: "muscle-gain",
-  gender: "male",
-  age: 26,
-  weightKg: 72,
-  targetWeightKg: 75,
-  heightCm: 175,
-  activityLevel: "moderately-active",
-  dietType: "non-veg",
+// Signed-out placeholder. Real values come from Supabase via <AuthSync />.
+export const emptyProfile: UserProfile = {
+  id: '',
+  phone: '',
+  fullName: '',
+  email: undefined,
+  goal: 'stay-fit',
+  gender: 'other',
+  age: 0,
+  weightKg: 0,
+  heightCm: 0,
+  activityLevel: 'moderately-active',
+  dietType: 'non-veg',
   allergies: [],
   dislikedIngredients: [],
   mealsPerDay: 1,
-  selectedDays: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-  calculatedTargets: {
-    calories: 2250,
-    protein: 145,
-    carbs: 260,
-    fat: 65,
-  },
-  isOnboarded: true,
-};
-
-const defaultAddress: Address = {
-  id: "addr-1",
-  name: "Mohammed Anas",
-  phone: "+91 98421 23456",
-  tag: "Home",
-  flatNumber: "Flat 4B, Green Acres",
-  street: "East Sambandam Road",
-  landmark: "Near Avila Convent",
-  area: "RS Puram",
-  pincode: "641002",
-  city: "Coimbatore",
-  isDefault: true,
+  selectedDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+  calculatedTargets: { calories: 0, protein: 0, carbs: 0, fat: 0 },
+  isOnboarded: false,
 };
 
 const initialDayConfigs: Record<DayOfWeek, DayBoxConfig> = {
@@ -91,7 +69,9 @@ interface AppState {
   isLoggedIn: boolean;
   user: UserProfile;
   setUser: (profile: Partial<UserProfile>) => void;
-  login: (phone: string) => void;
+  /** Set by <AuthSync /> from the Supabase session; null profile = signed out. */
+  authReady: boolean;
+  setAuthProfile: (profile: UserProfile | null) => void;
   logout: () => void;
 
   // New Box & Schedule Rotation State
@@ -143,11 +123,14 @@ interface AppState {
   isNavDrawerOpen: boolean;
   setNavDrawerOpen: (open: boolean) => void;
 
-  // Subscription state
-  subscription: Subscription | null;
-  pauseSubscription: (days: number) => void;
-  resumeSubscription: () => void;
-  cancelSubscription: (reason: string) => void;
+  // Mobile Auth Sidebar / Login Drawer state
+  isAuthDrawerOpen: boolean;
+  setAuthDrawerOpen: (open: boolean) => void;
+
+  // Meal Details Bottom Sheet / Modal state (hides bottom nav when open)
+  isDetailsModalOpen: boolean;
+  setDetailsModalOpen: (open: boolean) => void;
+
 
   // Rotating 5-Item Box Checkout State
   activeCheckoutType: 'trial' | 'weekly' | 'monthly' | 'custom' | 'plan';
@@ -158,8 +141,6 @@ interface AppState {
   setWeeklyOrder: (order: WeeklyOrderConfig | null) => void;
   monthlyOrder: MonthlyOrderConfig | null;
   setMonthlyOrder: (order: MonthlyOrderConfig | null) => void;
-  placedOrders: Order[];
-  addPlacedOrder: (order: Order) => void;
 
   // Computed Calculation Helpers
   getPlanMealCount: () => number;
@@ -173,19 +154,25 @@ interface AppState {
 export const useAppStore = create<AppState>()(
   persist(
     (set, get) => ({
-      isLoggedIn: true,
-      user: defaultProfile,
+      isLoggedIn: false,
+      authReady: false,
+      user: emptyProfile,
       setUser: (updates) =>
         set((state) => ({ user: { ...state.user, ...updates } })),
-      login: (phone: string) =>
-        set((state) => ({
-          isLoggedIn: true,
-          user: { ...state.user, phone },
-        })),
-      logout: () => set({ isLoggedIn: false }),
+      setAuthProfile: (profile) =>
+        set(profile
+          ? { isLoggedIn: true, authReady: true, user: profile }
+          : { isLoggedIn: false, authReady: true, user: emptyProfile, addresses: [], selectedAddressId: '' }),
+      logout: () => set({ isLoggedIn: false, user: emptyProfile, addresses: [], selectedAddressId: '' }),
 
       isNavDrawerOpen: false,
       setNavDrawerOpen: (open: boolean) => set({ isNavDrawerOpen: open }),
+
+      isAuthDrawerOpen: false,
+      setAuthDrawerOpen: (open: boolean) => set({ isAuthDrawerOpen: open }),
+
+      isDetailsModalOpen: false,
+      setDetailsModalOpen: (open: boolean) => set({ isDetailsModalOpen: open }),
 
       mealsPerDay: 1,
       setMealsPerDay: (count) =>
@@ -315,16 +302,16 @@ export const useAppStore = create<AppState>()(
 
       billingCycle: 'weekly',
       setBillingCycle: (cycle) => set({ billingCycle: cycle }),
-      paymentMode: 'autopay',
+      paymentMode: 'prepaid',
       setPaymentMode: (mode) => set({ paymentMode: mode }),
 
-      deliverySlotLunch: "12:00 PM - 1:30 PM",
-      deliverySlotDinner: "7:00 PM - 8:30 PM",
+      deliverySlotLunch: "7:00 AM - 9:00 AM",
+      deliverySlotDinner: "7:00 PM - 9:00 PM",
       setDeliverySlotLunch: (slot) => set({ deliverySlotLunch: slot }),
       setDeliverySlotDinner: (slot) => set({ deliverySlotDinner: slot }),
 
-      addresses: [defaultAddress],
-      selectedAddressId: "addr-1",
+      addresses: [],
+      selectedAddressId: '',
       addAddress: (address) =>
         set((state) => ({ addresses: [...state.addresses, address] })),
       setSelectedAddressId: (id) => set({ selectedAddressId: id }),
@@ -335,58 +322,6 @@ export const useAppStore = create<AppState>()(
       currentLocation: defaultLocation,
       setCurrentLocation: (loc) => set({ currentLocation: loc }),
 
-      subscription: {
-        id: "sub-9021",
-        planId: "plan-6day-weekly",
-        planName: "6-Day Weekly Protein Plan",
-        status: "active",
-        billingCycle: "weekly",
-        paymentMode: "autopay",
-        mealsPerDay: 1,
-        currentWeekStart: "Mon, 6 Oct",
-        nextBillingDate: "Sun, 12 Oct",
-        pricePerCycle: 1532,
-        pausedUntil: null,
-        addressId: "addr-1",
-        deliverySlotLunch: "12:00 PM - 1:30 PM",
-        deliverySlotDinner: "7:00 PM - 8:30 PM",
-      },
-      pauseSubscription: (days: number) =>
-        set((state) => {
-          if (!state.subscription) return state;
-          const returnDate = new Date();
-          returnDate.setDate(returnDate.getDate() + days);
-          return {
-            subscription: {
-              ...state.subscription,
-              status: "paused",
-              pausedUntil: returnDate.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }),
-            },
-          };
-        }),
-      resumeSubscription: () =>
-        set((state) => {
-          if (!state.subscription) return state;
-          return {
-            subscription: {
-              ...state.subscription,
-              status: "active",
-              pausedUntil: null,
-            },
-          };
-        }),
-      cancelSubscription: (reason: string) =>
-        set((state) => {
-          if (!state.subscription) return state;
-          return {
-            subscription: {
-              ...state.subscription,
-              status: "cancelled",
-              cancelReason: reason,
-            },
-          };
-        }),
-
       // Rotating 5-Item Box Checkout State
       activeCheckoutType: 'trial',
       setActiveCheckoutType: (type) => set({ activeCheckoutType: type }),
@@ -396,11 +331,6 @@ export const useAppStore = create<AppState>()(
       setWeeklyOrder: (order) => set({ weeklyOrder: order, activeCheckoutType: 'weekly' }),
       monthlyOrder: null,
       setMonthlyOrder: (order) => set({ monthlyOrder: order, activeCheckoutType: 'monthly' }),
-      placedOrders: [],
-      addPlacedOrder: (order) =>
-        set((state) => ({
-          placedOrders: [order, ...(state.placedOrders || [])],
-        })),
 
       getPlanMealCount: () => {
         const { selectedDays, dayConfigs } = get();
@@ -573,12 +503,10 @@ export const useAppStore = create<AppState>()(
       },
     }),
     {
-      name: 'musclegrow-storage',
+      name: 'brotinbox-v2', // v2: drops the old demo user saved by earlier builds
       storage: createJSONStorage(() => localStorage),
       skipHydration: true,
       partialize: (state) => ({
-        isLoggedIn: state.isLoggedIn,
-        user: state.user,
         mealsPerDay: state.mealsPerDay,
         selectedDays: state.selectedDays,
         dayConfigs: state.dayConfigs,
@@ -587,9 +515,6 @@ export const useAppStore = create<AppState>()(
         selectedTier: state.selectedTier,
         billingCycle: state.billingCycle,
         paymentMode: state.paymentMode,
-        addresses: state.addresses,
-        selectedAddressId: state.selectedAddressId,
-        subscription: state.subscription,
         activeCheckoutType: state.activeCheckoutType,
         trialOrder: state.trialOrder,
         weeklyOrder: state.weeklyOrder,
