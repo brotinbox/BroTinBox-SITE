@@ -39,8 +39,6 @@ export function Navbar() {
   const [isMobileNavVisible, setIsMobileNavVisible] = useState(true);
   const lastScrollYRef = useRef(0);
 
-  const isHomePage = pathname === '/';
-
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -150,104 +148,100 @@ export function Navbar() {
 
   return (
     <>
-      {/* Top Navbar for non-home pages (Desktop matches the clean home hero navbar) */}
-      {!isHomePage && (
-        <header
-          className={cn(
-            "sticky top-0 z-50 w-full bg-[#E8F1D4] sm:bg-[#E8F1D4]/95 backdrop-blur-md transition-transform duration-300 ease-in-out will-change-transform border-b border-[#124233]/10",
-            !isMobileNavVisible ? "-translate-y-full md:translate-y-0" : "translate-y-0"
-          )}
-        >
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-3">
-            {/* Desktop Navbar (Hidden on mobile) */}
-            <div className="hidden md:flex items-center justify-between">
-              {/* Left Brand Logo */}
-              <Link href="/" className="flex items-center gap-2 group">
-                <Image
-                  src="/logo.png"
-                  alt={BRAND.name}
-                  width={200}
-                  height={72}
-                  className="h-14 md:h-16 w-auto object-contain transition-transform group-hover:scale-105"
-                  priority
-                />
-              </Link>
+      {/* Top Navbar */}
+      <header
+        className={cn(
+          "sticky top-0 z-50 w-full bg-[#E8F1D4] sm:bg-[#E8F1D4]/95 backdrop-blur-md transition-transform duration-300 ease-in-out will-change-transform border-b border-[#124233]/10",
+          !isMobileNavVisible ? "-translate-y-full md:translate-y-0" : "translate-y-0"
+        )}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-3">
+          {/* Desktop Navbar (Hidden on mobile) */}
+          <div className="hidden md:flex items-center justify-between">
+            {/* Left Brand Logo */}
+            <Link href="/" className="flex items-center gap-2 group">
+              <Image
+                src="/logo.png"
+                alt={BRAND.name}
+                width={200}
+                height={72}
+                className="h-14 md:h-16 w-auto object-contain transition-transform group-hover:scale-105"
+                priority
+              />
+            </Link>
 
-              {/* Center Clean Typography Navigation Links */}
-              <nav className="flex items-center gap-6 lg:gap-8">
-                <Link
-                  href="/menu"
-                  className={cn(
-                    "text-sm font-bold tracking-wide transition-colors",
-                    pathname === '/menu'
-                      ? "text-[#899545]"
-                      : "text-[#124233] hover:text-[#899545]"
-                  )}
-                >
-                  Menu
-                </Link>
-                <Link
-                  href="/pricing"
-                  className={cn(
-                    "text-sm font-bold tracking-wide transition-colors",
-                    pathname === '/pricing'
-                      ? "text-[#899545]"
-                      : "text-[#124233] hover:text-[#899545]"
-                  )}
-                >
-                  Pricing
-                </Link>
-                <Link
-                  href="/blog"
-                  className={cn(
-                    "text-sm font-bold tracking-wide transition-colors flex items-center gap-1.5",
-                    pathname === '/blog'
-                      ? "text-[#899545]"
-                      : "text-[#124233] hover:text-[#899545]"
-                  )}
-                >
-                  <span>Blog</span>
-                  <span className="text-[10px] font-bold bg-[#899545] text-white px-1.5 py-0.2 rounded-full">New</span>
-                </Link>
-                <Link
-                  href="/delivery-areas"
-                  className={cn(
-                    "text-sm font-bold tracking-wide transition-colors",
-                    pathname === '/delivery-areas'
-                      ? "text-[#899545]"
-                      : "text-[#124233] hover:text-[#899545]"
-                  )}
-                >
-                  Delivery Areas
-                </Link>
-              </nav>
-
-              {/* Right Profile & Login & Location Selector */}
-              <div className="flex items-center gap-3">
-                <LocationSelector variant="desktop" />
-
-                <AccountButton variant="desktop" />
-              </div>
-            </div>
-
-            {/* Mobile Header (Location on Left, Menu Slider on Right) */}
-            <div className="flex md:hidden items-center justify-between gap-3">
-              <LocationSelector variant="mobile" />
-
-              <button
-                type="button"
-                onClick={() => setNavDrawerOpen(true)}
-                aria-label="Open menu"
-                className="w-10 h-10 rounded-full flex items-center justify-center text-[#124233] bg-white border border-[#124233]/15 shadow-xs shrink-0 active:scale-95 transition-all"
+            {/* Center Clean Typography Navigation Links */}
+            <nav className="flex items-center gap-6 lg:gap-8">
+              <Link
+                href="/menu"
+                className={cn(
+                  "text-sm font-bold tracking-wide transition-colors",
+                  pathname === '/menu'
+                    ? "text-[#899545]"
+                    : "text-[#124233] hover:text-[#899545]"
+                )}
               >
-                <MenuIcon className="w-5 h-5" />
-              </button>
+                Menu
+              </Link>
+              <Link
+                href="/pricing"
+                className={cn(
+                  "text-sm font-bold tracking-wide transition-colors",
+                  pathname === '/pricing'
+                    ? "text-[#899545]"
+                    : "text-[#124233] hover:text-[#899545]"
+                )}
+              >
+                Pricing
+              </Link>
+              <Link
+                href="/blog"
+                className={cn(
+                  "text-sm font-bold tracking-wide transition-colors flex items-center gap-1.5",
+                  pathname === '/blog' || pathname?.startsWith('/blog/')
+                    ? "text-[#899545]"
+                    : "text-[#124233] hover:text-[#899545]"
+                )}
+              >
+                <span>Blog</span>
+                <span className="text-[10px] font-bold bg-[#899545] text-white px-1.5 py-0.2 rounded-full">New</span>
+              </Link>
+              <Link
+                href="/delivery-areas"
+                className={cn(
+                  "text-sm font-bold tracking-wide transition-colors",
+                  pathname === '/delivery-areas'
+                    ? "text-[#899545]"
+                    : "text-[#124233] hover:text-[#899545]"
+                )}
+              >
+                Delivery Areas
+              </Link>
+            </nav>
+
+            {/* Right Profile & Login & Location Selector */}
+            <div className="flex items-center gap-3">
+              <LocationSelector variant="desktop" />
+
+              <AccountButton variant="desktop" />
             </div>
           </div>
-        </header>
-      )}
 
-      {/* Slide-out Drawer & Overlay */}
+          {/* Mobile Header (Location on Left, Menu Slider on Right) */}
+          <div className="flex md:hidden items-center justify-between gap-3">
+            <LocationSelector variant="mobile" />
+
+            <button
+              type="button"
+              onClick={() => setNavDrawerOpen(true)}
+              aria-label="Open menu"
+              className="w-10 h-10 rounded-full flex items-center justify-center text-[#124233] bg-white border border-[#124233]/15 shadow-xs shrink-0 active:scale-95 transition-all"
+            >
+              <MenuIcon className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      </header>
 
       {/* Slide-out Drawer & Overlay */}
       {isNavDrawerOpen && (

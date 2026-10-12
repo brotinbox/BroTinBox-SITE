@@ -8,6 +8,7 @@ import { AuthSync } from '@/components/providers/AuthSync';
 import { CatalogProvider } from '@/components/providers/CatalogProvider';
 import { getFaqs, getMenuSnapshot, getPricingMatrix } from '@/lib/data/catalog';
 import { AuthSidebar } from '@/components/auth/AuthSidebar';
+import { GoogleOneTap } from '@/components/auth/GoogleOneTap';
 
 // Public pages are cached HTML (ISR). Freshness comes from cache tags cleared
 // by admin actions; this is only the safety net.
@@ -43,6 +44,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       />
       <StoreHydration />
       <AuthSync />
+      <GoogleOneTap />
       <Navbar />
       <main className="flex-1 w-full">{children}</main>
       <Footer />

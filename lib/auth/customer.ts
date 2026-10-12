@@ -19,7 +19,35 @@ export async function signInWithGoogle(next?: string) {
   if (error) throw error;
 }
 
+export async function signInWithGoogleIdToken(token: string) {
+  const supabase = getSupabaseBrowser();
+  const { data, error } = await supabase.auth.signInWithIdToken({
+    provider: 'google',
+    token,
+  });
+  if (error) throw error;
+
+  if (data?.user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_onboarded, is_blocked')
+      .eq('id', data.user.id)
+      .maybeSingle();
+
+    if (profile?.is_blocked) {
+      await supabase.auth.signOut();
+      useAppStore.getState().logout();
+      throw new Error('This account has been suspended.');
+    }
+
+    return { ...data, profile };
+  }
+
+  return data;
+}
+
 export async function signOutCustomer() {
   await getSupabaseBrowser().auth.signOut();
   useAppStore.getState().logout();
 }
+

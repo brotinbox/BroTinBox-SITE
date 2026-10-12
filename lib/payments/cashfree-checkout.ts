@@ -20,7 +20,7 @@ export type SessionResult =
  * Reuses the existing Cashfree order while it is still ACTIVE, so retries and
  * double clicks never create duplicates. Amounts always come from our DB.
  */
-export async function ensurePaymentSession(orderId: string, userId: string): Promise<SessionResult> {
+export async function ensurePaymentSession(orderId: string, userId: string, origin: string): Promise<SessionResult> {
   const db = getSupabaseService();
   const { data: o } = await db
     .from('orders')
@@ -53,7 +53,7 @@ export async function ensurePaymentSession(orderId: string, userId: string): Pro
   const phone = (addr.phone || profile?.phone || '').replace(/\D/g, '').slice(-10);
   if (!/^[6-9]\d{9}$/.test(phone)) return { ok: false, error: 'Add a valid 10-digit mobile number to your delivery address first.' };
 
-  const site = (process.env.NEXT_PUBLIC_SITE_URL || '').replace(/\/+$/, '');
+  const site = origin.replace(/\/+$/, '');
   const cfId = o.cf_order_id ? `${o.order_number}-${Date.now().toString(36)}` : o.order_number;
   let cf: CfOrder;
   try {

@@ -1,6 +1,7 @@
 'use server';
 
 import { refresh } from 'next/cache';
+import { headers } from 'next/headers';
 import { z } from 'zod';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { rateLimit } from '@/lib/security/ratelimit';
@@ -46,5 +47,17 @@ export async function startCashfreePayment(orderId: string): Promise<StartPaymen
   const id = z.string().uuid().safeParse(orderId);
   if (!id.success) return { ok: false, error: 'Invalid order.' };
   if (!isCashfreeConfigured()) return { ok: false, error: 'Online payment is not available right now. Please WhatsApp us.' };
-  return ensurePaymentSession(id.data, user.id);
+  return ensurePaymentSession(id.data, user.id, await requestOrigin());
+}
+
+/**
+ * The domain the customer is actually on (www.brotinbox.com, a Vercel preview
+ * or localhost), so Cashfree always sends them back to the same site.
+ */
+async function requestOrigin() {
+  const h = await headers();
+  const host = h.get('x-forwarded-host') || h.get('host');
+  if (!host) return (process.env.NEXT_PUBLIC_SITE_URL || '').replace(/\/+$/, '');
+  const proto = h.get('x-forwarded-proto') || (host.startsWith('localhost') ? 'http' : 'https');
+  return `${proto}://${host}`;
 }
