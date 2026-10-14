@@ -118,14 +118,17 @@ export function DailyTrialStepModal() {
   const deliveryFee = zoneInfo?.tier === 'phase2' ? zoneInfo.deliveryFee : 0;
   const finalTotal = mealTotal + deliveryFee;
 
+  const isEnteringNewAddress = useNewAddress || addresses.length === 0 || !activeAddress;
+
   // Step validation
   const canGoNextFromStep1 = !!diet;
   const canGoNextFromStep2 = !!selectedDateStr && !!mealSlot;
-  const canGoNextFromStep4 = useNewAddress
+  const canGoNextFromStep4 = isEnteringNewAddress
     ? flatNumber.trim().length > 0 &&
       street.trim().length > 0 &&
       area.trim().length > 0 &&
-      phone.trim().length >= 10
+      pincode.trim().length === 6 &&
+      phone.trim().replace(/\D/g, '').length >= 10
     : !!activeAddress;
 
   // Place a real order: the server prices it and we go to the UPI payment page.
@@ -140,10 +143,10 @@ export function DailyTrialStepModal() {
         days: [{ date: selectedDateStr, diet: toDbDiet(diet) }],
         addonIds: [],
         preferences: { isEggFree: false, skipLegume: false },
-        addressId: useNewAddress ? undefined : activeAddress?.id,
+        addressId: isEnteringNewAddress ? undefined : activeAddress?.id,
       },
       {
-        newAddress: useNewAddress || !activeAddress
+        newAddress: isEnteringNewAddress
           ? { recipientName: fullName, phone, flat: flatNumber, street, area, pincode }
           : undefined,
         navigate: (href) => router.push(href),
@@ -711,7 +714,7 @@ export function DailyTrialStepModal() {
             </div>
 
             {/* Saved Address Cards */}
-            {addresses.length > 0 && !useNewAddress && (
+            {addresses.length > 0 && !isEnteringNewAddress && (
               <div className="space-y-2.5 sm:space-y-3">
                 <label className="text-[11px] sm:text-xs font-bold text-gray-700 uppercase tracking-wider block">
                   Select Saved Address
@@ -776,7 +779,7 @@ export function DailyTrialStepModal() {
             )}
 
             {/* Inline Address Form */}
-            {(useNewAddress || addresses.length === 0) && (
+            {isEnteringNewAddress && (
               <div className="space-y-3 bg-gray-50/80 p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl border border-gray-200 text-xs">
                 <div className="flex items-center justify-between pb-2 border-b border-gray-200">
                   <span className="font-heading font-bold text-xs sm:text-sm text-gray-900">

@@ -179,10 +179,12 @@ export function WeeklyPlanStepModal() {
   // Pincode validation & zone detection
   const detectedZone = useMemo(() => getZoneByPincode(pincode), [getZoneByPincode, pincode]);
 
+  const isEnteringNewAddress = useNewAddress || addresses.length === 0 || !activeAddress;
+
   // Step validations
   const canGoNextFromStep1 = true;
   const canGoNextFromStep2 = pricingCalculations.activeCount >= 3;
-  const canGoNextFromStep4 = useNewAddress
+  const canGoNextFromStep4 = isEnteringNewAddress
     ? flatNumber.trim().length > 0 &&
       street.trim().length > 0 &&
       area.trim().length > 0 &&
@@ -202,10 +204,10 @@ export function WeeklyPlanStepModal() {
         days: activeDays.map((d) => ({ date: d.dateStr, diet: toDbDiet(d.diet) })),
         addonIds: [],
         preferences: { isEggFree: false, skipLegume: false, dietVariation },
-        addressId: useNewAddress ? undefined : activeAddress?.id,
+        addressId: isEnteringNewAddress ? undefined : activeAddress?.id,
       },
       {
-        newAddress: useNewAddress || !activeAddress
+        newAddress: isEnteringNewAddress
           ? { recipientName: fullName, phone, flat: flatNumber, street, area, pincode }
           : undefined,
         navigate: (href) => router.push(href),
@@ -695,7 +697,7 @@ export function WeeklyPlanStepModal() {
             </div>
 
             {/* Saved Addresses (if any) */}
-            {addresses.length > 0 && !useNewAddress && (
+            {addresses.length > 0 && !isEnteringNewAddress && (
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between">
                   <label className="text-[11px] sm:text-xs font-bold text-gray-700 uppercase tracking-wider block">
@@ -755,7 +757,7 @@ export function WeeklyPlanStepModal() {
             )}
 
             {/* New Address Form */}
-            {(useNewAddress || addresses.length === 0) && (
+            {isEnteringNewAddress && (
               <div className="space-y-3 pt-1">
                 {addresses.length > 0 && (
                   <button
