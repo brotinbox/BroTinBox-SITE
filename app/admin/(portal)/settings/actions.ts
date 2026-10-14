@@ -43,7 +43,7 @@ export async function saveOrdering(_p: ActionResult | null, fd: FormData): Promi
   const wa = cleanText(fd.get('support_whatsapp'), 20);
   if (!cutoff.success) return fail('Cutoff must be a time like 21:00.');
   if (!pause.success) return fail('Maximum pause must be 1–90 days.');
-  if (wa && !/^\+?\d{10,15}$/.test(wa)) return fail('WhatsApp number should be digits, e.g. +917604909848.');
+  if (wa && !/^\+?\d{10,15}$/.test(wa)) return fail('WhatsApp number should be digits, e.g. +918248606711.');
   return staffAction('settings.write', async (staff) => {
     await put('ordering_open', fd.get('ordering_open') === 'on', staff.profile.id);
     await put('cutoff_time', cutoff.data, staff.profile.id);

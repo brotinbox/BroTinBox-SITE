@@ -17,7 +17,7 @@ export function FloatingWhatsApp() {
   }
 
   const encodedMsg = encodeURIComponent(BRAND.whatsappMessage);
-  const whatsappUrl = `https://wa.me/917604909848?text=${encodedMsg}`;
+  const whatsappUrl = `https://wa.me/918248606711?text=${encodedMsg}`;
 
   return (
     <a

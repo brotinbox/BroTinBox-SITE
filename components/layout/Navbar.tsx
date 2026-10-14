@@ -362,7 +362,7 @@ export function Navbar() {
             {/* Drawer Footer: Support & FSSAI Trust */}
             <div className="p-5 border-t border-gray-100 bg-gray-50/50 space-y-3">
               <a
-                href="https://wa.me/917604909848?text=Hi%20BroTin%20Box%20Team,%20I%20have%20a%20question%20about%20your%20meal%20boxes"
+                href="https://wa.me/918248606711?text=Hi%20BroTin%20Box%20Team,%20I%20have%20a%20question%20about%20your%20meal%20boxes"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-bold py-2.5 px-4 rounded-xl shadow-xs transition-all"

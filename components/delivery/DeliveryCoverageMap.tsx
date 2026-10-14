@@ -587,7 +587,7 @@ export function DeliveryCoverageMap({
                   We are expanding our delivery fleet to {selectedZone.area} soon.
                 </p>
                 <a
-                  href={`https://wa.me/917604909848?text=Hi%2C%20I%20would%20like%20to%20request%20BroTin%20Box%20delivery%20in%20${encodeURIComponent(selectedZone.area)}%20(${selectedZone.pincode})`}
+                  href={`https://wa.me/918248606711?text=Hi%2C%20I%20would%20like%20to%20request%20BroTin%20Box%20delivery%20in%20${encodeURIComponent(selectedZone.area)}%20(${selectedZone.pincode})`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-3 inline-flex items-center gap-1.5 bg-[#25D366] text-white text-xs font-bold px-4 py-2 rounded-xl"

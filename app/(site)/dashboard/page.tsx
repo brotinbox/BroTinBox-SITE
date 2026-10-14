@@ -245,7 +245,7 @@ export default async function DashboardPage() {
           </div>
 
           <a
-            href="https://wa.me/917604909848?text=Hi%20BroTin%20Box%20Team,%20I%20have%20a%20question%20about%20my%20meal%20plan"
+            href="https://wa.me/918248606711?text=Hi%20BroTin%20Box%20Team,%20I%20have%20a%20question%20about%20my%20meal%20plan"
             target="_blank"
             rel="noopener noreferrer"
             className="shrink-0 inline-flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-bold py-2.5 px-4 rounded-xl shadow-xs transition-all active:scale-95"

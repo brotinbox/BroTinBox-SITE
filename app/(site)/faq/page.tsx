@@ -82,7 +82,7 @@ export default function FaqPage() {
           <h4 className="font-heading font-bold text-base text-gray-900">Still have questions?</h4>
           <p className="text-xs text-gray-500 mt-1">Our clinical nutrition team is available on WhatsApp daily.</p>
           <a
-            href="https://wa.me/917604909848"
+            href="https://wa.me/918248606711"
             target="_blank"
             rel="noopener noreferrer"
             className="mt-3 inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-xs transition-all"

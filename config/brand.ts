@@ -7,10 +7,10 @@ export const BRAND = {
   state: "Tamil Nadu",
   country: "India",
   currency: "₹",
-  whatsappNumber: "+917604909848",
+  whatsappNumber: "+918248606711",
   whatsappMessage: "Hi BroTin Box! I want to know more about the meal subscription.",
-  supportEmail: "hello@brotinbox.com",
-  phone: "+91 76049 09848",
+  supportEmail: "support@brotinbox.com",
+  phone: "+91 82486 06711",
   address: "142, D.B. Road, RS Puram, Coimbatore - 641002, Tamil Nadu",
   workingDays: "Monday to Saturday (6 days a week)",
   deliverySlots: {
@@ -25,7 +25,7 @@ export const BRAND = {
   },
   socials: {
     instagram: "https://instagram.com/brotinbox",
-    whatsapp: "https://wa.me/917604909848",
+    whatsapp: "https://wa.me/918248606711",
     twitter: "https://twitter.com/brotinbox",
     linkedin: "https://linkedin.com/company/brotinbox",
   },
