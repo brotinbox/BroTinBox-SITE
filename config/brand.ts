@@ -1,6 +1,13 @@
 export const BRAND = {
   name: "BroTin Box",
-  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || "https://brotinbox.com",
+  siteUrl: (() => {
+    const url = process.env.NEXT_PUBLIC_SITE_URL;
+    // A localhost value leaking into production breaks the sitemap/canonicals.
+    if (!url || (process.env.NODE_ENV === "production" && /localhost|127\.0\.0\.1/.test(url))) {
+      return "https://www.brotinbox.com";
+    }
+    return url;
+  })(),
   tagline: "Every gram counted. Delivered fresh in Coimbatore.",
   shortDescription: "High-protein fitness meals with calories, protein, carbs and fat measured on every dish. Delivered fresh across Coimbatore 6 days a week.",
   city: "Coimbatore",
