@@ -38,19 +38,20 @@ export function DrinksStrip({ addons }: DrinksStripProps) {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {addons.map((drink) => (
             <div
               key={drink.id}
               className="bg-white rounded-3xl p-5 border border-gray-200/90 shadow-card hover:shadow-card-hover transition-all flex flex-col justify-between"
             >
               <div>
-                <div className="relative h-44 rounded-2xl overflow-hidden mb-4 bg-gray-100">
+                <div className="relative h-52 rounded-2xl overflow-hidden mb-4 bg-gray-50">
                   <Image
                     src={drink.image}
                     alt={drink.name}
                     fill
-                    className="object-cover"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    className="object-contain p-3"
                   />
                   <span className="absolute top-3 left-3 bg-ink text-white text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full shadow-md">
                     {drink.volume}

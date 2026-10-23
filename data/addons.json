@@ -1,5 +1,20 @@
 [
   {
+    "id": "drink-abc",
+    "name": "ABC Juice",
+    "volume": "250 ml",
+    "calories": 110,
+    "protein": 2,
+    "carbs": 26,
+    "sugar": "20g natural sugar / glass",
+    "sugarGrams": 20,
+    "showSugarBadge": true,
+    "price": 69,
+    "tags": ["Cold-Pressed", "Zero Added Sugar", "Apple-Beet-Carrot", "Veg"],
+    "description": "Apple, beetroot and carrot cold-pressed together. No added sugar, no water.",
+    "image": "/Juices-images/abc.webp"
+  },
+  {
     "id": "drink-beetroot",
     "name": "Beetroot Juice",
     "volume": "250 ml",
@@ -12,37 +27,7 @@
     "price": 59,
     "tags": ["Cold-Pressed", "Zero Added Sugar", "Veg"],
     "description": "Fresh cold-pressed local beetroot extract with a touch of ginger and lemon.",
-    "image": "https://images.unsplash.com/photo-1546173159-315724a31696?auto=format&fit=crop&w=600&q=80"
-  },
-  {
-    "id": "drink-cucumber",
-    "name": "Cucumber Juice",
-    "volume": "250 ml",
-    "calories": 35,
-    "protein": 1,
-    "carbs": 7,
-    "sugar": "4g natural sugar",
-    "sugarGrams": 4,
-    "showSugarBadge": false,
-    "price": 49,
-    "tags": ["Ultra-Light", "Zero Added Sugar", "Hydrating", "Veg"],
-    "description": "Crisp fresh polyhouse cucumbers crushed with rock salt.",
-    "image": "https://images.unsplash.com/photo-1603569283847-aa295f0d016a?auto=format&fit=crop&w=600&q=80"
-  },
-  {
-    "id": "drink-mint-lime",
-    "name": "Mint Lime",
-    "volume": "250 ml",
-    "calories": 40,
-    "protein": 1,
-    "carbs": 8,
-    "sugar": "4g natural sugar",
-    "sugarGrams": 4,
-    "showSugarBadge": false,
-    "price": 49,
-    "tags": ["Fresh", "Zero Added Sugar", "Hydrating", "Veg"],
-    "description": "Freshly squeezed lime with crushed wild mint leaves.",
-    "image": "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=600&q=80"
+    "image": "/Juices-images/beet.webp"
   },
   {
     "id": "drink-carrot",
@@ -57,6 +42,51 @@
     "price": 69,
     "tags": ["Cold-Pressed", "Zero Added Sugar", "Beta-Carotene", "Veg"],
     "description": "Slow-juiced fresh mountain carrots from Nilgiri farms.",
-    "image": "https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=600&q=80"
+    "image": "/Juices-images/carrot.webp"
+  },
+  {
+    "id": "drink-amla",
+    "name": "Amla Juice",
+    "volume": "250 ml",
+    "calories": 30,
+    "protein": 1,
+    "carbs": 7,
+    "sugar": "3g natural sugar",
+    "sugarGrams": 3,
+    "showSugarBadge": false,
+    "price": 49,
+    "tags": ["Cold-Pressed", "Zero Added Sugar", "Vitamin C", "Veg"],
+    "description": "Cold-pressed Indian gooseberry with a pinch of rock salt. Tangy and sharp.",
+    "image": "/Juices-images/amla.webp"
+  },
+  {
+    "id": "drink-cucumber",
+    "name": "Cucumber Mint",
+    "volume": "250 ml",
+    "calories": 35,
+    "protein": 1,
+    "carbs": 7,
+    "sugar": "4g natural sugar",
+    "sugarGrams": 4,
+    "showSugarBadge": false,
+    "price": 49,
+    "tags": ["Ultra-Light", "Zero Added Sugar", "Hydrating", "Veg"],
+    "description": "Crisp polyhouse cucumbers pressed with fresh mint and rock salt.",
+    "image": "/Juices-images/cucumber-mint.webp"
+  },
+  {
+    "id": "drink-mint-lime",
+    "name": "Mint Lime",
+    "volume": "250 ml",
+    "calories": 40,
+    "protein": 1,
+    "carbs": 8,
+    "sugar": "4g natural sugar",
+    "sugarGrams": 4,
+    "showSugarBadge": false,
+    "price": 49,
+    "tags": ["Fresh", "Zero Added Sugar", "Hydrating", "Veg"],
+    "description": "Freshly squeezed lime with crushed wild mint leaves.",
+    "image": "/Juices-images/mint-lime.webp"
   }
 ]

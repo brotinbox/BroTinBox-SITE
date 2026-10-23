@@ -4,14 +4,14 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import {
-  Bike, CalendarDays, CalendarRange, ChefHat, CupSoda, HelpCircle, History, Inbox, LayoutDashboard,
+  Bike, CalendarDays, CalendarRange, ChefHat, ClipboardList, CupSoda, HelpCircle, History, Inbox, LayoutDashboard,
   LogOut, MapPin, Menu, Newspaper, Receipt, Settings, ShieldCheck, Star, Tags, Ticket, Users, Utensils, X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { AdminNavGroup } from '@/lib/admin/nav';
 
 const ICONS = {
-  Bike, CalendarDays, CalendarRange, ChefHat, CupSoda, HelpCircle, History, Inbox, LayoutDashboard,
+  Bike, CalendarDays, CalendarRange, ChefHat, ClipboardList, CupSoda, HelpCircle, History, Inbox, LayoutDashboard,
   MapPin, Newspaper, Receipt, Settings, ShieldCheck, Star, Tags, Ticket, Users, Utensils,
 } as const;
 

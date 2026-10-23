@@ -149,19 +149,19 @@ export default function MenuBrowserPage() {
             </h2>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
             {addonsData.map((juice) => (
               <div
                 key={juice.id}
                 className="bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 border border-ink/10 shadow-sm shadow-ink/5 hover:shadow-md transition-all flex flex-col justify-between group"
               >
-                <div className="relative aspect-square w-full rounded-xl sm:rounded-2xl overflow-hidden mb-3 bg-gray-100">
+                <div className="relative aspect-square w-full rounded-xl sm:rounded-2xl overflow-hidden mb-3 bg-gray-50">
                   <Image
                     src={juice.image}
                     alt={juice.name}
                     fill
-                    sizes="(max-width: 640px) 50vw, 25vw"
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    sizes="(max-width: 640px) 50vw, 33vw"
+                    className="object-contain p-2 group-hover:scale-105 transition-transform duration-300"
                   />
                 </div>
 
