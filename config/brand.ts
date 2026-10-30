@@ -18,7 +18,7 @@ export const BRAND = {
   whatsappMessage: "Hi BroTin Box! I want to know more about the meal subscription.",
   supportEmail: "support@brotinbox.com",
   phone: "+91 82486 06711",
-  address: "142, D.B. Road, RS Puram, Coimbatore - 641002, Tamil Nadu",
+  address: "17/2, Semmozhi Nagar, Kuniyamuthur, Coimbatore - 641008, Tamil Nadu",
   workingDays: "Monday to Saturday (6 days a week)",
   deliverySlots: {
     morning: "7:00 AM - 9:00 AM",

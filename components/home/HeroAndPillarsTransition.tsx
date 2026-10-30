@@ -105,8 +105,8 @@ const FOUR_PLANS_DATA: CardItem[] = [
     id: 'per-month',
     number: '03',
     title: 'Per Month Lifestyle',
-    tag: '24 DAYS • FULL COMMITMENT',
-    dayBadge: '24 DAYS',
+    tag: '26 DAYS • FULL COMMITMENT',
+    dayBadge: '26 DAYS',
     description:
       '24 daily lunch deliveries for serious body transformations. Priority kitchen batch, free protein add-ons & nutritionist support.',
     priceNote: '₹5,899 / month • Best Value',
@@ -115,7 +115,7 @@ const FOUR_PLANS_DATA: CardItem[] = [
     image: 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=800&q=80',
     recommendedBoxes: [
       {
-        name: '24-Day Transformation Plan',
+        name: '26-Day Transformation Plan',
         day: '4 Weeks',
         protein: '50g+ Daily Avg',
         calories: 'Clean Macros',

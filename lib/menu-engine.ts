@@ -591,7 +591,12 @@ export function getNextWeekOperatingDays(baseDate?: Date) {
   return days;
 }
 
-// Monthly operating days generator (24 operating days = 4 weeks of Mon-Sat)
+// Monthly operating days generator (26 Mon-Sat days, about one month; the last
+// two days fall in a 5th calendar week but are grouped with week 4)
+export const MONTHLY_PLAN_DAYS = 26;
+/** Fewest days a monthly order may keep after skips (checked again on the server). */
+export const MONTHLY_MIN_DAYS = 24;
+
 export function getMonthlyOperatingDays(baseDate?: Date) {
   const now = baseDate || new Date();
   const day = now.getDay();
@@ -607,7 +612,7 @@ export function getMonthlyOperatingDays(baseDate?: Date) {
     dayName: string;
     formatted: string;
     weekNumber: number;
-    weekIndex: number; // 0..3
+    weekIndex: number; // 0..3 (days 25-26 stay in 3)
   }> = [];
 
   const dayAbbrs: Array<'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat'> = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -616,7 +621,7 @@ export function getMonthlyOperatingDays(baseDate?: Date) {
   let weekIndex = 0;
   let dayInWeekCount = 0;
 
-  while (days.length < 24) {
+  while (days.length < MONTHLY_PLAN_DAYS) {
     if (cursor.getDay() !== 0) {
       days.push({
         date: new Date(cursor),
@@ -625,7 +630,7 @@ export function getMonthlyOperatingDays(baseDate?: Date) {
         dayName: cursor.toLocaleDateString('en-IN', { weekday: 'long' }),
         formatted: cursor.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }),
         weekNumber: getISOWeekNumber(cursor),
-        weekIndex,
+        weekIndex: Math.min(weekIndex, 3),
       });
       dayInWeekCount++;
       if (dayInWeekCount === 6) {

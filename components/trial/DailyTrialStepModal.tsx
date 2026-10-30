@@ -1,7 +1,7 @@
 'use client';
 
 import { useMenuVersion } from '@/components/providers/CatalogProvider';
-import { usePricing } from '@/components/providers/CatalogProvider';
+import { usePricing, useRegularTrialPrice, useTrialOffer } from '@/components/providers/CatalogProvider';
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
@@ -33,6 +33,8 @@ import { OrderTerms } from '@/components/legal/OrderTerms';
 export function DailyTrialStepModal() {
   const menuVersion = useMenuVersion();
   const PRICING = usePricing();
+  const trialOffer = useTrialOffer();
+  const TRIAL_REGULAR = useRegularTrialPrice();
   const router = useRouter();
   const {
     addresses,
@@ -261,6 +263,7 @@ export function DailyTrialStepModal() {
                     ~80g+ Clean Protein
                   </span>
                   <span className="font-heading font-black text-sm sm:text-base text-ink">
+                    {trialOffer && <s className="mr-1.5 text-xs font-bold text-gray-400">₹{TRIAL_REGULAR['non-veg']}</s>}
                     ₹{PRICING.trial['non-veg']}
                   </span>
                 </div>
@@ -307,6 +310,7 @@ export function DailyTrialStepModal() {
                     ~45g+ Clean Protein
                   </span>
                   <span className="font-heading font-black text-sm sm:text-base text-ink">
+                    {trialOffer && <s className="mr-1.5 text-xs font-bold text-gray-400">₹{TRIAL_REGULAR.veg}</s>}
                     ₹{PRICING.trial.veg}
                   </span>
                 </div>

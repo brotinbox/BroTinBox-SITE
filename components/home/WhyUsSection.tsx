@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Scale, UtensilsCrossed, Sparkles, Clock, Quote, CheckCircle2 } from 'lucide-react';
+import { Scale, UtensilsCrossed, Sparkles, Clock, Quote } from 'lucide-react';
 import { BRAND } from '@/config/brand';
 
 export function WhyUsSection() {
@@ -40,11 +40,6 @@ export function WhyUsSection() {
             </div>
 
             <div>
-              <div className="inline-flex items-center gap-2 text-accent-muted text-xs font-bold uppercase tracking-wider mb-4 px-3 py-1 rounded-full bg-white/10 backdrop-blur-xs">
-                <CheckCircle2 className="w-3.5 h-3.5 text-accent" />
-                <span>Founder's Note</span>
-              </div>
-
               <h3 className="font-heading font-black text-2xl sm:text-3xl text-white leading-snug tracking-tight">
                 "Diet food fails when you can't stick to it for 6 months."
               </h3>
@@ -59,23 +54,6 @@ export function WhyUsSection() {
               </div>
             </div>
 
-            {/* Founder Signature Card */}
-            <div className="pt-6 mt-6 border-t border-white/15 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-white/15 border border-accent-muted/30 flex items-center justify-center font-heading font-black text-base text-accent-muted shrink-0 shadow-inner">
-                DR
-              </div>
-              <div className="min-w-0">
-                <p className="font-heading font-bold text-base text-white truncate">
-                  Dr. Vigneshwaran K.
-                </p>
-                <p className="text-xs text-accent-muted font-semibold">
-                  Pharm.D • Founder & Clinical Nutritionist
-                </p>
-                <p className="text-[11px] text-gray-400 mt-0.5">
-                  Coimbatore Central Kitchen
-                </p>
-              </div>
-            </div>
           </div>
 
           {/* Right: 4 Clean Value Pillars */}

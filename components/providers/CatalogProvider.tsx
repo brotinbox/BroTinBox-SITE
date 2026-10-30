@@ -6,13 +6,14 @@ import {
   type Allergen, type LiveMenuData, type MenuItem,
 } from '@/lib/menu-engine';
 import bundledFaqs from '@/data/faqs.json';
+import type { TrialOffer } from '@/lib/data/catalog';
 
 /**
  * Receives the cached catalog from the server (site layout) and makes it
  * available to client components without any browser → Supabase requests:
  *  - menu: loaded into lib/menu-engine before children render, so even the
  *    server-rendered HTML shows the live menu;
- *  - prices and FAQs: via context (usePricing / useFaqs).
+ *  - prices, trial offer and FAQs: via context (usePricing / useTrialOffer / useFaqs).
  */
 export type CatalogMenu = {
   items: { id: string; code: string; name: string; category: string; grams: number; calories: number; protein: number; carbs: number; fat: number; fiber: number; allergens: string[]; description: string | null; image_url: string | null }[];
@@ -22,7 +23,7 @@ export type CatalogMenu = {
   version: string;
 };
 export type Faq = { id: string; question: string; answer: string };
-type Catalog = { pricing: typeof PRICING; faqs: Faq[] };
+type Catalog = { pricing: typeof PRICING; trialOffer: TrialOffer | null; faqs: Faq[] };
 
 const CATEGORY: Record<string, MenuItem['category']> = {
   main: 'main', protein_side: 'protein-side', salad: 'salad', legume: 'legume', carb: 'carb',
@@ -50,11 +51,12 @@ function toLiveMenu(m: CatalogMenu): LiveMenuData {
 // The newest snapshot applied in this JS runtime (server process or browser tab).
 let appliedVersion = '';
 
-const CatalogContext = createContext<Catalog>({ pricing: PRICING, faqs: bundledFaqs as Faq[] });
+const CatalogContext = createContext<Catalog>({ pricing: PRICING, trialOffer: null, faqs: bundledFaqs as Faq[] });
 
-export function CatalogProvider({ menu, pricing, faqs, children }: {
+export function CatalogProvider({ menu, pricing, trialOffer, faqs, children }: {
   menu: CatalogMenu | null;
   pricing: typeof PRICING;
+  trialOffer: TrialOffer | null;
   faqs: Faq[];
   children: ReactNode;
 }) {
@@ -66,14 +68,29 @@ export function CatalogProvider({ menu, pricing, faqs, children }: {
   }
   // After a refreshed snapshot arrives (e.g. router.refresh), re-render subscribers.
   useEffect(() => { notifyLiveMenu(); }, [menu?.version]);
-  const value = useRef<Catalog>({ pricing, faqs: faqs.length ? faqs : (bundledFaqs as Faq[]) });
-  value.current = { pricing, faqs: faqs.length ? faqs : (bundledFaqs as Faq[]) };
+  const value = useRef<Catalog>({ pricing, trialOffer, faqs: faqs.length ? faqs : (bundledFaqs as Faq[]) });
+  value.current = { pricing, trialOffer, faqs: faqs.length ? faqs : (bundledFaqs as Faq[]) };
   return <CatalogContext.Provider value={value.current}>{children}</CatalogContext.Provider>;
 }
 
 /** Live prices (same source the server charges from). */
 export function usePricing() {
-  return useContext(CatalogContext).pricing;
+  const { pricing, trialOffer } = useContext(CatalogContext);
+  // A cached page can outlive the offer by up to an hour; the server already charges the regular price.
+  if (trialOffer && Date.now() >= trialOffer.endsAt) return { ...pricing, trial: trialOffer.regular };
+  return pricing;
+}
+
+/** The running trial offer, or null (also checked in the browser so cached pages don't overstay it). */
+export function useTrialOffer(): TrialOffer | null {
+  const { trialOffer } = useContext(CatalogContext);
+  return trialOffer && Date.now() < trialOffer.endsAt ? trialOffer : null;
+}
+
+/** Normal trial price per diet: the struck-through "was" price, and the base for plan savings. */
+export function useRegularTrialPrice() {
+  const { pricing, trialOffer } = useContext(CatalogContext);
+  return trialOffer?.regular ?? pricing.trial;
 }
 
 /** Active FAQs from the database (admin › FAQs). */

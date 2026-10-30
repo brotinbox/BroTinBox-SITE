@@ -65,16 +65,17 @@ export function WeeklyCalendarStrip({ boxes, schedule }: WeeklyCalendarStripProp
   const todayStr = useMemo(() => formatDateToYMD(new Date()), []);
 
   return (
-    <section className="py-14 sm:py-18 bg-background relative overflow-hidden text-gray-900 border-b border-gray-100">
+    <section className="py-8 sm:py-18 bg-background relative overflow-hidden text-gray-900 border-b border-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Heading: Title on Left, Non-Veg/Veg Toggle on Right */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 sm:mb-10">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5 sm:mb-10">
           <div>
-            <h2 className="font-heading font-black text-2xl sm:text-3xl lg:text-4xl text-ink tracking-tight">
+            <h2 className="font-heading font-black text-lg sm:text-3xl lg:text-4xl text-ink tracking-tight">
               Six Dedicated Protein Boxes
             </h2>
-            <p className="text-xs sm:text-sm text-ink/70 font-medium mt-1">
-              Fresh 5-compartment chef rotation weighed to the gram on digital kitchen scales.
+            <p className="text-[11px] sm:text-sm text-ink/70 font-medium mt-0.5">
+              <span className="sm:hidden">A new box each day, weighed to the gram.</span>
+              <span className="hidden sm:inline">Fresh 5-compartment chef rotation weighed to the gram on digital kitchen scales.</span>
             </p>
           </div>
 
@@ -86,14 +87,14 @@ export function WeeklyCalendarStrip({ boxes, schedule }: WeeklyCalendarStripProp
                 type="button"
                 onClick={() => setDiet('non-veg')}
                 className={cn(
-                  'flex items-center justify-center gap-2 px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-bold transition-all tap-active whitespace-nowrap',
+                  'flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-sm font-bold transition-all tap-active whitespace-nowrap',
                   diet === 'non-veg'
                     ? 'bg-ink text-white shadow-xs'
                     : 'text-gray-600 hover:text-ink'
                 )}
               >
                 {/* Indian FSSAI Non-Veg Symbol with solid Brown Triangle */}
-                <svg viewBox="0 0 16 16" className="w-4 h-4 shrink-0" fill="none" aria-hidden="true">
+                <svg viewBox="0 0 16 16" className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" fill="none" aria-hidden="true">
                   <rect x="0.75" y="0.75" width="14.5" height="14.5" rx="3.5" fill="#FFFFFF" stroke="#7B3F00" strokeWidth="1.5" />
                   <polygon points="8,3.2 12.8,11.8 3.2,11.8" fill="#7B3F00" />
                 </svg>
@@ -105,14 +106,14 @@ export function WeeklyCalendarStrip({ boxes, schedule }: WeeklyCalendarStripProp
                 type="button"
                 onClick={() => setDiet('veg')}
                 className={cn(
-                  'flex items-center justify-center gap-2 px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-bold transition-all tap-active whitespace-nowrap',
+                  'flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-sm font-bold transition-all tap-active whitespace-nowrap',
                   diet === 'veg'
                     ? 'bg-ink text-white shadow-xs'
                     : 'text-gray-600 hover:text-ink'
                 )}
               >
                 {/* Indian FSSAI Pure Veg Symbol with solid Green Circle */}
-                <svg viewBox="0 0 16 16" className="w-4 h-4 shrink-0" fill="none" aria-hidden="true">
+                <svg viewBox="0 0 16 16" className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" fill="none" aria-hidden="true">
                   <rect x="0.75" y="0.75" width="14.5" height="14.5" rx="3.5" fill="#FFFFFF" stroke="#16A34A" strokeWidth="1.5" />
                   <circle cx="8" cy="8" r="3.75" fill="#16A34A" />
                 </svg>
@@ -123,34 +124,35 @@ export function WeeklyCalendarStrip({ boxes, schedule }: WeeklyCalendarStripProp
         </div>
 
         {/* 6 Box Cards Grid (Mon to Sat) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7">
+        <div className="flex md:grid overflow-x-auto md:overflow-visible snap-x snap-mandatory -mx-4 px-4 md:mx-0 md:px-0 pb-2 [scrollbar-width:none] md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-7">
           {operatingDays.map((day) => {
             const menu = getMenuForDate(day.date, diet);
             const isToday = day.dateStr === todayStr;
 
             return (
+              <div key={`${day.dateStr}-${diet}`} className="shrink-0 w-[220px] md:w-auto snap-start">
               <CurvedBoxCard
-                key={`${day.dateStr}-${diet}`}
                 menu={menu}
                 dayInfo={day}
                 diet={diet}
                 isToday={isToday}
               />
+              </div>
             );
           })}
         </div>
 
         {/* Bottom Banner Linking to Weekly Subscription Plan */}
-        <div className="mt-12 sm:mt-16 bg-gradient-to-r from-ink to-ink-soft rounded-3xl p-6 sm:p-8 text-white shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div className="mt-6 sm:mt-16 bg-gradient-to-r from-ink to-ink-soft rounded-3xl p-5 sm:p-8 text-white shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6">
           <div className="space-y-1 text-center sm:text-left">
             <div className="flex items-center justify-center sm:justify-start gap-2 text-accent-bright text-xs font-bold uppercase tracking-wider">
               <ShieldCheck className="w-4 h-4" />
               <span>Full 6-Day Routine • Mon to Sat</span>
             </div>
-            <h3 className="font-heading font-black text-xl sm:text-2xl text-white">
+            <h3 className="font-heading font-black text-base sm:text-2xl text-white">
               Want the entire week handled without ordering daily?
             </h3>
-            <p className="text-gray-200 text-xs sm:text-sm">
+            <p className="text-gray-200 text-[11px] sm:text-sm">
               Subscribe to the Weekly Plan with our hassle-free Skip-a-Day policy. Discounted to ₹{diet === 'non-veg' ? 289 : 259}/meal.
             </p>
           </div>

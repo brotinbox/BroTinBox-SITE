@@ -1,6 +1,6 @@
 'use client';
 
-import { usePricing } from '@/components/providers/CatalogProvider';
+import { usePricing, useRegularTrialPrice, useTrialOffer } from '@/components/providers/CatalogProvider';
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import Image from 'next/image';
@@ -33,6 +33,8 @@ export function CurvedBoxCard({
   box,
 }: CurvedBoxCardProps) {
   const PRICING = usePricing();
+  const trialOffer = useTrialOffer();
+  const TRIAL_REGULAR = useRegularTrialPrice();
   const [mounted, setMounted] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
@@ -63,13 +65,14 @@ export function CurvedBoxCard({
     const mainItem = meal.items.main;
     const dayOfWeekAbbr = dayInfo ? dayInfo.dayOfWeek : menu.dayOfWeek;
     const price = PRICING.trial[diet];
+    const regularPrice = TRIAL_REGULAR[diet];
     const weeklyPrice = PRICING.weekly[diet];
     const orderUrl = `/tomorrow?date=${dayInfo?.dateStr || menu.date}&diet=${diet}`;
 
     return (
       <div
         className={cn(
-          "rounded-[32px] p-4 sm:p-5 flex flex-col justify-between group relative overflow-hidden transition-all duration-300",
+          "h-full rounded-[28px] sm:rounded-[32px] p-3 sm:p-5 flex flex-col justify-between group relative overflow-hidden transition-all duration-300",
           "bg-white border",
           isToday
             ? "border-primary ring-2 ring-primary/20 shadow-[0_10px_30px_rgba(20,83,45,0.12)] md:-translate-y-1"
@@ -78,12 +81,12 @@ export function CurvedBoxCard({
       >
         <div>
           {/* Top Image Container with 21st.dev Style Inverted Curved Corner Cutout */}
-          <div className="relative aspect-[16/11] w-full rounded-[24px] overflow-hidden bg-gray-100">
+          <div className="relative aspect-[16/10] w-full rounded-[20px] sm:rounded-[24px] overflow-hidden bg-gray-100">
             <Image
               src={mainItem.image}
               alt={mainItem.name}
               fill
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              sizes="(max-width: 768px) 220px, (max-width: 1024px) 50vw, 33vw"
               className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
             />
 
@@ -119,7 +122,7 @@ export function CurvedBoxCard({
               <button
                 type="button"
                 onClick={() => setShowPurchaseModal(true)}
-                className="w-12 h-12 rounded-full bg-gray-900 text-white flex items-center justify-center hover:bg-primary hover:text-white hover:scale-110 active:scale-95 transition-all duration-300 shadow-md group/btn cursor-pointer"
+                className="w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-gray-900 text-white flex items-center justify-center hover:bg-primary hover:text-white hover:scale-110 active:scale-95 transition-all duration-300 shadow-md group/btn cursor-pointer"
                 aria-label={`Purchase options for ${mainItem.name}`}
               >
                 <ArrowUpRight className="w-5 h-5 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform stroke-[2.5]" />
@@ -128,7 +131,7 @@ export function CurvedBoxCard({
           </div>
 
           {/* Content Section */}
-          <div className="pt-4">
+          <div className="pt-3 sm:pt-4">
             {/* Title with Indian FSSAI symbol: Green Dot for Veg, Brown Triangle for Non-Veg */}
             <div className="flex items-start gap-2.5">
               {diet === 'veg' ? (
@@ -154,18 +157,24 @@ export function CurvedBoxCard({
                 onClick={() => setShowPurchaseModal(true)}
                 className="block text-left group/title flex-1 min-w-0 cursor-pointer"
               >
-                <h3 className="font-heading font-black text-xl sm:text-2xl text-gray-900 group-hover/title:text-primary transition-colors tracking-tight line-clamp-1">
+                <h3 className="font-heading font-black text-sm sm:text-2xl text-gray-900 group-hover/title:text-primary transition-colors tracking-tight line-clamp-1">
                   {mainItem.name}
                 </h3>
               </button>
             </div>
 
-            <p className="text-xs text-gray-500 mt-1.5 line-clamp-2 leading-relaxed">
+            <p className="hidden sm:block text-xs text-gray-500 mt-1.5 line-clamp-2 leading-relaxed">
               {mainItem.description}
             </p>
 
             {/* Measured Nutrition Macro Boxes: KCAL, PROTEIN, FAT, CARBS (Fixed rounded decimals) */}
-            <div className="grid grid-cols-4 gap-1.5 sm:gap-2 mt-3.5 p-2 rounded-2xl bg-gray-50 border border-gray-100 text-center">
+            <p className="sm:hidden mt-1.5 text-[11px] font-semibold text-gray-600">
+              <span className="text-emerald-700 font-bold">~{Math.round(meal.totals.protein)}g protein</span>
+              <span className="text-gray-300 mx-1">•</span>
+              ~{Math.round(meal.totals.calories)} kcal
+            </p>
+
+            <div className="hidden sm:grid grid-cols-4 gap-1 sm:gap-2 mt-2.5 sm:mt-3.5 p-1.5 sm:p-2 rounded-2xl bg-gray-50 border border-gray-100 text-center">
               {/* KCAL */}
               <div className="p-1.5 bg-white rounded-xl shadow-2xs border border-gray-100/80 flex flex-col items-center justify-center">
                 <span className="text-[9px] font-black uppercase text-amber-700 tracking-wider block">KCAL</span>
@@ -203,18 +212,19 @@ export function CurvedBoxCard({
         </div>
 
         {/* Card Footer: Lowest Price & Direct Choose Action */}
-        <div className="mt-4 pt-3.5 border-t border-gray-100 flex items-center justify-between gap-2">
+        <div className="mt-3 sm:mt-4 pt-3 sm:pt-3.5 border-t border-gray-100 flex items-center justify-between gap-2">
           <div>
-            <span className="text-[10px] text-gray-400 uppercase tracking-wider block font-bold">
+            <span className="hidden sm:block text-[10px] text-gray-400 uppercase tracking-wider font-bold">
               Get the box at
             </span>
             <div className="mt-0.5">
-              <span className="font-heading font-black text-2xl text-gray-900 leading-none">
+              <span className="font-heading font-black text-lg sm:text-2xl text-gray-900 leading-none">
                 ₹{weeklyPrice}
               </span>
             </div>
-            <span className="text-[10px] text-gray-400 font-medium block mt-0.5">
-              or ₹{price} single trial
+            <span className="text-[10px] text-gray-400 font-medium block mt-0.5 whitespace-nowrap">
+              <span className="sm:hidden">₹{price} trial</span>
+              <span className="hidden sm:inline">or ₹{price} single trial</span>
             </span>
           </div>
 
@@ -222,18 +232,18 @@ export function CurvedBoxCard({
             <button
               type="button"
               onClick={() => setShowDetailsModal(true)}
-              className="py-2 px-2.5 rounded-xl border border-gray-200 text-xs font-bold text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-all tap-active flex items-center gap-1 cursor-pointer"
+              className="w-8 h-8 sm:w-auto sm:h-auto justify-center sm:py-2 sm:px-2.5 rounded-xl border border-gray-200 text-xs font-bold text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-all tap-active flex items-center gap-1 cursor-pointer"
             >
-              <span>Details</span>
+              <span className="hidden sm:inline">Details</span>
               <Info className="w-3.5 h-3.5 text-gray-400" />
             </button>
             <button
               type="button"
               onClick={() => setShowPurchaseModal(true)}
-              className="bg-cta hover:bg-cta-hover text-white text-xs font-bold py-2 px-3 rounded-xl shadow-cta/25 hover:shadow-md transition-all tap-active flex items-center gap-1 cursor-pointer"
+              className="bg-cta hover:bg-cta-hover text-white text-[11px] sm:text-xs font-bold py-1.5 sm:py-2 px-2.5 sm:px-3 rounded-xl shadow-cta/25 hover:shadow-md transition-all tap-active flex items-center gap-1 cursor-pointer"
             >
-              <span>Get Box</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <span className="whitespace-nowrap">Get Box</span>
+              <ArrowRight className="hidden sm:block w-3.5 h-3.5" />
             </button>
           </div>
         </div>
@@ -575,7 +585,7 @@ export function CurvedBoxCard({
 
                   <div className="mt-3 pt-2.5 border-t border-emerald-200/60 flex items-center justify-between">
                     <span className="text-xs font-bold text-emerald-800">
-                      Save ₹{(price - weeklyPrice) * 6} every week
+                      Save ₹{(regularPrice - weeklyPrice) * 6} every week
                     </span>
                     <span className="bg-emerald-600 group-hover:bg-emerald-700 text-white text-xs font-bold py-1.5 px-3 rounded-xl transition-colors flex items-center gap-1">
                       <span>Subscribe at ₹{weeklyPrice}</span>
@@ -603,7 +613,10 @@ export function CurvedBoxCard({
                       </p>
                     </div>
                     <div className="text-right shrink-0">
-                      <span className="text-[10px] text-gray-400 uppercase font-bold block">Price</span>
+                      <span className="text-[10px] text-gray-400 uppercase font-bold block">
+                        {trialOffer ? <span className="text-accent">{trialOffer.label}</span> : 'Price'}
+                      </span>
+                      {trialOffer && <s className="mr-1 text-xs font-bold text-gray-400">₹{regularPrice}</s>}
                       <span className="font-heading font-black text-2xl text-gray-900">
                         ₹{price}
                       </span>

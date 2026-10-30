@@ -1,7 +1,7 @@
 'use client';
 
 import { useMenuVersion } from '@/components/providers/CatalogProvider';
-import { usePricing } from '@/components/providers/CatalogProvider';
+import { usePricing, useRegularTrialPrice } from '@/components/providers/CatalogProvider';
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
@@ -41,6 +41,7 @@ import { OrderTerms } from '@/components/legal/OrderTerms';
 export function WeeklyPlanStepModal() {
   const menuVersion = useMenuVersion();
   const PRICING = usePricing();
+  const TRIAL_REGULAR = useRegularTrialPrice();
   const router = useRouter();
   const {
     addresses,
@@ -143,7 +144,7 @@ export function WeeklyPlanStepModal() {
     });
 
     const trialEquivalentTotal = activeDays.reduce((sum, d) => {
-      const singleDayBase = PRICING.trial[d.diet];
+      const singleDayBase = TRIAL_REGULAR[d.diet];
       return (
         sum +
         singleDayBase +
@@ -159,7 +160,7 @@ export function WeeklyPlanStepModal() {
       activeCount: activeDays.length,
       skippedCount: skippedDays.length,
     };
-  }, [activeDays, mealsPerDay, skippedDays, PRICING]);
+  }, [activeDays, mealsPerDay, skippedDays, PRICING, TRIAL_REGULAR]);
 
   // Step 4: Address
   const activeAddress = useMemo(() => {

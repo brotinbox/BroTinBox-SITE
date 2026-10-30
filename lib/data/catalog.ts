@@ -1,7 +1,7 @@
 import 'server-only';
 import { unstable_cache } from 'next/cache';
 import { getSupabasePublic } from '@/lib/supabase/server';
-import { PRICING } from '@/lib/menu-engine';
+import { MONTHLY_PLAN_DAYS, PRICING } from '@/lib/menu-engine';
 import type { AddonDrink, PlanTier, SideBox } from '@/types';
 
 /**
@@ -75,13 +75,30 @@ export const getPricingMatrix = unstable_cache(
   { tags: ['plans'], revalidate: HOUR }
 );
 
+// ---------------------------------------------------------------- trial offer
+/** Limited-time trial price (site_settings.trial_offer). The offer price itself lives in pricing_rules. */
+export type TrialOffer = { label: string; regular: PricingMatrix['trial']; endsAt: number };
+
+export const getTrialOffer = unstable_cache(
+  async (): Promise<TrialOffer | null> => {
+    const { data } = await getSupabasePublic().from('site_settings').select('value').eq('key', 'trial_offer').maybeSingle();
+    const v = data?.value as { label?: string; regular?: { non_veg?: number; veg?: number }; ends_at?: string } | null;
+    const endsAt = Date.parse(v?.ends_at ?? '');
+    if (!v?.regular?.non_veg || !v.regular.veg || !(endsAt > Date.now())) return null;
+    return { label: v.label || 'Limited offer', regular: { 'non-veg': v.regular.non_veg, veg: v.regular.veg }, endsAt };
+  },
+  ['catalog-trial-offer'],
+  { tags: ['settings'], revalidate: HOUR }
+);
+
 // ---------------------------------------------------------------- plans (home teaser)
 export const getPlanTiers = unstable_cache(
   async (): Promise<PlanTier[]> => {
-    const [{ data: plans }, pricing, menu] = await Promise.all([
+    const [{ data: plans }, pricing, menu, offer] = await Promise.all([
       getSupabasePublic().from('plans').select('*').eq('is_active', true).neq('type', 'trial').order('sort_order'),
       getPricingMatrix(),
       getMenuSnapshot(),
+      getTrialOffer(),
     ]);
     // Daily protein/kcal ranges from the real 30-day non-veg lunch rotation.
     const byId = new Map((menu?.items ?? []).map((i) => [i.id, i]));
@@ -108,10 +125,10 @@ export const getPlanTiers = unstable_cache(
         dailyProteinTarget: range(boxes.map((b) => b.protein), mpd, ' g'),
         dailyCaloriesTarget: range(boxes.map((b) => b.kcal), mpd, ' kcal'),
         weeklyPrice: perDayW * 6,
-        monthlyPrice: perDayM * 24,
+        monthlyPrice: perDayM * MONTHLY_PLAN_DAYS,
         pricePerMealWeekly: Math.round(perDayW / mpd),
         pricePerMealMonthly: Math.round(perDayM / mpd),
-        oneOffComparePrice: pricing.trial['non-veg'],
+        oneOffComparePrice: (offer?.regular ?? pricing.trial)['non-veg'],
         isPopular: p.is_popular,
         badge: p.badge ?? undefined,
         description: p.description ?? '',
@@ -121,7 +138,7 @@ export const getPlanTiers = unstable_cache(
     });
   },
   ['catalog-plan-tiers'],
-  { tags: ['plans', 'menu'], revalidate: HOUR }
+  { tags: ['plans', 'menu', 'settings'], revalidate: HOUR }
 );
 
 // ---------------------------------------------------------------- add-ons

@@ -2554,6 +2554,7 @@ export type Database = {
         Returns: undefined
       }
       skip_delivery: { Args: { p_delivery: string }; Returns: Json }
+      staff_user_by_email: { Args: { p_email: string }; Returns: string }
       submit_payment_reference: {
         Args: { p_order: string; p_reference: string }
         Returns: undefined

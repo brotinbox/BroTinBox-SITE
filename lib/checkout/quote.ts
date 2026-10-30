@@ -42,6 +42,9 @@ export type Quote = {
 
 export class CheckoutError extends Error {}
 
+/** Monthly is 26 Mon–Sat days; up to 2 skips keep the monthly rate. */
+export const MIN_PLAN_DAYS: Partial<Record<Cart['type'], number>> = { weekly: 3, monthly: 24 };
+
 const SIDE_ID_TO_SLUG = new Map((sidesData as { id: string; slug: string }[]).map((s) => [s.id, s.slug]));
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
@@ -55,14 +58,26 @@ export async function quoteCart(cart: Cart, userId: string): Promise<Quote> {
   // Address belongs to the customer and is in a delivery zone
   const { data: address } = await db.from('addresses').select('id, user_id, zone_id, pincode').eq('id', cart.addressId).maybeSingle();
   if (!address || address.user_id !== userId) throw new CheckoutError('Choose a delivery address.');
-  const { data: zone } = await db.from('delivery_zones').select('id, delivery_fee, is_active')
-    .eq(address.zone_id ? 'id' : 'pincode', address.zone_id ?? address.pincode).eq('is_active', true).limit(1).maybeSingle();
+  // The zone must serve the address's own pincode (zone_id alone is not trusted).
+  let zoneQuery = db.from('delivery_zones').select('id, delivery_fee, is_active')
+    .eq('pincode', address.pincode).eq('is_active', true);
+  if (address.zone_id) zoneQuery = zoneQuery.eq('id', address.zone_id);
+  let { data: zone } = await zoneQuery.limit(1).maybeSingle();
+  if (!zone && address.zone_id) {
+    ({ data: zone } = await db.from('delivery_zones').select('id, delivery_fee, is_active')
+      .eq('pincode', address.pincode).eq('is_active', true).limit(1).maybeSingle());
+  }
   if (!zone) throw new CheckoutError(`We don't deliver to ${address.pincode} yet.`);
 
   // Dates: unique, operating days, not before the cutoff, not too far ahead
   const dates = [...new Map(cart.days.map((d) => [d.date, d])).values()].sort((a, b) => a.date.localeCompare(b.date));
   const expected = cart.type === 'trial' ? 1 : null;
   if (expected && dates.length !== expected) throw new CheckoutError('A trial is for one day.');
+  // Weekly/monthly per-meal prices only apply to full-length plans.
+  const minDays = MIN_PLAN_DAYS[cart.type];
+  if (minDays && dates.length < minDays) {
+    throw new CheckoutError(`A ${cart.type} plan needs at least ${minDays} delivery days. You picked ${dates.length}.`);
+  }
   const { data: earliest } = await db.rpc('earliest_bookable_date', {});
   const maxDate = new Date(Date.now() + 60 * 864e5).toISOString().slice(0, 10);
   for (const d of dates) {
@@ -118,12 +133,17 @@ export async function quoteCart(cart: Cart, userId: string): Promise<Quote> {
     else if (c.plan_types && !c.plan_types.includes(cart.type)) couponMessage = `That coupon doesn't apply to ${cart.type} plans.`;
     else if (subtotal < Number(c.min_order)) couponMessage = `Minimum order for ${c.code} is ₹${Number(c.min_order)}.`;
     else {
-      const [{ count: used }, { count: usedByMe }, { count: paidOrders }] = await Promise.all([
+      // Redemptions are recorded at payment, so other customers' unpaid orders
+      // count towards the total too. This customer's own unpaid coupon orders
+      // are cancelled by placeOrder, so only one can ever be paid.
+      const [{ count: redeemed }, { count: pendingByOthers }, { count: usedByMe }, { count: paidOrders }] = await Promise.all([
         db.from('coupon_redemptions').select('id', { count: 'exact', head: true }).eq('coupon_id', c.id),
+        db.from('orders').select('id', { count: 'exact', head: true }).eq('coupon_id', c.id)
+          .in('status', ['created', 'pending_payment']).neq('user_id', userId),
         db.from('coupon_redemptions').select('id', { count: 'exact', head: true }).eq('coupon_id', c.id).eq('user_id', userId),
         db.from('orders').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('status', 'paid'),
       ]);
-      if (c.usage_limit && (used ?? 0) >= c.usage_limit) couponMessage = 'That coupon has been fully used.';
+      if (c.usage_limit && (redeemed ?? 0) + (pendingByOthers ?? 0) >= c.usage_limit) couponMessage = 'That coupon has been fully used.';
       else if ((usedByMe ?? 0) >= c.per_user_limit) couponMessage = 'You have already used that coupon.';
       else if (c.first_order_only && (paidOrders ?? 0) > 0) couponMessage = 'That coupon is for first orders only.';
       else {

@@ -1,6 +1,6 @@
 'use client';
 
-import { usePricing } from '@/components/providers/CatalogProvider';
+import { usePricing, useRegularTrialPrice, useTrialOffer } from '@/components/providers/CatalogProvider';
 import React, { useState } from 'react';
 import Link from 'next/link';
 import {
@@ -9,10 +9,12 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { cn, formatCurrency } from '@/lib/utils';
-import { DietType } from '@/lib/menu-engine';
+import { DietType, MONTHLY_PLAN_DAYS } from '@/lib/menu-engine';
 
 export default function PricingPage() {
   const PRICING = usePricing();
+  const trialOffer = useTrialOffer();
+  const TRIAL_REGULAR = useRegularTrialPrice();
   const [diet, setDiet] = useState<DietType>('non-veg');
   const [billingCycle, setBillingCycle] = useState<'weekly' | 'monthly'>('weekly');
 
@@ -25,14 +27,14 @@ export default function PricingPage() {
   const p1WeeklyTotal = p1WeeklyPerMeal * 6; // ₹1,734 (NV) or ₹1,554 (Veg)
 
   const p1MonthlyPerMeal = isNV ? 269 : 239;
-  const p1MonthlyTotal = p1MonthlyPerMeal * 24; // ₹6,456 (NV) or ₹5,736 (Veg)
+  const p1MonthlyTotal = p1MonthlyPerMeal * MONTHLY_PLAN_DAYS;
 
   // 2 Meals/day prices (Lunch + Dinner with -₹10 second meal discount)
   const p2WeeklyPerMeal = isNV ? 284 : 254; // (289 * 2 - 10) / 2
   const p2WeeklyTotal = isNV ? 3408 : 3048; // (289 * 2 - 10) * 6
 
   const p2MonthlyPerMeal = isNV ? 264 : 234; // (269 * 2 - 10) / 2
-  const p2MonthlyTotal = isNV ? 12672 : 11232; // (269 * 2 - 10) * 24
+  const p2MonthlyTotal = p2MonthlyPerMeal * 2 * MONTHLY_PLAN_DAYS; // (per day − ₹10 2nd-meal discount) × days
 
   return (
     <div className="min-h-screen bg-paper text-ink">
@@ -92,7 +94,7 @@ export default function PricingPage() {
               </button>
             </div>
 
-            {/* Billing Cycle Toggle: Weekly (6 days) vs Monthly (24 days) SAVE 12% */}
+            {/* Billing Cycle Toggle: Weekly (6 days) vs Monthly (26 days) SAVE 12% */}
             <div className="inline-flex p-1 sm:p-1.5 bg-white rounded-full border border-gray-200/90 shadow-xs">
               <button
                 type="button"
@@ -117,7 +119,7 @@ export default function PricingPage() {
                     : "text-gray-600 hover:text-gray-900"
                 )}
               >
-                <span>Monthly (24 days)</span>
+                <span>Monthly (26 days)</span>
                 <span className="bg-accent text-ink-deep font-black text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">
                   SAVE 12%
                 </span>
@@ -135,7 +137,7 @@ export default function PricingPage() {
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-heading font-black text-2xl text-gray-900 tracking-tight">
-                  {billingCycle === 'weekly' ? '6-Day Weekly Plan' : '24-Day Monthly Plan'}
+                  {billingCycle === 'weekly' ? '6-Day Weekly Plan' : '26-Day Monthly Plan'}
                 </h3>
                 <span className="text-xs font-bold bg-accent-soft text-ink px-2.5 py-1 rounded-full whitespace-nowrap">
                   1 Meal/day
@@ -330,7 +332,15 @@ export default function PricingPage() {
 
               {/* Price Banner */}
               <div className="mt-5 p-4 rounded-2xl bg-gray-50 border border-gray-100 text-center">
+                {trialOffer && (
+                  <span className="inline-block mb-1.5 rounded-full bg-accent-soft text-accent px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider">
+                    {trialOffer.label}
+                  </span>
+                )}
                 <div className="flex items-baseline justify-center gap-1">
+                  {trialOffer && (
+                    <s className="mr-1 text-base font-bold text-gray-400">{formatCurrency(TRIAL_REGULAR[diet])}</s>
+                  )}
                   <span className="font-heading font-black text-3xl sm:text-4xl text-ink">
                     {formatCurrency(trialPrice)}
                   </span>

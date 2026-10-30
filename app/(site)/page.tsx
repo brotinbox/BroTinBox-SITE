@@ -5,10 +5,7 @@ import { WeeklyCalendarStrip } from '@/components/home/WeeklyCalendarStrip';
 import { AddASideSection } from '@/components/home/AddASideSection';
 import { DrinksStrip } from '@/components/home/DrinksStrip';
 import { HowItWorksSteps } from '@/components/home/HowItWorksSteps';
-import { WhyUsSection } from '@/components/home/WhyUsSection';
 import { PlansTeaser } from '@/components/home/PlansTeaser';
-import { FaqAccordion } from '@/components/home/FaqAccordion';
-import { FinalCtaBand } from '@/components/home/FinalCtaBand';
 
 export default async function HomePage() {
   const [sides, addons, plans] = await Promise.all([getSides(), getDrinks(), getPlanTiers()]);
@@ -30,17 +27,9 @@ export default async function HomePage() {
       {/* 6. How it works in 3 steps */}
       <HowItWorksSteps />
 
-      {/* 7. Why us & founder doctor note */}
-      <WhyUsSection />
-
       {/* 8. Plans teaser with weekly/monthly toggle */}
       <PlansTeaser plans={plans} />
 
-      {/* 11. FAQ accordion */}
-      <FaqAccordion />
-
-      {/* 12. Final CTA band */}
-      <FinalCtaBand />
     </div>
   );
 }

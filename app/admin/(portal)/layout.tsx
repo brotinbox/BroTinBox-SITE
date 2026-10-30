@@ -11,7 +11,7 @@ export default async function PortalLayout({ children }: { children: React.React
   const staff = await requireStaff();
 
   const groups = ADMIN_NAV
-    .map((g) => ({ ...g, items: g.items.filter((i) => staff.can(i.permission)) }))
+    .map((g) => ({ ...g, items: g.items.filter((i) => !i.permission || staff.can(i.permission)) }))
     .filter((g) => g.items.length > 0);
 
   return (

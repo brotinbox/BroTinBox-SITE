@@ -22,7 +22,7 @@ import { AccountShell } from '@/components/account/AccountNav';
 import { MealCard } from '@/components/account/MealCard';
 import { ProfileProgress } from '@/components/account/ProfileProgress';
 import { getSupabaseServer } from '@/lib/supabase/server';
-import { getPricingMatrix } from '@/lib/data/catalog';
+import { getPricingMatrix, getTrialOffer } from '@/lib/data/catalog';
 import { profileCompletion } from '@/lib/customer/profile-completion';
 import { hasFssai } from '@/config/legal';
 
@@ -33,8 +33,8 @@ export default async function DashboardPage() {
   const profile = await requireCustomer('/dashboard');
   const supabase = await getSupabaseServer();
 
-  const [meals, subs, pending, pricing, { count: addressCount }] = await Promise.all([
-    getUpcomingMeals(12), getMySubscriptions(), getMyPendingOrders(), getPricingMatrix(),
+  const [meals, subs, pending, pricing, trialOffer, { count: addressCount }] = await Promise.all([
+    getUpcomingMeals(12), getMySubscriptions(), getMyPendingOrders(), getPricingMatrix(), getTrialOffer(),
     supabase.from('addresses').select('id', { count: 'exact', head: true }).eq('user_id', profile.id),
   ]);
   const live = subs.filter((s) => s.status === 'active' || s.status === 'paused');
@@ -68,10 +68,10 @@ export default async function DashboardPage() {
               <Link href="/tomorrow" className="group rounded-2xl bg-white text-gray-900 p-4 flex flex-col gap-2 hover:shadow-lg transition-shadow">
                 <span className="flex items-center justify-between">
                   <span className="w-9 h-9 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center"><Gift className="w-4 h-4" /></span>
-                  <span className="text-[10px] font-bold bg-orange-50 text-orange-700 px-2 py-0.5 rounded-full">No commitment</span>
+                  <span className="text-[10px] font-bold bg-orange-50 text-orange-700 px-2 py-0.5 rounded-full">{trialOffer?.label ?? 'No commitment'}</span>
                 </span>
                 <span className="font-heading font-black text-base">Try a Trial Box</span>
-                <span className="text-xs text-gray-600">One box tomorrow to taste the food first. {inr(pricing.trial[diet])} per meal.</span>
+                <span className="text-xs text-gray-600">One box tomorrow to taste the food first. {inr(pricing.trial[diet])} per meal{trialOffer && <> (usually <s>{inr(trialOffer.regular[diet])}</s>)</>}.</span>
                 <span className="mt-auto inline-flex items-center gap-1 text-xs font-bold text-ink">Order for tomorrow <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" /></span>
               </Link>
               <div className="rounded-2xl bg-white text-gray-900 p-4 flex flex-col gap-2">

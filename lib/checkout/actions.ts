@@ -52,7 +52,14 @@ export async function placeOrder(input: Cart): Promise<PlaceOrderResult> {
   try {
     const q = await quoteCart(cart.data, me.userId);
     const prefs = cart.data.preferences;
-    const { data, error } = await getSupabaseService().rpc('create_checkout_order', {
+    const db = getSupabaseService();
+    // A new coupon order replaces the customer's unpaid ones with the same
+    // coupon, so per-customer / first-order limits can't be stacked.
+    if (q.couponId) {
+      await db.from('orders').update({ status: 'cancelled' })
+        .eq('user_id', me.userId).eq('coupon_id', q.couponId).in('status', ['created', 'pending_payment']);
+    }
+    const { data, error } = await db.rpc('create_checkout_order', {
       p_user: me.userId,
       p_plan: q.planId as string,
       p_type: cart.data.type,

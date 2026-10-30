@@ -26,6 +26,8 @@ import {
   Check,
 } from 'lucide-react';
 import {
+  MONTHLY_MIN_DAYS,
+  MONTHLY_PLAN_DAYS,
   getMonthlyOperatingDays,
   getMenuForDate,
   DailyMenuResult,
@@ -71,7 +73,7 @@ export default function MonthlyPlanPage() {
     return dayOfWeek === 'Wed' || dayOfWeek === 'Fri' ? 'veg' : 'non-veg';
   };
 
-  // Build menu for all 24 operating days
+  // Build menu for all 26 operating days
   const calendarDays = useMemo(() => {
     return monthlyDays.map((d) => {
       const diet = getDayDiet(d.dayOfWeek);
@@ -154,6 +156,9 @@ export default function MonthlyPlanPage() {
   // Price calculations
   // Monthly pricing from the database (usePricing); second meal gets the discount.
   const activeDays = calendarDays.filter((d) => !d.isSkipped);
+  // The monthly rate needs at least MONTHLY_MIN_DAYS days (the server checks too).
+  const tooFewDays = activeDays.length < MONTHLY_MIN_DAYS;
+  const minDaysMessage = `Keep at least ${MONTHLY_MIN_DAYS} days for the monthly rate. You can skip up to ${MONTHLY_PLAN_DAYS - MONTHLY_MIN_DAYS} days.`;
 
   const totalPrice = useMemo(() => {
     let sum = 0;
@@ -194,7 +199,7 @@ export default function MonthlyPlanPage() {
               Monthly Lifestyle Plan
             </h1>
             <p className="text-xs sm:text-sm text-ink/80 font-medium max-w-2xl mt-1 leading-relaxed">
-              24 days of fresh chef nutrition across 4 weeks (Mon–Sat). Cooked fresh and delivered hot every morning (7:00–9:00 AM) &amp; evening (7:00–9:00 PM).
+              26 days of fresh chef nutrition across a full month (Mon–Sat). Cooked fresh and delivered hot every morning (7:00–9:00 AM) &amp; evening (7:00–9:00 PM).
             </p>
 
             {/* Clear At-A-Glance Value Badges */}
@@ -332,7 +337,7 @@ export default function MonthlyPlanPage() {
           </div>
         </div>
 
-        {/* 3. The 24-Day Calendar Grid + Sticky Checkout Panel */}
+        {/* 3. The 26-Day Calendar Grid + Sticky Checkout Panel */}
         <div className="mt-6 sm:mt-8 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
           {/* Calendar Section (Mobile View & Desktop Grid) */}
           <div className="lg:col-span-8 space-y-5">
@@ -341,14 +346,14 @@ export default function MonthlyPlanPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="font-heading font-black text-lg text-ink">
-                    24-Day Schedule
+                    26-Day Schedule
                   </h3>
                   <p className="text-[11px] text-gray-500">
                     Tap any day to inspect the 5-item box or skip
                   </p>
                 </div>
                 <span className="text-[11px] font-bold text-accent bg-sand px-2.5 py-1 rounded-full shrink-0">
-                  {activeDays.length}/24 Active
+                  {activeDays.length}/{MONTHLY_PLAN_DAYS} Active
                 </span>
               </div>
 
@@ -358,8 +363,8 @@ export default function MonthlyPlanPage() {
                   { id: 0, label: 'Week 1', days: 'Days 1–6' },
                   { id: 1, label: 'Week 2', days: 'Days 7–12' },
                   { id: 2, label: 'Week 3', days: 'Days 13–18' },
-                  { id: 3, label: 'Week 4', days: 'Days 19–24' },
-                  { id: 'all', label: 'All 24', days: 'Full Month' },
+                  { id: 3, label: 'Week 4', days: 'Days 19–26' },
+                  { id: 'all', label: 'All 26', days: 'Full Month' },
                 ].map((tab) => {
                   const isActive = mobileWeekTab === tab.id;
                   const weekActiveCount = tab.id === 'all'
@@ -487,10 +492,10 @@ export default function MonthlyPlanPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="font-heading font-black text-xl text-ink">
-                    24-Day Operating Calendar
+                    26-Day Operating Calendar
                   </h3>
                   <p className="text-xs text-gray-500">
-                    4 weeks of Mon–Sat meals • Tap any cell to view 5-item box details
+                    A month of Mon–Sat meals • Tap any cell to view 5-item box details
                   </p>
                 </div>
                 <span className="text-xs font-bold text-accent bg-sand px-3 py-1 rounded-full">
@@ -579,7 +584,7 @@ export default function MonthlyPlanPage() {
               <div className="pb-4 border-b border-gray-100">
                 <span className="text-[10px] font-black uppercase tracking-wider text-gray-400">Monthly Subscription</span>
                 <h3 className="font-heading font-black text-xl text-ink mt-0.5">
-                  24 Days Transformation
+                  26 Days Transformation
                 </h3>
                 <p className="text-xs text-gray-500">
                   Starts {monthlyDays[0].dayName}, {monthlyDays[0].formatted}
@@ -678,7 +683,7 @@ export default function MonthlyPlanPage() {
               <div className="space-y-2 pt-2 text-xs border-t border-gray-100">
                 <div className="flex justify-between text-gray-600">
                   <span>Operating Days Billed</span>
-                  <span className="font-bold text-ink">{activeDays.length} / 24 Days</span>
+                  <span className="font-bold text-ink">{activeDays.length} / {MONTHLY_PLAN_DAYS} Days</span>
                 </div>
 
                 <div className="flex justify-between text-gray-600">
@@ -711,7 +716,7 @@ export default function MonthlyPlanPage() {
                   <div>
                     <span className="text-xs uppercase font-extrabold text-gray-400 block">Total Due</span>
                     <span className="text-[10px] text-gray-400">
-                      {paymentMode === 'autopay' ? `Billed ₹${weeklyAutoPayAmount}/week` : 'Full 24 days prepaid'}
+                      {paymentMode === 'autopay' ? `Billed ₹${weeklyAutoPayAmount}/week` : `${activeDays.length} days prepaid`}
                     </span>
                   </div>
                   <span className="font-heading font-black text-3xl text-ink">
@@ -724,12 +729,16 @@ export default function MonthlyPlanPage() {
               <button
                 type="button"
                 onClick={handleProceed}
-                disabled={activeDays.length === 0}
+                disabled={tooFewDays}
                 className="w-full bg-ink hover:bg-ink-soft disabled:bg-gray-300 text-white py-4 px-6 rounded-2xl font-heading font-bold text-sm tracking-wide shadow-lg shadow-ink/25 flex items-center justify-center gap-2 tap-active transition-all group"
               >
                 <span>{paymentMode === 'autopay' ? 'Setup UPI AutoPay Mandate' : 'Prepay Monthly Plan'}</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
+
+              {tooFewDays && (
+                <p className="text-[11px] font-semibold text-accent text-center">{minDaysMessage}</p>
+              )}
 
               <div className="text-[11px] text-gray-400 text-center space-y-1">
                 <p>✓ Prepaid by UPI • Pause anytime before the 9 PM cutoff</p>
@@ -766,7 +775,8 @@ export default function MonthlyPlanPage() {
           <button
             type="button"
             onClick={handleProceed}
-            disabled={activeDays.length === 0}
+            disabled={tooFewDays}
+            title={tooFewDays ? minDaysMessage : undefined}
             className="bg-ink hover:bg-ink-soft disabled:bg-gray-300 text-white py-3 px-5 rounded-2xl font-heading font-bold text-xs tracking-wide shadow-md shadow-ink/20 flex items-center gap-1.5 tap-active shrink-0 transition-transform active:scale-95"
           >
             <span>{paymentMode === 'autopay' ? 'Subscribe Plan' : 'Prepay Plan'}</span>

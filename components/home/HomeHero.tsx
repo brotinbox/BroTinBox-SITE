@@ -3,15 +3,22 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePricing, useTrialOffer } from '@/components/providers/CatalogProvider';
 
 export function HomeHero() {
+  const PRICING = usePricing();
+  const trialOffer = useTrialOffer();
+  const trialFrom = Math.min(PRICING.trial.veg, PRICING.trial['non-veg']);
+  const trialPriceText = trialOffer
+    ? `${trialOffer.label.toUpperCase()} ₹${trialFrom}`
+    : `FROM ₹${PRICING.trial.veg} (V) / ₹${PRICING.trial['non-veg']} (NV)`;
   const categoryCards = [
     {
       id: 'trial',
       title: 'DAILY TRIAL BOX',
       subtitle: 'JUST TRY IT',
-      offer: 'FROM ₹289 (V) / ₹319 (NV)',
-      mobileOffer: 'FROM ₹289 (V) / ₹319 (NV)',
+      offer: trialPriceText,
+      mobileOffer: trialOffer ? `NOW ₹${trialFrom}` : `FROM ₹${trialFrom}`,
       href: '/tomorrow',
       image: '/daily.png',
       imageAlt: 'BroTin Box Daily Trial Box meal',

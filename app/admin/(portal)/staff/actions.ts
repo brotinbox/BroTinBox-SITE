@@ -12,9 +12,11 @@ export async function assignRole(_p: ActionResult | null, fd: FormData): Promise
   if (!email.success || !role.success) return fail('Enter a valid email and role.');
   return staffAction('staff.manage', async () => {
     const supabase = await getSupabaseServer();
-    const { data: user } = await supabase.from('profiles').select('id').eq('email', email.data).maybeSingle();
-    if (!user) return fail('No account with that email. Create it first in Supabase → Authentication → Users (or have them sign in once).');
-    const { error } = await supabase.rpc('set_staff_role', { p_user: user.id, p_role: role.data });
+    // Match the confirmed login email (auth.users), not the editable profile copy.
+    const { data: userId, error: findError } = await supabase.rpc('staff_user_by_email', { p_email: email.data });
+    if (findError) throw findError;
+    if (!userId) return fail('No confirmed account with that email. Create it first in Supabase → Authentication → Users (or have them sign in once).');
+    const { error } = await supabase.rpc('set_staff_role', { p_user: userId, p_role: role.data });
     if (error) throw error;
     return ok(`${email.data} is now ${role.data.replace('_', ' ')}.`);
   });

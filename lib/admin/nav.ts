@@ -2,7 +2,7 @@
  * Admin sidebar. Each item is shown only if the viewer has `permission`.
  * Adding a page = add an entry here (and a resource config or a page file).
  */
-export type AdminNavItem = { href: string; label: string; icon: string; permission: string };
+export type AdminNavItem = { href: string; label: string; icon: string; permission: string }; // '' = every staff member
 export type AdminNavGroup = { label: string; items: AdminNavItem[] };
 
 export const ADMIN_NAV: AdminNavGroup[] = [
@@ -49,6 +49,7 @@ export const ADMIN_NAV: AdminNavGroup[] = [
       { href: '/staff', label: 'Staff & roles', icon: 'ShieldCheck', permission: 'staff.manage' },
       { href: '/settings', label: 'Settings', icon: 'Settings', permission: 'settings.read' },
       { href: '/activity', label: 'Activity log', icon: 'History', permission: 'activity.read' },
+      { href: '/guide', label: 'Guide', icon: 'BookOpen', permission: '' },
     ],
   },
 ];
