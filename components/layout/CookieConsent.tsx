@@ -113,12 +113,11 @@ gtag('config', '${measurementId}');`}
           className="fixed z-50 bottom-20 inset-x-3 md:bottom-6 md:left-6 md:right-auto md:max-w-md bg-white border border-gray-200 rounded-2xl shadow-lg shadow-black/15 p-4"
         >
           <p className="text-[13px] leading-relaxed text-gray-700">
-            We&apos;d like to use Google Analytics cookies to see how our website is used. They stay off unless you accept.
-            Cookies that keep you signed in are always on. See our{' '}
-            <Link href="/privacy#cookies" className="font-semibold text-ink underline">Privacy Policy</Link>.
+            This site uses cookies to understand how it&apos;s used.{' '}
+            <Link href="/privacy#cookies" className="font-semibold text-ink underline">Privacy Policy</Link>
           </p>
           {isReopened && choice && (
-            <p className="mt-2 text-xs text-gray-500">Your current choice: analytics cookies {choice}.</p>
+            <p className="mt-2 text-xs text-gray-500">Current choice: {choice}</p>
           )}
           <div className="mt-3 grid grid-cols-2 gap-2">
             <button
