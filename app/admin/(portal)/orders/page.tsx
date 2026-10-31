@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { requireStaff } from '@/lib/auth/session';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { adminHref } from '@/lib/admin/paths';
-import { Card, DataTable, EmptyState, PageHeader, Pagination, StatusBadge, fmtDate, inr } from '@/components/admin/ui';
+import { ButtonLink, Card, DataTable, EmptyState, PageHeader, Pagination, StatusBadge, fmtDate, inr } from '@/components/admin/ui';
 import { FilterBar, likePattern } from '@/components/admin/FilterBar';
 
 export const metadata = { title: 'Orders' };
@@ -30,7 +30,11 @@ export default async function OrdersPage({ searchParams }: { searchParams: Promi
   const base = adminHref('/orders');
   return (
     <>
-      <PageHeader title="Orders & payments" description="Every purchase. Confirm UPI payments here to activate subscriptions." />
+      <PageHeader
+        title="Orders & payments"
+        description="Every purchase. Confirm UPI payments here to activate subscriptions."
+        actions={<ButtonLink href={adminHref('/orders/new')}>New WhatsApp order</ButtonLink>}
+      />
       <FilterBar
         action={base}
         q={q}

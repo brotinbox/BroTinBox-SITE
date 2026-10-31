@@ -123,6 +123,7 @@ const ROLES: [string, string][] = [
 ];
 
 const FAQ: [string, ReactNode][] = [
+  ['Someone ordered on WhatsApp. What do I do?', 'Ask them for 4 things: name, full address with pincode, plan (trial / weekly / monthly, veg or non-veg, lunch / dinner / both) and start date. Their WhatsApp number you already have; a Gmail is optional (lets them sign in later and see the plan). Then Orders & payments → New WhatsApp order. Choose “Not paid yet”, send them the total and your UPI ID, and when the money arrives click “Mark as paid” on the order. That schedules the meals. If they already paid, pick the method and enter the reference on the form instead.'],
   ['Why does a meal say “not locked”?', 'It is before 9 PM the night before, so the customer can still skip or change it. At 9 PM it locks automatically. Plan with it, but treat the Cook sheet after 9 PM as final.'],
   ['Why is Deliveries empty but Day plan has boxes?', 'Deliveries only lists locked meals. Before 9 PM use Day plan.'],
   ['A customer paid but has no meals.', 'Open the order. With Cashfree, click “Re-check with Cashfree”. With manual UPI, check the reference in your bank app and click “Mark as paid”; that schedules the meals.'],

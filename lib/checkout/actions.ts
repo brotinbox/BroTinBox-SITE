@@ -6,6 +6,7 @@ import { getSupabaseService } from '@/lib/supabase/admin';
 import { rateLimit } from '@/lib/security/ratelimit';
 import { cleanText } from '@/lib/security/request';
 import { CheckoutError, cartSchema, quoteCart, type Cart, type QuoteLine } from '@/lib/checkout/quote';
+import { createOrderFromQuote } from '@/lib/checkout/create-order';
 import { notifyOrderPlaced } from '@/lib/notifications/telegram';
 
 type Fail = { ok: false; error: string };
@@ -51,7 +52,6 @@ export async function placeOrder(input: Cart): Promise<PlaceOrderResult> {
 
   try {
     const q = await quoteCart(cart.data, me.userId);
-    const prefs = cart.data.preferences;
     const db = getSupabaseService();
     // A new coupon order replaces the customer's unpaid ones with the same
     // coupon, so per-customer / first-order limits can't be stacked.
@@ -59,33 +59,7 @@ export async function placeOrder(input: Cart): Promise<PlaceOrderResult> {
       await db.from('orders').update({ status: 'cancelled' })
         .eq('user_id', me.userId).eq('coupon_id', q.couponId).in('status', ['created', 'pending_payment']);
     }
-    const { data, error } = await db.rpc('create_checkout_order', {
-      p_user: me.userId,
-      p_plan: q.planId as string,
-      p_type: cart.data.type,
-      p_diet: q.primaryDiet,
-      p_slots: q.slots,
-      p_excluded: [],
-      p_start: q.schedule[0].date,
-      p_address: cart.data.addressId,
-      p_preferences: {
-        schedule: q.schedule,
-        is_egg_free: prefs.isEggFree,
-        skip_legume: prefs.skipLegume,
-        diet_variation: prefs.dietVariation ?? null,
-        addon_ids: q.addonIds,
-      },
-      p_meals_total: q.mealsTotal,
-      p_subtotal: q.subtotal,
-      p_discount: q.discount,
-      p_fee: q.deliveryFee,
-      p_total: q.total,
-      p_coupon: q.couponId as string,
-      p_pricing: { lines: q.lines, schedule: q.schedule, quoted_at: new Date().toISOString() },
-      p_items: q.lines,
-    });
-    if (error || !data) throw error ?? new Error('no order');
-    const order = data as unknown as { id: string; order_number: string; total: number };
+    const order = await createOrderFromQuote(me.userId, cart.data, q);
 
     // Fire Telegram order notification asynchronously (best effort)
     notifyOrderPlaced(order.id).catch((err) => {
