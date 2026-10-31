@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { BRAND } from '@/config/brand';
 import { LEGAL, hasFssai } from '@/config/legal';
 import { LEGAL_PAGES } from '@/components/legal/LegalPage';
+import { CookieSettingsButton } from '@/components/layout/CookieConsent';
 import { MapPin, Phone, Mail, ShieldCheck, Heart, Instagram, MessageCircle, Twitter } from 'lucide-react';
 
 export function Footer() {
@@ -152,6 +153,9 @@ export function Footer() {
                   </Link>
                 </li>
               ))}
+              <li>
+                <CookieSettingsButton className="text-left hover:text-white transition-colors" />
+              </li>
             </ul>
           </div>
         </div>

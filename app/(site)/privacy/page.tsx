@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { CookieSettingsButton } from '@/components/layout/CookieConsent';
 import { KeyValue, LegalPage, type LegalSection } from '@/components/legal/LegalPage';
 import { LEGAL, operatorLine } from '@/config/legal';
 
@@ -73,7 +74,7 @@ const sections: LegalSection[] = [
           ['Offers and newsletters', 'Only if you opt in. You can opt out any time by replying STOP or writing to us; this does not affect service messages.'],
           ['Safety, fraud and legal compliance', 'Technical data and logs, to prevent abuse, investigate incidents and comply with law, court orders and CERT-In directions (s.7(c), (d)).'],
           ['Improve the Service', 'Aggregated or de-identified order and usage data to plan menus, routes and kitchen capacity.'],
-          ['Understand how the website is used', 'Pages visited, device and browser type, approximate location, how you reached us and the actions you take on the site, collected through analytics tools to see what works and fix what does not. See section 10 for how to opt out.'],
+          ['Understand how the website is used', 'Pages visited, device and browser type, approximate location, how you reached us and the actions you take on the site, to see what works and fix what does not. Google Analytics runs only with your consent, which you can withdraw at any time. Vercel Web Analytics sets no cookies and gives us aggregate visit counts. See section 10.'],
         ]} />
         <p>We do not sell, rent or trade your personal data. We do not use your health data for advertising, and we do not make automated decisions that have a legal or similarly significant effect on you.</p>
       </>
@@ -90,7 +91,7 @@ const sections: LegalSection[] = [
           ['Kitchen and support staff', 'Diet, allergies and meal preferences (to cook correctly), and order details (to help you). Staff access is limited by role.'],
           ['Hosting and infrastructure', 'Supabase (database, sign-in and file storage), Vercel (website hosting) and Upstash (abuse protection). They store or process data for us.'],
           ['Sign-in and maps', 'Google (sign in with Google; address lookup through Google Maps) and OpenStreetMap Nominatim (backup address lookup, which receives map coordinates only).'],
-          ['Website analytics', 'Google (Google Analytics) and Vercel (Web Analytics) receive website usage data, including your IP address, pages visited and device details, to give us reports on how the site is used. We do not send them your name, mobile number, address, health data or payment details.'],
+          ['Website analytics', 'If you accept analytics cookies, Google (Google Analytics) receives website usage data, including your IP address, pages visited and device details. Vercel (Web Analytics) receives page visit data without cookies. We do not send them your name, mobile number, address, health data or payment details.'],
           ['Payments', 'Your bank and UPI app, and our payment gateway (Cashfree Payments India Pvt Ltd) once card or online payments are enabled. They process payments under their own RBI-regulated terms.'],
           ['Messaging', 'WhatsApp (Meta) when you message us or opt in to updates, and Telegram, which our team uses for internal order alerts.'],
           ['Authorities', 'Government, regulators, courts or law enforcement when the law requires it, for example the GST department, FSSAI, or a valid legal request.'],
@@ -192,16 +193,19 @@ const sections: LegalSection[] = [
         <ul>
           <li><strong>Essential cookies</strong> that keep you signed in securely and protect against misuse.</li>
           <li><strong>Browser local storage</strong> that remembers your cart, selected area and preferences on your device.</li>
-          <li><strong>Analytics cookies</strong> set by Google Analytics (such as <code>_ga</code>), which tell repeat visits apart so we can count visitors and see how the site is used. They last up to 2 years and are set when you use the site.</li>
+          <li><strong>Analytics cookies, only if you accept them.</strong> Google Analytics cookies (such as <code>_ga</code>) tell repeat visits apart so we can count visitors and see how the site is used. They last up to 2 years. Google Analytics does not load until you press Accept on our cookie banner.</li>
           <li><strong>Vercel Web Analytics</strong>, which measures page visits without setting cookies.</li>
         </ul>
         <p>
           We do not use advertising cookies. If we later add advertising tools, we will update this policy first and, where the law requires, ask for your consent.
         </p>
         <p>
-          You can block analytics cookies in your browser settings, or use the{' '}
-          <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener noreferrer">Google Analytics opt-out add-on</a>. Doing so does not affect
-          ordering. You can clear cookies and local storage in your browser at any time; you will then need to sign in again.
+          <strong>Your choice.</strong> Rejecting analytics cookies does not affect ordering or any other feature. We remember your choice on your device for 12 months and then
+          ask again. You can change it or withdraw consent at any time: <CookieSettingsButton className="font-semibold underline" />. When you withdraw, Google Analytics stops
+          and we remove its cookies from your browser.
+        </p>
+        <p>
+          You can clear cookies and local storage in your browser at any time; you will then need to sign in again and we will ask for your cookie choice again.
         </p>
       </>
     ),
@@ -251,7 +255,7 @@ export default function PrivacyPage() {
         'We collect what we need to cook and deliver your meals: name, contact details, address, diet and orders.',
         'Height, weight, age and allergies are optional and used only to personalise your targets and keep allergens out.',
         'We never sell your data. Riders see only what they need to deliver.',
-        'We use Google Analytics and Vercel Web Analytics to understand how the website is used. You can opt out; see section 10.',
+        'Google Analytics cookies run only if you accept them, and you can change your mind at any time. Vercel Web Analytics counts visits without cookies.',
         'You can access, correct or delete your data, or withdraw consent, by writing to our Grievance Officer.',
         'We keep order and invoice records for 8 years because tax law requires it.',
       ]}
