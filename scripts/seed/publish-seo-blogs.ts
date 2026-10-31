@@ -4,9 +4,12 @@
  *   npm run seed:blogs -- --dry-run   validate only, no writes, no image spend
  *   npm run seed:blogs                upsert drafts → generate missing covers → publish
  *
+ *   npm run seed:blogs:october        same steps for the October 2026 set only
+ *
  * Safe to re-run: posts are upserted by slug, covers already on R2 are kept, and
- * published_at is never changed once set. Nothing is published unless every post
- * has a generated R2 cover (the posts cross-link, so they go live together).
+ * published_at is never changed once set, unless the post pins its own date in the
+ * manifest. Nothing is published unless every post has a generated R2 cover (the
+ * posts cross-link, so they go live together).
  */
 import * as dotenv from 'dotenv';
 dotenv.config({ path: '.env.local', quiet: true });
@@ -17,24 +20,27 @@ import { join } from 'node:path';
 import { createClient } from '@supabase/supabase-js';
 import { readingMinutes, renderMarkdown } from '../../lib/content/markdown';
 import { generateAndUploadCoverImage } from '../modes/image-prompt';
-import { AUTHOR, SEO_POSTS } from './blogs/manifest';
+import { AUTHOR, OCTOBER_2026_POSTS, SEO_POSTS } from './blogs/manifest';
 
 const DRY_RUN = process.argv.includes('--dry-run');
+const POSTS = process.argv.includes('--october') ? OCTOBER_2026_POSTS : SEO_POSTS;
 const DIR = join(process.cwd(), 'scripts/seed/blogs');
 const SCENE_SUFFIX = 'Natural documentary-style photography, realistic lighting, authentic South Indian setting, no watermarks, no text, no logos.';
-const SITE_PATHS = new Set(['/', '/menu', '/plans', '/pricing', '/weekly', '/monthly', '/tomorrow', '/delivery-areas', '/blog', '/faq', '/about', '/contact']);
+const SITE_PATHS = new Set(['/', '/menu', '/plans', '/pricing', '/weekly', '/monthly', '/tomorrow', '/delivery-areas', '/blog', '/faq', '/about', '/contact', '/food-safety', '/refund-policy']);
 
 // ─── 1. Validate ────────────────────────────────────────────────────────────
-const slugs = new Set(SEO_POSTS.map((p) => p.slug));
+const slugs = new Set(POSTS.map((p) => p.slug));
+const linkableSlugs = new Set([...SEO_POSTS, ...OCTOBER_2026_POSTS].map((p) => p.slug));
 const problems: string[] = [];
 const bodies = new Map<string, string>();
 
-for (const p of SEO_POSTS) {
+for (const p of POSTS) {
   const md = readFileSync(join(DIR, p.file), 'utf8').trim();
   bodies.set(p.slug, md);
   const at = (msg: string) => problems.push(`${p.slug}: ${msg}`);
 
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(p.slug)) at('invalid slug');
+  if (p.published_at && new Date(p.published_at).getTime() > Date.now()) at(`published_at ${p.published_at} is in the future`);
   if (p.seo_title.length > 60) at(`seo_title is ${p.seo_title.length} chars (max 60)`);
   if (p.seo_description.length > 155) at(`seo_description is ${p.seo_description.length} chars (max 155)`);
   if (/^\s*\|.*\|\s*$/m.test(md)) at('contains a markdown table (renderer does not support tables)');
@@ -42,7 +48,7 @@ for (const p of SEO_POSTS) {
 
   for (const [, href] of md.matchAll(/\]\(([^)]+)\)/g)) {
     if (href.startsWith('/blog/')) {
-      if (!slugs.has(href.slice(6))) at(`links to unknown post ${href}`);
+      if (!linkableSlugs.has(href.slice(6))) at(`links to unknown post ${href}`);
     } else if (href.startsWith('/')) {
       if (!SITE_PATHS.has(href)) at(`links to unknown page ${href}`);
     } else if (!href.startsWith('https://')) {
@@ -57,7 +63,7 @@ if (problems.length) {
   console.error('❌ Validation failed:\n  ' + problems.join('\n  '));
   process.exit(1);
 }
-console.log(`✅ ${SEO_POSTS.length} posts validated (${[...bodies.values()].reduce((n, b) => n + b.split(/\s+/).length, 0)} words).`);
+console.log(`✅ ${POSTS.length} posts validated (${[...bodies.values()].reduce((n, b) => n + b.split(/\s+/).length, 0)} words).`);
 if (DRY_RUN) process.exit(0);
 
 // ─── 2. Upsert drafts ───────────────────────────────────────────────────────
@@ -84,7 +90,7 @@ async function main() {
   if (exErr) throw exErr;
   const current = new Map(existing.map((r) => [r.slug, r]));
 
-  const rows = SEO_POSTS.map((p) => {
+  const rows = POSTS.map((p) => {
     const content = bodies.get(p.slug)!;
     if (!categoryId.has(p.category)) throw new Error(`Unknown category ${p.category}`);
     return {
@@ -108,8 +114,8 @@ async function main() {
   console.log(`💾 Upserted ${rows.length} posts (new ones as drafts).`);
 
   // ─── 3. Covers ────────────────────────────────────────────────────────────
-  const covers = new Map(SEO_POSTS.map((p) => [p.slug, current.get(p.slug)?.cover_image_url ?? null]));
-  const missing = SEO_POSTS.filter((p) => !hasOwnCover(covers.get(p.slug)));
+  const covers = new Map(POSTS.map((p) => [p.slug, current.get(p.slug)?.cover_image_url ?? null]));
+  const missing = POSTS.filter((p) => !hasOwnCover(covers.get(p.slug)));
 
   if (missing.length && !OPENAI_KEY) {
     console.warn(`⚠️  OPENAI_API_KEY is empty: ${missing.length} posts have no cover. They stay as drafts.`);
@@ -128,25 +134,27 @@ async function main() {
   }
 
   // ─── 4. Publish together ──────────────────────────────────────────────────
-  const stillMissing = SEO_POSTS.filter((p) => !hasOwnCover(covers.get(p.slug))).map((p) => p.slug);
+  const stillMissing = POSTS.filter((p) => !hasOwnCover(covers.get(p.slug))).map((p) => p.slug);
   if (stillMissing.length) {
     console.warn(`\n⏸  Not publishing: ${stillMissing.length} posts still need covers:\n   ${stillMissing.join('\n   ')}\n   Fix the cause and re-run; finished covers are kept.`);
     return;
   }
 
-  // Manifest order = reading order on /blog: first post newest. Existing dates are kept.
+  // Manifest order = reading order on /blog: first post newest. Existing dates are kept unless pinned.
   const now = Date.now();
-  for (const [i, p] of SEO_POSTS.entries()) {
+  for (const [i, p] of POSTS.entries()) {
     const prev = current.get(p.slug);
-    const update = prev?.published_at
-      ? { status: 'published' as const }
-      : { status: 'published' as const, published_at: new Date(now - i * 60_000).toISOString() };
+    const update = p.published_at
+      ? { status: 'published' as const, published_at: new Date(p.published_at).toISOString() }
+      : prev?.published_at
+        ? { status: 'published' as const }
+        : { status: 'published' as const, published_at: new Date(now - i * 60_000).toISOString() };
     const { error } = await supabase.from('blog_posts').update(update).eq('slug', p.slug);
     if (error) throw error;
   }
   const site = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-  console.log(`\n🚀 Published ${SEO_POSTS.length} posts. The /blog cache refreshes within 5 minutes.`);
-  SEO_POSTS.forEach((p) => console.log(`   ${site}/blog/${p.slug}`));
+  console.log(`\n🚀 Published ${POSTS.length} posts. The /blog cache refreshes within 5 minutes.`);
+  POSTS.forEach((p) => console.log(`   ${site}/blog/${p.slug}`));
 }
 
 main().catch((err) => {
