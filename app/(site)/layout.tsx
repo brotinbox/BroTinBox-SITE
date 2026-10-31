@@ -4,6 +4,7 @@ import { OfferBar } from '@/components/layout/OfferBar';
 import { BottomNav } from '@/components/layout/BottomNav';
 import { Footer } from '@/components/layout/Footer';
 import { FloatingWhatsApp } from '@/components/layout/FloatingWhatsApp';
+import { GoogleAnalytics } from '@/components/layout/GoogleAnalytics';
 import { StoreHydration } from '@/components/providers/StoreHydration';
 import { AuthSync } from '@/components/providers/AuthSync';
 import { CatalogProvider } from '@/components/providers/CatalogProvider';
@@ -43,6 +44,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
       />
+      <GoogleAnalytics />
       <StoreHydration />
       <AuthSync />
       <GoogleOneTap />

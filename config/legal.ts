@@ -51,7 +51,7 @@ export const LEGAL = {
   jurisdiction: 'Coimbatore, Tamil Nadu',
 
   /** Shown on every policy page. Update when a policy changes materially. */
-  effectiveDate: '12 October 2026',
+  effectiveDate: '31 October 2026',
 } as const;
 
 /** "BroTin Box Nutrition Private Limited, a private limited company" or just the trade name until registered. */

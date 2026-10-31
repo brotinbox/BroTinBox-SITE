@@ -44,7 +44,7 @@ const sections: LegalSection[] = [
           ['Health and body (optional)', 'Fitness goal, diet type, gender, age, height, weight, target weight, activity level, food allergies and weight logs you choose to record.'],
           ['Orders and payments', 'Plans and meals ordered, delivery dates and slots, skips and pauses, meal credits, coupons, amounts, invoices, and the UPI transaction reference or payment-gateway reference for your payment. We do not receive or store card numbers, CVVs, UPI PINs or net-banking passwords.'],
           ['Communications', 'Messages, photos and feedback you send us on WhatsApp, phone, email or our enquiry form, and our replies.'],
-          ['Technical', 'IP address, device and browser type, pages visited, error logs, and the date and time of account actions (for example a skip or address change). Security cookies keep you signed in; see section 10.'],
+          ['Technical', 'IP address, device and browser type, pages visited, error logs, and the date and time of account actions (for example a skip or address change). Security cookies keep you signed in, and analytics tools record how the website is used; see section 10.'],
         ]} />
         <p>
           <strong>Health data.</strong> Body measurements, allergies and related information are treated as sensitive personal data under the
@@ -73,6 +73,7 @@ const sections: LegalSection[] = [
           ['Offers and newsletters', 'Only if you opt in. You can opt out any time by replying STOP or writing to us; this does not affect service messages.'],
           ['Safety, fraud and legal compliance', 'Technical data and logs, to prevent abuse, investigate incidents and comply with law, court orders and CERT-In directions (s.7(c), (d)).'],
           ['Improve the Service', 'Aggregated or de-identified order and usage data to plan menus, routes and kitchen capacity.'],
+          ['Understand how the website is used', 'Pages visited, device and browser type, approximate location, how you reached us and the actions you take on the site, collected through analytics tools to see what works and fix what does not. See section 10 for how to opt out.'],
         ]} />
         <p>We do not sell, rent or trade your personal data. We do not use your health data for advertising, and we do not make automated decisions that have a legal or similarly significant effect on you.</p>
       </>
@@ -89,6 +90,7 @@ const sections: LegalSection[] = [
           ['Kitchen and support staff', 'Diet, allergies and meal preferences (to cook correctly), and order details (to help you). Staff access is limited by role.'],
           ['Hosting and infrastructure', 'Supabase (database, sign-in and file storage), Vercel (website hosting) and Upstash (abuse protection). They store or process data for us.'],
           ['Sign-in and maps', 'Google (sign in with Google; address lookup through Google Maps) and OpenStreetMap Nominatim (backup address lookup, which receives map coordinates only).'],
+          ['Website analytics', 'Google (Google Analytics) and Vercel (Web Analytics) receive website usage data, including your IP address, pages visited and device details, to give us reports on how the site is used. We do not send them your name, mobile number, address, health data or payment details.'],
           ['Payments', 'Your bank and UPI app, and our payment gateway (Cashfree Payments India Pvt Ltd) once card or online payments are enabled. They process payments under their own RBI-regulated terms.'],
           ['Messaging', 'WhatsApp (Meta) when you message us or opt in to updates, and Telegram, which our team uses for internal order alerts.'],
           ['Authorities', 'Government, regulators, courts or law enforcement when the law requires it, for example the GST department, FSSAI, or a valid legal request.'],
@@ -110,6 +112,7 @@ const sections: LegalSection[] = [
         <li><strong>Health and body data:</strong> until you delete it from your profile, withdraw consent, or close your account. It is then erased from live systems within 30 days.</li>
         <li><strong>Orders, invoices and payment records:</strong> for 8 years from the end of the relevant financial year, as required by the Companies Act, 2013, the CGST Act, 2017 and the Income-tax Act, 1961.</li>
         <li><strong>Security and access logs:</strong> at least 180 days and up to 1 year, as required by CERT-In directions and the DPDP Rules, 2025, unless needed longer for an investigation.</li>
+        <li><strong>Website analytics:</strong> up to 14 months in Google Analytics, after which it is deleted automatically. Aggregated reports that do not identify you may be kept longer.</li>
         <li><strong>Complaints and support chats:</strong> up to 3 years after the matter is closed, so we can resolve disputes and meet consumer-law limitation periods.</li>
         <li><strong>Enquiries from people who never sign up:</strong> up to 12 months.</li>
         <li><strong>Backups:</strong> deleted data can remain in encrypted backups for up to 35 days before it is overwritten.</li>
@@ -185,14 +188,20 @@ const sections: LegalSection[] = [
     title: 'Cookies and local storage',
     body: (
       <>
-        <p>We use only what the website needs to work:</p>
+        <p>We use the following on this website:</p>
         <ul>
           <li><strong>Essential cookies</strong> that keep you signed in securely and protect against misuse.</li>
           <li><strong>Browser local storage</strong> that remembers your cart, selected area and preferences on your device.</li>
+          <li><strong>Analytics cookies</strong> set by Google Analytics (such as <code>_ga</code>), which tell repeat visits apart so we can count visitors and see how the site is used. They last up to 2 years and are set when you use the site.</li>
+          <li><strong>Vercel Web Analytics</strong>, which measures page visits without setting cookies.</li>
         </ul>
         <p>
-          We do not use advertising or cross-site tracking cookies. If we later add analytics or advertising tools, we will update this policy first and,
-          where the law requires, ask for your consent. You can clear cookies and local storage in your browser at any time; you will then need to sign in again.
+          We do not use advertising cookies. If we later add advertising tools, we will update this policy first and, where the law requires, ask for your consent.
+        </p>
+        <p>
+          You can block analytics cookies in your browser settings, or use the{' '}
+          <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener noreferrer">Google Analytics opt-out add-on</a>. Doing so does not affect
+          ordering. You can clear cookies and local storage in your browser at any time; you will then need to sign in again.
         </p>
       </>
     ),
@@ -242,6 +251,7 @@ export default function PrivacyPage() {
         'We collect what we need to cook and deliver your meals: name, contact details, address, diet and orders.',
         'Height, weight, age and allergies are optional and used only to personalise your targets and keep allergens out.',
         'We never sell your data. Riders see only what they need to deliver.',
+        'We use Google Analytics and Vercel Web Analytics to understand how the website is used. You can opt out; see section 10.',
         'You can access, correct or delete your data, or withdraw consent, by writing to our Grievance Officer.',
         'We keep order and invoice records for 8 years because tax law requires it.',
       ]}

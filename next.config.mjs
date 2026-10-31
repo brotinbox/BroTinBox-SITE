@@ -9,14 +9,18 @@ const isDev = process.env.NODE_ENV !== 'production';
 // Cashfree checkout SDK (loaded from sdk.cashfree.com) and its hosted payment pages.
 const cashfree = 'https://sdk.cashfree.com https://sandbox.cashfree.com https://api.cashfree.com https://payments.cashfree.com https://payments-test.cashfree.com';
 
+// Google Analytics 4 hosts, as listed in Google's CSP guide for the Google tag.
+const gaImg = 'https://*.google-analytics.com https://*.googletagmanager.com';
+const gaConnect = 'https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com';
+
 // Next.js needs inline scripts for hydration; 'unsafe-eval' only in dev (React refresh).
 const csp = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://sdk.cashfree.com`,
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://sdk.cashfree.com https://*.googletagmanager.com`,
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' data: https://fonts.gstatic.com",
-  `img-src 'self' data: blob: https://images.unsplash.com https://plus.unsplash.com https://img.icons8.com https://lh3.googleusercontent.com${supabaseHost ? ` https://${supabaseHost}` : ''}${r2Host ? ` https://${r2Host}` : ''}`,
-  `connect-src 'self'${supabaseHost ? ` https://${supabaseHost} wss://${supabaseHost}` : ''} https://api.bigdatacloud.net ${cashfree}`,
+  `img-src 'self' data: blob: https://images.unsplash.com https://plus.unsplash.com https://img.icons8.com https://lh3.googleusercontent.com ${gaImg}${supabaseHost ? ` https://${supabaseHost}` : ''}${r2Host ? ` https://${r2Host}` : ''}`,
+  `connect-src 'self'${supabaseHost ? ` https://${supabaseHost} wss://${supabaseHost}` : ''} https://api.bigdatacloud.net ${gaConnect} ${cashfree}`,
   `frame-src https://maps.google.com https://www.google.com ${cashfree}`,
   "frame-ancestors 'none'",
   "object-src 'none'",
