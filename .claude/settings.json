@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "ClaudeInChromeDomain(analytics.google.com)",
+      "ClaudeInChromeDomain(localhost:3107)"
+    ]
+  }
+}
