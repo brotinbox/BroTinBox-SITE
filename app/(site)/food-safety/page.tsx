@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { KeyValue, LegalPage, type LegalSection } from '@/components/legal/LegalPage';
-import { LEGAL, hasFssai } from '@/config/legal';
+import { LEGAL, fssaiTerm, hasFssai } from '@/config/legal';
 
 export const metadata: Metadata = {
   title: 'Food Safety & Allergen Information',
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 const sections: LegalSection[] = [
   {
     id: 'licence',
-    title: 'Licence and kitchen',
+    title: 'FSSAI and kitchen',
     body: (
       <>
         <KeyValue rows={[
@@ -24,7 +24,7 @@ const sections: LegalSection[] = [
           We cook under the Food Safety and Standards Act, 2006 and follow the general hygiene and sanitary practices in Schedule 4 of the Food Safety and Standards
           (Licensing and Registration of Food Businesses) Regulations, 2011. These include clean, pest-controlled premises, potable water, health-checked food handlers,
           separate handling of raw and cooked food, and temperature control.
-          {hasFssai() && ' Our FSSAI licence number is printed on every invoice.'}
+          {hasFssai() && ` Our FSSAI ${fssaiTerm()} number is printed on every invoice.`}
         </p>
       </>
     ),

@@ -25,11 +25,12 @@ export const BUSINESS_MODEL = {
       veg: 262.00,
     },
     // Tiered selling prices calibrated to achieve exact weighted average:
-    // (0.30 * trial + 0.40 * weekly + 0.30 * monthly)
+    // (0.30 * trial + 0.40 * weekly + 0.30 * monthly). These mirror the live
+    // pricing_rules table (regular, i.e. after the opening offer ends).
     tiers: {
-      trial: { nonVeg: 319, veg: 289 },
+      trial: { nonVeg: 309, veg: 279 },
       weeklyPerMeal: { nonVeg: 289, veg: 259 },
-      monthlyPerMeal: { nonVeg: 269, veg: 239 },
+      monthlyPerMeal: { nonVeg: 279, veg: 249 },
       secondMealDiscountPerMeal: 10,
     },
   },

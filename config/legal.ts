@@ -30,9 +30,9 @@ export const LEGAL = {
 
   fssai: {
     /** 14-digit number. Blank hides every "FSSAI licensed" claim on the site. */
-    licenseNumber: '',
+    licenseNumber: '22426565000413',
     /** 'Registration', 'State Licence' or 'Central Licence', as on the certificate. */
-    licenseType: '',
+    licenseType: 'Registration',
   },
 
   grievanceOfficer: {
@@ -53,6 +53,15 @@ export const LEGAL = {
   /** Shown on every policy page. Update when a policy changes materially. */
   effectiveDate: '31 October 2026',
 } as const;
+
+/** A basic FSSAI Registration is not a Licence, so wording must follow the certificate. */
+const isFssaiRegistration = () => LEGAL.fssai.licenseType === 'Registration';
+/** 'registration' or 'licence', lower case, for use mid-sentence. */
+export const fssaiTerm = () => (isFssaiRegistration() ? 'registration' : 'licence');
+/** 'Reg.' or 'Lic.', for short labels. */
+export const fssaiAbbr = () => (isFssaiRegistration() ? 'Reg.' : 'Lic.');
+/** 'Registered' or 'Licensed', for badges. */
+export const fssaiAdjective = () => (isFssaiRegistration() ? 'Registered' : 'Licensed');
 
 /** "BroTin Box Nutrition Private Limited, a private limited company" or just the trade name until registered. */
 export function operatorLine() {

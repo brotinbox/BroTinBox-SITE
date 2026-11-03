@@ -78,8 +78,8 @@ See photos and full ingredient breakdowns on our [menu](/menu).
 # How to order
 
 1. **Check your area** on the [delivery areas page](/delivery-areas).
-2. **Try one box first** with our [daily trial](/tomorrow): ₹289 veg or ₹319 non-veg.
-3. **Pick a plan** if you like it. Subscription meals start from ₹239 per meal. Compare options on the [plans page](/plans).
+2. **Try one box first** with our [daily trial](/tomorrow): ₹279 veg or ₹309 non-veg.
+3. **Pick a plan** if you like it. Subscription meals start from ₹249 per meal. Compare options on the [plans page](/plans).
 4. **Choose your slot:** morning, dinner, or both.
 
 New to measured meals? Our [buyer's guide to healthy meal delivery in Coimbatore](/blog/healthy-meal-delivery-coimbatore) explains what to look for in any service.

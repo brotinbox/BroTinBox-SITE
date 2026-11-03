@@ -20,7 +20,7 @@ BroTin Box operates an optimized, zero-waste meal subscription model: **one batc
 - **Eggs & Veg Option:** Every box includes 2 boiled eggs. Veg subscribers can toggle the **"Egg-free version"** where eggs are swapped for an extra portion of legumes at no extra charge.
 - **Side Box Extras:** Grilled Chicken Salad (38g P / 260 kcal), Chicken Salad (28g P / 230 kcal), Chicken Post Workout Meal (42g P / 450 kcal), Grilled Paneer Salad (22g P / 300 kcal), Paneer Salad (17g P / 250 kcal), Paneer Post Workout Meal (28g P / 480 kcal).
 - **Cold-Pressed Drinks (250 ml, fresh daily, no added sugar):** Beetroot (₹69), Cucumber-Mint (₹49), Fresh Carrot (₹59, 16g natural sugars), Nagpur Orange (₹79, 21g natural sugars).
-- **Subscription Discounts:** 6-day weekly and 24-day monthly plans save 8% to 10%. Single-day one-off orders carry a ₹30 kitchen dispatch surcharge.
+- **Subscription Discounts:** 6-day weekly and 26-day monthly plans are cheaper per meal than the one-off trial box (prices live in the `pricing_rules` table; see `lib/pricing.ts`).
 - **Ordering Cutoff:** 9:00 PM the previous night.
 
 ---

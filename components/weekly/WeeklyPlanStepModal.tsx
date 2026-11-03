@@ -35,6 +35,7 @@ import {
 import { useAppStore } from '@/store/useAppStore';
 import { submitOrder, toDbDiet } from '@/lib/checkout/submit';
 import { cn, formatCurrency } from '@/lib/utils';
+import { planTotal, savingsVsTrial } from '@/lib/pricing';
 import { useDeliveryZones } from '@/lib/location';
 import { OrderTerms } from '@/components/legal/OrderTerms';
 
@@ -42,6 +43,8 @@ export function WeeklyPlanStepModal() {
   const menuVersion = useMenuVersion();
   const PRICING = usePricing();
   const TRIAL_REGULAR = useRegularTrialPrice();
+  // The "mixed" week is 4 non-veg + 2 veg days: show its real daily average.
+  const mixedAvgPerDay = Math.round((4 * PRICING.weekly['non-veg'] + 2 * PRICING.weekly.veg) / 6);
   const router = useRouter();
   const {
     addresses,
@@ -134,33 +137,17 @@ export function WeeklyPlanStepModal() {
   const activeDays = useMemo(() => weeklyMenus.filter((d) => !d.isSkipped), [weeklyMenus]);
 
   const pricingCalculations = useMemo(() => {
-    let baseWeeklyTotal = 0;
-    activeDays.forEach((d) => {
-      const dayBase = PRICING.weekly[d.diet];
-      baseWeeklyTotal += dayBase;
-      if (mealsPerDay === 2) {
-        baseWeeklyTotal += dayBase - PRICING.secondMealDiscount;
-      }
-    });
-
-    const trialEquivalentTotal = activeDays.reduce((sum, d) => {
-      const singleDayBase = TRIAL_REGULAR[d.diet];
-      return (
-        sum +
-        singleDayBase +
-        (mealsPerDay === 2 ? singleDayBase - PRICING.secondMealDiscount : 0)
-      );
-    }, 0);
-
-    const weeklySavings = trialEquivalentTotal - baseWeeklyTotal;
-
+    const total = planTotal(PRICING, 'weekly', activeDays, mealsPerDay);
+    const skippedDaysList = weeklyMenus.filter((d) => d.isSkipped);
     return {
-      total: baseWeeklyTotal,
-      savings: Math.max(0, weeklySavings),
+      total,
+      savings: savingsVsTrial(PRICING, TRIAL_REGULAR, 'weekly', activeDays, mealsPerDay),
+      // What the skipped days would have cost: the bill drops by exactly this.
+      skippedValue: planTotal(PRICING, 'weekly', skippedDaysList, mealsPerDay),
       activeCount: activeDays.length,
       skippedCount: skippedDays.length,
     };
-  }, [activeDays, mealsPerDay, skippedDays, PRICING, TRIAL_REGULAR]);
+  }, [activeDays, weeklyMenus, mealsPerDay, skippedDays, PRICING, TRIAL_REGULAR]);
 
   // Step 4: Address
   const activeAddress = useMemo(() => {
@@ -309,7 +296,7 @@ export function WeeklyPlanStepModal() {
                         ~75g+ Protein / Day
                       </span>
                       <span className="text-xs font-bold text-accent">
-                        from ₹{PRICING.weekly.veg} / day
+                        ₹{PRICING.weekly['non-veg']} / day
                       </span>
                     </div>
                   </div>
@@ -359,7 +346,7 @@ export function WeeklyPlanStepModal() {
                         ~65g+ Avg Protein
                       </span>
                       <span className="text-xs font-bold text-accent">
-                        ₹279 / day avg
+                        ₹{mixedAvgPerDay} / day avg
                       </span>
                     </div>
                   </div>
@@ -404,7 +391,7 @@ export function WeeklyPlanStepModal() {
                         ~45g+ Clean Protein
                       </span>
                       <span className="text-xs font-bold text-accent">
-                        ₹259 / day
+                        ₹{PRICING.weekly.veg} / day
                       </span>
                     </div>
                   </div>
@@ -490,8 +477,8 @@ export function WeeklyPlanStepModal() {
                 <span className="font-medium">
                   {pricingCalculations.skippedCount > 0 ? (
                     <>
-                      <strong>{pricingCalculations.skippedCount} Day Skipped</strong> (You save ₹
-                      {pricingCalculations.skippedCount * 289})
+                      <strong>{pricingCalculations.skippedCount} Day Skipped</strong> (Your bill drops by{' '}
+                      {formatCurrency(pricingCalculations.skippedValue)})
                     </>
                   ) : (
                     'All 6 operating days included in weekly routine'
@@ -551,7 +538,7 @@ export function WeeklyPlanStepModal() {
                         2 Meals / Day
                       </span>
                       <span className="text-[9px] font-black uppercase text-emerald-800 bg-emerald-100 px-1.5 py-0.2 rounded-full">
-                        -₹10
+                        -₹{PRICING.secondMealDiscount}
                       </span>
                     </div>
                     <span className="text-[10px] text-gray-500">Morning + Dinner</span>

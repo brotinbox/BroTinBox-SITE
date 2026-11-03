@@ -28,7 +28,7 @@ export function OfferBar() {
 
   const nv = PRICING.trial['non-veg'];
   const veg = PRICING.trial.veg;
-  const price = nv === veg ? `₹${nv}` : `from ₹${Math.min(nv, veg)}`;
+  const price = `₹${Math.min(nv, veg)}`;
   const was = Math.max(regular['non-veg'], regular.veg);
   // Last day of the offer (ends_at is the moment it stops).
   const lastDay = new Date(offer.endsAt - 1).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', timeZone: 'Asia/Kolkata' });
@@ -47,11 +47,11 @@ export function OfferBar() {
           {offer.label}
         </span>
         <span>
-          Trial box <strong className="font-black">{price}</strong>{' '}
+          Get your first trial box {nv === veg ? 'at' : 'from'} <strong className="font-black">{price}</strong>{' '}
           <s className="text-white/50">₹{was}</s>
           <span className="text-white/70">
             {' · '}
-            {daysLeft !== null && daysLeft <= 7 ? `${daysLeft} day${daysLeft === 1 ? '' : 's'} left` : `till ${lastDay}`}
+            {daysLeft !== null && daysLeft <= 7 ? `Only ${daysLeft} day${daysLeft === 1 ? '' : 's'} left` : `Limited time, till ${lastDay}`}
           </span>
         </span>
         <span className="inline-flex items-center gap-1 font-bold text-accent-bright">

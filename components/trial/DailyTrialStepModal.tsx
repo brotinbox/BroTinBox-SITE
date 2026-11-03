@@ -115,7 +115,7 @@ export function DailyTrialStepModal() {
   // Price calculations
   const basePrice = PRICING.trial[diet];
   const portionMultiplier = mealsPerDay;
-  const mealTotal = basePrice * portionMultiplier - (mealsPerDay === 2 ? 10 : 0);
+  const mealTotal = basePrice * portionMultiplier - (mealsPerDay === 2 ? PRICING.secondMealDiscount : 0);
   const zoneInfo = getZoneByPincode(pincode);
   const deliveryFee = zoneInfo?.tier === 'phase2' ? zoneInfo.deliveryFee : 0;
   const finalTotal = mealTotal + deliveryFee;
@@ -526,7 +526,7 @@ export function DailyTrialStepModal() {
                   )}
                 >
                   <span className="text-xs sm:text-sm font-heading font-black block">
-                    2 Meals (-₹10 OFF)
+                    2 Meals (-₹{PRICING.secondMealDiscount} OFF)
                   </span>
                   <span className="text-[10px] sm:text-[11px] text-emerald-700 font-bold">Both Morning & Dinner</span>
                 </button>

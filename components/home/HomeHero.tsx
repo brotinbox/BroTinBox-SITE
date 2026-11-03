@@ -4,11 +4,13 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePricing, useTrialOffer } from '@/components/providers/CatalogProvider';
+import { fromPrice } from '@/lib/pricing';
 
 export function HomeHero() {
   const PRICING = usePricing();
   const trialOffer = useTrialOffer();
   const trialFrom = Math.min(PRICING.trial.veg, PRICING.trial['non-veg']);
+  const weeklyFromText = `FROM ₹${fromPrice(PRICING, 'weekly')}/MEAL`;
   const trialPriceText = trialOffer
     ? `${trialOffer.label.toUpperCase()} ₹${trialFrom}`
     : `FROM ₹${PRICING.trial.veg} (V) / ₹${PRICING.trial['non-veg']} (NV)`;
@@ -27,8 +29,8 @@ export function HomeHero() {
       id: 'weekly',
       title: 'WEEKLY PLAN',
       subtitle: 'SMALL CHANGE MATTERS',
-      offer: 'FROM ₹259/DAY',
-      mobileOffer: 'FROM ₹259/DAY',
+      offer: weeklyFromText,
+      mobileOffer: weeklyFromText,
       href: '/weekly',
       image: '/weekly.png',
       imageAlt: 'BroTin Box Weekly 6-day protein meal plan boxes',
@@ -67,7 +69,7 @@ export function HomeHero() {
         </div>
       </div>
 
-      {/* 3. Full-Bleed 1-to-1 Attached Images Strip (Left to Right Edge, 0 Gaps, Sharp Corners, No Buttons) */}
+      {/* Full-Bleed 1-to-1 Attached Images Strip (Left to Right Edge, 0 Gaps, Sharp Corners, No Buttons) */}
       <div className="w-full relative z-10 border-t border-black/10 bg-white shadow-2xl">
         <div className="w-full grid grid-cols-2 md:grid-cols-4 gap-0">
           {categoryCards.map((card) => (

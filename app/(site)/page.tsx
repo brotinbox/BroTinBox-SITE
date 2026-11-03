@@ -1,5 +1,5 @@
 import React from 'react';
-import { getDrinks, getPlanTiers, getSides } from '@/lib/data/catalog';
+import { getDrinks, getSides } from '@/lib/data/catalog';
 import { HomeHero } from '@/components/home/HomeHero';
 import { WeeklyCalendarStrip } from '@/components/home/WeeklyCalendarStrip';
 import { AddASideSection } from '@/components/home/AddASideSection';
@@ -8,7 +8,7 @@ import { HowItWorksSteps } from '@/components/home/HowItWorksSteps';
 import { PlansTeaser } from '@/components/home/PlansTeaser';
 
 export default async function HomePage() {
-  const [sides, addons, plans] = await Promise.all([getSides(), getDrinks(), getPlanTiers()]);
+  const [sides, addons] = await Promise.all([getSides(), getDrinks()]);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -28,7 +28,7 @@ export default async function HomePage() {
       <HowItWorksSteps />
 
       {/* 8. Plans teaser with weekly/monthly toggle */}
-      <PlansTeaser plans={plans} />
+      <PlansTeaser />
 
     </div>
   );

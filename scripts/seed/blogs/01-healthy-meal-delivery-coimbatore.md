@@ -36,7 +36,7 @@ Travel, family functions and sick days happen. Check the pause rules before you 
 
 ## 8. Can you try a single box before committing?
 
-Never sign up for a month of food you have not tasted. A one-day trial removes the risk. Our [daily trial box](/tomorrow) costs **₹289 for veg and ₹319 for non-veg**, with no subscription required.
+Never sign up for a month of food you have not tasted. A one-day trial removes the risk. Our [daily trial box](/tomorrow) costs **₹279 for veg and ₹309 for non-veg**, with no subscription required.
 
 # Red flags to watch for
 
@@ -66,7 +66,7 @@ Our vegetarian Tuesday box (smashed veggie soya chunks, mint curd, sprouted hors
 - **Gym-goers and anyone with high protein needs**: the 12-Meal Weekly Plan covers both morning and dinner, which puts you at roughly **85–126 g protein per day** from our boxes alone.
 - **Building a long-term habit**: the 24-Day Monthly Plan has the lowest price per meal.
 
-Compare all of them on our [plans page](/plans). Subscription meals start from **₹239 per meal**.
+Compare all of them on our [plans page](/plans). Subscription meals start from **₹249 per meal**.
 
 # Where we deliver in Coimbatore
 

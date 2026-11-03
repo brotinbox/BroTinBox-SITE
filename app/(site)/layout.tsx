@@ -34,7 +34,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       addressCountry: 'IN',
     },
     servesCuisine: 'South Indian, High-Protein, Healthy Bowls, Millets',
-    priceRange: '₹250 - ₹350',
+    priceRange: `₹${Math.min(pricing.monthly.veg, pricing.monthly['non-veg'])} - ₹${Math.max((trialOffer?.regular ?? pricing.trial).veg, (trialOffer?.regular ?? pricing.trial)['non-veg'])}`,
     areaServed: { '@type': 'City', name: 'Coimbatore' },
   };
 

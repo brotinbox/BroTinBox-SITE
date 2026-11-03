@@ -1,7 +1,8 @@
 'use client';
 
 import { useMenuVersion } from '@/components/providers/CatalogProvider';
-import { usePricing } from '@/components/providers/CatalogProvider';
+import { usePricing, useRegularTrialPrice } from '@/components/providers/CatalogProvider';
+import { planTotal, savingsVsTrial } from '@/lib/pricing';
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -39,6 +40,7 @@ import { cn } from '@/lib/utils';
 export default function MonthlyPlanPage() {
   const menuVersion = useMenuVersion();
   const PRICING = usePricing();
+  const TRIAL_REGULAR = useRegularTrialPrice();
   const router = useRouter();
   const { setMonthlyOrder } = useAppStore();
 
@@ -160,17 +162,11 @@ export default function MonthlyPlanPage() {
   const tooFewDays = activeDays.length < MONTHLY_MIN_DAYS;
   const minDaysMessage = `Keep at least ${MONTHLY_MIN_DAYS} days for the monthly rate. You can skip up to ${MONTHLY_PLAN_DAYS - MONTHLY_MIN_DAYS} days.`;
 
-  const totalPrice = useMemo(() => {
-    let sum = 0;
-    activeDays.forEach((d) => {
-      const base = PRICING.monthly[d.diet];
-      sum += base;
-      if (mealsPerDay === 2) {
-        sum += (base - PRICING.secondMealDiscount);
-      }
-    });
-    return sum;
-  }, [activeDays, mealsPerDay, PRICING]);
+  const totalPrice = useMemo(() => planTotal(PRICING, 'monthly', activeDays, mealsPerDay), [activeDays, mealsPerDay, PRICING]);
+  const savedVsTrial = useMemo(
+    () => savingsVsTrial(PRICING, TRIAL_REGULAR, 'monthly', activeDays, mealsPerDay),
+    [activeDays, mealsPerDay, PRICING, TRIAL_REGULAR],
+  );
 
   const weeklyAutoPayAmount = Math.round(totalPrice / 4);
 
@@ -313,7 +309,7 @@ export default function MonthlyPlanPage() {
                 >
                   <span>2 Meals (Morning + Dinner)</span>
                   <span className="text-[9px] font-black bg-accent text-white px-1.5 py-0.2 rounded-full uppercase">
-                    -₹10
+                    -₹{PRICING.secondMealDiscount}
                   </span>
                 </button>
               </div>
@@ -696,7 +692,7 @@ export default function MonthlyPlanPage() {
                 {mealsPerDay === 2 && (
                   <div className="flex justify-between text-accent font-semibold">
                     <span>2nd Meal Discount</span>
-                    <span>-₹10 / Dinner</span>
+                    <span>-₹{PRICING.secondMealDiscount} / Dinner</span>
                   </div>
                 )}
 
@@ -707,9 +703,16 @@ export default function MonthlyPlanPage() {
                   </div>
                 )}
 
+                {savedVsTrial > 0 && (
+                  <div className="flex justify-between text-emerald-700 font-semibold">
+                    <span>You save vs one-off boxes</span>
+                    <span>-₹{savedVsTrial}</span>
+                  </div>
+                )}
+
                 <div className="flex justify-between text-emerald-800 font-semibold">
-                  <span>Coimbatore Doorstep Delivery</span>
-                  <span>FREE</span>
+                  <span>Delivery</span>
+                  <span>Free in core zones · fee shown at checkout</span>
                 </div>
 
                 <div className="pt-3 border-t border-gray-200 flex justify-between items-baseline">

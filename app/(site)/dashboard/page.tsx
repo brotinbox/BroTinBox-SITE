@@ -24,7 +24,7 @@ import { ProfileProgress } from '@/components/account/ProfileProgress';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { getPricingMatrix, getTrialOffer } from '@/lib/data/catalog';
 import { profileCompletion } from '@/lib/customer/profile-completion';
-import { hasFssai } from '@/config/legal';
+import { fssaiAdjective, hasFssai } from '@/config/legal';
 
 export const metadata = { title: 'My dashboard', robots: { index: false } };
 export const dynamic = 'force-dynamic';
@@ -240,7 +240,7 @@ export default async function DashboardPage() {
             </p>
             <div className="flex items-center gap-1.5 text-[11px] text-gray-500 pt-1">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-              <span>100% Digitally Weighed{hasFssai() ? ' • FSSAI Licensed Kitchen' : ''}</span>
+              <span>100% Digitally Weighed{hasFssai() ? ` • FSSAI ${fssaiAdjective()} Kitchen` : ''}</span>
             </div>
           </div>
 

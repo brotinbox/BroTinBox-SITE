@@ -9,7 +9,8 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { cn, formatCurrency } from '@/lib/utils';
-import { DietType, MONTHLY_PLAN_DAYS } from '@/lib/menu-engine';
+import { DietType } from '@/lib/menu-engine';
+import { PLAN_DAYS, fullPlanTotal, guaranteedDiscountPercent, perMealAverage, savingsVsTrial } from '@/lib/pricing';
 
 export default function PricingPage() {
   const PRICING = usePricing();
@@ -18,23 +19,26 @@ export default function PricingPage() {
   const [diet, setDiet] = useState<DietType>('non-veg');
   const [billingCycle, setBillingCycle] = useState<'weekly' | 'monthly'>('weekly');
 
-  // Prices come from the database (admin › Plans & pricing) via usePricing().
+  // Every figure below is derived from the database price table through
+  // lib/pricing.ts, so this page always agrees with the plan pages and checkout.
   const isNV = diet === 'non-veg';
   const trialPrice = PRICING.trial[diet];
+  const cycle = billingCycle;
+  const days = PLAN_DAYS[cycle];
+  const fullDays = Array.from({ length: days }, () => ({ diet }));
 
-  // 1 Meal/day prices
-  const p1WeeklyPerMeal = isNV ? 289 : 259;
-  const p1WeeklyTotal = p1WeeklyPerMeal * 6; // ₹1,734 (NV) or ₹1,554 (Veg)
+  // 1 meal/day
+  const p1PerMeal = perMealAverage(PRICING, cycle, diet, 1);
+  const p1Total = fullPlanTotal(PRICING, cycle, diet, 1);
+  const p1Savings = savingsVsTrial(PRICING, TRIAL_REGULAR, cycle, fullDays, 1);
 
-  const p1MonthlyPerMeal = isNV ? 269 : 239;
-  const p1MonthlyTotal = p1MonthlyPerMeal * MONTHLY_PLAN_DAYS;
+  // 2 meals/day (lunch + dinner, second meal gets the discount)
+  const p2PerMeal = perMealAverage(PRICING, cycle, diet, 2);
+  const p2Total = fullPlanTotal(PRICING, cycle, diet, 2);
+  const p2Savings = savingsVsTrial(PRICING, TRIAL_REGULAR, cycle, fullDays, 2);
 
-  // 2 Meals/day prices (Lunch + Dinner with -₹10 second meal discount)
-  const p2WeeklyPerMeal = isNV ? 284 : 254; // (289 * 2 - 10) / 2
-  const p2WeeklyTotal = isNV ? 3408 : 3048; // (289 * 2 - 10) * 6
-
-  const p2MonthlyPerMeal = isNV ? 264 : 234; // (269 * 2 - 10) / 2
-  const p2MonthlyTotal = p2MonthlyPerMeal * 2 * MONTHLY_PLAN_DAYS; // (per day − ₹10 2nd-meal discount) × days
+  const monthlySavePct = guaranteedDiscountPercent(PRICING, TRIAL_REGULAR, 'monthly');
+  const secondOff = PRICING.secondMealDiscount;
 
   return (
     <div className="min-h-screen bg-paper text-ink">
@@ -94,7 +98,7 @@ export default function PricingPage() {
               </button>
             </div>
 
-            {/* Billing Cycle Toggle: Weekly (6 days) vs Monthly (26 days) SAVE 12% */}
+            {/* Billing Cycle Toggle: Weekly vs Monthly (saving is computed from live prices) */}
             <div className="inline-flex p-1 sm:p-1.5 bg-white rounded-full border border-gray-200/90 shadow-xs">
               <button
                 type="button"
@@ -106,7 +110,7 @@ export default function PricingPage() {
                     : "text-gray-600 hover:text-gray-900"
                 )}
               >
-                Weekly (6 days)
+                Weekly ({PLAN_DAYS.weekly} days)
               </button>
 
               <button
@@ -119,10 +123,12 @@ export default function PricingPage() {
                     : "text-gray-600 hover:text-gray-900"
                 )}
               >
-                <span>Monthly (26 days)</span>
-                <span className="bg-accent text-ink-deep font-black text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">
-                  SAVE 12%
-                </span>
+                <span>Monthly ({PLAN_DAYS.monthly} days)</span>
+                {monthlySavePct > 0 && (
+                  <span className="bg-accent text-ink-deep font-black text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">
+                    SAVE {monthlySavePct}%
+                  </span>
+                )}
               </button>
             </div>
           </div>
@@ -137,7 +143,7 @@ export default function PricingPage() {
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-heading font-black text-2xl text-gray-900 tracking-tight">
-                  {billingCycle === 'weekly' ? '6-Day Weekly Plan' : '26-Day Monthly Plan'}
+                  {days}-Day {billingCycle === 'weekly' ? 'Weekly' : 'Monthly'} Plan
                 </h3>
                 <span className="text-xs font-bold bg-accent-soft text-ink px-2.5 py-1 rounded-full whitespace-nowrap">
                   1 Meal/day
@@ -147,14 +153,14 @@ export default function PricingPage() {
               <p className="text-xs text-gray-500 mt-2 min-h-[32px] leading-relaxed">
                 {billingCycle === 'weekly'
                   ? 'One fixed measured protein box every day (Mon-Sat, Sunday kitchen closed).'
-                  : 'Full month consistent habit: 24 cooking-free days with maximum per-meal savings.'}
+                  : `Full month, one habit: ${PLAN_DAYS.monthly} cooking-free days at the lowest per-meal price.`}
               </p>
 
               {/* Price Banner */}
               <div className="mt-5 p-4 rounded-2xl bg-gray-50 border border-gray-100 text-center">
                 <div className="flex items-baseline justify-center gap-1">
                   <span className="font-heading font-black text-3xl sm:text-4xl text-ink">
-                    {formatCurrency(billingCycle === 'weekly' ? p1WeeklyTotal : p1MonthlyTotal)}
+                    {formatCurrency(p1Total)}
                   </span>
                   <span className="text-xs text-gray-500 font-medium">
                     /{billingCycle === 'weekly' ? 'week' : 'month'}
@@ -163,12 +169,17 @@ export default function PricingPage() {
 
                 <div className="mt-1 flex items-center justify-center gap-2 text-xs">
                   <span className="font-bold text-accent">
-                    {formatCurrency(billingCycle === 'weekly' ? p1WeeklyPerMeal : p1MonthlyPerMeal)} / meal
+                    {formatCurrency(p1PerMeal)} / meal
                   </span>
                   <span className="text-gray-400 line-through">
-                    {formatCurrency(trialPrice)} one-off
+                    {formatCurrency(TRIAL_REGULAR[diet])} one-off
                   </span>
                 </div>
+                {p1Savings > 0 && (
+                  <p className="mt-1.5 text-[11px] font-bold text-emerald-700">
+                    You save {formatCurrency(p1Savings)} vs buying the same boxes one at a time
+                  </p>
+                )}
               </div>
 
               {/* Target Macros */}
@@ -190,7 +201,7 @@ export default function PricingPage() {
                 <div className="flex items-start gap-2.5">
                   <Check className="w-4 h-4 text-accent shrink-0 mt-0.5" />
                   <span>
-                    {billingCycle === 'weekly' ? '6 fresh daily boxes' : '24 fresh daily boxes'} (Mon–Sat rotation)
+                    {days} fresh daily boxes (Mon–Sat rotation)
                   </span>
                 </div>
                 <div className="flex items-start gap-2.5">
@@ -203,7 +214,7 @@ export default function PricingPage() {
                 </div>
                 <div className="flex items-start gap-2.5">
                   <Check className="w-4 h-4 text-accent shrink-0 mt-0.5" />
-                  <span>100% free doorstep delivery across Coimbatore</span>
+                  <span>Free delivery in our core zones (one-time ₹35 per order in outer areas, shown before you pay)</span>
                 </div>
               </div>
             </div>
@@ -225,14 +236,14 @@ export default function PricingPage() {
             <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
               <span className="bg-ink text-white text-[10px] font-black uppercase tracking-wider px-3.5 py-1 rounded-full shadow-md flex items-center gap-1.5 whitespace-nowrap">
                 <Sparkles className="w-3 h-3 text-accent-muted" />
-                <span>MOST POPULAR • Save ₹10 on 2nd Meal</span>
+                <span>MOST POPULAR • ₹{secondOff} off every 2nd meal</span>
               </span>
             </div>
 
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-heading font-black text-2xl text-gray-900 tracking-tight">
-                  {billingCycle === 'weekly' ? '12-Meal Weekly Plan' : '48-Meal Monthly Plan'}
+                  {days * 2}-Meal {billingCycle === 'weekly' ? 'Weekly' : 'Monthly'} Plan
                 </h3>
                 <span className="text-xs font-bold bg-ink text-white px-2.5 py-1 rounded-full whitespace-nowrap">
                   2 Meals/day
@@ -240,14 +251,14 @@ export default function PricingPage() {
               </div>
 
               <p className="text-xs text-gray-600 mt-2 min-h-[32px] leading-relaxed">
-                Complete morning + dinner daily nutrition with built-in ₹10 discount on every second meal.
+                Complete lunch + dinner nutrition with ₹{secondOff} off every second meal.
               </p>
 
               {/* Price Banner */}
               <div className="mt-5 p-4 rounded-2xl bg-white border border-ink/15 text-center shadow-xs">
                 <div className="flex items-baseline justify-center gap-1">
                   <span className="font-heading font-black text-3xl sm:text-4xl text-ink">
-                    {formatCurrency(billingCycle === 'weekly' ? p2WeeklyTotal : p2MonthlyTotal)}
+                    {formatCurrency(p2Total)}
                   </span>
                   <span className="text-xs text-gray-500 font-medium">
                     /{billingCycle === 'weekly' ? 'week' : 'month'}
@@ -256,12 +267,17 @@ export default function PricingPage() {
 
                 <div className="mt-1 flex items-center justify-center gap-2 text-xs">
                   <span className="font-bold text-accent">
-                    {formatCurrency(billingCycle === 'weekly' ? p2WeeklyPerMeal : p2MonthlyPerMeal)} / meal
+                    {formatCurrency(p2PerMeal)} / meal
                   </span>
                   <span className="text-gray-400 line-through">
-                    {formatCurrency(trialPrice)} one-off
+                    {formatCurrency(TRIAL_REGULAR[diet])} one-off
                   </span>
                 </div>
+                {p2Savings > 0 && (
+                  <p className="mt-1.5 text-[11px] font-bold text-emerald-700">
+                    You save {formatCurrency(p2Savings)} vs buying the same boxes one at a time
+                  </p>
+                )}
               </div>
 
               {/* Target Macros */}
@@ -289,7 +305,7 @@ export default function PricingPage() {
                 <div className="flex items-start gap-2.5">
                   <Check className="w-4 h-4 text-accent shrink-0 mt-0.5 stroke-[2.5]" />
                   <span>
-                    <strong>Second meal discount:</strong> ₹10 off every evening box automatically
+                    <strong>Second meal discount:</strong> ₹{secondOff} off every dinner box automatically
                   </span>
                 </div>
                 <div className="flex items-start gap-2.5">
@@ -308,7 +324,7 @@ export default function PricingPage() {
                 href={billingCycle === 'weekly' ? `/weekly?diet=${diet}` : `/monthly?diet=${diet}`}
                 className="w-full py-4 px-4 rounded-2xl font-heading font-black text-xs sm:text-sm bg-ink hover:bg-ink-soft text-white flex items-center justify-center gap-2 transition-all tap-active shadow-lg shadow-ink/25"
               >
-                <span>Choose {billingCycle === 'weekly' ? '12-Meal Weekly' : '48-Meal Monthly'}</span>
+                <span>Choose {days * 2}-Meal {billingCycle === 'weekly' ? 'Weekly' : 'Monthly'}</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </div>

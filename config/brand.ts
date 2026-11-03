@@ -27,9 +27,9 @@ export const BRAND = {
   },
   cutoffTime: "9:00 PM previous night",
   pricing: {
-    subscriptionMin: 239,
-    subscriptionMax: 289,
-    oneOffAvg: 319,
+    subscriptionMin: 249, // veg monthly per meal
+    subscriptionMax: 289, // non-veg weekly per meal
+    oneOffAvg: 294, // average of regular trial prices (309 non-veg / 279 veg)
   },
   socials: {
     instagram: "https://instagram.com/brotinbox",

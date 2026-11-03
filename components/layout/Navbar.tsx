@@ -27,7 +27,7 @@ import { UserAvatar } from '@/components/layout/UserAvatar';
 import { signOutCustomer } from '@/lib/auth/customer';
 import { Menu as MenuIcon, LayoutDashboard, CalendarDays, Receipt } from 'lucide-react';
 import { BookOpen } from 'lucide-react';
-import { hasFssai } from '@/config/legal';
+import { fssaiAdjective, hasFssai } from '@/config/legal';
 
 export function Navbar() {
   const router = useRouter();
@@ -377,7 +377,7 @@ export function Navbar() {
 
               <div className="flex items-center justify-center gap-2 text-[11px] text-gray-400 font-medium">
                 <ShieldCheck className="w-3.5 h-3.5 text-primary" />
-                <span>100% Digitally Weighed{hasFssai() ? ' • FSSAI Licensed Kitchen' : ''}</span>
+                <span>100% Digitally Weighed{hasFssai() ? ` • FSSAI ${fssaiAdjective()} Kitchen` : ''}</span>
               </div>
             </div>
           </div>

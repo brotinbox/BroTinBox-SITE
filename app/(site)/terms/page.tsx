@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { KeyValue, LegalPage, type LegalSection } from '@/components/legal/LegalPage';
-import { LEGAL, hasFssai, operatorLine } from '@/config/legal';
+import { LEGAL, fssaiTerm, hasFssai, operatorLine } from '@/config/legal';
 import { BRAND } from '@/config/brand';
 
 export const metadata: Metadata = {
@@ -88,7 +88,7 @@ const sections: LegalSection[] = [
         <li>Coupons have their own conditions (validity, minimum order, one per customer), have no cash value, and cannot be combined unless stated.</li>
         <li>Plans are prepaid and <strong>do not renew automatically</strong>. We never charge you again without a fresh order from you.</li>
         <li>If we change prices, the new price applies only to orders placed after the change, never to a plan you have already paid for.</li>
-        <li>We issue an invoice for every paid order{LEGAL.gstin ? ` showing our GSTIN ${LEGAL.gstin}` : ''}{hasFssai() ? ` and FSSAI licence number ${LEGAL.fssai.licenseNumber}` : ''}.</li>
+        <li>We issue an invoice for every paid order{LEGAL.gstin ? ` showing our GSTIN ${LEGAL.gstin}` : ''}{hasFssai() ? ` and FSSAI ${fssaiTerm()} number ${LEGAL.fssai.licenseNumber}` : ''}.</li>
       </ul>
     ),
   },

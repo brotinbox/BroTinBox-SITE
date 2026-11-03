@@ -96,6 +96,10 @@ export function subscribeLiveMenu(listener: () => void) {
 export function getLiveMenuVersion() {
   return liveVersion;
 }
+/** A dish from the live (admin-edited) menu, or null when the live menu is not loaded or has no such code. */
+export function getLiveMenuItem(code: string): MenuItem | null {
+  return liveMenu?.items.get(code) ?? null;
+}
 
 // ==========================================
 // 30-DAY CATALOG & ROTATION CONSTANTS

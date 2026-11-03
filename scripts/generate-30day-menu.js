@@ -17,7 +17,7 @@ const catalog = {
       fiber: 1,
       allergens: ['Dairy'],
       description: 'Tender chicken breast marinated in fresh garden mint, coriander, green chillies, and ginger garlic.',
-      image: '/daily-trial/lemon-herb.png',
+      image: 'https://pub-1b9c6ce71cb94cd0b8806abae4db0eb0.r2.dev/protein-boxes/nvm1-6c9673195a.webp',
     },
     NVM2: {
       id: 'NVM2',
@@ -32,7 +32,7 @@ const catalog = {
       fiber: 0.5,
       allergens: ['Dairy'],
       description: 'Succulent slow-cooked chicken breast cubes seared with mild spices and herbs.',
-      image: '/daily-trial/butter-garlic-chicken.png',
+      image: 'https://pub-1b9c6ce71cb94cd0b8806abae4db0eb0.r2.dev/protein-boxes/nvm2-8fa393d506.webp',
     },
     NVM3: {
       id: 'NVM3',
@@ -47,7 +47,7 @@ const catalog = {
       fiber: 0.5,
       allergens: [],
       description: 'Pan-grilled thick cut chicken breast steak with crushed pepper and herbs.',
-      image: '/daily-trial/peri-peri.png',
+      image: 'https://pub-1b9c6ce71cb94cd0b8806abae4db0eb0.r2.dev/protein-boxes/nvm3-cb8487a057.webp',
     },
     NVM4: {
       id: 'NVM4',
@@ -62,7 +62,7 @@ const catalog = {
       fiber: 0,
       allergens: [],
       description: 'Soft shredded boiled chicken tossed with rock salt, black pepper, and fresh herbs.',
-      image: '/daily-trial/chetinad.png',
+      image: 'https://pub-1b9c6ce71cb94cd0b8806abae4db0eb0.r2.dev/protein-boxes/nvm4-21388bdef9.webp',
     },
     NVM5: {
       id: 'NVM5',
@@ -77,7 +77,7 @@ const catalog = {
       fiber: 0.5,
       allergens: [],
       description: 'Tender poached chicken lightly charred on a hot griddle for crisp exterior.',
-      image: '/daily-trial/tandoori.png',
+      image: 'https://pub-1b9c6ce71cb94cd0b8806abae4db0eb0.r2.dev/protein-boxes/nvm5-c1b1ce4fda.webp',
     },
     NVM6: {
       id: 'NVM6',
@@ -92,7 +92,7 @@ const catalog = {
       fiber: 0,
       allergens: ['Fish'],
       description: 'Omega-3 rich wild mackerel fillet tawa-grilled with coastal spices.',
-      image: 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=600&q=80',
+      image: 'https://pub-1b9c6ce71cb94cd0b8806abae4db0eb0.r2.dev/protein-boxes/nvm6-8d87b4b931.webp',
     },
 
     VM1: {
@@ -108,7 +108,7 @@ const catalog = {
       fiber: 0.5,
       allergens: ['Dairy'],
       description: 'Fresh farm cottage cheese cubes marinated in hung curd and roasted degi mirch.',
-      image: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?auto=format&fit=crop&w=600&q=80',
+      image: 'https://pub-1b9c6ce71cb94cd0b8806abae4db0eb0.r2.dev/protein-boxes/vm1-d6acadca3c.webp',
     },
     VM2: {
       id: 'VM2',
@@ -123,7 +123,7 @@ const catalog = {
       fiber: 0.5,
       allergens: ['Dairy'],
       description: 'Soft paneer cubes tossed in a light garden mint and coriander rub.',
-      image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=600&q=80',
+      image: 'https://pub-1b9c6ce71cb94cd0b8806abae4db0eb0.r2.dev/protein-boxes/vm2-deccdb805e.webp',
     },
     VM3: {
       id: 'VM3',
@@ -138,7 +138,7 @@ const catalog = {
       fiber: 1,
       allergens: ['Dairy'],
       description: 'Sautéed paneer tossed with caramelized shallots, crushed cumin, and green chillies.',
-      image: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?auto=format&fit=crop&w=600&q=80',
+      image: 'https://pub-1b9c6ce71cb94cd0b8806abae4db0eb0.r2.dev/protein-boxes/vm3-60224cd956.webp',
     },
     VM4: {
       id: 'VM4',
@@ -153,7 +153,7 @@ const catalog = {
       fiber: 2,
       allergens: ['Soy'],
       description: 'Organic firm tofu cubes glazed with smoked tandoori spices and lemon.',
-      image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80',
+      image: 'https://pub-1b9c6ce71cb94cd0b8806abae4db0eb0.r2.dev/protein-boxes/vm4-996fba763e.webp',
     },
     VM5: {
       id: 'VM5',
@@ -168,7 +168,7 @@ const catalog = {
       fiber: 2,
       allergens: ['Soy'],
       description: 'Pan-seared protein-rich tofu infused with fresh mint and cracked peppercorns.',
-      image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80',
+      image: 'https://pub-1b9c6ce71cb94cd0b8806abae4db0eb0.r2.dev/protein-boxes/vm5-d68f1ef279.webp',
     },
     VM6: {
       id: 'VM6',
@@ -183,7 +183,7 @@ const catalog = {
       fiber: 3.5,
       allergens: ['Dairy'],
       description: 'Fresh button mushrooms simmered in a light hung-curd and onion herb reduction.',
-      image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=600&q=80',
+      image: 'https://pub-1b9c6ce71cb94cd0b8806abae4db0eb0.r2.dev/protein-boxes/vm6-54a5a52d75.webp',
     },
     VM7: {
       id: 'VM7',
@@ -198,7 +198,7 @@ const catalog = {
       fiber: 5.5,
       allergens: ['Soy'],
       description: 'High-protein soya chunks crushed and tossed with capsicum, tomatoes, and garam masala.',
-      image: 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=600&q=80',
+      image: 'https://pub-1b9c6ce71cb94cd0b8806abae4db0eb0.r2.dev/protein-boxes/vm7-bcf605e1d4.webp',
     },
   },
 

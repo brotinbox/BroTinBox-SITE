@@ -11,7 +11,7 @@
     "isVeg": false,
     "tags": ["High Protein", "Low Carb", "Chicken", "Non-Veg", "Lab Verification Pending"],
     "description": "Herb-rubbed chicken breast fillets seared over a hot skillet, paired with crisp shaved cucumber and mint greens. Perfect quick protein booster.",
-    "image": "https://images.unsplash.com/photo-1532550907401-a500c9a57435?auto=format&fit=crop&w=600&q=80"
+    "image": "https://pub-1b9c6ce71cb94cd0b8806abae4db0eb0.r2.dev/side-meals/grilled-chicken-with-salad-5c08006ba6.webp"
   },
   {
     "id": "side-chicken-salad",
@@ -25,7 +25,7 @@
     "isVeg": false,
     "tags": ["Lean", "Salad", "Chicken", "Non-Veg", "Lab Verification Pending"],
     "description": "Tender pulled chicken tossed with julienned peppers, sweet radish, and our cold-pressed lemon-pepper dressing. Light, crunchy, and satiating.",
-    "image": "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80"
+    "image": "https://pub-1b9c6ce71cb94cd0b8806abae4db0eb0.r2.dev/side-meals/chicken-salad-93f49ba125.webp"
   },
   {
     "id": "side-chicken-post-workout",
@@ -39,7 +39,7 @@
     "isVeg": false,
     "tags": ["Post-Workout", "Glycogen Reload", "Chicken", "Non-Veg", "Lab Verification Pending"],
     "description": "Post-workout recovery fuel: 160g char-grilled chicken breast, 100g hand-pounded steamed red rice, and seasonal fresh antioxidant fruit slices.",
-    "image": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80"
+    "image": "https://pub-1b9c6ce71cb94cd0b8806abae4db0eb0.r2.dev/side-meals/chicken-post-workout-meal-51988bb2ca.webp"
   },
   {
     "id": "side-grilled-paneer",
@@ -53,7 +53,7 @@
     "isVeg": true,
     "tags": ["High Protein", "Vegetarian", "Paneer", "Lab Verification Pending"],
     "description": "Thick farm-fresh cottage cheese slabs seared with dry roasted cumin, served alongside a zesty garden slaw. Vegetarian muscle support.",
-    "image": "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?auto=format&fit=crop&w=600&q=80"
+    "image": "https://pub-1b9c6ce71cb94cd0b8806abae4db0eb0.r2.dev/side-meals/grilled-paneer-with-salad-798dc1dec3.webp"
   },
   {
     "id": "side-paneer-salad",
@@ -67,7 +67,7 @@
     "isVeg": true,
     "tags": ["Light", "Vegetarian", "Paneer", "Lab Verification Pending"],
     "description": "Diced malai paneer cubes marinated in crushed coriander and lime, nestled in baby greens, cherry tomatoes, and cold-pressed oil.",
-    "image": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=600&q=80"
+    "image": "https://pub-1b9c6ce71cb94cd0b8806abae4db0eb0.r2.dev/side-meals/paneer-salad-2d984910e7.webp"
   },
   {
     "id": "side-paneer-post-workout",
@@ -81,6 +81,6 @@
     "isVeg": true,
     "tags": ["Post-Workout", "Vegetarian", "Paneer", "Recovery", "Lab Verification Pending"],
     "description": "Plant-strong replenishment: pan-browned artisanal paneer cubes paired with 100g roasted sweet potato wedges and juicy seasonal melon cubes.",
-    "image": "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80"
+    "image": "https://pub-1b9c6ce71cb94cd0b8806abae4db0eb0.r2.dev/side-meals/paneer-post-workout-meal-445a416e8b.webp"
   }
 ]

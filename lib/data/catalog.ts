@@ -1,7 +1,8 @@
 import 'server-only';
 import { unstable_cache } from 'next/cache';
 import { getSupabasePublic } from '@/lib/supabase/server';
-import { MONTHLY_PLAN_DAYS, PRICING } from '@/lib/menu-engine';
+import { PRICING } from '@/lib/menu-engine';
+import { PLAN_DAYS, dayPrice, perMealAverage } from '@/lib/pricing';
 import type { AddonDrink, PlanTier, SideBox } from '@/types';
 
 /**
@@ -109,13 +110,11 @@ export const getPlanTiers = unstable_cache(
     const range = (vals: number[], mult: number, unit: string) =>
       vals.length ? `${Math.round(Math.min(...vals) * mult)}–${Math.round(Math.max(...vals) * mult)}${unit}` : '';
 
-    const nvW = pricing.weekly['non-veg'];
-    const nvM = pricing.monthly['non-veg'];
-    const disc = pricing.secondMealDiscount;
     return (plans ?? []).map((p) => {
       const mpd = p.meals_per_day as 1 | 2;
-      const perDayW = nvW + (mpd === 2 ? nvW - disc : 0);
-      const perDayM = nvM + (mpd === 2 ? nvM - disc : 0);
+      // Non-veg prices (the headline diet); formulas live in lib/pricing.ts.
+      const perDayW = dayPrice(pricing, 'weekly', 'non-veg', mpd);
+      const perDayM = dayPrice(pricing, 'monthly', 'non-veg', mpd);
       return {
         id: p.id,
         slug: p.slug,
@@ -124,10 +123,10 @@ export const getPlanTiers = unstable_cache(
         mealsPerDay: mpd,
         dailyProteinTarget: range(boxes.map((b) => b.protein), mpd, ' g'),
         dailyCaloriesTarget: range(boxes.map((b) => b.kcal), mpd, ' kcal'),
-        weeklyPrice: perDayW * 6,
-        monthlyPrice: perDayM * MONTHLY_PLAN_DAYS,
-        pricePerMealWeekly: Math.round(perDayW / mpd),
-        pricePerMealMonthly: Math.round(perDayM / mpd),
+        weeklyPrice: perDayW * PLAN_DAYS.weekly,
+        monthlyPrice: perDayM * PLAN_DAYS.monthly,
+        pricePerMealWeekly: Math.round(perMealAverage(pricing, 'weekly', 'non-veg', mpd)),
+        pricePerMealMonthly: Math.round(perMealAverage(pricing, 'monthly', 'non-veg', mpd)),
         oneOffComparePrice: (offer?.regular ?? pricing.trial)['non-veg'],
         isPopular: p.is_popular,
         badge: p.badge ?? undefined,

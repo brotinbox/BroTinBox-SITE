@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { BRAND } from '@/config/brand';
-import { LEGAL, hasFssai } from '@/config/legal';
+import { LEGAL, fssaiAbbr, hasFssai } from '@/config/legal';
 import { MapPin, Phone, Mail, MessageCircle, Clock, ShieldCheck, Check } from 'lucide-react';
 
 export default function ContactPage() {
@@ -41,7 +41,7 @@ export default function ContactPage() {
                 Coimbatore Central Kitchen
               </h3>
               <p className="text-xs text-gray-500 mt-1">
-                {LEGAL.entityName || BRAND.name}{hasFssai() ? ` • FSSAI Lic. ${LEGAL.fssai.licenseNumber}` : ''}
+                {LEGAL.entityName || BRAND.name}{hasFssai() ? ` • FSSAI ${fssaiAbbr()} ${LEGAL.fssai.licenseNumber}` : ''}
               </p>
             </div>
 

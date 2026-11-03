@@ -1,6 +1,6 @@
 'use client';
 
-import { useMenuVersion } from '@/components/providers/CatalogProvider';
+import { useMenuVersion, usePricing } from '@/components/providers/CatalogProvider';
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -63,6 +63,7 @@ function getWeeklyOperatingDays(): Array<{
 
 export default function MenuBrowserPage() {
   const menuVersion = useMenuVersion();
+  const PRICING = usePricing();
   const [diet, setDiet] = useState<DietType>('non-veg');
   const operatingDays = useMemo(() => getWeeklyOperatingDays(), []);
   const todayStr = useMemo(() => formatDateToYMD(new Date()), []);
@@ -189,8 +190,8 @@ export default function MenuBrowserPage() {
               Want the entire week handled without ordering daily?
             </h3>
             <p className="text-gray-200 text-xs sm:text-sm">
-              Subscribe to the Weekly Plan with our hassle-free Skip-a-Day policy. Discounted to ₹
-              {diet === 'non-veg' ? 279 : 259}/day.
+              Subscribe to the Weekly Plan with our hassle-free Skip-a-Day policy. Weekly price: ₹
+              {PRICING.weekly[diet]}/meal.
             </p>
           </div>
 

@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "ClaudeInChromeDomain(analytics.google.com)",
-      "ClaudeInChromeDomain(localhost:3107)"
+      "ClaudeInChromeDomain(localhost:3107)",
+      "ClaudeInChromeDomain(www.instagram.com)",
+      "ClaudeInChromeDomain(www.google.com)",
+      "ClaudeInChromeDomain(drive.google.com)",
+      "ClaudeInChromeDomain(docs.google.com)"
     ]
   }
 }

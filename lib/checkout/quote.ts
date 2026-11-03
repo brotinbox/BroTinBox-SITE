@@ -2,6 +2,7 @@ import 'server-only';
 import { z } from 'zod';
 import { getSupabaseService } from '@/lib/supabase/admin';
 import sidesData from '@/data/sides.json';
+import { MIN_PLAN_DAYS, secondMealPrice } from '@/lib/pricing';
 
 /**
  * Server-side pricing. The browser sends WHAT the customer chose; the server
@@ -42,9 +43,6 @@ export type Quote = {
 
 export class CheckoutError extends Error {}
 
-/** Monthly is 26 Mon–Sat days; up to 2 skips keep the monthly rate. */
-export const MIN_PLAN_DAYS: Partial<Record<Cart['type'], number>> = { weekly: 3, monthly: 24 };
-
 const SIDE_ID_TO_SLUG = new Map((sidesData as { id: string; slug: string }[]).map((s) => [s.id, s.slug]));
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
@@ -75,7 +73,7 @@ export async function quoteCart(cart: Cart, userId: string): Promise<Quote> {
   if (expected && dates.length !== expected) throw new CheckoutError('A trial is for one day.');
   // Weekly/monthly per-meal prices only apply to full-length plans.
   const minDays = MIN_PLAN_DAYS[cart.type];
-  if (minDays && dates.length < minDays) {
+  if (cart.type !== 'trial' && dates.length < minDays) {
     throw new CheckoutError(`A ${cart.type} plan needs at least ${minDays} delivery days. You picked ${dates.length}.`);
   }
   const { data: earliest } = await db.rpc('earliest_bookable_date', {});
@@ -104,7 +102,7 @@ export async function quoteCart(cart: Cart, userId: string): Promise<Quote> {
     const label = diet === 'veg' ? 'Veg box' : 'Non-veg box';
     lines.push({ item_type: 'meal', ref_id: null, name: `${label} (${cart.type})`, qty: n, unit_price: p.meal, total: round2(p.meal * n) });
     if (cart.mealsPerDay === 2) {
-      lines.push({ item_type: 'meal', ref_id: null, name: `${label}, 2nd meal of the day`, qty: n, unit_price: p.meal - p.second, total: round2((p.meal - p.second) * n) });
+      lines.push({ item_type: 'meal', ref_id: null, name: `${label}, 2nd meal of the day`, qty: n, unit_price: secondMealPrice(p.meal, p.second), total: round2(secondMealPrice(p.meal, p.second) * n) });
     }
   }
 
