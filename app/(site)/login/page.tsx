@@ -5,6 +5,7 @@ import type { Metadata } from 'next';
 import { ShieldCheck } from 'lucide-react';
 import { BRAND } from '@/config/brand';
 import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
+import { PhoneOtpForm } from '@/components/auth/PhoneOtpForm';
 import { getSessionUser } from '@/lib/auth/session';
 
 export const metadata: Metadata = {
@@ -62,6 +63,12 @@ export default async function LoginPage({
           )}
 
           <GoogleSignInButton next={destination} />
+
+          <div className="flex items-center gap-3 text-[11px] text-gray-400 font-semibold uppercase tracking-wider">
+            <span className="h-px flex-1 bg-gray-200" />or<span className="h-px flex-1 bg-gray-200" />
+          </div>
+
+          <PhoneOtpForm next={destination} />
 
           <p className="text-[11px] text-gray-500 text-center leading-relaxed">
             New here? Signing in with Google creates your account. You&apos;ll add your phone number

@@ -12,6 +12,9 @@ export const LIMITS = {
   global: { tokens: 120, window: '1 m' },          // any /api or action, per IP
   staffLogin: { tokens: 5, window: '15 m' },       // per IP and per email
   customerAuth: { tokens: 10, window: '10 m' },    // per IP
+  otpSendPhone: { tokens: 3, window: '10 m' },     // per phone number
+  otpSendIp: { tokens: 8, window: '1 h' },         // per IP
+  otpVerify: { tokens: 10, window: '10 m' },       // per phone number and per IP
   publicForm: { tokens: 5, window: '1 h' },        // enquiry / waitlist / review, per IP
   checkout: { tokens: 10, window: '1 m' },         // per user
   customerAction: { tokens: 30, window: '1 m' },   // skip/pause/profile edits, per user
