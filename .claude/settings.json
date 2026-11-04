@@ -6,7 +6,8 @@
       "ClaudeInChromeDomain(www.instagram.com)",
       "ClaudeInChromeDomain(www.google.com)",
       "ClaudeInChromeDomain(drive.google.com)",
-      "ClaudeInChromeDomain(docs.google.com)"
+      "ClaudeInChromeDomain(docs.google.com)",
+      "ClaudeInChromeDomain(business.facebook.com)"
     ]
   }
 }
