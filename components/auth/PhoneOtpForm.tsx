@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { MessageCircle } from 'lucide-react';
 
-export function PhoneOtpForm({ next }: { next?: string }) {
+export function PhoneOtpForm({ next, onSuccess }: { next?: string; onSuccess?: () => void }) {
   const router = useRouter();
   const [step, setStep] = useState<'phone' | 'code'>('phone');
   const [phone, setPhone] = useState('');
@@ -58,6 +58,7 @@ export function PhoneOtpForm({ next }: { next?: string }) {
         setBusy(false);
         return;
       }
+      onSuccess?.();
       router.replace(data.redirect || '/dashboard');
       router.refresh();
     } catch {

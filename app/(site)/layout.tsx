@@ -11,6 +11,7 @@ import { CatalogProvider } from '@/components/providers/CatalogProvider';
 import { getFaqs, getMenuSnapshot, getPricingMatrix, getTrialOffer } from '@/lib/data/catalog';
 import { AuthSidebar } from '@/components/auth/AuthSidebar';
 import { GoogleOneTap } from '@/components/auth/GoogleOneTap';
+import { phoneOtpMode } from '@/lib/auth/otp-mode';
 
 // Public pages are cached HTML (ISR). Freshness comes from cache tags cleared
 // by admin actions; this is only the safety net.
@@ -54,7 +55,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <Footer />
       <FloatingWhatsApp />
       <BottomNav />
-      <AuthSidebar />
+      <AuthSidebar phoneOtp={phoneOtpMode() === 'on'} />
     </CatalogProvider>
   );
 }

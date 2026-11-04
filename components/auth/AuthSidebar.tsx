@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAppStore } from '@/store/useAppStore';
 import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
+import { PhoneOtpForm } from '@/components/auth/PhoneOtpForm';
 import { signOutCustomer } from '@/lib/auth/customer';
 import {
   X,
@@ -17,7 +18,8 @@ import {
   RotateCcw,
 } from 'lucide-react';
 
-export function AuthSidebar() {
+/** phoneOtp: show WhatsApp OTP login (server decides from PHONE_OTP_MODE === 'on'). */
+export function AuthSidebar({ phoneOtp = false }: { phoneOtp?: boolean }) {
   const router = useRouter();
   const pathname = usePathname();
   const { isAuthDrawerOpen, setAuthDrawerOpen, isLoggedIn, user } = useAppStore();
@@ -175,11 +177,23 @@ export function AuthSidebar() {
                     Sign in to manage your meals
                   </h4>
                   <p className="text-xs text-gray-500 mt-1 leading-relaxed">
-                    Use your Google account. New customers get an account automatically and add
-                    their phone number and address next.
+                    {phoneOtp
+                      ? 'Use Google or a code on WhatsApp. New customers get an account automatically and add their delivery address next.'
+                      : 'Use your Google account. New customers get an account automatically and add their phone number and address next.'}
                   </p>
                 </div>
                 <GoogleSignInButton next={pathname && pathname !== '/login' ? pathname : '/dashboard'} />
+                {phoneOtp && (
+                  <>
+                    <div className="flex items-center gap-3 text-[11px] text-gray-400 font-semibold uppercase tracking-wider">
+                      <span className="h-px flex-1 bg-gray-200" />or<span className="h-px flex-1 bg-gray-200" />
+                    </div>
+                    <PhoneOtpForm
+                      next={pathname && pathname !== '/login' ? pathname : '/dashboard'}
+                      onSuccess={() => setAuthDrawerOpen(false)}
+                    />
+                  </>
+                )}
               </div>
             )}
           </div>
@@ -188,7 +202,7 @@ export function AuthSidebar() {
         {/* Footer Trust Shield */}
         <div className="p-4 sm:p-5 border-t border-gray-100 bg-gray-50 flex items-center justify-center gap-2 text-[11px] text-gray-500 font-semibold">
           <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-          <span>Secure Google sign-in • We never see your password</span>
+          <span>{phoneOtp ? 'Secure sign-in • No passwords to remember' : 'Secure Google sign-in • We never see your password'}</span>
         </div>
       </div>
     </div>
