@@ -2,10 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useAppStore } from '@/store/useAppStore';
-import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
-import { PhoneOtpForm } from '@/components/auth/PhoneOtpForm';
 import { signOutCustomer } from '@/lib/auth/customer';
 import {
   X,
@@ -18,10 +16,9 @@ import {
   RotateCcw,
 } from 'lucide-react';
 
-/** phoneOtp: show WhatsApp OTP login (server decides from PHONE_OTP_MODE === 'on'). */
-export function AuthSidebar({ phoneOtp = false }: { phoneOtp?: boolean }) {
+/** Account drawer for signed-in customers. Signed-out visitors get <SignInModal />. */
+export function AuthSidebar() {
   const router = useRouter();
-  const pathname = usePathname();
   const { isAuthDrawerOpen, setAuthDrawerOpen, isLoggedIn, user } = useAppStore();
 
   const [mounted, setMounted] = useState(false);
@@ -57,7 +54,7 @@ export function AuthSidebar({ phoneOtp = false }: { phoneOtp?: boolean }) {
     router.refresh();
   };
 
-  if (!mounted || !isAuthDrawerOpen) return null;
+  if (!mounted || !isAuthDrawerOpen || !isLoggedIn) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end animate-in fade-in duration-200">
@@ -166,43 +163,14 @@ export function AuthSidebar({ phoneOtp = false }: { phoneOtp?: boolean }) {
                   </button>
                 </div>
               </div>
-            ) : (
-              <div className="space-y-4 animate-in fade-in">
-                <div>
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-sand text-ink text-[10px] font-extrabold uppercase tracking-wider mb-2">
-                    <Sparkles className="w-3 h-3 text-accent" />
-                    <span>One-tap sign in</span>
-                  </div>
-                  <h4 className="font-heading font-black text-lg text-gray-900 leading-tight">
-                    Sign in to manage your meals
-                  </h4>
-                  <p className="text-xs text-gray-500 mt-1 leading-relaxed">
-                    {phoneOtp
-                      ? 'Use Google or a code on WhatsApp. New customers get an account automatically and add their delivery address next.'
-                      : 'Use your Google account. New customers get an account automatically and add their phone number and address next.'}
-                  </p>
-                </div>
-                <GoogleSignInButton next={pathname && pathname !== '/login' ? pathname : '/dashboard'} />
-                {phoneOtp && (
-                  <>
-                    <div className="flex items-center gap-3 text-[11px] text-gray-400 font-semibold uppercase tracking-wider">
-                      <span className="h-px flex-1 bg-gray-200" />or<span className="h-px flex-1 bg-gray-200" />
-                    </div>
-                    <PhoneOtpForm
-                      next={pathname && pathname !== '/login' ? pathname : '/dashboard'}
-                      onSuccess={() => setAuthDrawerOpen(false)}
-                    />
-                  </>
-                )}
-              </div>
-            )}
+            ) : null}
           </div>
         </div>
 
         {/* Footer Trust Shield */}
         <div className="p-4 sm:p-5 border-t border-gray-100 bg-gray-50 flex items-center justify-center gap-2 text-[11px] text-gray-500 font-semibold">
           <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-          <span>{phoneOtp ? 'Secure sign-in • No passwords to remember' : 'Secure Google sign-in • We never see your password'}</span>
+          <span>Secure sign-in • No passwords to remember</span>
         </div>
       </div>
     </div>

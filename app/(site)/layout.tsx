@@ -10,6 +10,7 @@ import { AuthSync } from '@/components/providers/AuthSync';
 import { CatalogProvider } from '@/components/providers/CatalogProvider';
 import { getFaqs, getMenuSnapshot, getPricingMatrix, getTrialOffer } from '@/lib/data/catalog';
 import { AuthSidebar } from '@/components/auth/AuthSidebar';
+import { SignInModal } from '@/components/auth/SignInModal';
 import { GoogleOneTap } from '@/components/auth/GoogleOneTap';
 import { phoneOtpMode } from '@/lib/auth/otp-mode';
 
@@ -55,7 +56,8 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <Footer />
       <FloatingWhatsApp />
       <BottomNav />
-      <AuthSidebar phoneOtp={phoneOtpMode() === 'on'} />
+      <AuthSidebar />
+      <SignInModal phoneEnabled={phoneOtpMode() === 'on'} />
     </CatalogProvider>
   );
 }

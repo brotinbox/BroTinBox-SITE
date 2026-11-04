@@ -1,5 +1,6 @@
-import { NextResponse, type NextRequest } from 'next/server';
+import { NextResponse, after, type NextRequest } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase/server';
+import { notifyNewSignup } from '@/lib/leads';
 
 function safeNext(next: string | null): string {
   if (!next || !next.startsWith('/') || next.startsWith('//') || next.startsWith('/\\')) return '/dashboard';
@@ -27,9 +28,14 @@ export async function GET(request: NextRequest) {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('is_onboarded, is_blocked')
+    .select('is_onboarded, is_blocked, created_at, full_name, email')
     .eq('id', data.user.id)
     .maybeSingle();
+
+  // Brand-new Google account (profile row created in the last few minutes) → Telegram ping.
+  if (profile && !profile.is_onboarded && Date.now() - new Date(profile.created_at).getTime() < 5 * 60_000) {
+    after(() => notifyNewSignup({ method: 'google', name: profile.full_name, email: profile.email, source: next }));
+  }
 
   if (profile?.is_blocked) {
     await supabase.auth.signOut();

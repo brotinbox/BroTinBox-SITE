@@ -1,7 +1,9 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { after } from 'next/server';
 import { normalizeIndianPhone, sendOtp } from '@/lib/auth/otp';
 import { rateLimit } from '@/lib/security/ratelimit';
 import { phoneOtpAllowed, phoneOtpMode } from '@/lib/auth/otp-mode';
+import { parseLeadContext, parseSource, trackLeadRequest } from '@/lib/leads';
 
 function clientIp(request: NextRequest) {
   return request.headers.get('x-real-ip') || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || '0.0.0.0';
@@ -28,5 +30,11 @@ export async function POST(request: NextRequest) {
   if (!result.ok) {
     return NextResponse.json({ error: result.error, retryAfter: result.retryAfter }, { status: result.retryAfter ? 429 : 502 });
   }
+
+  // Lead list: who asked for a code, from where, and what they were ordering.
+  const source = parseSource(body?.source);
+  const context = parseLeadContext(body?.context);
+  after(() => trackLeadRequest(phone, source, context));
+
   return NextResponse.json({ ok: true });
 }

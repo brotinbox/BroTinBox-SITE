@@ -4,8 +4,7 @@ import { redirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import { ShieldCheck } from 'lucide-react';
 import { BRAND } from '@/config/brand';
-import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
-import { PhoneOtpForm } from '@/components/auth/PhoneOtpForm';
+import { LoginPagePanel } from '@/components/auth/LoginPagePanel';
 import { getSessionUser } from '@/lib/auth/session';
 import { showPhoneOtpForm } from '@/lib/auth/otp-mode';
 
@@ -32,67 +31,28 @@ export default async function LoginPage({
 }) {
   const { next, error, otp } = await searchParams;
   const destination = safeNext(next);
-  const showPhone = showPhoneOtpForm(otp);
 
   if (await getSessionUser()) redirect(destination);
 
   return (
-    <div className="min-h-screen bg-background flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center px-4">
-        <Link href="/" className="inline-flex items-center justify-center mb-6 group">
-          <Image
-            src="/logo.png"
-            alt={BRAND.name}
-            width={180}
-            height={60}
-            className="h-16 w-auto object-contain transition-transform group-hover:scale-105"
-            priority
-          />
+    <div className="min-h-[80vh] bg-paper flex flex-col justify-center py-12 px-4">
+      <div className="mx-auto w-full max-w-[460px]">
+        <Link href="/" className="flex justify-center mb-6">
+          <Image src="/logo.png" alt={BRAND.name} width={180} height={60} className="h-14 w-auto object-contain" priority />
         </Link>
 
-        <h2 className="font-heading font-black text-2xl sm:text-3xl text-gray-900">Sign in to {BRAND.name}</h2>
-        <p className="mt-2 text-xs text-gray-500">
-          Manage your meal plan, skip or pause days, and track deliveries in Coimbatore.
-        </p>
-      </div>
-
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4">
-        <div className="bg-white py-8 px-6 sm:px-10 rounded-3xl border border-gray-200 shadow-xl space-y-5">
+        <div className="bg-white rounded-[28px] border border-gray-200 shadow-xl px-6 sm:px-10 py-9 space-y-4">
           {error && ERRORS[error] && (
             <p className="text-xs text-rose-700 font-semibold bg-rose-50 border border-rose-100 rounded-xl px-3 py-2 text-center">
               {ERRORS[error]}
             </p>
           )}
-
-          <GoogleSignInButton next={destination} />
-
-          {showPhone && (
-            <>
-              <div className="flex items-center gap-3 text-[11px] text-gray-400 font-semibold uppercase tracking-wider">
-                <span className="h-px flex-1 bg-gray-200" />or<span className="h-px flex-1 bg-gray-200" />
-              </div>
-
-              <PhoneOtpForm next={destination} />
-            </>
-          )}
-
-          <p className="text-[11px] text-gray-500 text-center leading-relaxed">
-            New here? Signing in with Google creates your account. You&apos;ll add your phone number
-            and delivery address next.
-          </p>
-
-          <div className="pt-1 text-center">
-            <span className="text-[11px] text-gray-400">
-              By continuing you agree to {BRAND.name}&apos;s{' '}
-              <Link href="/terms" className="underline hover:text-gray-600">Terms</Link> and{' '}
-              <Link href="/privacy" className="underline hover:text-gray-600">Privacy Policy</Link>.
-            </span>
-          </div>
+          <LoginPagePanel phoneEnabled={showPhoneOtpForm(otp)} next={destination} />
         </div>
 
         <div className="mt-6 flex items-center justify-center gap-2 text-xs text-gray-500">
           <ShieldCheck className="w-4 h-4 text-emerald-600" />
-          <span>Secure Google sign-in • We never see your password</span>
+          <span>Secure sign-in • No passwords to remember</span>
         </div>
       </div>
     </div>

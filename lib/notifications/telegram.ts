@@ -5,7 +5,7 @@ import { getSupabaseService } from '@/lib/supabase/admin';
 /**
  * Escapes characters for Telegram HTML parse_mode.
  */
-function escapeHtml(str: string | null | undefined): string {
+export function escapeHtml(str: string | null | undefined): string {
   if (!str) return '';
   return str
     .replace(/&/g, '&amp;')

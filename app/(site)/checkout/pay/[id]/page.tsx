@@ -19,7 +19,7 @@ const inr = (n: number | string) => `₹${Number(n).toLocaleString('en-IN', { ma
 export default async function PayPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ cf?: string }> }) {
   const [{ id }, { cf }] = await Promise.all([params, searchParams]);
   if (!z.string().uuid().safeParse(id).success) notFound();
-  await requireCustomer(`/checkout/pay/${id}`);
+  const me = await requireCustomer(`/checkout/pay/${id}`);
 
   const supabase = await getSupabaseServer();
   const [{ data: order }, { data: items }, { data: setting }] = await Promise.all([
@@ -67,6 +67,14 @@ export default async function PayPage({ params, searchParams }: { params: Promis
             <p className="text-sm text-gray-600">Your meals are scheduled. You can skip or pause days until 9 PM the night before.</p>
             <Link href="/dashboard" className="inline-block px-5 py-3 rounded-xl bg-ink text-white font-bold text-sm">Go to my dashboard</Link>
           </div>
+        )}
+
+        {paid && !me.is_onboarded && (
+          <Link href="/onboarding?next=/dashboard" className="block bg-sand rounded-3xl border border-ink/10 p-5 hover:border-ink/30 transition-colors">
+            <p className="font-heading font-black text-base text-ink">Tell us your goal (1 minute)</p>
+            <p className="text-xs text-gray-600 mt-1">Fat loss, muscle gain or staying fit: we&apos;ll suggest the right plan and portion for you.</p>
+            <span className="inline-block mt-3 text-xs font-bold text-ink underline underline-offset-2">Set up my profile →</span>
+          </Link>
         )}
 
         {!paid && !unpaid && (

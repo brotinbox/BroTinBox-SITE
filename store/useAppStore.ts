@@ -64,6 +64,22 @@ const initialDayConfigs: Record<DayOfWeek, DayBoxConfig> = {
   Sat: { day: 'Sat', boxId: 'box-sat', boxCount: 1, isEggFree: false, skipLegume: false, doubleMain: false, selectedSides: [], selectedDrinks: [] },
 };
 
+/** What the sign-in popup should do; every field is optional. */
+export type SignInRequest = {
+  /** Where to land after sign-in. Default: stay on the current page (home/login → dashboard). */
+  returnTo?: string;
+  /** Prefill this number (10 digits) … */
+  phone?: string;
+  /** … and send the code straight away. */
+  autoSend?: boolean;
+  /** Mid-order: called after sign-in instead of navigating. */
+  onSignedIn?: () => void;
+  /** Lead context saved with the number (what they were ordering). */
+  context?: { flow?: string; summary?: string; area?: string; pincode?: string };
+  /** Heading shown in the popup. */
+  title?: string;
+};
+
 interface AppState {
   // Auth & Profile
   isLoggedIn: boolean;
@@ -126,6 +142,10 @@ interface AppState {
   // Mobile Auth Sidebar / Login Drawer state
   isAuthDrawerOpen: boolean;
   setAuthDrawerOpen: (open: boolean) => void;
+  /** Sign-in popup (signed-out visitors). Not persisted. */
+  signIn: SignInRequest | null;
+  openSignIn: (req?: SignInRequest) => void;
+  closeSignIn: () => void;
 
   // Meal Details Bottom Sheet / Modal state (hides bottom nav when open)
   isDetailsModalOpen: boolean;
@@ -169,7 +189,13 @@ export const useAppStore = create<AppState>()(
       setNavDrawerOpen: (open: boolean) => set({ isNavDrawerOpen: open }),
 
       isAuthDrawerOpen: false,
-      setAuthDrawerOpen: (open: boolean) => set({ isAuthDrawerOpen: open }),
+      // Signed-out visitors get the sign-in popup; the drawer is the signed-in account menu.
+      setAuthDrawerOpen: (open: boolean) =>
+        set((state) => (open && !state.isLoggedIn ? { signIn: {} } : { isAuthDrawerOpen: open })),
+
+      signIn: null,
+      openSignIn: (req = {}) => set({ signIn: req }),
+      closeSignIn: () => set({ signIn: null }),
 
       isDetailsModalOpen: false,
       setDetailsModalOpen: (open: boolean) => set({ isDetailsModalOpen: open }),

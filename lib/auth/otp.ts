@@ -91,7 +91,7 @@ export async function sendOtp(phone: string): Promise<SendResult> {
   return { ok: true };
 }
 
-export type VerifyResult = { ok: true; userId: string; onboarded: boolean } | { ok: false; error: string };
+export type VerifyResult = { ok: true; userId: string; onboarded: boolean; isNew: boolean } | { ok: false; error: string };
 
 export async function verifyOtp(phone: string, code: string): Promise<VerifyResult> {
   const supabase = db();
@@ -148,6 +148,7 @@ async function signInPhoneUser(phone: string): Promise<VerifyResult> {
   let userId: string;
   let email: string;
   let onboarded = false;
+  let isNew = false;
 
   if (existing) {
     if (existing.is_blocked) return { ok: false, error: 'This account has been suspended. Contact us on WhatsApp for help.' };
@@ -164,6 +165,7 @@ async function signInPhoneUser(phone: string): Promise<VerifyResult> {
     });
     if (error || !created.user) return { ok: false, error: 'Could not create your account. Please try again.' };
     userId = created.user.id;
+    isNew = true;
     await supabase.from('profiles').update({ phone, phone_verified: true }).eq('id', userId);
   }
 
@@ -175,5 +177,5 @@ async function signInPhoneUser(phone: string): Promise<VerifyResult> {
   const { error: sessionErr } = await server.auth.verifyOtp({ type: 'magiclink', token_hash: tokenHash });
   if (sessionErr) return { ok: false, error: 'Could not sign you in. Please try again.' };
 
-  return { ok: true, userId, onboarded };
+  return { ok: true, userId, onboarded, isNew };
 }

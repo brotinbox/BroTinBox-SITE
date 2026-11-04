@@ -21,6 +21,7 @@ export const ADMIN_NAV: AdminNavGroup[] = [
       { href: '/orders', label: 'Orders & payments', icon: 'Receipt', permission: 'orders.read' },
       { href: '/subscriptions', label: 'Subscriptions', icon: 'CalendarRange', permission: 'subscriptions.read' },
       { href: '/customers', label: 'Customers', icon: 'Users', permission: 'customers.read' },
+      { href: '/leads', label: 'Leads', icon: 'PhoneCall', permission: 'customers.read' },
       { href: '/enquiries', label: 'Enquiries', icon: 'Inbox', permission: 'enquiries.read' },
     ],
   },

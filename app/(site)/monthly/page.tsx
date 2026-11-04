@@ -182,6 +182,19 @@ export default function MonthlyPlanPage() {
       price: totalPrice,
       schedule: activeDays.map((d) => ({ date: d.dateStr, diet: d.diet })),
     });
+    // Checkout needs an account: sign in here (choices are kept in the store), then continue.
+    const store = useAppStore.getState();
+    if (!store.isLoggedIn) {
+      store.openSignIn({
+        title: 'Sign in to continue to checkout',
+        returnTo: '/checkout',
+        context: {
+          flow: 'monthly',
+          summary: `Monthly · ${dietVariation} · ${mealsPerDay} meal${mealsPerDay > 1 ? 's' : ''}/day · from ${monthlyDays[0].dateStr}`,
+        },
+      });
+      return;
+    }
     router.push('/checkout');
   };
 

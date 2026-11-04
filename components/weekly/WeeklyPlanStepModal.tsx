@@ -33,7 +33,8 @@ import {
   DailyMenuResult,
 } from '@/lib/menu-engine';
 import { useAppStore } from '@/store/useAppStore';
-import { submitOrder, toDbDiet } from '@/lib/checkout/submit';
+import { SIGN_IN_PENDING, submitOrder, toDbDiet } from '@/lib/checkout/submit';
+import { clearDraft, loadDraft, saveDraft } from '@/lib/checkout/draft';
 import { cn, formatCurrency } from '@/lib/utils';
 import { planTotal, savingsVsTrial } from '@/lib/pricing';
 import { useDeliveryZones } from '@/lib/location';
@@ -164,6 +165,38 @@ export function WeeklyPlanStepModal() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [payError, setPayError] = useState('');
 
+  // Order draft: survives the Google sign-in redirect and page refreshes.
+  // Saving waits until the restored values have rendered, so defaults never overwrite a draft.
+  const [draftReady, setDraftReady] = useState(false);
+  useEffect(() => {
+    const d = loadDraft<{
+      step: 1 | 2 | 3 | 4 | 5; dietVariation: 'non-veg' | 'veg' | 'mixed'; skippedDays: string[]; mealsPerDay: 1 | 2;
+      lunchSlot: string; dinnerSlot: string; useNewAddress: boolean;
+      fullName: string; phone: string; flatNumber: string; street: string; area: string; pincode: string;
+    }>('weekly');
+    if (d) {
+      setDietVariation(d.dietVariation);
+      setSkippedDays(d.skippedDays.filter((x) => nextWeekDays.some((w) => w.dateStr === x)));
+      setMealsPerDay(d.mealsPerDay);
+      setLunchSlot(d.lunchSlot);
+      setDinnerSlot(d.dinnerSlot);
+      setUseNewAddress(d.useNewAddress);
+      if (d.fullName) setFullName(d.fullName);
+      if (d.phone) setPhone(d.phone);
+      setFlatNumber(d.flatNumber);
+      setStreet(d.street);
+      setArea(d.area);
+      setPincode(d.pincode);
+      setStep(d.step);
+    }
+    setDraftReady(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    if (!draftReady) return;
+    saveDraft('weekly', { step, dietVariation, skippedDays, mealsPerDay, lunchSlot, dinnerSlot, useNewAddress, fullName, phone, flatNumber, street, area, pincode });
+  }, [draftReady, step, dietVariation, skippedDays, mealsPerDay, lunchSlot, dinnerSlot, useNewAddress, fullName, phone, flatNumber, street, area, pincode]);
+
   // Pincode validation & zone detection
   const detectedZone = useMemo(() => getZoneByPincode(pincode), [getZoneByPincode, pincode]);
 
@@ -198,11 +231,12 @@ export function WeeklyPlanStepModal() {
         newAddress: isEnteringNewAddress
           ? { recipientName: fullName, phone, flat: flatNumber, street, area, pincode }
           : undefined,
-        navigate: (href) => router.push(href),
+        navigate: (href) => { clearDraft('weekly'); router.push(href); },
+        onSignedIn: () => { handlePay(); },
       }
     );
     if (error) {
-      setPayError(error);
+      setPayError(error === SIGN_IN_PENDING ? '' : error);
       setIsProcessing(false);
     }
   };

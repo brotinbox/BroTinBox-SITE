@@ -5,14 +5,14 @@ import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import {
   BookOpen, Bike, CalendarDays, CalendarRange, ChefHat, ClipboardList, CupSoda, HelpCircle, History, Inbox, LayoutDashboard,
-  LogOut, MapPin, Menu, Newspaper, Receipt, Settings, ShieldCheck, Star, Tags, Ticket, Users, Utensils, X,
+  LogOut, MapPin, Menu, Newspaper, PhoneCall, Receipt, Settings, ShieldCheck, Star, Tags, Ticket, Users, Utensils, X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { AdminNavGroup } from '@/lib/admin/nav';
 
 const ICONS = {
   BookOpen, Bike, CalendarDays, CalendarRange, ChefHat, ClipboardList, CupSoda, HelpCircle, History, Inbox, LayoutDashboard,
-  MapPin, Newspaper, Receipt, Settings, ShieldCheck, Star, Tags, Ticket, Users, Utensils,
+  MapPin, Newspaper, PhoneCall, Receipt, Settings, ShieldCheck, Star, Tags, Ticket, Users, Utensils,
 } as const;
 
 export function AdminSidebar({ base, groups, userName, roleLabel, logoutAction }: {

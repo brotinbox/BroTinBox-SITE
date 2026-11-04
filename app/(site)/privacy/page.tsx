@@ -39,7 +39,7 @@ const sections: LegalSection[] = [
       <>
         <p>We collect only what we need to cook, deliver and support your meals. Fields marked optional can be left blank.</p>
         <KeyValue rows={[
-          ['Account', 'Name, email address, profile photo and Google account identifier, received from Google when you sign in with Google. We never receive your Google password.'],
+          ['Account', 'Name, email address, profile photo and Google account identifier, received from Google when you sign in with Google. We never receive your Google password. If you sign in with your mobile number instead, we keep the number and a one-time code we send to it on WhatsApp (stored only in hashed form; it expires after 5 minutes and works once).'],
           ['Contact and delivery', 'Mobile number; delivery address (flat, street, landmark, area, pincode); delivery instructions; and the name and mobile number of the person receiving the meal if that is someone else.'],
           ['Location', 'Your approximate area, and your precise location only if you allow your browser to share it, used to fill in your address and check whether we deliver there. You can type your address instead.'],
           ['Health and body (optional)', 'Fitness goal, diet type, gender, age, height, weight, target weight, activity level, food allergies and weight logs you choose to record.'],
@@ -70,7 +70,7 @@ const sections: LegalSection[] = [
           ['Take, cook and deliver orders', 'Name, mobile, address, diet, slot and order details. Needed to perform the contract you ask for (s.7(a)).'],
           ['Personalise meals and targets', 'Optional health and body data, used only with your consent. You can withdraw it at any time by deleting the values in your profile.'],
           ['Payments, invoices and refunds', 'Order and payment data. Contract performance and our obligations under tax and accounting laws (s.7(a), s.7(c)).'],
-          ['Service messages', 'Order confirmations, payment reminders, delivery updates, cutoff reminders and support replies by WhatsApp, SMS, email or phone.'],
+          ['Service messages', 'Order confirmations, payment reminders, delivery updates, cutoff reminders and support replies by WhatsApp, SMS, email or phone. If you enter your number to sign in or start an order but don\'t finish, we may contact you on WhatsApp about that order. This is not marketing.'],
           ['Offers and newsletters', 'Only if you opt in. You can opt out any time by replying STOP or writing to us; this does not affect service messages.'],
           ['Safety, fraud and legal compliance', 'Technical data and logs, to prevent abuse, investigate incidents and comply with law, court orders and CERT-In directions (s.7(c), (d)).'],
           ['Improve the Service', 'Aggregated or de-identified order and usage data to plan menus, routes and kitchen capacity.'],

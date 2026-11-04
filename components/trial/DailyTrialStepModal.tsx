@@ -25,7 +25,8 @@ import {
 } from '@/lib/menu-engine';
 import { useAppStore } from '@/store/useAppStore';
 import { MealSlot } from '@/types';
-import { submitOrder, toDbDiet } from '@/lib/checkout/submit';
+import { SIGN_IN_PENDING, submitOrder, toDbDiet } from '@/lib/checkout/submit';
+import { clearDraft, loadDraft, saveDraft } from '@/lib/checkout/draft';
 import { cn, formatCurrency } from '@/lib/utils';
 import { useDeliveryZones } from '@/lib/location';
 import { OrderTerms } from '@/components/legal/OrderTerms';
@@ -77,6 +78,13 @@ export function DailyTrialStepModal() {
   const [selectedDateStr, setSelectedDateStr] = useState<string>(
     bookableDays[0]?.dateStr || ''
   );
+  // Never order a date the screen isn't showing: if the selected day is no
+  // longer bookable (cutoff passed, stale draft), move to the first bookable day.
+  useEffect(() => {
+    if (bookableDays.length && !bookableDays.some((d) => d.dateStr === selectedDateStr)) {
+      setSelectedDateStr(bookableDays[0].dateStr);
+    }
+  }, [bookableDays, selectedDateStr]);
   const [mealSlot, setMealSlot] = useState<MealSlot>('lunch');
   const [mealsPerDay, setMealsPerDay] = useState<1 | 2>(1);
   const [inspectedSlot, setInspectedSlot] = useState<'lunch' | 'dinner'>('lunch');
@@ -111,6 +119,36 @@ export function DailyTrialStepModal() {
 
   // Step 5: Payment method & loading state
   const [isProcessing, setIsProcessing] = useState(false);
+
+  // Order draft: survives the Google sign-in redirect and page refreshes.
+  // Saving waits until the restored values have rendered, so defaults never overwrite a draft.
+  const [draftReady, setDraftReady] = useState(false);
+  useEffect(() => {
+    const d = loadDraft<{
+      step: 1 | 2 | 3 | 4 | 5; diet: DietType; selectedDateStr: string; mealSlot: MealSlot; mealsPerDay: 1 | 2;
+      useNewAddress: boolean; fullName: string; phone: string; flatNumber: string; street: string; area: string; pincode: string;
+    }>('trial');
+    if (d) {
+      setDiet(d.diet);
+      if (bookableDays.some((b) => b.dateStr === d.selectedDateStr)) setSelectedDateStr(d.selectedDateStr);
+      setMealSlot(d.mealSlot);
+      setMealsPerDay(d.mealsPerDay);
+      setUseNewAddress(d.useNewAddress);
+      if (d.fullName) setFullName(d.fullName);
+      if (d.phone) setPhone(d.phone);
+      setFlatNumber(d.flatNumber);
+      setStreet(d.street);
+      setArea(d.area);
+      setPincode(d.pincode);
+      setStep(d.step);
+    }
+    setDraftReady(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    if (!draftReady) return;
+    saveDraft('trial', { step, diet, selectedDateStr, mealSlot, mealsPerDay, useNewAddress, fullName, phone, flatNumber, street, area, pincode });
+  }, [draftReady, step, diet, selectedDateStr, mealSlot, mealsPerDay, useNewAddress, fullName, phone, flatNumber, street, area, pincode]);
 
   // Price calculations
   const basePrice = PRICING.trial[diet];
@@ -151,11 +189,12 @@ export function DailyTrialStepModal() {
         newAddress: isEnteringNewAddress
           ? { recipientName: fullName, phone, flat: flatNumber, street, area, pincode }
           : undefined,
-        navigate: (href) => router.push(href),
+        navigate: (href) => { clearDraft('trial'); router.push(href); },
+        onSignedIn: () => { handlePay(); },
       }
     );
     if (error) {
-      setPayError(error);
+      setPayError(error === SIGN_IN_PENDING ? '' : error);
       setIsProcessing(false);
     }
   };

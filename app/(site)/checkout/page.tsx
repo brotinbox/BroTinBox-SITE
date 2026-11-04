@@ -7,7 +7,7 @@ import { ChevronLeft, Lock, MapPin, Plus, ShieldCheck, Tag } from 'lucide-react'
 import { useAppStore } from '@/store/useAppStore';
 import { getQuote, type QuoteResult } from '@/lib/checkout/actions';
 import type { Cart } from '@/lib/checkout/quote';
-import { submitOrder, toDbDiet, type NewAddressInput } from '@/lib/checkout/submit';
+import { SIGN_IN_PENDING, submitOrder, toDbDiet, type NewAddressInput } from '@/lib/checkout/submit';
 import { cn } from '@/lib/utils';
 import { OrderTerms } from '@/components/legal/OrderTerms';
 
@@ -83,7 +83,7 @@ export default function CheckoutPage() {
       { ...cartBase, addressId, couponCode: coupon },
       { newAddress: useNew ? addr : undefined, navigate: (h) => router.push(h) }
     );
-    if (err) { setError(err); setPlacing(false); }
+    if (err) { setError(err === SIGN_IN_PENDING ? '' : err); setPlacing(false); }
   };
 
   const q = quote?.ok ? quote : null;

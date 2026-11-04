@@ -1,5 +1,6 @@
 'use server';
 
+import { markLeadOrdered } from '@/lib/leads';
 import { z } from 'zod';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { getSupabaseService } from '@/lib/supabase/admin';
@@ -62,6 +63,7 @@ export async function placeOrder(input: Cart): Promise<PlaceOrderResult> {
     const order = await createOrderFromQuote(me.userId, cart.data, q);
 
     // Fire Telegram order notification asynchronously (best effort)
+    markLeadOrdered(me.userId, order.id).catch(() => {});
     notifyOrderPlaced(order.id).catch((err) => {
       console.error('[Order] Telegram notify error:', err);
     });

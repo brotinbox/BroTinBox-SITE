@@ -1,7 +1,9 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { after } from 'next/server';
 import { normalizeIndianPhone, verifyOtp } from '@/lib/auth/otp';
 import { rateLimit, resetRateLimit } from '@/lib/security/ratelimit';
 import { phoneOtpAllowed, phoneOtpMode } from '@/lib/auth/otp-mode';
+import { getLead, markLeadVerified, notifyNewSignup } from '@/lib/leads';
 
 const ORDER_PATHS = ['/checkout', '/tomorrow', '/weekly', '/monthly', '/custom', '/build-plan', '/box/'];
 
@@ -34,9 +36,20 @@ export async function POST(request: NextRequest) {
   if (!result.ok) return NextResponse.json({ error: result.error }, { status: 400 });
 
   await resetRateLimit('otpVerify', `ph:${phone}`);
+
+  const { userId, isNew } = result;
+  after(async () => {
+    await markLeadVerified(phone, userId);
+    if (isNew) {
+      const lead = await getLead(phone);
+      await notifyNewSignup({ method: 'phone', phone, source: lead?.source, context: lead?.context });
+    }
+  });
+
   const next = safeNext(body?.next);
+  // Mid-order sign-ins go straight back to the order; onboarding can wait.
   const redirect = !result.onboarded && !ORDER_PATHS.some((p) => next.startsWith(p))
     ? `/onboarding?next=${encodeURIComponent(next)}`
     : next;
-  return NextResponse.json({ ok: true, redirect });
+  return NextResponse.json({ ok: true, redirect, isNew });
 }
