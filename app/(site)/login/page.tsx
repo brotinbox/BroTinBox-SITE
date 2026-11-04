@@ -7,6 +7,7 @@ import { BRAND } from '@/config/brand';
 import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
 import { PhoneOtpForm } from '@/components/auth/PhoneOtpForm';
 import { getSessionUser } from '@/lib/auth/session';
+import { showPhoneOtpForm } from '@/lib/auth/otp-mode';
 
 export const metadata: Metadata = {
   title: 'Sign in',
@@ -27,10 +28,11 @@ function safeNext(next?: string) {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string; error?: string }>;
+  searchParams: Promise<{ next?: string; error?: string; otp?: string }>;
 }) {
-  const { next, error } = await searchParams;
+  const { next, error, otp } = await searchParams;
   const destination = safeNext(next);
+  const showPhone = showPhoneOtpForm(otp);
 
   if (await getSessionUser()) redirect(destination);
 
@@ -64,11 +66,15 @@ export default async function LoginPage({
 
           <GoogleSignInButton next={destination} />
 
-          <div className="flex items-center gap-3 text-[11px] text-gray-400 font-semibold uppercase tracking-wider">
-            <span className="h-px flex-1 bg-gray-200" />or<span className="h-px flex-1 bg-gray-200" />
-          </div>
+          {showPhone && (
+            <>
+              <div className="flex items-center gap-3 text-[11px] text-gray-400 font-semibold uppercase tracking-wider">
+                <span className="h-px flex-1 bg-gray-200" />or<span className="h-px flex-1 bg-gray-200" />
+              </div>
 
-          <PhoneOtpForm next={destination} />
+              <PhoneOtpForm next={destination} />
+            </>
+          )}
 
           <p className="text-[11px] text-gray-500 text-center leading-relaxed">
             New here? Signing in with Google creates your account. You&apos;ll add your phone number
