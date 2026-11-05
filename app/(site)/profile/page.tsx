@@ -6,6 +6,7 @@ import { AccountShell } from '@/components/account/AccountNav';
 import { Btn, CustomerForm } from '@/components/account/forms';
 import { AddAddressForm } from '@/components/account/AddAddressForm';
 import { SignOutButton } from '@/components/account/SignOutButton';
+import { PhoneVerifyField } from '@/components/account/PhoneVerifyField';
 import { ProfileProgress } from '@/components/account/ProfileProgress';
 import { ageFromDob, profileCompletion } from '@/lib/customer/profile-completion';
 
@@ -32,7 +33,7 @@ export default async function ProfilePage() {
             <h2 className="font-heading font-bold text-gray-900">Basics</h2>
             <div className="grid sm:grid-cols-2 gap-3">
               <label><span className={label}>Full name</span><input name="full_name" defaultValue={p.full_name ?? ''} required maxLength={80} className={input} /></label>
-              <label><span className={label}>Mobile <Opt /></span><input name="phone" defaultValue={(p.phone ?? '').replace(/^\+91/, '')} pattern="[6-9][0-9]{9}" maxLength={10} inputMode="numeric" className={input} /></label>
+              <div id="phone" className="scroll-mt-24"><span className={label}>Mobile</span><PhoneVerifyField phone={p.phone} verified={!!p.phone_verified} /></div>
               <label><span className={label}>Goal</span>
                 <select name="goal" defaultValue={p.goal ?? 'stay-fit'} className={input}>
                   <option value="fat-loss">Fat loss</option><option value="muscle-gain">Muscle gain</option>

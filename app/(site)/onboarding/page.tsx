@@ -1,5 +1,6 @@
 'use client';
 
+import { PhoneVerifyField } from '@/components/account/PhoneVerifyField';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppStore } from '@/store/useAppStore';
@@ -31,7 +32,6 @@ export default function OnboardingPage() {
   const [goal, setGoal] = useState<GoalType | null>(null);
   const [dietType, setDietType] = useState<'veg' | 'non-veg' | 'eggetarian' | null>(null);
   const [fullName, setFullName] = useState('');
-  const [phone, setPhone] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
@@ -40,11 +40,9 @@ export default function OnboardingPage() {
     if (!authReady) return;
     if (!isLoggedIn) { router.replace('/login?next=/onboarding'); return; }
     setFullName((v) => v || user.fullName || '');
-    setPhone((v) => v || (user.phone || '').replace(/^\+91/, ''));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authReady, isLoggedIn]);
 
-  const phoneOk = phone === '' || /^[6-9]\d{9}$/.test(phone);
   const firstName = fullName.trim().split(' ')[0];
 
   const finish = async (skip: boolean) => {
@@ -52,7 +50,6 @@ export default function OnboardingPage() {
     setSaving(true);
     const result = await quickStart(skip ? {} : {
       fullName,
-      phone: phone || undefined,
       goal: goal ?? undefined,
       dietType: dietType ?? undefined,
     });
@@ -129,14 +126,10 @@ export default function OnboardingPage() {
               <input value={fullName} onChange={(e) => setFullName(e.target.value)} maxLength={80} autoComplete="name"
                 className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-bold text-gray-900 bg-gray-50 focus:bg-white focus:border-primary focus:outline-none" />
             </label>
-            <label className="block">
+            <div className="block sm:col-span-2">
               <span className="text-xs font-bold text-gray-700 uppercase tracking-wider block mb-1.5">Mobile <span className="normal-case font-semibold text-gray-400">(optional)</span></span>
-              <div className="flex rounded-xl border border-gray-200 overflow-hidden bg-gray-50 focus-within:border-primary focus-within:bg-white">
-                <span className="px-3 py-2.5 text-sm font-bold text-gray-500 bg-gray-100 border-r border-gray-200">+91</span>
-                <input value={phone} onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))} inputMode="numeric" autoComplete="tel-national"
-                  placeholder="WhatsApp updates" className="w-full px-3 py-2.5 text-sm font-bold text-gray-900 bg-transparent focus:outline-none" />
-              </div>
-            </label>
+              {authReady && isLoggedIn && <PhoneVerifyField phone={user.phone} verified={!!user.phoneVerified} />}
+            </div>
           </div>
 
           {error && <p className="text-xs font-semibold text-rose-700 bg-rose-50 border border-rose-100 rounded-xl px-3 py-2">{error}</p>}
@@ -145,7 +138,7 @@ export default function OnboardingPage() {
             <button
               type="button"
               onClick={() => finish(false)}
-              disabled={saving || !phoneOk}
+              disabled={saving}
               className="w-full disabled:opacity-50 bg-cta hover:bg-cta-hover text-white font-black text-sm px-6 py-3.5 rounded-2xl shadow-lg shadow-cta/25 flex items-center justify-center gap-2 tap-active"
             >
               <span>{saving ? 'Saving…' : 'Continue'}</span>

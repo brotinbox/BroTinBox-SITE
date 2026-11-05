@@ -15,8 +15,10 @@ import {
   Gift,
   Repeat,
   ArrowRight,
+  Smartphone,
 } from 'lucide-react';
 import { requireCustomer } from '@/lib/auth/session';
+import { phoneOtpMode } from '@/lib/auth/otp-mode';
 import { dateLabel, getMyPendingOrders, getMySubscriptions, getUpcomingMeals, inr } from '@/lib/customer/data';
 import { AccountShell } from '@/components/account/AccountNav';
 import { MealCard } from '@/components/account/MealCard';
@@ -91,6 +93,15 @@ export default async function DashboardPage() {
           </section>
         )}
 
+        {!profile.phone_verified && phoneOtpMode() !== 'off' && (
+          <Link href="/profile#phone" className="flex items-center gap-3 p-4 rounded-2xl border border-ink/10 bg-sand hover:border-ink/30 transition-colors">
+            <Smartphone className="w-5 h-5 text-ink shrink-0" />
+            <span className="flex-1 text-sm text-gray-800">
+              <b>Verify your mobile number.</b> Sign in with a WhatsApp code next time, and get delivery updates there.
+            </span>
+            <ChevronRight className="w-4 h-4 text-gray-400 shrink-0" />
+          </Link>
+        )}
         <ProfileProgress percent={completion.percent} missing={completion.missing} href="/profile#body" />
 
         <div className="grid sm:grid-cols-2 gap-3">

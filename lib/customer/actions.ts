@@ -114,7 +114,6 @@ const optNum = (min: number, max: number) => z.preprocess(blank, z.coerce.number
 
 const profileSchema = z.object({
   full_name: z.string().trim().min(2).max(80),
-  phone: z.preprocess(blank, z.string().regex(/^[6-9]\d{9}$/, 'Enter a 10-digit mobile number').optional()),
   goal: z.enum(['fat-loss', 'muscle-gain', 'stay-fit', 'elderly-care']),
   diet_type: z.enum(['veg', 'non-veg', 'eggetarian']),
   gender: z.preprocess(blank, z.enum(['male', 'female', 'other']).optional()),
@@ -142,7 +141,7 @@ export async function updateProfile(_p: CustomerResult, fd: FormData): Promise<C
     });
     const { error } = await supabase.from('profiles').update({
       full_name: cleanText(d.full_name, 80),
-      phone: d.phone ? `+91${d.phone}` : null,
+      // phone is saved only through WhatsApp verification (/api/account/phone/*).
       goal: d.goal,
       diet_type: d.diet_type,
       gender: d.gender ?? null,

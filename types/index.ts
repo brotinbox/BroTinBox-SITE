@@ -181,6 +181,8 @@ export interface UserLocation {
 export interface UserProfile {
   id: string;
   phone: string;
+  /** Phone confirmed with a WhatsApp code: it can be used to sign in. */
+  phoneVerified?: boolean;
   fullName: string;
   email?: string;
   /** Profile photo (from Google sign-in); initials are shown when absent. */

@@ -479,53 +479,48 @@ export function get30DayMenuByDayNumber(dayNumber: number, diet: DietType = 'non
   return diet === 'non-veg' ? dayEntry.nonVeg : dayEntry.veg;
 }
 
+// ---------------------------------------------------------------------------
+// Booking calendar, always in IST (the kitchen's clock), whatever the
+// browser's timezone. Each day is a Date at 12:00 UTC on that IST calendar day
+// (same convention as parseDate), so formatDateToYMD (UTC parts) and the
+// IST labels below always name the same day. Mirrors the server's
+// earliest_bookable_date(): next Mon-Sat whose 9 PM cutoff the night before
+// hasn't passed. Holidays are still checked by the server.
+// ---------------------------------------------------------------------------
+const IST_OFFSET_MS = 330 * 60_000;
+const DAY_MS = 86_400_000;
+
+function istNow(now: Date) {
+  const t = new Date(now.getTime() + IST_OFFSET_MS);
+  return { y: t.getUTCFullYear(), m: t.getUTCMonth(), d: t.getUTCDate(), hour: t.getUTCHours() };
+}
+const istDay = (y: number, m: number, d: number) => new Date(Date.UTC(y, m, d, 12));
+const addDays = (date: Date, n: number) => new Date(date.getTime() + n * DAY_MS);
+const istLabel = (date: Date, opts: Intl.DateTimeFormatOptions) =>
+  date.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', ...opts });
+
 export function getEarliestBookableDate(nowInput?: Date) {
-  // Cutoff is 9:00 PM (21:00) IST previous night
+  // Cutoff is 9:00 PM IST the night before the delivery day.
   const now = nowInput || new Date();
-  
-  // Convert now to local IST representation or work in local time
-  const currentHour = now.getHours();
-  const currentMinutes = now.getMinutes();
-  const isPast9PM = currentHour > 21 || (currentHour === 21 && currentMinutes >= 0);
+  const ist = istNow(now);
+  const today = istDay(ist.y, ist.m, ist.d);
+  const isPast9PM = ist.hour >= 21;
 
-  // If before 9PM, tomorrow is the candidate date.
-  // If at/after 9PM, day after tomorrow is candidate date.
-  const candidate = new Date(now);
-  if (isPast9PM) {
-    candidate.setDate(candidate.getDate() + 2);
-  } else {
-    candidate.setDate(candidate.getDate() + 1);
-  }
-
-  // If candidate is Sunday, skip to Monday!
-  if (candidate.getDay() === 0) {
-    candidate.setDate(candidate.getDate() + 1);
-  }
+  let candidate = addDays(today, isPast9PM ? 2 : 1);
+  if (candidate.getUTCDay() === 0) candidate = addDays(candidate, 1); // no Sunday deliveries
 
   const dateStr = formatDateToYMD(candidate);
-
-  // Compute cutoff time for this bookable date:
-  // Cutoff is 9:00 PM on the day immediately preceding the bookable date.
-  const cutoffTime = new Date(candidate);
-  cutoffTime.setDate(cutoffTime.getDate() - 1);
-  cutoffTime.setHours(21, 0, 0, 0);
-
-  // Check if candidate date is tomorrow
-  const tomorrow = new Date(now);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const isTomorrow = formatDateToYMD(tomorrow) === dateStr;
+  const eve = addDays(candidate, -1);
+  // 21:00 IST = 15:30 UTC on the evening before.
+  const cutoffTime = new Date(Date.UTC(eve.getUTCFullYear(), eve.getUTCMonth(), eve.getUTCDate(), 15, 30));
 
   return {
     date: candidate,
     dateStr,
-    isTomorrow,
+    isTomorrow: formatDateToYMD(addDays(today, 1)) === dateStr,
     isCutoffPassed: isPast9PM,
     cutoffTime,
-    formatted: candidate.toLocaleDateString('en-IN', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-    }),
+    formatted: istLabel(candidate, { weekday: 'short', month: 'short', day: 'numeric' }),
   };
 }
 
@@ -540,35 +535,37 @@ export function getNextBookableDays(count = 6, startFromDate?: Date) {
     isEarliest: boolean;
   }> = [];
 
-  let cursor = new Date(earliest.date);
+  let cursor = earliest.date;
   while (days.length < count) {
-    if (cursor.getDay() !== 0) {
+    if (cursor.getUTCDay() !== 0) {
       // Mon-Sat
-      const dateStr = formatDateToYMD(cursor);
       days.push({
-        date: new Date(cursor),
-        dateStr,
-        dayOfWeek: cursor.toLocaleDateString('en-IN', { weekday: 'short' }),
-        dayName: cursor.toLocaleDateString('en-IN', { weekday: 'long' }),
-        formatted: cursor.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }),
+        date: cursor,
+        dateStr: formatDateToYMD(cursor),
+        dayOfWeek: istLabel(cursor, { weekday: 'short' }),
+        dayName: istLabel(cursor, { weekday: 'long' }),
+        formatted: istLabel(cursor, { month: 'short', day: 'numeric' }),
         isEarliest: days.length === 0,
       });
     }
-    cursor.setDate(cursor.getDate() + 1);
+    cursor = addDays(cursor, 1);
   }
 
   return days;
 }
 
-// Next week Mon-Sat days generator
+/** First Monday a weekly/monthly plan can start: the coming Monday, or the next if its cutoff passed. */
+function firstPlanMonday(now: Date): Date {
+  const ist = istNow(now);
+  const today = istDay(ist.y, ist.m, ist.d);
+  const dow = today.getUTCDay(); // 0 Sunday … 6 Saturday
+  let monday = addDays(today, dow === 0 ? 1 : 8 - dow);
+  if (formatDateToYMD(monday) < getEarliestBookableDate(now).dateStr) monday = addDays(monday, 7);
+  return monday;
+}
+
 export function getNextWeekOperatingDays(baseDate?: Date) {
-  const now = baseDate || new Date();
-  // Find upcoming Monday
-  const day = now.getDay(); // 0 is Sunday, 1 is Monday ...
-  const daysUntilMonday = day === 0 ? 1 : (8 - day);
-  
-  const monday = new Date(now);
-  monday.setDate(now.getDate() + daysUntilMonday);
+  const monday = firstPlanMonday(baseDate || new Date());
 
   const days: Array<{
     date: Date;
@@ -581,14 +578,13 @@ export function getNextWeekOperatingDays(baseDate?: Date) {
   const dayAbbrs: Array<'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat'> = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   for (let i = 0; i < 6; i++) {
-    const cur = new Date(monday);
-    cur.setDate(monday.getDate() + i);
+    const cur = addDays(monday, i);
     days.push({
       date: cur,
       dateStr: formatDateToYMD(cur),
       dayOfWeek: dayAbbrs[i],
-      dayName: cur.toLocaleDateString('en-IN', { weekday: 'long' }),
-      formatted: cur.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }),
+      dayName: istLabel(cur, { weekday: 'long' }),
+      formatted: istLabel(cur, { month: 'short', day: 'numeric' }),
     });
   }
 
@@ -602,12 +598,7 @@ export const MONTHLY_PLAN_DAYS = 26;
 export const MONTHLY_MIN_DAYS = 24;
 
 export function getMonthlyOperatingDays(baseDate?: Date) {
-  const now = baseDate || new Date();
-  const day = now.getDay();
-  const daysUntilMonday = day === 0 ? 1 : (8 - day);
-  
-  const startMonday = new Date(now);
-  startMonday.setDate(now.getDate() + daysUntilMonday);
+  const startMonday = firstPlanMonday(baseDate || new Date());
 
   const days: Array<{
     date: Date;
@@ -621,18 +612,18 @@ export function getMonthlyOperatingDays(baseDate?: Date) {
 
   const dayAbbrs: Array<'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat'> = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-  let cursor = new Date(startMonday);
+  let cursor = startMonday;
   let weekIndex = 0;
   let dayInWeekCount = 0;
 
   while (days.length < MONTHLY_PLAN_DAYS) {
-    if (cursor.getDay() !== 0) {
+    if (cursor.getUTCDay() !== 0) {
       days.push({
-        date: new Date(cursor),
+        date: cursor,
         dateStr: formatDateToYMD(cursor),
         dayOfWeek: dayAbbrs[dayInWeekCount],
-        dayName: cursor.toLocaleDateString('en-IN', { weekday: 'long' }),
-        formatted: cursor.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }),
+        dayName: istLabel(cursor, { weekday: 'long' }),
+        formatted: istLabel(cursor, { month: 'short', day: 'numeric' }),
         weekNumber: getISOWeekNumber(cursor),
         weekIndex: Math.min(weekIndex, 3),
       });
@@ -642,7 +633,7 @@ export function getMonthlyOperatingDays(baseDate?: Date) {
         weekIndex++;
       }
     }
-    cursor.setDate(cursor.getDate() + 1);
+    cursor = addDays(cursor, 1);
   }
 
   return days;

@@ -18,6 +18,7 @@ export function toUserProfile(p: ProfileRow): UserProfile {
   return {
     id: p.id,
     phone: p.phone ?? '',
+    phoneVerified: !!p.phone_verified,
     fullName: p.full_name ?? '',
     email: p.email ?? undefined,
     avatarUrl: p.avatar_url ?? undefined,

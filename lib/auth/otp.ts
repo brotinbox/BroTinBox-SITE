@@ -93,7 +93,8 @@ export async function sendOtp(phone: string): Promise<SendResult> {
 
 export type VerifyResult = { ok: true; userId: string; onboarded: boolean; isNew: boolean } | { ok: false; error: string };
 
-export async function verifyOtp(phone: string, code: string): Promise<VerifyResult> {
+/** Checks a code and consumes it (single use). Shared by sign-in and "verify my phone". */
+export async function checkOtpCode(phone: string, code: string): Promise<{ ok: true } | { ok: false; error: string }> {
   const supabase = db();
   const { data: row } = await supabase
     .schema('otp')
@@ -126,6 +127,12 @@ export async function verifyOtp(phone: string, code: string): Promise<VerifyResu
     .select('id');
   if (!claimed?.length) return invalid;
 
+  return { ok: true };
+}
+
+export async function verifyOtp(phone: string, code: string): Promise<VerifyResult> {
+  const checked = await checkOtpCode(phone, code);
+  if (!checked.ok) return checked;
   return signInPhoneUser(phone);
 }
 
@@ -178,4 +185,48 @@ async function signInPhoneUser(phone: string): Promise<VerifyResult> {
   if (sessionErr) return { ok: false, error: 'Could not sign you in. Please try again.' };
 
   return { ok: true, userId, onboarded, isNew };
+}
+
+const PHONE_ONLY_EMAIL = /@phone\.brotinbox\.invalid$/;
+
+export type LinkResult = { ok: true; movedFrom?: string } | { ok: false; error: string };
+
+/**
+ * Saves a just-verified number on a signed-in account (e.g. a Google user),
+ * so WhatsApp sign-in with that number opens this same account.
+ *
+ * If another account already owns the number:
+ *  - a phone-only account with no paid orders or live plan → the number moves
+ *    here (that account loses phone sign-in; it had nothing worth keeping);
+ *  - anything else → refused, so two real accounts are never silently merged.
+ */
+export async function linkVerifiedPhone(userId: string, phone: string): Promise<LinkResult> {
+  const supabase = db();
+  const { data: others } = await supabase
+    .from('profiles')
+    .select('id, email')
+    .eq('phone', phone)
+    .eq('phone_verified', true)
+    .neq('id', userId);
+
+  let movedFrom: string | undefined;
+  for (const other of others ?? []) {
+    const phoneOnly = PHONE_ONLY_EMAIL.test(other.email ?? '');
+    const [{ count: paid }, { count: live }] = await Promise.all([
+      supabase.from('orders').select('id', { count: 'exact', head: true })
+        .eq('user_id', other.id).in('status', ['paid', 'refunded', 'partially_refunded']),
+      supabase.from('subscriptions').select('id', { count: 'exact', head: true })
+        .eq('user_id', other.id).in('status', ['active', 'paused']),
+    ]);
+    if (!phoneOnly || (paid ?? 0) > 0 || (live ?? 0) > 0) {
+      return { ok: false, error: 'This number is already linked to another BroTin Box account. Message us on WhatsApp and we\'ll merge them for you.' };
+    }
+    const { error } = await supabase.from('profiles').update({ phone_verified: false }).eq('id', other.id);
+    if (error) return { ok: false, error: 'Could not save your number. Please try again.' };
+    movedFrom = other.id;
+  }
+
+  const { error } = await supabase.from('profiles').update({ phone, phone_verified: true }).eq('id', userId);
+  if (error) return { ok: false, error: 'Could not save your number. Please try again.' };
+  return { ok: true, movedFrom };
 }

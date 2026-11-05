@@ -244,6 +244,7 @@ export function SignInPanel({ phoneEnabled, request, finish, onBeforeGoogle }: {
       <div className="my-6">{divider}</div>
 
       <GoogleSignInButton next={target} onBeforeRedirect={onBeforeGoogle} />
+      <p className="text-xs text-gray-400 text-center mt-2.5">Signed up with Google before? Use Google to reach the same account.</p>
 
       <Terms />
     </div>

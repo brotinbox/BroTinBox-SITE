@@ -6,13 +6,12 @@ import { rateLimit } from '@/lib/security/ratelimit';
 import { cleanText } from '@/lib/security/request';
 
 /**
- * Quick start: goal and diet only, both optional. Body stats, allergies and
+ * Quick start: name, goal and diet, all optional, both optional. Body stats, allergies and
  * the delivery address are collected later (profile page / checkout), so a
  * new customer reaches the menu and payment in one screen.
  */
 const schema = z.object({
   fullName: z.string().trim().max(80).optional(),
-  phone: z.string().regex(/^([6-9]\d{9})?$/, 'Enter a 10-digit Indian mobile number').optional(),
   goal: z.enum(['fat-loss', 'muscle-gain', 'stay-fit', 'elderly-care']).optional(),
   dietType: z.enum(['veg', 'non-veg', 'eggetarian']).optional(),
 });
@@ -33,9 +32,12 @@ export async function quickStart(input: QuickStartInput): Promise<QuickStartResu
   const v = parsed.data;
 
   const name = cleanText(v.fullName, 80);
+  // A number verified during onboarding turns on WhatsApp delivery updates (as before).
+  const { data: me } = await supabase.from('profiles').select('phone_verified').eq('id', user.id).maybeSingle();
   const { error } = await supabase.from('profiles').update({
     ...(name.length >= 2 && { full_name: name }),
-    ...(v.phone && { phone: `+91${v.phone}`, whatsapp_opt_in: true }),
+    // phone is saved only through WhatsApp verification (PhoneVerifyField).
+    ...(me?.phone_verified && { whatsapp_opt_in: true }),
     ...(v.goal && { goal: v.goal }),
     ...(v.dietType && { diet_type: v.dietType }),
     is_onboarded: true,
