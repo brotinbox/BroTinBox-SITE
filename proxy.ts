@@ -100,8 +100,10 @@ export async function proxy(request: NextRequest) {
     }
   );
 
-  // Verifies the JWT and refreshes it if needed.
-  const { data: { user } } = await supabase.auth.getUser();
+  // Refreshes the session if it expired, then verifies the JWT signature
+  // locally against the project's public keys (no Supabase Auth round trip).
+  const { data: claimsData } = await supabase.auth.getClaims();
+  const user = claimsData?.claims?.sub ? { id: claimsData.claims.sub } : null;
 
   if (isAdmin) {
     response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive');

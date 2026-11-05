@@ -21,21 +21,22 @@ export type UpcomingMeal = {
 /** The signed-in customer's meals from today on, with dishes resolved. RLS limits rows to the owner. */
 export async function getUpcomingMeals(limit = 60): Promise<UpcomingMeal[]> {
   const supabase = await getSupabaseServer();
-  const { data } = await supabase
-    .from('deliveries')
-    .select('id, subscription_id, delivery_date, slot, status, diet, is_egg_free, skip_legume, is_make_up, menu_snapshot, delivery_addons(qty, addons(name))')
-    .gte('delivery_date', todayIST())
-    .neq('status', 'cancelled')
-    .order('delivery_date')
-    .order('slot')
-    .limit(limit);
+  // Meals and the booking cutoff are independent, so fetch them together.
+  const [{ data }, { data: cutoffs }] = await Promise.all([
+    supabase
+      .from('deliveries')
+      .select('id, subscription_id, delivery_date, slot, status, diet, is_egg_free, skip_legume, is_make_up, menu_snapshot, delivery_addons(qty, addons(name))')
+      .gte('delivery_date', todayIST())
+      .neq('status', 'cancelled')
+      .order('delivery_date')
+      .order('slot')
+      .limit(limit),
+    supabase.rpc('earliest_bookable_date', {}),
+  ]);
   const rows = data ?? [];
   const menus = await resolveMenus(supabase, rows.map((r) => ({ date: r.delivery_date, diet: r.diet, slot: r.slot })));
 
   // Editable = still before the cutoff (the DB re-checks on every change).
-  const { data: cutoffs } = rows.length
-    ? await supabase.rpc('earliest_bookable_date', {})
-    : { data: null };
   const earliest = (cutoffs as string | null) ?? '9999-12-31';
 
   return rows.map((r) => ({

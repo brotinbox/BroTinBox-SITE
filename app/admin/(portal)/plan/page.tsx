@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { requireStaff } from '@/lib/auth/session';
 import { getSupabaseServer } from '@/lib/supabase/server';
+import { getNextOperatingDay } from '@/lib/menu/next-operating-day';
 import { adminHref } from '@/lib/admin/paths';
 import { Card, EmptyState, PageHeader, StatCard, StatusBadge, fmtDate } from '@/components/admin/ui';
 import { DatePicker, isIsoDate } from '@/components/admin/DatePicker';
@@ -31,12 +32,12 @@ export default async function DayPlanPage({ searchParams }: { searchParams: Prom
   let date = sp.date;
   if (!isIsoDate(date)) {
     const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
-    const { data } = await supabase.rpc('next_operating_day', { after_date: today });
-    date = (data as string) ?? today;
+    date = await getNextOperatingDay(today);
   }
 
   const combos = [['non_veg', 'lunch'], ['veg', 'lunch'], ['non_veg', 'dinner'], ['veg', 'dinner']] as const;
-  const [{ data: deliveryData }, offCount, pending, ...menus] = await Promise.all([
+  // The dish table is small, so it is read in the same batch instead of after the menus.
+  const [{ data: deliveryData }, offCount, pending, { data: itemData }, ...menus] = await Promise.all([
     supabase
       .from('deliveries')
       .select('id, slot, status, diet, is_egg_free, skip_legume, double_main, is_make_up, address_snapshot, delivery_addons(qty, addons(name)), delivery_zones(area)')
@@ -46,6 +47,7 @@ export default async function DayPlanPage({ searchParams }: { searchParams: Prom
     staff.can('orders.read')
       ? supabase.from('orders').select('id', { count: 'exact', head: true }).in('status', ['created', 'pending_payment'])
       : Promise.resolve({ count: 0 }),
+    supabase.from('menu_items').select('id, code, name'),
     ...combos.map(([diet, slot]) => supabase.rpc('get_menu_for_date', { p_date: date, p_diet: diet, p_slot: slot })),
   ]);
 
@@ -56,10 +58,6 @@ export default async function DayPlanPage({ searchParams }: { searchParams: Prom
   });
   const closed = menuFor.size > 0 && [...menuFor.values()].every((m) => m.is_closed);
 
-  const ids = Array.from(new Set([...menuFor.values()].flatMap((m) => [m.main_id, m.protein_side_id, m.salad_id, m.legume_id, m.carb_id]).filter(Boolean))) as string[];
-  const { data: itemData } = ids.length
-    ? await supabase.from('menu_items').select('id, code, name').in('id', ids)
-    : { data: [] as { id: string; code: string; name: string }[] };
   const items = new Map((itemData ?? []).map((i) => [i.id, i]));
   const name = (id: string | null) => (id ? items.get(id)?.name : undefined);
 

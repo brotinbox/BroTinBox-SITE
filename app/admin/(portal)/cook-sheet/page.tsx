@@ -1,5 +1,6 @@
 import { requireStaff } from '@/lib/auth/session';
 import { getSupabaseServer } from '@/lib/supabase/server';
+import { getNextOperatingDay } from '@/lib/menu/next-operating-day';
 import { adminHref } from '@/lib/admin/paths';
 import { Card, DataTable, EmptyState, PageHeader, StatCard, fmtDate } from '@/components/admin/ui';
 import { DatePicker, isIsoDate } from '@/components/admin/DatePicker';
@@ -20,17 +21,18 @@ export default async function CookSheetPage({ searchParams }: { searchParams: Pr
   let date = sp.date;
   if (!isIsoDate(date)) {
     const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
-    const { data } = await supabase.rpc('next_operating_day', { after_date: today });
-    date = (data as string) ?? today;
+    date = await getNextOperatingDay(today);
   }
 
   const combos = [
     ['non_veg', 'lunch'], ['veg', 'lunch'], ['non_veg', 'dinner'], ['veg', 'dinner'],
   ] as const;
 
-  const [sheet, addons, ...menus] = await Promise.all([
+  // The dish table is small, so it is read in the same batch instead of after the menus.
+  const [sheet, addons, { data: itemData }, ...menus] = await Promise.all([
     supabase.rpc('cook_sheet', { p_date: date }),
     supabase.rpc('cook_sheet_addons', { p_date: date }),
+    supabase.from('menu_items').select('id, code, name, category, grams, cooked_state, metadata'),
     ...combos.map(([diet, slot]) => supabase.rpc('get_menu_for_date', { p_date: date, p_diet: diet, p_slot: slot })),
   ]);
 
@@ -38,10 +40,6 @@ export default async function CookSheetPage({ searchParams }: { searchParams: Pr
   const menuRows = menus.map((m) => (m.data as any[])?.[0]).filter(Boolean);
   const closed = menuRows.length > 0 && menuRows.every((m) => m.is_closed);
 
-  const ids = Array.from(new Set(menuRows.flatMap((m) => [m.main_id, m.protein_side_id, m.salad_id, m.legume_id, m.carb_id]).filter(Boolean)));
-  const { data: itemData } = ids.length
-    ? await supabase.from('menu_items').select('id, code, name, category, grams, cooked_state, metadata').in('id', ids)
-    : { data: [] as Item[] };
   const items = new Map((itemData as Item[] ?? []).map((i) => [i.id, i]));
 
   // Portions to cook per dish across all boxes that day.
