@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { BRAND } from '@/config/brand';
 import { LEGAL, fssaiAbbr, hasFssai } from '@/config/legal';
-import { MapPin, Phone, Mail, ShieldCheck, Heart, Instagram } from 'lucide-react';
+import { MapPin, Phone, Mail, Heart, Instagram } from 'lucide-react';
 
 /** WhatsApp's own logo: lucide-react has no brand icon for it. */
 function WhatsAppIcon({ className }: { className?: string }) {
@@ -36,6 +36,8 @@ export function Footer() {
               {BRAND.tagline} {BRAND.shortDescription}
             </p>
 
+            {/* Contact details on the left, FSSAI card on the right (stacks on phones). */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="space-y-2 text-xs text-gray-300">
               <div className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 text-lime-brand shrink-0 mt-0.5" />
@@ -53,14 +55,18 @@ export function Footer() {
 
             {/* FSSAI badge: shown only once a real licence number is set in config/legal.ts */}
             {hasFssai() && (
-              <div className="inline-flex items-center gap-2.5 bg-white/5 border border-white/10 px-3.5 py-2 rounded-xl text-xs">
-                <ShieldCheck className="w-5 h-5 text-lime-brand" />
+              <div className="self-start sm:self-auto shrink-0 inline-flex flex-col items-center text-center gap-2 bg-white/5 border border-white/10 px-3.5 py-3 rounded-xl text-xs">
+                {/* Dark navy logo: sits on a white tile so it reads on the dark footer. */}
+                <span className="bg-white rounded-lg px-2 py-1.5">
+                  <Image src="/FSSAI_logo.png" alt="FSSAI" width={450} height={221} className="h-8 w-auto" />
+                </span>
                 <div>
                   <p className="font-semibold text-white">FSSAI {LEGAL.fssai.licenseType || 'Licence'}</p>
                   <p className="text-[11px] text-gray-400">{fssaiAbbr()} No. {LEGAL.fssai.licenseNumber}</p>
                 </div>
               </div>
             )}
+            </div>
           </div>
 
           {/* Quick Links */}
