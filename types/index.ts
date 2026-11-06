@@ -375,6 +375,8 @@ export interface MonthlyOrderConfig {
   mealsPerDay: 1 | 2;
   skippedDays: string[];
   paymentMode: 'prepaid' | 'autopay';
+  /** Delivery run for 1-meal plans (2-meal plans get both). */
+  slot?: 'lunch' | 'dinner';
   lunchSlot: string;
   dinnerSlot: string;
   price: number;

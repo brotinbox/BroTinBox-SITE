@@ -57,15 +57,17 @@ export async function quoteCart(cart: Cart, userId: string): Promise<Quote> {
   const { data: address } = await db.from('addresses').select('id, user_id, zone_id, pincode').eq('id', cart.addressId).maybeSingle();
   if (!address || address.user_id !== userId) throw new CheckoutError('Choose a delivery address.');
   // The zone must serve the address's own pincode (zone_id alone is not trusted).
-  let zoneQuery = db.from('delivery_zones').select('id, delivery_fee, is_active')
+  let zoneQuery = db.from('delivery_zones').select('id, area, tier, delivery_fee, is_active')
     .eq('pincode', address.pincode).eq('is_active', true);
   if (address.zone_id) zoneQuery = zoneQuery.eq('id', address.zone_id);
   let { data: zone } = await zoneQuery.limit(1).maybeSingle();
   if (!zone && address.zone_id) {
-    ({ data: zone } = await db.from('delivery_zones').select('id, delivery_fee, is_active')
+    ({ data: zone } = await db.from('delivery_zones').select('id, area, tier, delivery_fee, is_active')
       .eq('pincode', address.pincode).eq('is_active', true).limit(1).maybeSingle());
   }
   if (!zone) throw new CheckoutError(`We don't deliver to ${address.pincode} yet.`);
+  // Phase 2 areas are listed as "next batch" and don't take orders yet.
+  if (zone.tier !== 'core') throw new CheckoutError(`${zone.area} is in our next delivery batch. We'll let you know as soon as we start delivering there.`);
 
   // Dates: unique, operating days, not before the cutoff, not too far ahead
   const dates = [...new Map(cart.days.map((d) => [d.date, d])).values()].sort((a, b) => a.date.localeCompare(b.date));
@@ -118,7 +120,8 @@ export async function quoteCart(cart: Cart, userId: string): Promise<Quote> {
   }
 
   const subtotal = round2(lines.reduce((s, l) => s + l.total, 0));
-  const deliveryFee = Number(zone.delivery_fee ?? 0);
+  // Delivery is free in every area we serve.
+  const deliveryFee = 0;
 
   // Coupon
   let discount = 0;

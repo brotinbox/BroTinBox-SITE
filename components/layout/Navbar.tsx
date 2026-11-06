@@ -11,7 +11,6 @@ import {
   Sparkles,
   Utensils,
   Calendar,
-  HelpCircle,
   ShieldCheck,
   ChevronRight,
   MessageCircle,
@@ -138,10 +137,10 @@ export function Navbar() {
   const navLinks = [
     { label: 'Home', href: '/', icon: Home, desc: 'BroTin Box daily protein overview' },
     { label: 'Weekly Menu', href: '/menu', icon: Utensils, desc: 'Rotating 6-day box menu with photos' },
+    { label: 'Monthly Subscription', href: '/monthly', icon: CalendarDays, badge: 'Best value', desc: '26 boxes a month, delivered Mon–Sat' },
     { label: 'Pricing Plans', href: '/pricing', icon: Sparkles, badge: 'Save up to 16%', desc: 'Transparent breakdown: Trial vs Weekly vs Monthly' },
     { label: 'Nutrition Blog', href: '/blog', icon: BookOpen, badge: 'New', desc: 'Clinical insights, macros & kitchen secrets' },
     { label: 'Delivery Areas', href: '/delivery-areas', icon: MapPin, desc: 'Coimbatore coverage & pincodes' },
-    { label: 'FAQ & Support', href: '/faq', icon: HelpCircle, desc: 'Questions about meal rotation & billing' },
   ];
 
   return (
@@ -342,19 +341,6 @@ export function Navbar() {
                     </button>
                   )}
 
-                  <Link
-                    href="/delivery-areas"
-                    onClick={() => setNavDrawerOpen(false)}
-                    className="flex items-center justify-between p-2.5 rounded-xl text-sm font-semibold text-gray-800 hover:bg-white hover:text-primary transition-all"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <MapPin className="w-4 h-4 text-primary" />
-                      <span>Delivery Areas (Coimbatore)</span>
-                    </div>
-                    <span className="text-xs font-semibold text-primary bg-primary-light px-2 py-0.5 rounded-full">
-                      Active
-                    </span>
-                  </Link>
                 </div>
               </div>
             </div>

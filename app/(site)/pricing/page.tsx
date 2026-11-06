@@ -214,7 +214,7 @@ export default function PricingPage() {
                 </div>
                 <div className="flex items-start gap-2.5">
                   <Check className="w-4 h-4 text-accent shrink-0 mt-0.5" />
-                  <span>Free delivery in our core zones (one-time ₹35 per order in outer areas, shown before you pay)</span>
+                  <span>Free delivery in every area we serve</span>
                 </div>
               </div>
             </div>

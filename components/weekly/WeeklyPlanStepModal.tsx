@@ -8,23 +8,13 @@ import {
   ChevronLeft,
   ChevronRight,
   Check,
-  Leaf,
-  Drumstick,
-  Clock,
-  ShieldCheck,
-  CheckCircle2,
   Lock,
   Plus,
   QrCode,
-  CreditCard,
-  Calendar,
-  Layers,
-  Sparkles,
   Ban,
-  RotateCcw,
-  Flame,
-  Dumbbell,
-  AlertTriangle,
+  Sun,
+  Moon,
+  X,
 } from 'lucide-react';
 import {
   getNextWeekOperatingDays,
@@ -38,7 +28,11 @@ import { clearDraft, loadDraft, saveDraft } from '@/lib/checkout/draft';
 import { cn, formatCurrency } from '@/lib/utils';
 import { planTotal, savingsVsTrial } from '@/lib/pricing';
 import { useDeliveryZones } from '@/lib/location';
+import { PincodeStatus } from '@/components/delivery/PincodeStatus';
 import { OrderTerms } from '@/components/legal/OrderTerms';
+import { DietMascot } from '@/components/trial/DietMascot';
+import { DietMark } from '@/components/trial/DietMark';
+import { SLOT_TIME, g1 } from '@/lib/meal-display';
 
 export function WeeklyPlanStepModal() {
   const menuVersion = useMenuVersion();
@@ -90,8 +84,8 @@ export function WeeklyPlanStepModal() {
   // Step 2: Schedule & Skip Days & Meals per Day
   const [skippedDays, setSkippedDays] = useState<string[]>([]);
   const [mealsPerDay, setMealsPerDay] = useState<1 | 2>(1);
-  const [lunchSlot, setLunchSlot] = useState('7:00 AM - 9:00 AM');
-  const [dinnerSlot, setDinnerSlot] = useState('7:00 PM - 9:00 PM');
+  // Delivery slot when 1 meal/day; with 2 meals both runs are delivered.
+  const [slot, setSlot] = useState<'lunch' | 'dinner'>('lunch');
 
   // Toggle skipping a day
   const toggleSkipDay = (dateStr: string) => {
@@ -133,6 +127,7 @@ export function WeeklyPlanStepModal() {
 
   // Step 3: Tab Inspection
   const [inspectedDayIndex, setInspectedDayIndex] = useState(0);
+  const [inspectedSlot, setInspectedSlot] = useState<'lunch' | 'dinner'>('lunch');
 
   // Active Days and Pricing Calculations
   const activeDays = useMemo(() => weeklyMenus.filter((d) => !d.isSkipped), [weeklyMenus]);
@@ -171,15 +166,14 @@ export function WeeklyPlanStepModal() {
   useEffect(() => {
     const d = loadDraft<{
       step: 1 | 2 | 3 | 4 | 5; dietVariation: 'non-veg' | 'veg' | 'mixed'; skippedDays: string[]; mealsPerDay: 1 | 2;
-      lunchSlot: string; dinnerSlot: string; useNewAddress: boolean;
+      slot?: 'lunch' | 'dinner'; useNewAddress: boolean;
       fullName: string; phone: string; flatNumber: string; street: string; area: string; pincode: string;
     }>('weekly');
     if (d) {
       setDietVariation(d.dietVariation);
       setSkippedDays(d.skippedDays.filter((x) => nextWeekDays.some((w) => w.dateStr === x)));
       setMealsPerDay(d.mealsPerDay);
-      setLunchSlot(d.lunchSlot);
-      setDinnerSlot(d.dinnerSlot);
+      setSlot(d.slot === 'dinner' ? 'dinner' : 'lunch');
       setUseNewAddress(d.useNewAddress);
       if (d.fullName) setFullName(d.fullName);
       if (d.phone) setPhone(d.phone);
@@ -194,8 +188,8 @@ export function WeeklyPlanStepModal() {
   }, []);
   useEffect(() => {
     if (!draftReady) return;
-    saveDraft('weekly', { step, dietVariation, skippedDays, mealsPerDay, lunchSlot, dinnerSlot, useNewAddress, fullName, phone, flatNumber, street, area, pincode });
-  }, [draftReady, step, dietVariation, skippedDays, mealsPerDay, lunchSlot, dinnerSlot, useNewAddress, fullName, phone, flatNumber, street, area, pincode]);
+    saveDraft('weekly', { step, dietVariation, skippedDays, mealsPerDay, slot, useNewAddress, fullName, phone, flatNumber, street, area, pincode });
+  }, [draftReady, step, dietVariation, skippedDays, mealsPerDay, slot, useNewAddress, fullName, phone, flatNumber, street, area, pincode]);
 
   // Pincode validation & zone detection
   const detectedZone = useMemo(() => getZoneByPincode(pincode), [getZoneByPincode, pincode]);
@@ -221,7 +215,7 @@ export function WeeklyPlanStepModal() {
       {
         type: 'weekly',
         mealsPerDay,
-        slot: 'lunch',
+        slot: mealsPerDay === 2 ? 'lunch' : slot,
         days: activeDays.map((d) => ({ date: d.dateStr, diet: toDbDiet(d.diet) })),
         addonIds: [],
         preferences: { isEggFree: false, skipLegume: false, dietVariation },
@@ -288,188 +282,123 @@ export function WeeklyPlanStepModal() {
       {/* Main Content Area */}
       <div
         ref={contentRef}
-        className="p-3.5 sm:p-8 flex-1 overflow-y-auto sm:max-h-[calc(85vh-160px)] min-h-[420px] sm:min-h-[460px] transition-all"
+        className={cn(
+          'p-3.5 sm:p-8 flex-1 overflow-y-auto sm:max-h-[calc(85vh-160px)] transition-all',
+          step === 1 ? 'min-h-0' : 'min-h-[420px] sm:min-h-[460px]'
+        )}
       >
-        {/* ================= STEP 1: DIET STRATEGY ================= */}
+        {/* ================= STEP 1: DIET ================= */}
         {step === 1 && (
           <div className="space-y-3.5 sm:space-y-5 animate-in fade-in duration-200">
             <div>
               <h2 className="font-heading font-black text-xl sm:text-3xl text-ink">
-                Choose your weekly diet
+                Choose your week
               </h2>
               <p className="text-[11px] sm:text-sm text-gray-600 mt-0.5 sm:mt-1">
-                6 days of non-repeating kitchen recipes calibrated for steady muscle nourishment.
+                6 days, a different box every day.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 gap-2.5 sm:gap-3.5">
-              {/* Option 1: High-Protein Non-Veg */}
-              <button
-                type="button"
-                onClick={() => setDietVariation('non-veg')}
-                className={cn(
-                  'p-3.5 sm:p-5 rounded-2xl border-2 text-left transition-all tap-active flex items-start justify-between active:scale-[0.99]',
-                  dietVariation === 'non-veg'
-                    ? 'border-ink bg-paper ring-2 ring-ink/15'
-                    : 'border-gray-200 hover:border-gray-300 bg-white'
-                )}
-              >
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-amber-500/10 text-amber-700 flex items-center justify-center font-bold shrink-0 mt-0.5">
-                    <Drumstick className="w-5 h-5 sm:w-6 sm:h-6" />
-                  </div>
-                  <div>
-                    <h3 className="font-heading font-black text-base sm:text-lg text-gray-900">
-                      High-Protein Non-Veg (6 Days)
-                    </h3>
-                    <p className="text-xs text-gray-500 mt-0.5">
-                      Kongu pepper chicken breast, fish, herb grilled cuts & boiled whole egg whites every day.
-                    </p>
-                    <div className="mt-2 flex items-center gap-2">
-                      <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">
-                        ~75g+ Protein / Day
-                      </span>
-                      <span className="text-xs font-bold text-accent">
-                        ₹{PRICING.weekly['non-veg']} / day
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div
-                  className={cn(
-                    'w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center transition-colors shrink-0 mt-1',
-                    dietVariation === 'non-veg'
-                      ? 'border-ink bg-ink text-white'
-                      : 'border-gray-300'
-                  )}
-                >
-                  {dietVariation === 'non-veg' && <Check className="w-3 sm:w-3.5 h-3 sm:h-3.5 stroke-[3]" />}
-                </div>
-              </button>
-
-              {/* Option 2: Balanced Mixed Diet */}
-              <button
-                type="button"
-                onClick={() => setDietVariation('mixed')}
-                className={cn(
-                  'p-3.5 sm:p-5 rounded-2xl border-2 text-left transition-all tap-active flex items-start justify-between active:scale-[0.99]',
-                  dietVariation === 'mixed'
-                    ? 'border-ink bg-paper ring-2 ring-ink/15'
-                    : 'border-gray-200 hover:border-gray-300 bg-white'
-                )}
-              >
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-blue-500/10 text-blue-700 flex items-center justify-center font-bold shrink-0 mt-0.5">
-                    <Layers className="w-5 h-5 sm:w-6 sm:h-6" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-1.5">
-                      <h3 className="font-heading font-black text-base sm:text-lg text-gray-900">
-                        Balanced Mixed Routine
-                      </h3>
-                      <span className="text-[9px] font-black uppercase tracking-wider text-orange-700 bg-orange-100 px-2 py-0.5 rounded-full">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-4 pt-2">
+              {([
+                { key: 'veg', label: 'Veg', price: PRICING.weekly.veg, sel: 'border-emerald-600 bg-emerald-50 ring-emerald-600/15', tick: 'border-emerald-600 bg-emerald-600', text: 'text-emerald-700' },
+                { key: 'mixed', label: 'Mix', price: mixedAvgPerDay, sel: 'border-accent bg-accent/5 ring-accent/20', tick: 'border-accent bg-accent', text: 'text-accent' },
+                { key: 'non-veg', label: 'Non-Veg', price: PRICING.weekly['non-veg'], sel: 'border-red-600 bg-red-50 ring-red-600/15', tick: 'border-red-600 bg-red-600', text: 'text-red-700' },
+              ] as const).map((opt) => {
+                const selected = dietVariation === opt.key;
+                return (
+                  <button
+                    key={opt.key}
+                    type="button"
+                    onClick={() => setDietVariation(opt.key)}
+                    aria-pressed={selected}
+                    className={cn(
+                      'relative rounded-2xl sm:rounded-3xl border-2 transition-all tap-active flex items-center text-center active:scale-[0.99] sm:flex-col sm:p-5 sm:pt-10',
+                      opt.key === 'mixed'
+                        ? 'col-span-2 order-last sm:col-span-1 sm:order-none flex-row justify-center gap-4 px-4 pt-7 pb-3'
+                        : 'flex-col px-2 pt-8 pb-3',
+                      selected ? `${opt.sel} ring-2 sm:ring-4 shadow-md` : 'border-gray-200 hover:border-gray-300 bg-white'
+                    )}
+                  >
+                    <span className="absolute top-2 left-2 sm:top-3 sm:left-3 flex gap-0.5">
+                      {opt.key !== 'non-veg' && <DietMark kind="veg" />}
+                      {opt.key !== 'veg' && <DietMark kind="non-veg" />}
+                    </span>
+                    <span
+                      className={cn(
+                        'absolute top-2 right-2 sm:top-3 sm:right-3 w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center transition-colors',
+                        selected ? `${opt.tick} text-white` : 'border-gray-300'
+                      )}
+                    >
+                      {selected && <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[3]" />}
+                    </span>
+                    {opt.key === 'mixed' && (
+                      <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[8px] sm:text-[9px] font-black uppercase tracking-wider text-white bg-accent px-2 py-0.5 rounded-full whitespace-nowrap">
                         Popular
                       </span>
-                    </div>
-                    <p className="text-xs text-gray-500 mt-0.5">
-                      4 Non-Veg Days (Mon, Tue, Thu, Sat) + 2 Pure Veg Days (Wed, Fri for light recovery).
-                    </p>
-                    <div className="mt-2 flex items-center gap-2">
-                      <span className="text-[10px] font-extrabold uppercase tracking-wider text-blue-800 bg-blue-100 px-2 py-0.5 rounded-full">
-                        ~65g+ Avg Protein
-                      </span>
-                      <span className="text-xs font-bold text-accent">
-                        ₹{mixedAvgPerDay} / day avg
-                      </span>
-                    </div>
-                  </div>
-                </div>
+                    )}
 
-                <div
-                  className={cn(
-                    'w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center transition-colors shrink-0 mt-1',
-                    dietVariation === 'mixed'
-                      ? 'border-ink bg-ink text-white'
-                      : 'border-gray-300'
-                  )}
-                >
-                  {dietVariation === 'mixed' && <Check className="w-3 sm:w-3.5 h-3 sm:h-3.5 stroke-[3]" />}
-                </div>
-              </button>
+                    <div className="h-[76px] sm:h-[96px] flex items-end justify-center shrink-0">
+                      {opt.key === 'mixed' ? (
+                        <div className="flex items-end -space-x-3">
+                          <DietMascot kind="veg" active={selected} size="sm" />
+                          <DietMascot kind="non-veg" active={selected} size="sm" />
+                        </div>
+                      ) : (
+                        <DietMascot kind={opt.key} active={selected} />
+                      )}
+                    </div>
 
-              {/* Option 3: Pure Vegetarian */}
-              <button
-                type="button"
-                onClick={() => setDietVariation('veg')}
-                className={cn(
-                  'p-3.5 sm:p-5 rounded-2xl border-2 text-left transition-all tap-active flex items-start justify-between active:scale-[0.99]',
-                  dietVariation === 'veg'
-                    ? 'border-ink bg-paper ring-2 ring-ink/15'
-                    : 'border-gray-200 hover:border-gray-300 bg-white'
-                )}
-              >
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-emerald-500/10 text-emerald-700 flex items-center justify-center font-bold shrink-0 mt-0.5">
-                    <Leaf className="w-5 h-5 sm:w-6 sm:h-6" />
-                  </div>
-                  <div>
-                    <h3 className="font-heading font-black text-base sm:text-lg text-gray-900">
-                      Pure Vegetarian (6 Days)
+                    <div className="flex flex-col items-center">
+                    <h3 className={cn('font-heading font-black text-base sm:text-2xl mt-2', selected ? opt.text : 'text-gray-900')}>
+                      {opt.label}
                     </h3>
-                    <p className="text-xs text-gray-500 mt-0.5">
-                      Malai paneer cubes, organic tofu, roasted soya chunks & mint probiotic curd.
-                    </p>
-                    <div className="mt-2 flex items-center gap-2">
-                      <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">
-                        ~45g+ Clean Protein
-                      </span>
-                      <span className="text-xs font-bold text-accent">
-                        ₹{PRICING.weekly.veg} / day
-                      </span>
-                    </div>
-                  </div>
-                </div>
 
-                <div
-                  className={cn(
-                    'w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center transition-colors shrink-0 mt-1',
-                    dietVariation === 'veg'
-                      ? 'border-ink bg-ink text-white'
-                      : 'border-gray-300'
-                  )}
-                >
-                  {dietVariation === 'veg' && <Check className="w-3 sm:w-3.5 h-3 sm:h-3.5 stroke-[3]" />}
-                </div>
-              </button>
+                    {/* Which days are veg / non-veg */}
+                    <div className="flex gap-0.5 sm:gap-1 mt-1.5" aria-hidden="true">
+                      {['M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => {
+                        const veg = opt.key === 'veg' || (opt.key === 'mixed' && (i === 2 || i === 4));
+                        return (
+                          <span
+                            key={i}
+                            className={cn(
+                              'w-3.5 h-3.5 sm:w-5 sm:h-5 rounded-full text-[7px] sm:text-[9px] font-black text-white flex items-center justify-center',
+                              veg ? 'bg-emerald-600' : 'bg-red-600'
+                            )}
+                          >
+                            {d}
+                          </span>
+                        );
+                      })}
+                    </div>
+
+                    <span className="font-heading font-black text-xs sm:text-base text-ink mt-1.5">
+                      ₹{opt.price}
+                      <span className="text-[10px] sm:text-xs font-bold text-gray-500">/day</span>
+                    </span>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}
 
-        {/* ================= STEP 2: SCHEDULE & SKIP DAYS ================= */}
+        {/* ================= STEP 2: DAYS & MEALS ================= */}
         {step === 2 && (
           <div className="space-y-4 sm:space-y-5 animate-in fade-in duration-200">
             <div>
               <h2 className="font-heading font-black text-xl sm:text-3xl text-ink">
-                Your 6-day schedule
+                Your week
               </h2>
               <p className="text-[11px] sm:text-sm text-gray-600 mt-0.5 sm:mt-1">
-                Going out or fasting? Tap any day below to skip it. Your bill automatically reduces.
+                Tap a day to skip it. You only pay for the days you keep.
               </p>
             </div>
 
-            {/* Mon-Sat Interactive Grid */}
-            <div className="space-y-1.5 sm:space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="text-[11px] sm:text-xs font-bold text-gray-700 uppercase tracking-wider block">
-                  Tap to Skip or Include Days
-                </label>
-                <span className="text-xs font-extrabold text-ink">
-                  {pricingCalculations.activeCount} of 6 Days Active
-                </span>
-              </div>
-
-              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+            {/* Mon–Sat */}
+            <div className="space-y-2">
+              <div className="grid grid-cols-6 gap-1.5 sm:gap-2">
                 {weeklyMenus.map((day) => {
                   const isSkipped = day.isSkipped;
                   return (
@@ -477,45 +406,38 @@ export function WeeklyPlanStepModal() {
                       key={day.dateStr}
                       type="button"
                       onClick={() => toggleSkipDay(day.dateStr)}
+                      aria-pressed={!isSkipped}
+                      aria-label={`${day.dayName} ${day.formatted}: ${isSkipped ? 'skipped' : 'included'}`}
                       className={cn(
-                        'p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border-2 text-center transition-all tap-active flex flex-col items-center justify-between min-h-[90px] active:scale-[0.98]',
+                        'py-2 sm:py-3 rounded-xl sm:rounded-2xl border-2 text-center transition-all tap-active flex flex-col items-center gap-1 active:scale-[0.97]',
                         isSkipped
-                          ? 'border-dashed border-gray-300 bg-gray-50/70 text-gray-400 opacity-70'
-                          : 'border-ink bg-paper text-gray-900 shadow-xs'
+                          ? 'border-dashed border-gray-300 bg-gray-50 text-gray-400'
+                          : day.diet === 'veg'
+                          ? 'border-emerald-600 bg-emerald-50 text-gray-900'
+                          : 'border-red-600 bg-red-50 text-gray-900'
                       )}
                     >
-                      <span className="text-[10px] font-mono text-gray-400 block">
-                        {day.formatted}
+                      <span className="font-heading font-black text-xs sm:text-base leading-none">{day.dayOfWeek}</span>
+                      <span className="text-[9px] sm:text-[10px] font-semibold text-gray-500 leading-none">
+                        {day.formatted.split(' ')[0]}
                       </span>
-                      <span className="font-heading font-black text-sm sm:text-base block mt-0.5">
-                        {day.dayOfWeek}
-                      </span>
-                      <div className="mt-1">
-                        {isSkipped ? (
-                          <span className="text-[9px] font-black uppercase tracking-tight text-red-600 bg-red-100 px-1.5 py-0.5 rounded-full inline-block">
-                            Skipped
-                          </span>
-                        ) : (
-                          <span className="text-[9px] font-black uppercase tracking-tight text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded-full inline-block">
-                            {day.diet === 'non-veg' ? '🍗 NV' : '🧀 Veg'}
-                          </span>
-                        )}
-                      </div>
+                      {isSkipped ? (
+                        <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-gray-300 text-white flex items-center justify-center">
+                          <X className="w-3 h-3 stroke-[3]" />
+                        </span>
+                      ) : (
+                        <DietMark kind={day.diet} />
+                      )}
                     </button>
                   );
                 })}
               </div>
 
-              {/* Status Banner */}
-              <div className="p-3 rounded-xl bg-sand border border-ink/10 flex items-center justify-between text-xs text-ink">
-                <span className="font-medium">
-                  {pricingCalculations.skippedCount > 0 ? (
-                    <>
-                      <strong>{pricingCalculations.skippedCount} Day Skipped</strong> (Your bill drops by{' '}
-                      {formatCurrency(pricingCalculations.skippedValue)})
-                    </>
-                  ) : (
-                    'All 6 operating days included in weekly routine'
+              <div className="p-2.5 sm:p-3 rounded-xl bg-sand border border-ink/10 flex items-center justify-between text-xs text-ink">
+                <span className="font-semibold">
+                  {pricingCalculations.activeCount} of 6 days
+                  {pricingCalculations.skippedCount > 0 && (
+                    <span className="text-emerald-700"> · saves {formatCurrency(pricingCalculations.skippedValue)}</span>
                   )}
                 </span>
                 <span className="font-heading font-black text-sm">
@@ -524,187 +446,212 @@ export function WeeklyPlanStepModal() {
               </div>
             </div>
 
-            {/* Meals Per Day Toggle */}
+            {/* Meals per day */}
             <div className="space-y-1.5 sm:space-y-2 pt-2 border-t border-gray-100">
               <label className="text-[11px] sm:text-xs font-bold text-gray-700 uppercase tracking-wider block">
-                Meals per day
+                Meals a day
               </label>
               <div className="grid grid-cols-2 gap-2 sm:gap-3">
-                <button
-                  type="button"
-                  onClick={() => setMealsPerDay(1)}
-                  className={cn(
-                    'p-3 rounded-xl sm:rounded-2xl border-2 text-left transition-all tap-active flex items-center justify-between',
-                    mealsPerDay === 1
-                      ? 'border-ink bg-paper ring-1 ring-ink/15'
-                      : 'border-gray-200 bg-white hover:border-gray-300'
-                  )}
-                >
-                  <div>
-                    <span className="font-heading font-bold text-xs sm:text-sm text-gray-900 block">
-                      1 Meal / Day
-                    </span>
-                    <span className="text-[10px] text-gray-500">Morning or Dinner</span>
-                  </div>
-                  <div
-                    className={cn(
-                      'w-4 h-4 rounded-full border flex items-center justify-center',
-                      mealsPerDay === 1 ? 'border-ink bg-ink text-white' : 'border-gray-300'
-                    )}
-                  >
-                    {mealsPerDay === 1 && <Check className="w-2.5 h-2.5 stroke-[3]" />}
-                  </div>
-                </button>
+                {([1, 2] as const).map((n) => {
+                  const selected = mealsPerDay === n;
+                  return (
+                    <button
+                      key={n}
+                      type="button"
+                      onClick={() => setMealsPerDay(n)}
+                      aria-pressed={selected}
+                      className={cn(
+                        'relative p-3 rounded-xl sm:rounded-2xl border-2 transition-all tap-active flex flex-col items-center gap-1.5',
+                        selected ? 'border-ink bg-paper ring-2 ring-ink/10' : 'border-gray-200 bg-white hover:border-gray-300'
+                      )}
+                    >
+                      {n === 2 && (
+                        <span className="absolute top-1.5 right-1.5 text-[9px] font-black uppercase text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded-full">
+                          -₹{PRICING.secondMealDiscount}
+                        </span>
+                      )}
+                      <span className="flex gap-1" aria-hidden="true">
+                        {Array.from({ length: n }).map((_, i) => (
+                          <span key={i} className="w-7 h-5 sm:w-8 sm:h-6 rounded-md border-2 border-ink bg-accent/20 grid grid-cols-3 gap-px p-px">
+                            <span className="col-span-2 bg-accent/60 rounded-sm" />
+                            <span className="bg-emerald-500/60 rounded-sm" />
+                          </span>
+                        ))}
+                      </span>
+                      <span className="font-heading font-black text-xs sm:text-sm text-gray-900">
+                        {n} Meal{n === 2 ? 's' : ''}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
-                <button
-                  type="button"
-                  onClick={() => setMealsPerDay(2)}
-                  className={cn(
-                    'p-3 rounded-xl sm:rounded-2xl border-2 text-left transition-all tap-active flex items-center justify-between',
-                    mealsPerDay === 2
-                      ? 'border-ink bg-paper ring-1 ring-ink/15'
-                      : 'border-gray-200 bg-white hover:border-gray-300'
-                  )}
-                >
-                  <div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="font-heading font-bold text-xs sm:text-sm text-gray-900 block">
-                        2 Meals / Day
+            {/* Delivery time */}
+            <div className="space-y-1.5 sm:space-y-2">
+              <label className="text-[11px] sm:text-xs font-bold text-gray-700 uppercase tracking-wider block">
+                {mealsPerDay === 2 ? 'Delivered at' : 'Delivery time'}
+              </label>
+              <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                {(['lunch', 'dinner'] as const).map((s) => {
+                  const selected = mealsPerDay === 2 || slot === s;
+                  return (
+                    <button
+                      key={s}
+                      type="button"
+                      disabled={mealsPerDay === 2}
+                      onClick={() => setSlot(s)}
+                      aria-pressed={selected}
+                      className={cn(
+                        'p-3 rounded-xl sm:rounded-2xl border-2 transition-all tap-active flex items-center gap-2.5 text-left disabled:cursor-default',
+                        selected ? 'border-ink bg-paper ring-2 ring-ink/10' : 'border-gray-200 bg-white hover:border-gray-300'
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          'w-9 h-9 rounded-xl flex items-center justify-center shrink-0',
+                          s === 'lunch' ? 'bg-amber-100 text-amber-600' : 'bg-indigo-100 text-indigo-600'
+                        )}
+                      >
+                        {s === 'lunch' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                       </span>
-                      <span className="text-[9px] font-black uppercase text-emerald-800 bg-emerald-100 px-1.5 py-0.2 rounded-full">
-                        -₹{PRICING.secondMealDiscount}
+                      <span className="min-w-0">
+                        <span className="font-heading font-black text-xs sm:text-sm text-gray-900 block">
+                          {s === 'lunch' ? 'Lunch' : 'Dinner'}
+                        </span>
+                        <span className="text-[10px] sm:text-xs text-gray-500 block">{SLOT_TIME[s]}</span>
                       </span>
-                    </div>
-                    <span className="text-[10px] text-gray-500">Morning + Dinner</span>
-                  </div>
-                  <div
-                    className={cn(
-                      'w-4 h-4 rounded-full border flex items-center justify-center',
-                      mealsPerDay === 2 ? 'border-ink bg-ink text-white' : 'border-gray-300'
-                    )}
-                  >
-                    {mealsPerDay === 2 && <Check className="w-2.5 h-2.5 stroke-[3]" />}
-                  </div>
-                </button>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </div>
         )}
 
-        {/* ================= STEP 3: 6-DAY KITCHEN PREVIEW ================= */}
-        {step === 3 && (
-          <div className="space-y-4 animate-in fade-in duration-200">
-            <div>
-              <h2 className="font-heading font-black text-xl sm:text-3xl text-ink">
-                Preview your week's boxes
-              </h2>
-              <p className="text-[11px] sm:text-sm text-gray-600 mt-0.5 sm:mt-1">
-                Tap each day to inspect what our central kitchen will prepare for you.
-              </p>
-            </div>
+        {/* ================= STEP 3: WEEK PREVIEW ================= */}
+        {step === 3 && (() => {
+          const currentDay = weeklyMenus[inspectedDayIndex] || weeklyMenus[0];
+          const viewSlot = mealsPerDay === 2 ? inspectedSlot : slot;
+          const box = viewSlot === 'dinner' ? currentDay.menu.dinner : currentDay.menu.lunch;
+          return (
+            <div className="space-y-3.5 sm:space-y-4 animate-in fade-in duration-200">
+              <div>
+                <h2 className="font-heading font-black text-xl sm:text-3xl text-ink">
+                  Your week&apos;s boxes
+                </h2>
+                <p className="text-[11px] sm:text-sm text-gray-600 mt-0.5 sm:mt-1">
+                  Tap a day to see its box.
+                </p>
+              </div>
 
-            {/* Horizontal Day Tabs */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-              {weeklyMenus.map((day, idx) => (
-                <button
-                  key={day.dateStr}
-                  type="button"
-                  onClick={() => setInspectedDayIndex(idx)}
-                  className={cn(
-                    'px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all tap-active flex items-center gap-1',
-                    inspectedDayIndex === idx
-                      ? 'bg-ink text-white shadow-xs'
-                      : day.isSkipped
-                      ? 'bg-gray-100 text-gray-400 line-through'
-                      : 'bg-white text-gray-700 border border-gray-200 hover:border-gray-300'
-                  )}
-                >
-                  <span>{day.dayOfWeek}</span>
-                  {day.isSkipped && <span className="text-[9px] font-mono">(Skip)</span>}
-                </button>
-              ))}
-            </div>
+              {/* Day tabs */}
+              <div className="grid grid-cols-6 gap-1.5 sm:gap-2">
+                {weeklyMenus.map((day, idx) => {
+                  const active = inspectedDayIndex === idx;
+                  return (
+                    <button
+                      key={day.dateStr}
+                      type="button"
+                      onClick={() => setInspectedDayIndex(idx)}
+                      aria-pressed={active}
+                      className={cn(
+                        'py-1.5 sm:py-2 rounded-xl text-xs font-bold transition-all tap-active flex flex-col items-center gap-1',
+                        active ? 'bg-ink text-white shadow-sm' : 'bg-white text-gray-700 border border-gray-200',
+                        day.isSkipped && !active && 'opacity-50 line-through'
+                      )}
+                    >
+                      <span>{day.dayOfWeek}</span>
+                      {day.isSkipped ? (
+                        <X className="w-3.5 h-3.5" />
+                      ) : (
+                        <DietMark kind={day.diet} className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
 
-            {/* Inspected Day Card */}
-            {(() => {
-              const currentDay = weeklyMenus[inspectedDayIndex] || weeklyMenus[0];
-              const menuSlot = currentDay.menu.lunch;
-              const isSkipped = currentDay.isSkipped;
+              {mealsPerDay === 2 && (
+                <div className="grid grid-cols-2 gap-1.5 bg-paper border border-ink/15 p-1 rounded-xl sm:rounded-2xl">
+                  {(['lunch', 'dinner'] as const).map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => setInspectedSlot(s)}
+                      className={cn(
+                        'py-2 rounded-lg sm:rounded-xl text-xs font-heading font-bold transition-all tap-active flex items-center justify-center gap-1.5',
+                        inspectedSlot === s ? 'bg-ink text-white shadow-sm' : 'text-gray-600'
+                      )}
+                    >
+                      {s === 'lunch' ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
+                      {s === 'lunch' ? 'Lunch' : 'Dinner'}
+                    </button>
+                  ))}
+                </div>
+              )}
 
-              return (
-                <div className="space-y-3.5">
-                  <div className="p-3.5 sm:p-4 rounded-2xl bg-paper border border-ink/15 flex items-center justify-between">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-heading font-black text-sm sm:text-base text-ink">
-                          {currentDay.dayName} Box
-                        </span>
-                        <span className="text-[10px] font-bold text-gray-500">
-                          {currentDay.formatted}
-                        </span>
-                      </div>
-                      <p className="text-xs font-bold text-gray-800 mt-0.5">
-                        {menuSlot.items.main.name}
-                      </p>
-                    </div>
-
-                    <div className="text-right">
-                      <span className="text-[10px] uppercase font-bold text-gray-500 block">Macros</span>
-                      <span className="font-heading font-black text-xs sm:text-sm text-emerald-800">
-                        {menuSlot.totals.protein}g P • {menuSlot.totals.calories} kcal
+              {currentDay.isSkipped ? (
+                <div className="p-8 rounded-2xl border-2 border-dashed border-gray-200 text-center bg-gray-50/50">
+                  <Ban className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                  <h4 className="font-heading font-bold text-sm text-gray-700">
+                    {currentDay.dayName} skipped
+                  </h4>
+                  <p className="text-xs text-gray-500 mt-1">Not charged. Add it back in step 2.</p>
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-center gap-3">
+                    <DietMascot kind={currentDay.diet} active size="sm" />
+                    <div className="min-w-0">
+                      <span className="text-[10px] sm:text-[11px] uppercase font-extrabold text-accent">
+                        {currentDay.dayName} · {viewSlot === 'lunch' ? 'Lunch' : 'Dinner'}
                       </span>
+                      <h3 className="font-heading font-black text-base sm:text-xl text-gray-900 leading-tight truncate">
+                        {box.items.main.name}
+                      </h3>
                     </div>
                   </div>
 
-                  {isSkipped ? (
-                    <div className="p-8 rounded-2xl border-2 border-dashed border-gray-200 text-center bg-gray-50/50">
-                      <Ban className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                      <h4 className="font-heading font-bold text-sm text-gray-700">
-                        {currentDay.dayName} is currently skipped
-                      </h4>
-                      <p className="text-xs text-gray-500 mt-1">
-                        You won't be charged for this day. You can include it anytime from Step 2.
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <label className="text-[11px] font-bold text-gray-600 uppercase tracking-wider block">
-                        5 Measured Compartments
-                      </label>
-                      <div className="grid grid-cols-1 gap-2 text-xs">
-                        {[
-                          { label: 'Main Protein', item: menuSlot.items.main, num: '1' },
-                          { label: 'Protein Side', item: menuSlot.items.proteinSide, num: '2' },
-                          { label: 'High-Fiber Legume', item: menuSlot.items.legume, num: '3' },
-                          { label: 'Fresh Salad', item: menuSlot.items.salad, num: '4' },
-                          { label: 'Complex Carb', item: menuSlot.items.carb, num: '5' },
-                        ].map((c) => (
-                          <div
-                            key={c.num}
-                            className="p-2.5 rounded-xl bg-white border border-gray-100 flex items-center justify-between"
-                          >
-                            <div className="flex items-center gap-2">
-                              <span className="w-5 h-5 rounded-md bg-accent/15 text-ink font-bold text-[10px] flex items-center justify-center">
-                                {c.num}
-                              </span>
-                              <div>
-                                <strong className="text-gray-900 block leading-tight">{c.item.name}</strong>
-                                <span className="text-[10px] text-gray-500">{c.label}</span>
-                              </div>
-                            </div>
-                            <span className="text-[11px] font-mono text-gray-500">
-                              {c.item.grams}g scaled
-                            </span>
-                          </div>
-                        ))}
+                  {/* Macros */}
+                  <div className="grid grid-cols-4 gap-1.5 sm:gap-2 text-center">
+                    {[
+                      { label: 'Protein', value: `${g1(box.totals.protein)}g`, cls: 'bg-emerald-50 text-emerald-800' },
+                      { label: 'Calories', value: `${Math.round(box.totals.calories)}`, cls: 'bg-gray-50 text-gray-900' },
+                      { label: 'Carbs', value: `${g1(box.totals.carbs)}g`, cls: 'bg-amber-50 text-amber-800' },
+                      { label: 'Fat', value: `${g1(box.totals.fat)}g`, cls: 'bg-purple-50 text-purple-800' },
+                    ].map((m) => (
+                      <div key={m.label} className={cn('rounded-xl py-2', m.cls)}>
+                        <span className="font-heading font-black text-sm sm:text-base block leading-tight">{m.value}</span>
+                        <span className="text-[9px] sm:text-[10px] font-bold uppercase opacity-70">{m.label}</span>
                       </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })()}
-          </div>
-        )}
+                    ))}
+                  </div>
+
+                  {/* 5 compartments */}
+                  <div className="grid grid-cols-1 gap-1.5 sm:gap-2">
+                    {[
+                      { label: 'Protein', item: box.items.main, icon: currentDay.diet === 'veg' ? '🧀' : '🍗' },
+                      { label: 'Side', item: box.items.proteinSide, icon: currentDay.diet === 'veg' ? '🥛' : '🥚' },
+                      { label: 'Legume', item: box.items.legume, icon: '🫘' },
+                      { label: 'Salad', item: box.items.salad, icon: '🥗' },
+                      { label: 'Carb', item: box.items.carb, icon: '🍚' },
+                    ].map((c) => (
+                      <div
+                        key={c.label}
+                        className="p-2.5 rounded-xl bg-gray-50/80 border border-gray-100 flex items-center gap-2.5 text-xs"
+                      >
+                        <span className="text-base shrink-0" aria-hidden="true">{c.icon}</span>
+                        <span className="font-bold text-gray-900 truncate flex-1">{c.item.name}</span>
+                        <span className="text-[11px] font-mono font-bold text-gray-500 shrink-0">{g1(c.item.grams)}g</span>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          );
+        })()}
 
         {/* ================= STEP 4: DELIVERY ADDRESS ================= */}
         {step === 4 && (
@@ -871,17 +818,7 @@ export function WeeklyPlanStepModal() {
                     placeholder="641002"
                     className="w-full text-xs font-mono font-bold bg-paper border border-gray-200 rounded-xl p-2.5 focus:outline-none focus:ring-1 focus:ring-ink"
                   />
-                    {detectedZone ? (
-                      <div className="flex items-center gap-1.5 mt-1 text-[11px] text-emerald-700 font-semibold">
-                        <ShieldCheck className="w-3.5 h-3.5" />
-                        <span>Delivery Available: {detectedZone.area} (Coimbatore)</span>
-                      </div>
-                  ) : (
-                    <div className="flex items-center gap-1.5 mt-1 text-[11px] text-amber-600 font-semibold">
-                      <AlertTriangle className="w-3.5 h-3.5" />
-                      <span>Enter valid 6-digit Coimbatore pincode (641xxx)</span>
-                    </div>
-                  )}
+                    <PincodeStatus pincode={pincode} />
                 </div>
               </div>
             )}
@@ -896,7 +833,7 @@ export function WeeklyPlanStepModal() {
                 Confirm & start routine
               </h2>
               <p className="text-[11px] sm:text-sm text-gray-600 mt-0.5 sm:mt-1">
-                Your meals will be freshly cooked each morning and delivered to your doorstep.
+                Cooked fresh every day and delivered to your door.
               </p>
             </div>
 
@@ -913,6 +850,12 @@ export function WeeklyPlanStepModal() {
                       : dietVariation === 'veg'
                       ? 'Pure Vegetarian'
                       : 'Balanced Mixed (4 NV + 2 Veg)'}
+                    {' · '}
+                    {mealsPerDay === 2
+                      ? 'Lunch & Dinner'
+                      : slot === 'lunch'
+                      ? `Lunch (${SLOT_TIME.lunch})`
+                      : `Dinner (${SLOT_TIME.dinner})`}
                   </span>
                 </div>
                 <span className="text-xs font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">

@@ -16,21 +16,21 @@
     "isDeliverable": true,
     "tier": "core",
     "deliveryFee": 0,
-    "distanceKm": 2.6,
+    "distanceKm": 4.1,
     "avgDeliveryMinutes": 20,
     "slots": ["7:00 AM - 9:00 AM", "7:00 PM - 9:00 PM"],
-    "description": "Kovaipudhur Township & Ashram area • Daily insulated delivery • Free Delivery"
+    "description": "Kovaipudhur Township & Ashram area (4.1 km) • Daily insulated delivery • Free Delivery"
   },
   {
     "pincode": "641001",
     "area": "Ukkadam",
     "isDeliverable": true,
-    "tier": "core",
+    "tier": "phase2",
     "deliveryFee": 0,
-    "distanceKm": 3.6,
+    "distanceKm": 6.5,
     "avgDeliveryMinutes": 20,
     "slots": ["7:00 AM - 9:00 AM", "7:00 PM - 9:00 PM"],
-    "description": "Ukkadam Lake & Bypass stretch • Hot insulated box delivery • Free Delivery"
+    "description": "Next delivery batch (6.5 km) • Coming soon"
   },
   {
     "pincode": "641024",
@@ -38,109 +38,109 @@
     "isDeliverable": true,
     "tier": "core",
     "deliveryFee": 0,
-    "distanceKm": 3.5,
+    "distanceKm": 5.0,
     "avgDeliveryMinutes": 20,
     "slots": ["7:00 AM - 9:00 AM", "7:00 PM - 9:00 PM"],
-    "description": "Pollachi Main Road & SIDCO corridor • Express dispatch • Free Delivery"
+    "description": "Pollachi Main Road & SIDCO corridor (5.0 km) • Express dispatch • Free Delivery"
   },
   {
     "pincode": "641002",
     "area": "RS Puram",
     "isDeliverable": true,
     "tier": "phase2",
-    "deliveryFee": 35,
-    "distanceKm": 5.7,
+    "deliveryFee": 0,
+    "distanceKm": 7.4,
     "avgDeliveryMinutes": 30,
     "slots": ["7:00 AM - 9:00 AM", "7:00 PM - 9:00 PM"],
-    "description": "Phase 2 Zone (5.7 km) • ₹35 Delivery Fee applies"
+    "description": "Next delivery batch (7.4 km) • Coming soon"
   },
   {
     "pincode": "641018",
     "area": "Race Course",
     "isDeliverable": true,
     "tier": "phase2",
-    "deliveryFee": 35,
-    "distanceKm": 5.7,
+    "deliveryFee": 0,
+    "distanceKm": 9.7,
     "avgDeliveryMinutes": 25,
     "slots": ["7:00 AM - 9:00 AM", "7:00 PM - 9:00 PM"],
-    "description": "Phase 2 Zone (5.7 km) • ₹35 Delivery Fee applies"
+    "description": "Next delivery batch (9.7 km) • Coming soon"
   },
   {
     "pincode": "641045",
     "area": "Ramanathapuram",
     "isDeliverable": true,
     "tier": "phase2",
-    "deliveryFee": 35,
-    "distanceKm": 6.0,
+    "deliveryFee": 0,
+    "distanceKm": 10.0,
     "avgDeliveryMinutes": 30,
     "slots": ["7:00 AM - 9:00 AM", "7:00 PM - 9:00 PM"],
-    "description": "Phase 2 Zone (6.0 km) • ₹35 Delivery Fee applies"
+    "description": "Next delivery batch (10.0 km) • Coming soon"
   },
   {
     "pincode": "641012",
     "area": "Gandhipuram",
     "isDeliverable": true,
     "tier": "phase2",
-    "deliveryFee": 35,
-    "distanceKm": 6.9,
+    "deliveryFee": 0,
+    "distanceKm": 9.7,
     "avgDeliveryMinutes": 30,
     "slots": ["7:00 AM - 9:00 AM", "7:00 PM - 9:00 PM"],
-    "description": "Phase 2 Zone (6.9 km) • ₹35 Delivery Fee applies"
+    "description": "Next delivery batch (9.7 km) • Coming soon"
   },
   {
     "pincode": "641011",
     "area": "Saibaba Colony",
     "isDeliverable": true,
     "tier": "phase2",
-    "deliveryFee": 35,
-    "distanceKm": 7.8,
+    "deliveryFee": 0,
+    "distanceKm": 10.1,
     "avgDeliveryMinutes": 35,
     "slots": ["7:00 AM - 9:00 AM", "7:00 PM - 9:00 PM"],
-    "description": "Phase 2 Zone (7.8 km) • ₹35 Delivery Fee applies"
+    "description": "Next delivery batch (10.1 km) • Coming soon"
   },
   {
     "pincode": "641006",
     "area": "Ganapathy",
     "isDeliverable": true,
     "tier": "phase2",
-    "deliveryFee": 35,
+    "deliveryFee": 0,
     "distanceKm": 9.2,
     "avgDeliveryMinutes": 35,
     "slots": ["7:00 AM - 9:00 AM", "7:00 PM - 9:00 PM"],
-    "description": "Phase 2 Zone (9.2 km) • ₹35 Delivery Fee applies"
+    "description": "Next delivery batch (9.2 km) • Coming soon"
   },
   {
     "pincode": "641005",
     "area": "Singanallur",
     "isDeliverable": true,
     "tier": "phase2",
-    "deliveryFee": 35,
+    "deliveryFee": 0,
     "distanceKm": 9.3,
     "avgDeliveryMinutes": 35,
     "slots": ["7:00 AM - 9:00 AM", "7:00 PM - 9:00 PM"],
-    "description": "Phase 2 Zone (9.3 km) • ₹35 Delivery Fee applies"
+    "description": "Next delivery batch (9.3 km) • Coming soon"
   },
   {
     "pincode": "641004",
     "area": "Peelamedu",
     "isDeliverable": true,
     "tier": "phase2",
-    "deliveryFee": 35,
+    "deliveryFee": 0,
     "distanceKm": 9.8,
     "avgDeliveryMinutes": 35,
     "slots": ["7:00 AM - 9:00 AM", "7:00 PM - 9:00 PM"],
-    "description": "Phase 2 Zone (9.8 km) • ₹35 Delivery Fee applies"
+    "description": "Next delivery batch (9.8 km) • Coming soon"
   },
   {
     "pincode": "641041",
     "area": "Vadavalli",
     "isDeliverable": true,
     "tier": "phase2",
-    "deliveryFee": 35,
+    "deliveryFee": 0,
     "distanceKm": 9.9,
     "avgDeliveryMinutes": 40,
     "slots": ["7:00 AM - 9:00 AM", "7:00 PM - 9:00 PM"],
-    "description": "Phase 2 Zone (9.9 km) • ₹35 Delivery Fee applies"
+    "description": "Next delivery batch (9.9 km) • Coming soon"
   },
   {
     "pincode": "641035",

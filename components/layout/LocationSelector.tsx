@@ -10,7 +10,7 @@ import {
   Phone,
 } from 'lucide-react';
 import { useAppStore } from '@/store/useAppStore';
-import { useDeliveryZones, zoneToUserLocation, ZoneLocation } from '@/lib/location';
+import { useDeliveryZones, zoneToUserLocation, ZoneLocation, notifyMeLink } from '@/lib/location';
 import { cn } from '@/lib/utils';
 import { BRAND } from '@/config/brand';
 
@@ -21,7 +21,7 @@ interface LocationSelectorProps {
 
 export function LocationSelector({ variant = 'desktop', className }: LocationSelectorProps) {
   const { currentLocation, setCurrentLocation } = useAppStore();
-  const { zones, loading } = useDeliveryZones();
+  const { zones, comingSoonZones, loading } = useDeliveryZones();
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -57,6 +57,12 @@ export function LocationSelector({ variant = 'desktop', className }: LocationSel
   };
 
   const filteredZones = zones.filter((z) => {
+    const q = searchQuery.toLowerCase().trim();
+    if (!q) return true;
+    return z.area.toLowerCase().includes(q) || z.pincode.includes(q);
+  });
+
+  const filteredSoon = comingSoonZones.filter((z) => {
     const q = searchQuery.toLowerCase().trim();
     if (!q) return true;
     return z.area.toLowerCase().includes(q) || z.pincode.includes(q);
@@ -195,6 +201,32 @@ export function LocationSelector({ variant = 'desktop', className }: LocationSel
               );
             })}
 
+            {filteredSoon.length > 0 && (
+              <>
+                <div className="px-3 pt-3 pb-1.5 text-[10px] font-bold uppercase tracking-wider text-amber-700">
+                  Coming in our next batch
+                </div>
+                {filteredSoon.map((zone) => (
+                  <a
+                    key={`soon-${zone.pincode}-${zone.area}`}
+                    href={notifyMeLink(BRAND.whatsappNumber, BRAND.name, zone)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left hover:bg-amber-50 text-gray-500"
+                  >
+                    <div className="flex items-center gap-2">
+                      <MapPin className="w-3.5 h-3.5 shrink-0 text-amber-500" />
+                      <span className="font-semibold text-gray-600">{zone.area}</span>
+                      <span className="text-[10px] font-mono text-gray-400">({zone.pincode})</span>
+                    </div>
+                    <span className="text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full">
+                      Notify me
+                    </span>
+                  </a>
+                ))}
+              </>
+            )}
+
             {loading && (
               <div className="py-6 flex items-center justify-center gap-2 text-gray-400">
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -202,7 +234,7 @@ export function LocationSelector({ variant = 'desktop', className }: LocationSel
               </div>
             )}
 
-            {!loading && filteredZones.length === 0 && (
+            {!loading && filteredZones.length === 0 && filteredSoon.length === 0 && (
               <div className="py-6 text-center text-gray-500">
                 <p className="font-bold">We don&apos;t deliver to &quot;{searchQuery.trim()}&quot; yet</p>
                 <p className="text-[11px] text-gray-400 mt-1">

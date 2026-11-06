@@ -30,7 +30,7 @@ const sections: LegalSection[] = [
       <>
         <KeyValue rows={[
           ['Days', `${BRAND.workingDays}. No deliveries on Sundays or on kitchen holidays we announce in advance.`],
-          ['Morning slot', BRAND.deliverySlots.morning],
+          ['Lunch slot', BRAND.deliverySlots.lunch],
           ['Evening slot', BRAND.deliverySlots.dinner],
           ['First delivery', `The earliest date shown at checkout, usually the next delivery day if you order and pay before ${cutoff} IST.`],
           ['Delivery charge', 'Shown at checkout before you pay. Most plans include free delivery.'],
@@ -104,7 +104,7 @@ export default function DeliveryPolicyPage() {
       current="/delivery-policy"
       summary={[
         `We deliver only to serviceable ${LEGAL.city} pincodes, ${BRAND.workingDays}.`,
-        `Morning slot ${BRAND.deliverySlots.morning}, evening slot ${BRAND.deliverySlots.dinner}.`,
+        `Lunch slot ${BRAND.deliverySlots.lunch}, evening slot ${BRAND.deliverySlots.dinner}.`,
         `Change your address or skip a day until ${cutoff} the night before.`,
         'Keep your phone reachable or leave safe-drop instructions. Undeliverable meals count as delivered.',
         'Late or missed through our fault? You get a credit or a refund.',

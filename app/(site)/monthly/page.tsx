@@ -9,22 +9,11 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import {
   Calendar,
-  Sparkles,
-  ShieldCheck,
-  AlertTriangle,
   ArrowRight,
   X,
-  RotateCcw,
-  CheckCircle2,
-  Clock,
-  Layers,
-  Drumstick,
-  Leaf,
   CreditCard,
-  QrCode,
-  Flame,
-  Info,
-  Check,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import {
   MONTHLY_MIN_DAYS,
@@ -36,6 +25,8 @@ import {
 } from '@/lib/menu-engine';
 import { useAppStore } from '@/store/useAppStore';
 import { cn } from '@/lib/utils';
+import { DietMark } from '@/components/trial/DietMark';
+import { SLOT_TIME, g1 } from '@/lib/meal-display';
 
 export default function MonthlyPlanPage() {
   const menuVersion = useMenuVersion();
@@ -54,9 +45,10 @@ export default function MonthlyPlanPage() {
   const [skippedDays, setSkippedDays] = useState<string[]>([]);
   const [mobileWeekTab, setMobileWeekTab] = useState<0 | 1 | 2 | 3 | 'all'>(0);
 
-  // Delivery slots
-  const [lunchSlot, setLunchSlot] = useState('7:00 AM - 9:00 AM');
-  const [dinnerSlot, setDinnerSlot] = useState('7:00 PM - 9:00 PM');
+  // Delivery slot when 1 meal/day; with 2 meals both runs are delivered.
+  const [slot, setSlot] = useState<'lunch' | 'dinner'>('lunch');
+  // The box the customer receives (dinner box for dinner-only plans).
+  const boxFor = (menu: DailyMenuResult) => (mealsPerDay === 1 && slot === 'dinner' ? menu.dinner : menu.lunch);
 
   // Modal inspection state
   const [inspectedDay, setInspectedDay] = useState<{
@@ -149,7 +141,7 @@ export default function MonthlyPlanPage() {
   // Automatically skip all peanut days helper
   const handleSkipAllPeanutDays = () => {
     const peanutDayDates = calendarDays
-      .filter((d) => d.menu.lunch.hasPeanut)
+      .filter((d) => boxFor(d.menu).hasPeanut)
       .map((d) => d.dateStr);
 
     setSkippedDays((prev) => Array.from(new Set([...prev, ...peanutDayDates])));
@@ -177,8 +169,9 @@ export default function MonthlyPlanPage() {
       mealsPerDay,
       skippedDays,
       paymentMode,
-      lunchSlot,
-      dinnerSlot,
+      slot: mealsPerDay === 2 ? 'lunch' : slot,
+      lunchSlot: SLOT_TIME.lunch,
+      dinnerSlot: SLOT_TIME.dinner,
       price: totalPrice,
       schedule: activeDays.map((d) => ({ date: d.dateStr, diet: d.diet })),
     });
@@ -200,142 +193,127 @@ export default function MonthlyPlanPage() {
 
   return (
     <div className="min-h-screen bg-paper text-ink pb-28 lg:pb-32">
-      {/* 1. Clear Header & Key Highlights */}
+      {/* 1. Header */}
       <section className="bg-gradient-to-b from-accent-soft via-sand to-paper pt-5 sm:pt-8 pb-5 sm:pb-7 border-b border-ink/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div>
-            <h1 className="font-heading font-black text-2xl sm:text-4xl lg:text-5xl text-ink tracking-tight">
-              Monthly Lifestyle Plan
-            </h1>
-            <p className="text-xs sm:text-sm text-ink/80 font-medium max-w-2xl mt-1 leading-relaxed">
-              26 days of fresh chef nutrition across a full month (Mon–Sat). Cooked fresh and delivered hot every morning (7:00–9:00 AM) &amp; evening (7:00–9:00 PM).
-            </p>
-
-            {/* Clear At-A-Glance Value Badges */}
-            <div className="flex flex-wrap items-center gap-2 mt-2.5 text-xs font-semibold text-ink/90">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/80 border border-ink/10 shadow-2xs">
-                <span>🌅 Morning (7–9 AM) &amp; 🌙 Dinner (7–9 PM)</span>
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/80 border border-ink/10 shadow-2xs">
-                <span>⚡ Best value • ₹{dietVariation === 'veg' ? PRICING.monthly.veg : PRICING.monthly['non-veg']}/meal</span>
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/80 border border-ink/10 shadow-2xs">
-                <span>⏸️ 1-Tap Skips Rolled Over</span>
-              </span>
-            </div>
+          <h1 className="font-heading font-black text-2xl sm:text-4xl lg:text-5xl text-ink tracking-tight">
+            Monthly Lifestyle Plan
+          </h1>
+          <p className="text-xs sm:text-sm text-ink/80 font-medium max-w-2xl mt-1 leading-relaxed">
+            26 days, Monday to Saturday. A different box every day, cooked fresh.
+          </p>
+          <div className="flex flex-wrap items-center gap-2 mt-3 text-[11px] sm:text-xs font-semibold text-ink/90">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/80 border border-ink/10">
+              <Sun className="w-3.5 h-3.5 text-amber-600" /> Lunch {SLOT_TIME.lunch}
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/80 border border-ink/10">
+              <Moon className="w-3.5 h-3.5 text-indigo-600" /> Dinner {SLOT_TIME.dinner}
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/80 border border-ink/10">
+              From ₹{PRICING.monthly.veg}/meal
+            </span>
           </div>
         </div>
       </section>
 
-      {/* 2. Compact Controls & Quick Toggles */}
+      {/* 2. Plan choices */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6">
-        <div className="bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-black/5 shadow-xs space-y-3">
-          {/* Controls row: Diet on Left/Top, Meals on Right/Bottom */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            {/* Diet Toggle */}
-            <div className="flex items-center gap-2">
-              <span className="text-[11px] font-black uppercase tracking-wider text-gray-400 shrink-0">
-                Diet:
-              </span>
-              <div className="p-1 bg-gray-100/80 rounded-full border border-gray-200/80 shadow-2xs inline-flex items-center gap-1 overflow-x-auto scrollbar-none">
-                {/* Non-Veg Button with SVG */}
+        <div className="bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-black/5 shadow-xs grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
+          {/* Diet */}
+          <div className="space-y-1.5 min-w-0">
+            <span className="text-[11px] font-black uppercase tracking-wider text-gray-400 block">Diet</span>
+            <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
+              {([
+                { key: 'veg', label: 'Veg', on: 'border-emerald-600 bg-emerald-50 text-emerald-800' },
+                { key: 'non-veg', label: 'Non-Veg', on: 'border-red-600 bg-red-50 text-red-700' },
+                { key: 'mixed', label: 'Mixed', on: 'border-accent bg-accent/5 text-accent' },
+              ] as const).map((opt) => (
                 <button
+                  key={opt.key}
                   type="button"
-                  onClick={() => setDietVariation('non-veg')}
+                  onClick={() => setDietVariation(opt.key)}
+                  aria-pressed={dietVariation === opt.key}
                   className={cn(
-                    "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all tap-active whitespace-nowrap",
-                    dietVariation === 'non-veg'
-                      ? "bg-ink text-white shadow-xs"
-                      : "text-gray-600 hover:text-gray-900"
+                    'py-2.5 px-1 rounded-xl border-2 text-xs sm:text-sm font-bold transition-all tap-active flex flex-col items-center gap-1',
+                    dietVariation === opt.key ? opt.on : 'border-gray-200 text-gray-600 bg-white hover:border-gray-300'
                   )}
                 >
-                  <svg viewBox="0 0 16 16" className="w-3.5 h-3.5 shrink-0" fill="none" aria-hidden="true">
-                    <rect x="0.75" y="0.75" width="14.5" height="14.5" rx="3.5" fill="#FFFFFF" stroke="#7B3F00" strokeWidth="1.5" />
-                    <polygon points="8,3.2 12.8,11.8 3.2,11.8" fill="#7B3F00" />
-                  </svg>
-                  <span>Non-Veg</span>
-                </button>
-
-                {/* Veg Button with SVG */}
-                <button
-                  type="button"
-                  onClick={() => setDietVariation('veg')}
-                  className={cn(
-                    "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all tap-active whitespace-nowrap",
-                    dietVariation === 'veg'
-                      ? "bg-ink text-white shadow-xs"
-                      : "text-gray-600 hover:text-gray-900"
-                  )}
-                >
-                  <svg viewBox="0 0 16 16" className="w-3.5 h-3.5 shrink-0" fill="none" aria-hidden="true">
-                    <rect x="0.75" y="0.75" width="14.5" height="14.5" rx="3.5" fill="#FFFFFF" stroke="#16A34A" strokeWidth="1.5" />
-                    <circle cx="8" cy="8" r="3.75" fill="#16A34A" />
-                  </svg>
-                  <span>Pure Veg</span>
-                </button>
-
-                {/* Mixed Button */}
-                <button
-                  type="button"
-                  onClick={() => setDietVariation('mixed')}
-                  className={cn(
-                    "flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold transition-all tap-active whitespace-nowrap",
-                    dietVariation === 'mixed'
-                      ? "bg-accent text-white shadow-xs"
-                      : "text-gray-600 hover:text-gray-900"
-                  )}
-                >
-                  <Layers className="w-3 h-3 shrink-0" />
-                  <span>Mixed</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Meals/Day Toggle */}
-            <div className="flex items-center gap-2">
-              <span className="text-[11px] font-black uppercase tracking-wider text-gray-400 shrink-0">
-                Portion:
-              </span>
-              <div className="p-1 bg-gray-100/80 rounded-full border border-gray-200/80 shadow-2xs inline-flex items-center gap-1">
-                <button
-                  type="button"
-                  onClick={() => setMealsPerDay(1)}
-                  className={cn(
-                    "px-3 py-1.5 rounded-full text-xs font-bold transition-all tap-active whitespace-nowrap",
-                    mealsPerDay === 1
-                      ? "bg-ink text-white shadow-xs"
-                      : "text-gray-600 hover:text-gray-900"
-                  )}
-                >
-                  1 Meal (Morning or Dinner)
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setMealsPerDay(2)}
-                  className={cn(
-                    "flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold transition-all tap-active whitespace-nowrap",
-                    mealsPerDay === 2
-                      ? "bg-ink text-white shadow-xs"
-                      : "text-gray-600 hover:text-gray-900"
-                  )}
-                >
-                  <span>2 Meals (Morning + Dinner)</span>
-                  <span className="text-[9px] font-black bg-accent text-white px-1.5 py-0.2 rounded-full uppercase">
-                    -₹{PRICING.secondMealDiscount}
+                  <span className="flex gap-0.5">
+                    {opt.key !== 'non-veg' && <DietMark kind="veg" className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
+                    {opt.key !== 'veg' && <DietMark kind="non-veg" className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
                   </span>
+                  {opt.label}
                 </button>
-              </div>
+              ))}
+            </div>
+            {dietVariation === 'mixed' && (
+              <p className="text-[11px] text-gray-500">Veg on Wednesday and Friday, non-veg the other days.</p>
+            )}
+          </div>
+
+          {/* Meals a day */}
+          <div className="space-y-1.5 min-w-0">
+            <span className="text-[11px] font-black uppercase tracking-wider text-gray-400 block">Meals a day</span>
+            <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
+              {([1, 2] as const).map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  onClick={() => setMealsPerDay(n)}
+                  aria-pressed={mealsPerDay === n}
+                  className={cn(
+                    'relative py-2.5 px-2 rounded-xl border-2 text-center transition-all tap-active',
+                    mealsPerDay === n ? 'border-ink bg-paper text-ink' : 'border-gray-200 text-gray-600 bg-white hover:border-gray-300'
+                  )}
+                >
+                  <span className="text-xs sm:text-sm font-bold block">{n} Meal{n === 2 ? 's' : ''}</span>
+                  <span className="text-[10px] sm:text-[11px] text-gray-500 block">
+                    {n === 1 ? 'Lunch or dinner' : 'Lunch + dinner'}
+                  </span>
+                  {n === 2 && (
+                    <span className="absolute -top-2 right-1.5 text-[9px] font-black bg-accent text-white px-1.5 py-0.5 rounded-full">
+                      -₹{PRICING.secondMealDiscount}
+                    </span>
+                  )}
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* Quick Dietary Filters & Allergy Bar */}
-          <div className="pt-2.5 border-t border-gray-100 flex items-center justify-between gap-3 text-xs">
-            <div className="flex items-center gap-1.5 text-gray-500 text-[11px]">
-              <span>🥜 Peanut Allergy?</span>
-              <span className="hidden sm:inline text-gray-400">• Skip peanut sundal days with 1-tap</span>
+          {/* Delivery time */}
+          <div className="space-y-1.5 min-w-0">
+            <span className="text-[11px] font-black uppercase tracking-wider text-gray-400 block">
+              {mealsPerDay === 2 ? 'Delivered at' : 'Delivery time'}
+            </span>
+            <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
+              {(['lunch', 'dinner'] as const).map((s) => {
+                const on = mealsPerDay === 2 || slot === s;
+                return (
+                  <button
+                    key={s}
+                    type="button"
+                    disabled={mealsPerDay === 2}
+                    onClick={() => setSlot(s)}
+                    aria-pressed={on}
+                    className={cn(
+                      'py-2.5 px-2 rounded-xl border-2 transition-all tap-active flex items-center justify-center gap-1.5 disabled:cursor-default',
+                      on ? 'border-ink bg-paper text-ink' : 'border-gray-200 text-gray-600 bg-white hover:border-gray-300'
+                    )}
+                  >
+                    {s === 'lunch' ? <Sun className="w-4 h-4 text-amber-600 shrink-0" /> : <Moon className="w-4 h-4 text-indigo-600 shrink-0" />}
+                    <span className="text-left min-w-0">
+                      <span className="text-xs sm:text-sm font-bold block">{s === 'lunch' ? 'Lunch' : 'Dinner'}</span>
+                      <span className="text-[10px] text-gray-500 block whitespace-nowrap">{SLOT_TIME[s]}</span>
+                    </span>
+                  </button>
+                );
+              })}
             </div>
+          </div>
 
+          {/* Peanut allergy */}
+          <div className="lg:col-span-3 pt-3 border-t border-gray-100 flex items-center justify-between gap-3 text-xs">
+            <span className="text-gray-500 text-[11px]">🥜 Peanut allergy? Skip every peanut day at once.</span>
             <button
               type="button"
               onClick={handleSkipAllPeanutDays}
@@ -352,13 +330,13 @@ export default function MonthlyPlanPage() {
           <div className="lg:col-span-8 space-y-5">
             {/* Mobile Calendar Experience (< lg) */}
             <div className="block lg:hidden bg-white rounded-3xl p-4 sm:p-5 border border-black/5 shadow-sm space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
                   <h3 className="font-heading font-black text-lg text-ink">
-                    26-Day Schedule
+                    Your 26 days
                   </h3>
                   <p className="text-[11px] text-gray-500">
-                    Tap any day to inspect the 5-item box or skip
+                    Tap a day to see its box or skip it
                   </p>
                 </div>
                 <span className="text-[11px] font-bold text-accent bg-sand px-2.5 py-1 rounded-full shrink-0">
@@ -407,7 +385,7 @@ export default function MonthlyPlanPage() {
               {/* Mobile Cards Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                 {displayedMobileDays.map((cDay) => {
-                  const lunch = cDay.menu.lunch;
+                  const lunch = boxFor(cDay.menu);
                   const theme = getMainColorTheme(lunch.items.main.name, cDay.diet === 'veg');
                   const isSkipped = cDay.isSkipped;
                   const dayGlobalIndex = monthlyDays.findIndex((d) => d.dateStr === cDay.dateStr) + 1;
@@ -452,12 +430,11 @@ export default function MonthlyPlanPage() {
                           {lunch.items.main.name}
                         </span>
 
-                        <div className="flex items-center gap-2 text-xs font-mono text-gray-500">
-                          <span className="font-bold text-accent">{lunch.totals.protein}g Protein</span>
-                          <span>•</span>
-                          <span>{lunch.totals.calories} kcal</span>
-                          <span>•</span>
-                          <span className="capitalize">{cDay.diet}</span>
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-500">
+                          <DietMark kind={cDay.diet} className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                          <span className="font-bold text-accent">{g1(lunch.totals.protein)}g protein</span>
+                          <span>·</span>
+                          <span>{Math.round(lunch.totals.calories)} kcal</span>
                         </div>
                       </div>
 
@@ -491,8 +468,8 @@ export default function MonthlyPlanPage() {
               </div>
 
               <div className="pt-3 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-400">
-                <span>* Sundays are closed for kitchen sanitisation</span>
-                <span>Free credit for skipped days</span>
+                <span>Closed on Sundays</span>
+                <span>Skipped days aren't charged</span>
               </div>
             </div>
 
@@ -525,7 +502,7 @@ export default function MonthlyPlanPage() {
               {/* Grid Cells (4 rows of 6 days) */}
               <div className="grid grid-cols-6 gap-2 sm:gap-3">
                 {calendarDays.map((cDay) => {
-                  const lunch = cDay.menu.lunch;
+                  const lunch = boxFor(cDay.menu);
                   const theme = getMainColorTheme(lunch.items.main.name, cDay.diet === 'veg');
                   const isSkipped = cDay.isSkipped;
 
@@ -543,7 +520,7 @@ export default function MonthlyPlanPage() {
                       {/* Top Bar: Date & Status */}
                       <div className="flex items-start justify-between">
                         <span className="font-heading font-black text-xs sm:text-sm text-ink">
-                          {cDay.formatted.split(' ')[1]}
+                          {cDay.formatted.split(' ')[0]}
                         </span>
                         <div className="flex items-center gap-1">
                           {lunch.hasPeanut && (
@@ -565,7 +542,7 @@ export default function MonthlyPlanPage() {
                         </span>
                         {!isSkipped && (
                           <span className="text-[9px] font-mono text-gray-500 block truncate">
-                            {lunch.totals.protein}g P
+                            {g1(lunch.totals.protein)}g P
                           </span>
                         )}
                       </div>
@@ -607,85 +584,6 @@ export default function MonthlyPlanPage() {
                   <span>Prepaid · one payment by UPI</span>
                 </div>
                 <p className="text-[11px] text-gray-500 mt-0.5">Skip or pause any day before 9 PM the night before. Skipped meals move to the end of your plan.</p>
-              </div>
-
-              {/* Delivery Slots Selection */}
-              <div className="space-y-3 text-xs">
-                {mealsPerDay === 1 ? (
-                  <div>
-                    <label className="font-bold text-gray-700 block mb-1">Select Delivery Window</label>
-                    <div className="grid grid-cols-2 gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setLunchSlot('7:00 AM - 9:00 AM')}
-                        className={cn(
-                          "p-2.5 rounded-xl border text-center font-bold transition-all tap-active text-xs",
-                          lunchSlot.includes('AM')
-                            ? "bg-ink text-white border-ink"
-                            : "bg-gray-50 text-gray-700 border-gray-200 hover:border-gray-300"
-                        )}
-                      >
-                        Morning (7–9 AM)
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setLunchSlot('7:00 PM - 9:00 PM')}
-                        className={cn(
-                          "p-2.5 rounded-xl border text-center font-bold transition-all tap-active text-xs",
-                          lunchSlot.includes('PM')
-                            ? "bg-ink text-white border-ink"
-                            : "bg-gray-50 text-gray-700 border-gray-200 hover:border-gray-300"
-                        )}
-                      >
-                        Dinner (7–9 PM)
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    <div>
-                      <label className="font-bold text-gray-700 block mb-1">Morning Delivery Window (Breakfast)</label>
-                      <div className="grid grid-cols-2 gap-2">
-                        {['7:00 AM - 8:00 AM', '8:00 AM - 9:00 AM'].map((slot) => (
-                          <button
-                            key={slot}
-                            type="button"
-                            onClick={() => setLunchSlot(slot)}
-                            className={cn(
-                              "p-2.5 rounded-xl border text-center font-bold transition-all tap-active text-xs",
-                              lunchSlot === slot
-                                ? "bg-ink text-white border-ink"
-                                : "bg-gray-50 text-gray-700 border-gray-200 hover:border-gray-300"
-                            )}
-                          >
-                            {slot}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="pt-2">
-                      <label className="font-bold text-gray-700 block mb-1">Dinner Delivery Window (Evening)</label>
-                      <div className="grid grid-cols-2 gap-2">
-                        {['7:00 PM - 8:00 PM', '8:00 PM - 9:00 PM'].map((slot) => (
-                          <button
-                            key={slot}
-                            type="button"
-                            onClick={() => setDinnerSlot(slot)}
-                            className={cn(
-                              "p-2.5 rounded-xl border text-center font-bold transition-all tap-active text-xs",
-                              dinnerSlot === slot
-                                ? "bg-ink text-white border-ink"
-                                : "bg-gray-50 text-gray-700 border-gray-200 hover:border-gray-300"
-                            )}
-                          >
-                            {slot}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </>
-                )}
               </div>
 
               {/* Price Calculation Breakdown */}
@@ -834,7 +732,7 @@ export default function MonthlyPlanPage() {
             </div>
 
             {/* Peanut Warning Banner (if applicable) */}
-            {inspectedDay.menu.lunch.hasPeanut && (
+            {boxFor(inspectedDay.menu).hasPeanut && (
               <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-between gap-3 text-xs">
                 <div className="flex items-center gap-2">
                   <span className="text-xl">🥜</span>
@@ -854,19 +752,21 @@ export default function MonthlyPlanPage() {
               </div>
             )}
 
-            {/* Morning Box Breakdown */}
+            {/* Main box breakdown */}
             <div className="space-y-3">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
                 <h4 className="font-heading font-bold text-sm text-ink">
-                  Morning Box (7:00 AM – 9:00 AM)
+                  {mealsPerDay === 1 && slot === 'dinner'
+                    ? `Dinner Box (${SLOT_TIME.dinner})`
+                    : `Lunch Box (${SLOT_TIME.lunch})`}
                 </h4>
-                <div className="text-xs font-mono text-accent font-bold">
-                  {inspectedDay.menu.lunch.totals.protein}g Protein • {inspectedDay.menu.lunch.totals.calories} kcal
+                <div className="text-xs text-accent font-bold">
+                  {g1(boxFor(inspectedDay.menu).totals.protein)}g protein · {Math.round(boxFor(inspectedDay.menu).totals.calories)} kcal
                 </div>
               </div>
 
               <div className="space-y-2">
-                {inspectedDay.menu.lunch.itemArray.map((it) => (
+                {boxFor(inspectedDay.menu).itemArray.map((it) => (
                   <div key={it.id} className="p-3 rounded-2xl bg-sand border border-ink/10 flex items-center justify-between gap-3 text-xs">
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="relative w-10 h-10 rounded-xl overflow-hidden shrink-0 bg-gray-200">
@@ -878,8 +778,8 @@ export default function MonthlyPlanPage() {
                       </div>
                     </div>
                     <div className="text-right shrink-0 font-mono text-[11px]">
-                      <span className="font-bold text-emerald-800">{it.protein}g P</span>
-                      <span className="text-gray-400 block">{it.grams}g</span>
+                      <span className="font-bold text-emerald-800">{g1(it.protein)}g P</span>
+                      <span className="text-gray-400 block">{g1(it.grams)}g</span>
                     </div>
                   </div>
                 ))}
@@ -889,12 +789,12 @@ export default function MonthlyPlanPage() {
             {/* Dinner Box Breakdown (if 2 meals) */}
             {mealsPerDay === 2 && (
               <div className="space-y-3 pt-3 border-t border-gray-100">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
                   <h4 className="font-heading font-bold text-sm text-accent">
-                    Dinner Box Variation (7:00 PM – 9:00 PM)
+                    Dinner Box ({SLOT_TIME.dinner})
                   </h4>
-                  <div className="text-xs font-mono text-accent font-bold">
-                    {inspectedDay.menu.dinner.totals.protein}g Protein • {inspectedDay.menu.dinner.totals.calories} kcal
+                  <div className="text-xs text-accent font-bold">
+                    {g1(inspectedDay.menu.dinner.totals.protein)}g protein · {Math.round(inspectedDay.menu.dinner.totals.calories)} kcal
                   </div>
                 </div>
 

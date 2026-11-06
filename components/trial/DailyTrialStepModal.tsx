@@ -8,10 +8,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Check,
-  Leaf,
-  Drumstick,
   Clock,
-  ShieldCheck,
   CheckCircle2,
   Lock,
   Plus,
@@ -29,7 +26,11 @@ import { SIGN_IN_PENDING, submitOrder, toDbDiet } from '@/lib/checkout/submit';
 import { clearDraft, loadDraft, saveDraft } from '@/lib/checkout/draft';
 import { cn, formatCurrency } from '@/lib/utils';
 import { useDeliveryZones } from '@/lib/location';
+import { PincodeStatus } from '@/components/delivery/PincodeStatus';
 import { OrderTerms } from '@/components/legal/OrderTerms';
+import { DietMascot } from '@/components/trial/DietMascot';
+import { DietMark } from '@/components/trial/DietMark';
+import { SLOT_TIME, g1 } from '@/lib/meal-display';
 
 export function DailyTrialStepModal() {
   const menuVersion = useMenuVersion();
@@ -155,7 +156,7 @@ export function DailyTrialStepModal() {
   const portionMultiplier = mealsPerDay;
   const mealTotal = basePrice * portionMultiplier - (mealsPerDay === 2 ? PRICING.secondMealDiscount : 0);
   const zoneInfo = getZoneByPincode(pincode);
-  const deliveryFee = zoneInfo?.tier === 'phase2' ? zoneInfo.deliveryFee : 0;
+  const deliveryFee = 0; // delivery is free in every area we serve
   const finalTotal = mealTotal + deliveryFee;
 
   const isEnteringNewAddress = useNewAddress || addresses.length === 0 || !activeAddress;
@@ -168,6 +169,7 @@ export function DailyTrialStepModal() {
       street.trim().length > 0 &&
       area.trim().length > 0 &&
       pincode.trim().length === 6 &&
+      Boolean(zoneInfo) &&
       phone.trim().replace(/\D/g, '').length >= 10
     : !!activeAddress;
 
@@ -246,7 +248,10 @@ export function DailyTrialStepModal() {
       {/* Main Content Area */}
       <div
         ref={contentRef}
-        className="p-3.5 sm:p-8 flex-1 overflow-y-auto sm:max-h-[calc(85vh-160px)] min-h-[420px] sm:min-h-[460px] transition-all"
+        className={cn(
+          'p-3.5 sm:p-8 flex-1 overflow-y-auto sm:max-h-[calc(85vh-160px)] transition-all',
+          step === 1 ? 'min-h-0' : 'min-h-[420px] sm:min-h-[460px]'
+        )}
       >
         {/* ================= STEP 1: DIET PREFERENCE ================= */}
         {step === 1 && (
@@ -256,104 +261,55 @@ export function DailyTrialStepModal() {
                 Choose your diet
               </h2>
               <p className="text-[11px] sm:text-sm text-gray-600 mt-0.5 sm:mt-1">
-                Every box is weighed to the gram on digital kitchen scales with certified macros.
+                Veg or non-veg? Pick one to start.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pt-1 sm:pt-2">
-              {/* Non-Veg Option */}
-              <button
-                type="button"
-                onClick={() => setDiet('non-veg')}
-                className={cn(
-                  'relative text-left p-4 sm:p-6 rounded-2xl sm:rounded-3xl border-2 transition-all tap-active flex flex-col justify-between active:scale-[0.99]',
-                  diet === 'non-veg'
-                    ? 'border-ink bg-paper ring-2 sm:ring-4 ring-ink/10 shadow-md sm:shadow-lg'
-                    : 'border-gray-200 hover:border-gray-300 bg-white'
-                )}
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-2.5 sm:mb-4">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-amber-500/10 text-amber-700 flex items-center justify-center font-bold">
-                      <Drumstick className="w-5 h-5 sm:w-6 sm:h-6" />
-                    </div>
-                    <div
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 pt-1 sm:pt-2">
+              {([
+                { key: 'veg', label: 'Veg', ring: 'border-emerald-600 bg-emerald-50 ring-emerald-600/15', text: 'text-emerald-700' },
+                { key: 'non-veg', label: 'Non-Veg', ring: 'border-red-600 bg-red-50 ring-red-600/15', text: 'text-red-700' },
+              ] as const).map((opt) => {
+                const selected = diet === opt.key;
+                return (
+                  <button
+                    key={opt.key}
+                    type="button"
+                    onClick={() => setDiet(opt.key)}
+                    aria-pressed={selected}
+                    className={cn(
+                      'relative p-4 sm:p-6 rounded-2xl sm:rounded-3xl border-2 transition-all tap-active flex flex-col items-center text-center active:scale-[0.99]',
+                      selected
+                        ? `${opt.ring} ring-2 sm:ring-4 shadow-md sm:shadow-lg`
+                        : 'border-gray-200 hover:border-gray-300 bg-white'
+                    )}
+                  >
+                    <DietMark kind={opt.key} className="absolute top-3 left-3 sm:top-4 sm:left-4" />
+                    <span
                       className={cn(
-                        'w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center transition-colors',
-                        diet === 'non-veg'
-                          ? 'border-ink bg-ink text-white'
+                        'absolute top-3 right-3 sm:top-4 sm:right-4 w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center transition-colors',
+                        selected
+                          ? opt.key === 'veg' ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-red-600 bg-red-600 text-white'
                           : 'border-gray-300'
                       )}
                     >
-                      {diet === 'non-veg' && <Check className="w-3 sm:w-3.5 h-3 sm:h-3.5 stroke-[3]" />}
+                      {selected && <Check className="w-3 sm:w-3.5 h-3 sm:h-3.5 stroke-[3]" />}
+                    </span>
+
+                    <div className="mt-3 sm:mt-2">
+                      <DietMascot kind={opt.key} active={selected} />
                     </div>
-                  </div>
 
-                  <h3 className="font-heading font-black text-base sm:text-xl text-gray-900">
-                    Non-Veg Protein
-                  </h3>
-                  <p className="text-xs text-gray-500 mt-1 line-clamp-2">
-                    Kongu pepper chicken breast, herb grilled cuts & boiled whole egg whites.
-                  </p>
-                </div>
-
-                <div className="mt-3.5 sm:mt-5 pt-2.5 sm:pt-3 border-t border-gray-100 flex items-center justify-between">
-                  <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-emerald-800 bg-emerald-100 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full">
-                    ~80g+ Clean Protein
-                  </span>
-                  <span className="font-heading font-black text-sm sm:text-base text-ink">
-                    {trialOffer && <s className="mr-1.5 text-xs font-bold text-gray-400">₹{TRIAL_REGULAR['non-veg']}</s>}
-                    ₹{PRICING.trial['non-veg']}
-                  </span>
-                </div>
-              </button>
-
-              {/* Vegetarian Option */}
-              <button
-                type="button"
-                onClick={() => setDiet('veg')}
-                className={cn(
-                  'relative text-left p-4 sm:p-6 rounded-2xl sm:rounded-3xl border-2 transition-all tap-active flex flex-col justify-between active:scale-[0.99]',
-                  diet === 'veg'
-                    ? 'border-ink bg-paper ring-2 sm:ring-4 ring-ink/10 shadow-md sm:shadow-lg'
-                    : 'border-gray-200 hover:border-gray-300 bg-white'
-                )}
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-2.5 sm:mb-4">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-emerald-500/10 text-emerald-700 flex items-center justify-center font-bold">
-                      <Leaf className="w-5 h-5 sm:w-6 sm:h-6" />
-                    </div>
-                    <div
-                      className={cn(
-                        'w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center transition-colors',
-                        diet === 'veg'
-                          ? 'border-ink bg-ink text-white'
-                          : 'border-gray-300'
-                      )}
-                    >
-                      {diet === 'veg' && <Check className="w-3 sm:w-3.5 h-3 sm:h-3.5 stroke-[3]" />}
-                    </div>
-                  </div>
-
-                  <h3 className="font-heading font-black text-base sm:text-xl text-gray-900">
-                    Vegetarian Protein
-                  </h3>
-                  <p className="text-xs text-gray-500 mt-1 line-clamp-2">
-                    Malai paneer cubes, roasted soya chunks & mint protein curd.
-                  </p>
-                </div>
-
-                <div className="mt-3.5 sm:mt-5 pt-2.5 sm:pt-3 border-t border-gray-100 flex items-center justify-between">
-                  <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-emerald-800 bg-emerald-100 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full">
-                    ~45g+ Clean Protein
-                  </span>
-                  <span className="font-heading font-black text-sm sm:text-base text-ink">
-                    {trialOffer && <s className="mr-1.5 text-xs font-bold text-gray-400">₹{TRIAL_REGULAR.veg}</s>}
-                    ₹{PRICING.trial.veg}
-                  </span>
-                </div>
-              </button>
+                    <h3 className={cn('font-heading font-black text-lg sm:text-2xl mt-2 sm:mt-3', selected ? opt.text : 'text-gray-900')}>
+                      {opt.label}
+                    </h3>
+                    <span className="font-heading font-black text-sm sm:text-base text-ink mt-1">
+                      {trialOffer && <s className="mr-1.5 text-xs font-bold text-gray-400">₹{TRIAL_REGULAR[opt.key]}</s>}
+                      ₹{PRICING.trial[opt.key]}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}
@@ -432,7 +388,7 @@ export function DailyTrialStepModal() {
                 <div className="p-2.5 sm:p-3 bg-paper border border-ink/15 rounded-xl sm:rounded-2xl text-[11px] sm:text-xs text-ink flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-accent shrink-0" />
                   <span>
-                    <strong>2 Meals Selected:</strong> Both fresh Morning and fresh Dinner deliveries are included to your doorstep!
+                    <strong>2 Meals Selected:</strong> Both fresh Lunch and fresh Dinner deliveries are included to your doorstep!
                   </span>
                 </div>
               )}
@@ -462,7 +418,7 @@ export function DailyTrialStepModal() {
                     <div>
                       <div className="flex items-center gap-1.5">
                         <span className="font-heading font-bold text-xs sm:text-sm text-gray-900 block">
-                          Morning Delivery
+                          Lunch Delivery
                         </span>
                         {mealsPerDay === 2 && (
                           <span className="text-[8px] sm:text-[9px] font-extrabold uppercase bg-emerald-100 text-emerald-800 px-1.5 py-0.2 rounded">
@@ -470,7 +426,7 @@ export function DailyTrialStepModal() {
                           </span>
                         )}
                       </div>
-                      <span className="text-[11px] sm:text-xs text-gray-500">7:00 AM – 9:00 AM</span>
+                      <span className="text-[11px] sm:text-xs text-gray-500">{SLOT_TIME.lunch}</span>
                     </div>
                   </div>
                   <div
@@ -517,7 +473,7 @@ export function DailyTrialStepModal() {
                           </span>
                         )}
                       </div>
-                      <span className="text-[11px] sm:text-xs text-gray-500">7:00 PM – 9:00 PM</span>
+                      <span className="text-[11px] sm:text-xs text-gray-500">{SLOT_TIME.dinner}</span>
                     </div>
                   </div>
                   <div
@@ -551,7 +507,7 @@ export function DailyTrialStepModal() {
                   )}
                 >
                   <span className="text-xs sm:text-sm font-heading font-black block">1 Meal</span>
-                  <span className="text-[10px] sm:text-[11px] text-gray-500">Morning OR Dinner</span>
+                  <span className="text-[10px] sm:text-[11px] text-gray-500">Lunch OR Dinner</span>
                 </button>
 
                 <button
@@ -567,7 +523,7 @@ export function DailyTrialStepModal() {
                   <span className="text-xs sm:text-sm font-heading font-black block">
                     2 Meals (-₹{PRICING.secondMealDiscount} OFF)
                   </span>
-                  <span className="text-[10px] sm:text-[11px] text-emerald-700 font-bold">Both Morning & Dinner</span>
+                  <span className="text-[10px] sm:text-[11px] text-emerald-700 font-bold">Both Lunch & Dinner</span>
                 </button>
               </div>
             </div>
@@ -586,13 +542,9 @@ export function DailyTrialStepModal() {
               : menu.lunch;
 
           const activeSlotName =
-            mealsPerDay === 2
-              ? inspectedSlot === 'lunch'
-                ? 'Morning Box (7:00 AM – 9:00 AM)'
-                : 'Dinner Box (7:00 PM – 9:00 PM)'
-              : mealSlot === 'lunch'
-              ? 'Morning Box (7:00 AM – 9:00 AM)'
-              : 'Dinner Box (7:00 PM – 9:00 PM)';
+            (mealsPerDay === 2 ? inspectedSlot : mealSlot) === 'lunch'
+              ? `Lunch Box (${SLOT_TIME.lunch})`
+              : `Dinner Box (${SLOT_TIME.dinner})`;
 
           return (
             <div className="space-y-3.5 sm:space-y-5 animate-in fade-in duration-200">
@@ -629,8 +581,8 @@ export function DailyTrialStepModal() {
                         : 'text-gray-600 hover:text-gray-900 bg-transparent'
                     )}
                   >
-                    <span>Morning Box</span>
-                    <span className="text-[9px] opacity-75">(7–9 AM)</span>
+                    <span>Lunch Box</span>
+                    <span className="text-[9px] opacity-75">({SLOT_TIME.lunch})</span>
                   </button>
 
                   <button
@@ -644,7 +596,7 @@ export function DailyTrialStepModal() {
                     )}
                   >
                     <span>Dinner Box</span>
-                    <span className="text-[9px] opacity-75">(7–9 PM)</span>
+                    <span className="text-[9px] opacity-75">({SLOT_TIME.dinner})</span>
                   </button>
                 </div>
               )}
@@ -655,8 +607,8 @@ export function DailyTrialStepModal() {
                   <span className="text-[9px] sm:text-[10px] text-gray-500 font-bold uppercase block">Calories</span>
                   <span className="font-heading font-black text-xs sm:text-base text-gray-900">
                     {mealsPerDay === 2
-                      ? `${menu.lunch.totals.calories + menu.dinner.totals.calories}`
-                      : `${currentBox.totals.calories}`}{' '}
+                      ? `${Math.round(menu.lunch.totals.calories + menu.dinner.totals.calories)}`
+                      : `${Math.round(currentBox.totals.calories)}`}{' '}
                     kcal
                   </span>
                   {mealsPerDay === 2 && (
@@ -667,8 +619,8 @@ export function DailyTrialStepModal() {
                   <span className="text-[9px] sm:text-[10px] text-emerald-700 font-bold uppercase block">Protein</span>
                   <span className="font-heading font-black text-xs sm:text-base text-emerald-800">
                     {mealsPerDay === 2
-                      ? `${menu.lunch.totals.protein + menu.dinner.totals.protein}`
-                      : `${currentBox.totals.protein}`}g
+                      ? `${g1(menu.lunch.totals.protein + menu.dinner.totals.protein)}`
+                      : `${g1(currentBox.totals.protein)}`}g
                   </span>
                   {mealsPerDay === 2 && (
                     <span className="text-[8px] sm:text-[9px] text-emerald-600 block font-semibold">2 Meals</span>
@@ -678,16 +630,16 @@ export function DailyTrialStepModal() {
                   <span className="text-[9px] sm:text-[10px] text-amber-700 font-bold uppercase block">Carbs</span>
                   <span className="font-heading font-black text-xs sm:text-base text-amber-800">
                     {mealsPerDay === 2
-                      ? `${menu.lunch.totals.carbs + menu.dinner.totals.carbs}`
-                      : `${currentBox.totals.carbs}`}g
+                      ? `${g1(menu.lunch.totals.carbs + menu.dinner.totals.carbs)}`
+                      : `${g1(currentBox.totals.carbs)}`}g
                   </span>
                 </div>
                 <div>
                   <span className="text-[9px] sm:text-[10px] text-purple-700 font-bold uppercase block">Fats</span>
                   <span className="font-heading font-black text-xs sm:text-base text-purple-800">
                     {mealsPerDay === 2
-                      ? `${menu.lunch.totals.fat + menu.dinner.totals.fat}`
-                      : `${currentBox.totals.fat}`}g
+                      ? `${g1(menu.lunch.totals.fat + menu.dinner.totals.fat)}`
+                      : `${g1(currentBox.totals.fat)}`}g
                   </span>
                 </div>
               </div>
@@ -700,7 +652,7 @@ export function DailyTrialStepModal() {
                   </span>
                   {mealsPerDay === 2 && (
                     <span className="text-[9px] sm:text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
-                      Viewing {inspectedSlot === 'lunch' ? 'Morning' : 'Dinner'}
+                      Viewing {inspectedSlot === 'lunch' ? 'Lunch' : 'Dinner'}
                     </span>
                   )}
                 </div>
@@ -721,24 +673,15 @@ export function DailyTrialStepModal() {
                       <div className="min-w-0">
                         <span className="font-bold text-gray-900 block truncate">{c.item.name}</span>
                         <span className="text-[9px] sm:text-[10px] text-gray-500">
-                          {c.label} • {c.item.grams}g scaled
+                          {c.label} • {g1(c.item.grams)}g scaled
                         </span>
                       </div>
                     </div>
                     <span className="font-mono text-gray-600 font-bold shrink-0 ml-2">
-                      {c.item.calories} kcal
+                      {Math.round(c.item.calories)} kcal
                     </span>
                   </div>
                 ))}
-              </div>
-
-              <div className="p-2.5 sm:p-3 rounded-xl bg-emerald-50 border border-emerald-100 text-[10px] sm:text-[11px] text-emerald-900 flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0" />
-                <span>
-                  {mealsPerDay === 2
-                    ? 'Both Morning and Dinner are weighed to the gram on digital kitchen scales and cooked fresh in separate batches.'
-                    : '100% Digital Kitchen Scale Guarantee. Cooked fresh in cold-pressed groundnut oil.'}
-                </span>
               </div>
             </div>
           );
@@ -918,6 +861,7 @@ export function DailyTrialStepModal() {
                       placeholder="e.g. 641002"
                       className="w-full p-2.5 rounded-xl border border-gray-200 bg-white font-medium text-xs sm:text-sm focus:border-ink focus:outline-none"
                     />
+                    <PincodeStatus pincode={pincode} />
                   </div>
                 </div>
               </div>
@@ -948,7 +892,7 @@ export function DailyTrialStepModal() {
                   </span>
                   <span className="text-gray-500 text-[11px] sm:text-xs">
                     {diet === 'non-veg' ? 'Non-Veg Protein' : 'Vegetarian Protein'} •{' '}
-                    {mealsPerDay === 2 ? '2 Meals (Morning & Dinner Combo)' : '1 Meal'}
+                    {mealsPerDay === 2 ? '2 Meals (Lunch & Dinner Combo)' : '1 Meal'}
                   </span>
                 </div>
                 <span className="font-heading font-black text-lg sm:text-xl text-ink">
@@ -968,10 +912,10 @@ export function DailyTrialStepModal() {
                   <span>Delivery Window:</span>
                   <span className="font-bold text-gray-900 text-right">
                     {mealsPerDay === 2
-                      ? 'Both Windows: Morning (7–9 AM) & Dinner (7–9 PM)'
+                      ? `Lunch (${SLOT_TIME.lunch}) & Dinner (${SLOT_TIME.dinner})`
                       : mealSlot === 'lunch'
-                      ? 'Morning (7:00 AM – 9:00 AM)'
-                      : 'Dinner (7:00 PM – 9:00 PM)'}
+                      ? `Lunch (${SLOT_TIME.lunch})`
+                      : `Dinner (${SLOT_TIME.dinner})`}
                   </span>
                 </div>
 
@@ -992,7 +936,7 @@ export function DailyTrialStepModal() {
                   {deliveryFee > 0 ? (
                     <span className="font-bold text-amber-800 font-mono">+₹{deliveryFee}</span>
                   ) : (
-                    <span className="font-bold text-emerald-800 uppercase">FREE (Core Hub)</span>
+                    <span className="font-bold text-emerald-800 uppercase">FREE</span>
                   )}
                 </div>
               </div>

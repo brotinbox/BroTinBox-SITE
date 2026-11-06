@@ -36,7 +36,7 @@ const STEPS = [
   },
   {
     title: 'We seal and deliver',
-    body: `Boxes are sealed and delivered ${BRAND.workingDays.toLowerCase()}. Choose morning (${BRAND.deliverySlots.morning}) or dinner (${BRAND.deliverySlots.dinner}).`,
+    body: `Boxes are sealed and delivered ${BRAND.workingDays.toLowerCase()}. Choose lunch (${BRAND.deliverySlots.lunch}) or dinner (${BRAND.deliverySlots.dinner}).`,
   },
   {
     title: 'You stay in control',

@@ -1,21 +1,18 @@
 'use client';
 
 import React, { useState } from 'react';
-import { MapPin, ArrowRight, ShieldCheck, Navigation, Loader2 } from 'lucide-react';
+import { MapPin, ArrowRight, ShieldCheck, Clock, Loader2, BellRing } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useDeliveryZones, zoneToUserLocation, ZoneLocation } from '@/lib/location';
+import { useDeliveryZones, zoneToUserLocation, ZoneLocation, notifyMeLink } from '@/lib/location';
 import { BRAND } from '@/config/brand';
 import { useAppStore } from '@/store/useAppStore';
 
 export default function DeliveryAreasPage() {
   const { currentLocation, setCurrentLocation } = useAppStore();
-  const { zones, loading } = useDeliveryZones();
+  const { zones: coreZones, comingSoonZones, loading } = useDeliveryZones();
   const [selectedPincode, setSelectedPincode] = useState(currentLocation.pincode);
-  const selectedArea = zones.find((z) => z.pincode === selectedPincode) ?? zones[0];
-
-  const coreZones = zones.filter((z) => z.tier === 'core');
-  const phase2Zones = zones.filter((z) => z.tier === 'phase2');
-  const phase2Fee = phase2Zones[0]?.deliveryFee ?? 35;
+  const selectedArea =
+    [...coreZones, ...comingSoonZones].find((z) => z.pincode === selectedPincode) ?? coreZones[0];
 
   const mapUrl = selectedArea
     ? `https://maps.google.com/maps?q=${encodeURIComponent(
@@ -29,7 +26,8 @@ export default function DeliveryAreasPage() {
 
   const handleApplyZone = (zone: ZoneLocation) => {
     setSelectedPincode(zone.pincode);
-    setCurrentLocation(zoneToUserLocation(zone));
+    // Only areas we deliver to now become the customer's location.
+    if (zone.isDeliverable) setCurrentLocation(zoneToUserLocation(zone));
   };
 
   return (
@@ -39,14 +37,14 @@ export default function DeliveryAreasPage() {
         <div className="text-center">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold mb-3">
             <ShieldCheck className="w-3.5 h-3.5" />
-            <span>Coimbatore 10km Kitchen Delivery Network</span>
+            <span>Free Delivery • Coimbatore</span>
           </div>
           <h1 className="font-heading font-black text-2xl sm:text-4xl text-gray-900 tracking-tight">
             Delivery Coverage &amp; Pincodes
           </h1>
           <p className="text-gray-500 text-xs sm:text-sm mt-2 max-w-2xl mx-auto">
             Dispatched hot twice daily from our central kitchen in Semmozhi Nagar, Kuniyamuthur.
-            Core hub routes enjoy <strong>Free Delivery</strong>, while Phase 2 routes within our 10km radius have a nominal <strong>₹{phase2Fee} delivery charge</strong>.
+            Delivery is <strong>free</strong> in every area we serve. More areas join in our next batch: tap yours and we&apos;ll let you know the day we start.
           </p>
         </div>
 
@@ -62,10 +60,10 @@ export default function DeliveryAreasPage() {
           <div className="flex items-center justify-between pb-2 border-b border-gray-200">
             <h2 className="text-xs font-bold uppercase tracking-wider text-emerald-800 flex items-center gap-1.5">
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              Core Kitchen Hub (0 - 4 km) • Free Delivery
+              Delivering now
             </h2>
             <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-              ₹0 Delivery Fee
+              Free Delivery
             </span>
           </div>
           <div className="flex flex-wrap items-center gap-2 mt-3">
@@ -103,19 +101,20 @@ export default function DeliveryAreasPage() {
           </div>
         </div>
 
-        {/* Section 2: Phase 2 Extended Delivery Routes (<= 10km) */}
+        {/* Section 2: Next-batch areas (listed, not orderable yet) */}
+        {comingSoonZones.length > 0 && (
         <div className="mt-8">
           <div className="flex items-center justify-between pb-2 border-b border-gray-200">
             <h2 className="text-xs font-bold uppercase tracking-wider text-amber-800 flex items-center gap-1.5">
-              <Navigation className="w-4 h-4 text-amber-600" />
-              Phase 2 Routes (4 - 10 km) • Deliverable
+              <Clock className="w-4 h-4 text-amber-600" />
+              Coming in our next batch
             </h2>
             <span className="text-xs font-bold text-amber-800 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200">
-              +₹{phase2Fee} Delivery Fee Applicable
+              Get notified
             </span>
           </div>
           <div className="flex flex-wrap items-center gap-2 mt-3">
-            {phase2Zones.map((area) => {
+            {comingSoonZones.map((area) => {
               const isSelected = selectedArea?.pincode === area.pincode;
               return (
                 <button
@@ -134,14 +133,15 @@ export default function DeliveryAreasPage() {
                   <span className={cn("text-[11px] font-mono", isSelected ? "text-white/80" : "text-gray-400")}>
                     ({area.pincode})
                   </span>
-                  <span className={cn("text-[10px]", isSelected ? "text-white/80" : "text-gray-400")}>
-                    {area.distanceKm} km
+                  <span className={cn("text-[9px] uppercase px-1.5 py-0.5 rounded-full font-black tracking-wider", isSelected ? "bg-white/15 text-white" : "bg-amber-100 text-amber-800")}>
+                    Soon
                   </span>
                 </button>
               );
             })}
           </div>
         </div>
+        )}
 
         {/* The Clean Google Map Preview */}
         {selectedArea && (
@@ -152,18 +152,22 @@ export default function DeliveryAreasPage() {
               <span className="font-bold text-gray-900">
                 Viewing: {selectedArea.area} ({selectedArea.pincode})
               </span>
-              <span className="text-gray-500">• {selectedArea.distanceKm} km from Kuniyamuthur Kitchen Hub</span>
             </div>
             <div className="flex items-center gap-2 font-bold">
-              {selectedArea.tier === 'core' && (
+              {selectedArea.isDeliverable ? (
                 <span className="text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md">
-                  Core Zone • Free Delivery
+                  Delivering now • Free Delivery
                 </span>
-              )}
-              {selectedArea.tier === 'phase2' && (
-                <span className="text-amber-800 bg-amber-100 px-2 py-0.5 rounded-md">
-                  Phase 2 • ₹{selectedArea.deliveryFee} Delivery Fee
-                </span>
+              ) : (
+                <a
+                  href={notifyMeLink(BRAND.whatsappNumber, BRAND.name, selectedArea)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-amber-900 bg-amber-100 hover:bg-amber-200 px-2 py-0.5 rounded-md"
+                >
+                  <BellRing className="w-3.5 h-3.5" />
+                  Next batch • Notify me on WhatsApp
+                </a>
               )}
             </div>
           </div>

@@ -22,7 +22,7 @@ export const BRAND = {
   address: "17/2, Semmozhi Nagar, Kuniyamuthur, Coimbatore - 641008, Tamil Nadu",
   workingDays: "Monday to Saturday (6 days a week)",
   deliverySlots: {
-    morning: "7:00 AM - 9:00 AM",
+    lunch: "11:30 AM - 1:30 PM",
     dinner: "7:00 PM - 9:00 PM",
   },
   cutoffTime: "9:00 PM previous night",

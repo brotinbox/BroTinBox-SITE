@@ -60,7 +60,7 @@ const sections: LegalSection[] = [
           <li><strong>Monthly plan:</strong> 24 delivery days over about 4 weeks.</li>
         </ul>
         <p>
-          Plans may include one or two meals a day in the slots shown at checkout (currently morning {BRAND.deliverySlots.morning} and evening {BRAND.deliverySlots.dinner}).
+          Plans may include one or two meals a day in the slots shown at checkout (currently lunch {BRAND.deliverySlots.lunch} and evening {BRAND.deliverySlots.dinner}).
           The menu rotates daily. Dish photos are for illustration; plating, garnish and portion appearance can vary.
         </p>
         <p>

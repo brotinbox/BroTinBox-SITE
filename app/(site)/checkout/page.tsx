@@ -22,7 +22,7 @@ export default function CheckoutPage() {
     if (activeCheckoutType === 'monthly' && monthlyOrder?.schedule?.length) {
       return {
         title: `Monthly plan · ${monthlyOrder.schedule.length} days`,
-        type: 'monthly', mealsPerDay: monthlyOrder.mealsPerDay, slot: 'lunch',
+        type: 'monthly', mealsPerDay: monthlyOrder.mealsPerDay, slot: monthlyOrder.mealsPerDay === 1 && monthlyOrder.slot === 'dinner' ? 'dinner' : 'lunch',
         days: monthlyOrder.schedule.map((d) => ({ date: d.date, diet: toDbDiet(d.diet) })),
         addonIds: [], preferences: { isEggFree: false, skipLegume: false, dietVariation: monthlyOrder.dietVariation },
       };
@@ -150,7 +150,7 @@ export default function CheckoutPage() {
         <section className="bg-white rounded-2xl border border-gray-200 p-5">
           <h2 className="font-heading font-bold text-sm text-gray-900 mb-3">Price</h2>
           {useNew ? (
-            <p className="text-sm text-gray-600">Your exact price (including any delivery fee for your area) is shown on the next screen before you pay.</p>
+            <p className="text-sm text-gray-600">Your exact price is shown on the next screen before you pay. Delivery is free.</p>
           ) : !quote ? (
             <p className="text-sm text-gray-500">Calculating…</p>
           ) : !quote.ok ? (

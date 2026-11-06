@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getSupabaseBrowser } from '@/lib/supabase/client';
 import { UserLocation } from '@/types';
 
@@ -40,8 +40,9 @@ function loadZones(): Promise<ZoneLocation[]> {
         lat: z.lat ?? undefined,
         lng: z.lng ?? undefined,
         tier: z.tier,
-        isDeliverable: true,
-        deliveryFee: Number(z.delivery_fee ?? 0),
+        // Only core zones take orders today; phase2 zones are "next batch" (listed, not orderable).
+        isDeliverable: z.tier === 'core',
+        deliveryFee: 0,
         distanceKm: Number(z.distance_km ?? 0),
         avgDeliveryMinutes: z.avg_minutes ?? 0,
         description: z.description ?? '',
@@ -55,9 +56,10 @@ function loadZones(): Promise<ZoneLocation[]> {
   return zonesPromise;
 }
 
-/** Active delivery zones, loaded once per page session and shared by all callers. */
+/** Active delivery zones, loaded once per page session and shared by all callers.
+ *  `zones` are the areas we deliver to now; `comingSoonZones` are the next-batch areas. */
 export function useDeliveryZones() {
-  const [zones, setZones] = useState<ZoneLocation[]>([]);
+  const [allZones, setZones] = useState<ZoneLocation[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -71,12 +73,22 @@ export function useDeliveryZones() {
     };
   }, []);
 
+  const zones = useMemo(() => allZones.filter((z) => z.isDeliverable), [allZones]);
+  const comingSoonZones = useMemo(() => allZones.filter((z) => !z.isDeliverable), [allZones]);
+
+  /** A zone we deliver to now. Next-batch pincodes return undefined. */
   const getZoneByPincode = useCallback(
     (pincode: string) => zones.find((z) => z.pincode === pincode.trim()),
     [zones]
   );
 
-  return { zones, loading, getZoneByPincode };
+  /** A next-batch zone for this pincode, if any. */
+  const getComingSoonZone = useCallback(
+    (pincode: string) => comingSoonZones.find((z) => z.pincode === pincode.trim()),
+    [comingSoonZones]
+  );
+
+  return { zones, comingSoonZones, loading, getZoneByPincode, getComingSoonZone };
 }
 
 export function zoneToUserLocation(zone: ZoneLocation): UserLocation {
@@ -92,4 +104,11 @@ export function zoneToUserLocation(zone: ZoneLocation): UserLocation {
     isDeliverable: zone.isDeliverable,
     formattedAddress: `${zone.area}, ${zone.pincode}, Coimbatore`,
   };
+}
+
+/** WhatsApp link asking to be told when we start delivering to a next-batch area. */
+export function notifyMeLink(whatsappNumber: string, brandName: string, zone?: { area: string; pincode: string }) {
+  const where = zone ? `${zone.area} (${zone.pincode})` : 'my area';
+  const text = `Hi ${brandName}! Please let me know when you start delivering to ${where}.`;
+  return `https://wa.me/${whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent(text)}`;
 }
