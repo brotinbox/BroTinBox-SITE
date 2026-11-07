@@ -110,30 +110,32 @@ gtag('config', '${measurementId}');`}
         <div
           role="dialog"
           aria-label="Cookie choices"
-          className="fixed z-50 bottom-20 inset-x-3 md:bottom-6 md:left-6 md:right-auto md:max-w-md bg-white border border-gray-200 rounded-2xl shadow-lg shadow-black/15 p-4"
+          className="fixed z-50 bottom-24 inset-x-0 flex justify-center px-4 pointer-events-none md:bottom-5 md:left-5 md:right-auto md:justify-start md:px-0 animate-in fade-in slide-in-from-bottom-2 duration-300"
         >
-          <p className="text-[13px] leading-relaxed text-gray-700">
-            This site uses cookies to understand how it&apos;s used.{' '}
-            <Link href="/privacy#cookies" className="font-semibold text-ink underline">Privacy Policy</Link>
-          </p>
-          {isReopened && choice && (
-            <p className="mt-2 text-xs text-gray-500">Current choice: {choice}</p>
-          )}
-          <div className="mt-3 grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={() => choose('rejected')}
-              className="py-2.5 rounded-xl text-sm font-bold bg-white text-ink border border-ink hover:bg-gray-50 transition-colors"
-            >
-              Reject
-            </button>
-            <button
-              type="button"
-              onClick={() => choose('accepted')}
-              className="py-2.5 rounded-xl text-sm font-bold bg-ink text-white border border-ink hover:bg-ink-soft transition-colors"
-            >
-              Accept
-            </button>
+          <div className="pointer-events-auto flex items-center gap-3 w-full max-w-[400px] md:w-auto rounded-2xl md:rounded-full bg-ink/95 backdrop-blur-md text-white shadow-lg shadow-black/20 ring-1 ring-white/10 pl-4 pr-1.5 py-1.5">
+            <p className="flex-1 min-w-0 text-[12px] leading-snug text-white/80">
+              <span aria-hidden="true">🍪</span>{' '}
+              {isReopened && choice ? `Cookies: ${choice}.` : 'We use cookies for analytics.'}{' '}
+              <Link href="/privacy#cookies" className="text-white underline underline-offset-2 decoration-white/40 hover:decoration-white">
+                Learn more
+              </Link>
+            </p>
+            <div className="flex items-center gap-1 shrink-0">
+              <button
+                type="button"
+                onClick={() => choose('rejected')}
+                className="px-3 py-1.5 rounded-full text-[12px] font-semibold text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+              >
+                Decline
+              </button>
+              <button
+                type="button"
+                onClick={() => choose('accepted')}
+                className="px-3.5 py-1.5 rounded-full text-[12px] font-bold bg-accent text-white hover:bg-accent-hover transition-colors"
+              >
+                Accept
+              </button>
+            </div>
           </div>
         </div>
       )}
