@@ -1,6 +1,8 @@
+import type { SupabaseClient } from '@supabase/supabase-js';
 import 'server-only';
 import { BRAND } from '@/config/brand';
 import { getSupabaseService } from '@/lib/supabase/admin';
+import { getAlertSettings } from '@/lib/settings/runtime';
 
 /**
  * Escapes characters for Telegram HTML parse_mode.
@@ -24,10 +26,11 @@ const inr = (n: number | string) =>
  */
 export async function sendTelegramMessage(htmlText: string): Promise<boolean> {
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHAT_ID;
+  // Chat ID: admin → Settings → Staff alerts (env as fallback). The bot token stays in env.
+  const { telegram_chat_id: chatId } = await getAlertSettings();
 
   if (!botToken || !chatId) {
-    console.warn('[Telegram] Missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID in environment.');
+    console.warn('[Telegram] Missing TELEGRAM_BOT_TOKEN, or no chat ID in admin settings / TELEGRAM_CHAT_ID.');
     return false;
   }
 
@@ -77,9 +80,14 @@ export async function notifyOrderPlaced(orderId: string): Promise<boolean> {
     }
 
     // 2. Fetch customer profile and items in parallel
-    const [{ data: profile }, { data: items }] = await Promise.all([
+    const [{ data: profile }, { data: items }, trial] = await Promise.all([
       supabase.from('profiles').select('full_name, phone, email').eq('id', order.user_id).maybeSingle(),
       supabase.from('order_items').select('name, qty, unit_price, total, item_type').eq('order_id', orderId),
+      order.type === 'trial'
+        ? (supabase as unknown as SupabaseClient).schema('crm').from('trial_claims')
+          .select('address_flag, is_override, override_reason').eq('order_id', orderId).maybeSingle()
+          .then((r) => r.data as { address_flag: boolean; is_override: boolean; override_reason: string | null } | null)
+        : Promise.resolve(null),
     ]);
 
     const addr = (order.address_snapshot ?? {}) as {
@@ -136,6 +144,8 @@ export async function notifyOrderPlaced(orderId: string): Promise<boolean> {
       `🧾 <b>Order:</b> <code>#${escapeHtml(order.order_number)}</code>`,
       `💰 <b>Total:</b> <b>${inr(order.total)}</b>${Number(order.discount) > 0 ? ` <i>(Discount: -${inr(order.discount)})</i>` : ''}`,
       `📦 <b>Plan Type:</b> ${escapeHtml(order.type?.toUpperCase() || 'TRIAL')}${dietType ? ` (${escapeHtml(dietType)})` : ''}`,
+      trial?.address_flag ? '⚠️ <b>Possible repeat trial:</b> same flat and pincode as an earlier trial, different number. Check before cooking.' : '',
+      trial?.is_override ? `✅ <b>Extra trial allowed by staff</b>${trial.override_reason ? `: ${escapeHtml(trial.override_reason)}` : ''}` : '',
       scheduleCount > 0 ? `📅 <b>Schedule:</b> ${scheduleCount} day${scheduleCount > 1 ? 's' : ''}${firstDate ? ` · starts ${escapeHtml(firstDate)}` : ''}` : '',
       '',
       `👤 <b>Customer:</b> ${escapeHtml(customerName)}`,

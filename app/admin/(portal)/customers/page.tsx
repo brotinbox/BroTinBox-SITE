@@ -4,6 +4,7 @@ import { getSupabaseServer } from '@/lib/supabase/server';
 import { adminHref } from '@/lib/admin/paths';
 import { Card, DataTable, EmptyState, PageHeader, Pagination, StatusBadge, fmtDate } from '@/components/admin/ui';
 import { FilterBar, likePattern } from '@/components/admin/FilterBar';
+import { activeTrialsFor } from '@/lib/admin/trials';
 
 export const metadata = { title: 'Customers' };
 const PAGE = 25;
@@ -30,6 +31,8 @@ export default async function CustomersPage({ searchParams }: { searchParams: Pr
   if (filter === 'not_onboarded') query = query.eq('is_onboarded', false);
   if (filter === 'blocked') query = query.eq('is_blocked', true);
   const { data, count } = await query;
+  // crm data via service role; requireStaff('customers.read') has run.
+  const trials = await activeTrialsFor((data ?? []).map((r) => r.id));
 
   const base = adminHref('/customers');
   return (
@@ -47,7 +50,7 @@ export default async function CustomersPage({ searchParams }: { searchParams: Pr
         <DataTable
           rows={(data ?? []) as any[]}
           rowKey={(r) => r.id}
-          empty={<EmptyState title="No customers found" description={q ? 'Try another search.' : 'Customers appear here when they sign in with Google.'} />}
+          empty={<EmptyState title="No customers found" description={q ? 'Try another search.' : 'Customers appear here when they sign in.'} />}
           columns={[
             { header: 'Customer', cell: (r) => (
               <Link href={adminHref(`/customers/${r.id}`)} className="block">
@@ -60,7 +63,14 @@ export default async function CustomersPage({ searchParams }: { searchParams: Pr
             { header: 'Plan', cell: (r) => {
               const subs = (r.subscriptions ?? []) as { status: string }[];
               const live = subs.find((s) => s.status === 'active') ?? subs.find((s) => s.status === 'paused');
-              return live ? <StatusBadge value={live.status} /> : <span className="text-xs text-gray-400">{subs.length ? 'past plans' : 'none'}</span>;
+              const trial = trials.get(r.id);
+              return (
+                <div className="flex flex-wrap gap-1">
+                  {live ? <StatusBadge value={live.status} /> : !trial && <span className="text-xs text-gray-400">{subs.length ? 'past plans' : 'none'}</span>}
+                  {trial && <StatusBadge value={trial.status === 'used' ? 'converted' : 'pending'} label={trial.status === 'used' ? 'trial used' : 'trial unpaid'} />}
+                  {trial?.address_flag && <StatusBadge value="pending" label="shared address" />}
+                </div>
+              );
             } },
             { header: 'Status', cell: (r) => r.is_blocked ? <StatusBadge value="rejected" label="blocked" /> : r.is_onboarded ? <StatusBadge value="active" label="onboarded" /> : <StatusBadge value="draft" label="signed up" /> },
             { header: 'Joined', cell: (r) => <span className="text-xs text-gray-600">{fmtDate(r.created_at)}</span> },

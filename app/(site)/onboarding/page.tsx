@@ -35,7 +35,7 @@ export default function OnboardingPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
-  // Prefill from the Google profile once auth has loaded.
+  // Prefill the name if the account already has one (older Google accounts); phone sign-ups type it.
   useEffect(() => {
     if (!authReady) return;
     if (!isLoggedIn) { router.replace('/login?next=/onboarding'); return; }
@@ -47,6 +47,7 @@ export default function OnboardingPage() {
 
   const finish = async (skip: boolean) => {
     setError('');
+    if (!skip && !fullName.trim()) { setError('Please enter your name.'); return; }
     setSaving(true);
     const result = await quickStart(skip ? {} : {
       fullName,
@@ -123,11 +124,11 @@ export default function OnboardingPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <label className="block">
               <span className="text-xs font-bold text-gray-700 uppercase tracking-wider block mb-1.5">Name</span>
-              <input value={fullName} onChange={(e) => setFullName(e.target.value)} maxLength={80} autoComplete="name"
+              <input value={fullName} onChange={(e) => setFullName(e.target.value)} maxLength={80} autoComplete="name" placeholder="Your name"
                 className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-bold text-gray-900 bg-gray-50 focus:bg-white focus:border-primary focus:outline-none" />
             </label>
             <div className="block sm:col-span-2">
-              <span className="text-xs font-bold text-gray-700 uppercase tracking-wider block mb-1.5">Mobile <span className="normal-case font-semibold text-gray-400">(optional)</span></span>
+              <span className="text-xs font-bold text-gray-700 uppercase tracking-wider block mb-1.5">Mobile {!user.phoneVerified && <span className="normal-case font-semibold text-gray-400">(optional)</span>}</span>
               {authReady && isLoggedIn && <PhoneVerifyField phone={user.phone} verified={!!user.phoneVerified} />}
             </div>
           </div>

@@ -17,6 +17,19 @@ export type NewAddressInput = {
 /** Returned while the sign-in popup is open; callers show no error for it. */
 export const SIGN_IN_PENDING = '__sign_in_pending__';
 
+/** Errors that need a next step on screen travel as "CODE::message". */
+type OrderErrorCode = 'TRIAL_USED' | 'VERIFY_PHONE';
+const CODE_SEP = '::';
+
+export function parseOrderError(error: string): { code?: OrderErrorCode; message: string } {
+  const i = error.indexOf(CODE_SEP);
+  const code = i > 0 ? error.slice(0, i) : '';
+  if (code === 'TRIAL_USED' || code === 'VERIFY_PHONE') return { code, message: error.slice(i + CODE_SEP.length) };
+  return { message: error };
+}
+
+const withCode = (r: { error: string; code?: string }) => (r.code ? `${r.code}${CODE_SEP}${r.error}` : r.error);
+
 const DIET_LABEL: Record<string, string> = { veg: 'Veg', non_veg: 'Non-veg' };
 
 /** One line for the lead list / Telegram: "Trial · Non-veg · 1 meal/day · lunch · 2026-11-06". */
@@ -72,7 +85,7 @@ export async function submitOrder(
   }
 
   const result = await placeOrder({ ...cart, addressId } as Cart);
-  if (!result.ok) return result.error;
+  if (!result.ok) return withCode(result);
   opts.navigate(`/checkout/pay/${result.orderId}`);
   return null;
 }

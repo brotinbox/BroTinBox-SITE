@@ -23,9 +23,10 @@ import {
 import { useAppStore } from '@/store/useAppStore';
 import { MealSlot } from '@/types';
 import { SIGN_IN_PENDING, submitOrder, toDbDiet } from '@/lib/checkout/submit';
+import { OrderErrorNotice } from '@/components/checkout/OrderErrorNotice';
 import { clearDraft, loadDraft, saveDraft } from '@/lib/checkout/draft';
 import { cn, formatCurrency } from '@/lib/utils';
-import { useDeliveryZones } from '@/lib/location';
+import { useDeliveryZones, useSavedLocation } from '@/lib/location';
 import { PincodeStatus } from '@/components/delivery/PincodeStatus';
 import { OrderTerms } from '@/components/legal/OrderTerms';
 import { DietMascot } from '@/components/trial/DietMascot';
@@ -103,6 +104,7 @@ export function DailyTrialStepModal() {
   }, [bookableDays, selectedDateStr]);
 
   const { getZoneByPincode } = useDeliveryZones();
+  const saved = useSavedLocation();
 
   // Step 4: Address
   const activeAddress = useMemo(() => {
@@ -114,9 +116,10 @@ export function DailyTrialStepModal() {
   const [phone, setPhone] = useState((user.phone || '').replace(/^\+91/, ''));
   const [flatNumber, setFlatNumber] = useState(activeAddress?.flatNumber || '');
   const [street, setStreet] = useState(activeAddress?.street || '');
-  const [area, setArea] = useState(activeAddress?.area || '');
-  const [pincode, setPincode] = useState(activeAddress?.pincode || '');
+  const [area, setArea] = useState(activeAddress?.area || saved.area);
+  const [pincode, setPincode] = useState(activeAddress?.pincode || saved.pincode);
   const [payError, setPayError] = useState('');
+  const [offersOptIn, setOffersOptIn] = useState(false);
 
   // Step 5: Payment method & loading state
   const [isProcessing, setIsProcessing] = useState(false);
@@ -139,8 +142,8 @@ export function DailyTrialStepModal() {
       if (d.phone) setPhone(d.phone);
       setFlatNumber(d.flatNumber);
       setStreet(d.street);
-      setArea(d.area);
-      setPincode(d.pincode);
+      setArea(d.area || saved.area);
+      setPincode(d.pincode || saved.pincode);
       setStep(d.step);
     }
     setDraftReady(true);
@@ -186,6 +189,7 @@ export function DailyTrialStepModal() {
         addonIds: [],
         preferences: { isEggFree: false, skipLegume: false },
         addressId: isEnteringNewAddress ? undefined : activeAddress?.id,
+        whatsappOffers: offersOptIn,
       },
       {
         newAddress: isEnteringNewAddress
@@ -969,12 +973,14 @@ export function DailyTrialStepModal() {
         )}
       </div>
 
-      {payError && (
-        <p role="alert" className="mx-3 sm:mx-6 mb-0 mt-2 text-xs font-semibold text-rose-700 bg-rose-50 border border-rose-100 rounded-xl px-3 py-2">
-          {payError}
-        </p>
-      )}
+      {payError && <OrderErrorNotice error={payError} className="mx-3 sm:mx-6 mb-0 mt-2" />}
 
+      {step === 5 && (
+        <label className="mx-3 sm:mx-6 mt-2 flex items-start gap-2 text-[11px] sm:text-xs text-gray-700 cursor-pointer">
+          <input type="checkbox" checked={offersOptIn} onChange={(e) => setOffersOptIn(e.target.checked)} className="mt-0.5 accent-ink" />
+          <span>WhatsApp me plan offers after my trial. A few messages at most, stop anytime.</span>
+        </label>
+      )}
       {step === 5 && <OrderTerms className="mx-3 sm:mx-6 mt-2 text-center" />}
 
       {/* Bottom Sticky Action Controls */}

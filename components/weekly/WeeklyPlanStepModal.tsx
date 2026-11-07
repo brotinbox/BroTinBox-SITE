@@ -27,7 +27,7 @@ import { SIGN_IN_PENDING, submitOrder, toDbDiet } from '@/lib/checkout/submit';
 import { clearDraft, loadDraft, saveDraft } from '@/lib/checkout/draft';
 import { cn, formatCurrency } from '@/lib/utils';
 import { planTotal, savingsVsTrial } from '@/lib/pricing';
-import { useDeliveryZones } from '@/lib/location';
+import { useDeliveryZones, useSavedLocation } from '@/lib/location';
 import { PincodeStatus } from '@/components/delivery/PincodeStatus';
 import { OrderTerms } from '@/components/legal/OrderTerms';
 import { DietMascot } from '@/components/trial/DietMascot';
@@ -155,8 +155,9 @@ export function WeeklyPlanStepModal() {
   const [phone, setPhone] = useState((user?.phone || '').replace(/^\+91/, ''));
   const [flatNumber, setFlatNumber] = useState('');
   const [street, setStreet] = useState('');
-  const [area, setArea] = useState('');
-  const [pincode, setPincode] = useState('');
+  const saved = useSavedLocation();
+  const [area, setArea] = useState(saved.area);
+  const [pincode, setPincode] = useState(saved.pincode);
   const [isProcessing, setIsProcessing] = useState(false);
   const [payError, setPayError] = useState('');
 
@@ -179,8 +180,8 @@ export function WeeklyPlanStepModal() {
       if (d.phone) setPhone(d.phone);
       setFlatNumber(d.flatNumber);
       setStreet(d.street);
-      setArea(d.area);
-      setPincode(d.pincode);
+      setArea(d.area || saved.area);
+      setPincode(d.pincode || saved.pincode);
       setStep(d.step);
     }
     setDraftReady(true);

@@ -2,14 +2,14 @@
 
 import React from 'react';
 import { ShieldCheck } from 'lucide-react';
-import { DailyTrialStepModal } from '@/components/trial/DailyTrialStepModal';
+import { TrialGate } from '@/components/trial/TrialGate';
 
 export default function TomorrowMenuPage() {
   return (
     <main className="min-h-[calc(100vh-70px)] bg-sand/40 flex flex-col justify-between py-2 sm:py-10 px-2 sm:px-6">
       {/* Centered Step-by-Step Booking Modal */}
       <section className="flex-1 flex items-start sm:items-center justify-center sm:my-auto w-full">
-        <DailyTrialStepModal />
+        <TrialGate />
       </section>
 
       {/* Minimal Micro Footer - visible on tablet and desktop */}

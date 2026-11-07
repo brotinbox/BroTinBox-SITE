@@ -28,6 +28,9 @@ import { getPricingMatrix, getTrialOffer } from '@/lib/data/catalog';
 import { profileCompletion } from '@/lib/customer/profile-completion';
 import { fssaiAdjective, hasFssai } from '@/config/legal';
 
+import { getMyTrialStatus, type MyTrialStatus } from '@/lib/checkout/trial';
+import { TrialStatusCard } from '@/components/trial/TrialStatusCard';
+
 export const metadata = { title: 'My dashboard', robots: { index: false } };
 export const dynamic = 'force-dynamic';
 
@@ -35,9 +38,10 @@ export default async function DashboardPage() {
   const profile = await requireCustomer('/dashboard');
   const supabase = await getSupabaseServer();
 
-  const [meals, subs, pending, pricing, trialOffer, { count: addressCount }] = await Promise.all([
+  const [meals, subs, pending, pricing, trialOffer, { count: addressCount }, trial] = await Promise.all([
     getUpcomingMeals(12), getMySubscriptions(), getMyPendingOrders(), getPricingMatrix(), getTrialOffer(),
     supabase.from('addresses').select('id', { count: 'exact', head: true }).eq('user_id', profile.id),
+    getMyTrialStatus(profile.id).catch((): MyTrialStatus => ({ state: 'available' })),
   ]);
   const live = subs.filter((s) => s.status === 'active' || s.status === 'paused');
   const upcoming = meals.filter((m) => m.status !== 'skipped' && m.status !== 'paused');
@@ -46,6 +50,9 @@ export default async function DashboardPage() {
   // Brand-new customer: nothing bought, nothing pending, nothing coming up.
   const isNew = !live.length && !pending.length && !upcoming.length;
   const diet = profile.diet_type === 'veg' ? 'veg' : 'non-veg';
+  // One trial per customer: once it's used, point them to the plans instead.
+  const trialUsed = trial.state === 'used';
+  const showTrialCard = trialUsed && !live.length;
 
   return (
     <AccountShell current="/dashboard" title={`Hi ${firstName}`} subtitle="Your meals, plan and orders in one place.">
@@ -61,7 +68,9 @@ export default async function DashboardPage() {
           </Link>
         ))}
 
-        {isNew && (
+        {showTrialCard && <TrialStatusCard status={trial} />}
+
+        {isNew && !showTrialCard && (
           <section className="rounded-3xl bg-ink text-white p-5 sm:p-6">
             <p className="text-[11px] font-extrabold uppercase tracking-wider text-accent-bright">Get started</p>
             <h2 className="font-heading font-black text-xl sm:text-2xl mt-1">How would you like to start?</h2>
@@ -93,7 +102,7 @@ export default async function DashboardPage() {
           </section>
         )}
 
-        {!profile.phone_verified && phoneOtpMode() !== 'off' && (
+        {!profile.phone_verified && (await phoneOtpMode()) !== 'off' && (
           <Link href="/profile#phone" className="flex items-center gap-3 p-4 rounded-2xl border border-ink/10 bg-sand hover:border-ink/30 transition-colors">
             <Smartphone className="w-5 h-5 text-ink shrink-0" />
             <span className="flex-1 text-sm text-gray-800">
@@ -129,8 +138,8 @@ export default async function DashboardPage() {
               <>
                 <p className="text-sm text-gray-600 mt-1">No active plan yet.</p>
                 <div className="flex gap-2 mt-2">
-                  <Link href="/tomorrow" className="px-3 py-1.5 rounded-lg bg-ink text-white text-xs font-bold">Try a day</Link>
-                  <Link href="/weekly" className="px-3 py-1.5 rounded-lg border border-gray-200 text-xs font-bold">Weekly</Link>
+                  {!trialUsed && <Link href="/tomorrow" className="px-3 py-1.5 rounded-lg bg-ink text-white text-xs font-bold">Try a day</Link>}
+                  <Link href="/weekly" className={`px-3 py-1.5 rounded-lg text-xs font-bold ${trialUsed ? 'bg-ink text-white' : 'border border-gray-200'}`}>Weekly</Link>
                   <Link href="/monthly" className="px-3 py-1.5 rounded-lg border border-gray-200 text-xs font-bold">Monthly</Link>
                 </div>
               </>
@@ -186,15 +195,15 @@ export default async function DashboardPage() {
             </Link>
 
             <Link
-              href="/tomorrow"
+              href={trialUsed ? '/weekly' : '/tomorrow'}
               className="group p-3.5 rounded-2xl bg-white border border-ink/15 hover:border-ink transition-all shadow-2xs hover:shadow-xs flex flex-col justify-between"
             >
               <div className="w-8 h-8 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
                 <CalendarDays className="w-4 h-4" />
               </div>
               <div>
-                <p className="text-xs sm:text-sm font-bold text-gray-900 leading-snug">Trial Box</p>
-                <p className="text-[11px] text-gray-500 mt-0.5 line-clamp-1">Order tomorrow’s test box</p>
+                <p className="text-xs sm:text-sm font-bold text-gray-900 leading-snug">{trialUsed ? 'Weekly Plan' : 'Trial Box'}</p>
+                <p className="text-[11px] text-gray-500 mt-0.5 line-clamp-1">{trialUsed ? 'Keep going after your trial' : 'Order tomorrow’s test box'}</p>
               </div>
             </Link>
 

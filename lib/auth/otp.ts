@@ -3,6 +3,9 @@ import { createHmac, randomInt, timingSafeEqual } from 'crypto';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { getSupabaseService } from '@/lib/supabase/admin';
 import { getSupabaseServer } from '@/lib/supabase/server';
+import { getPhoneOtpSettings } from '@/lib/settings/runtime';
+import { rateLimit } from '@/lib/security/ratelimit';
+import { escapeHtml, sendTelegramMessage } from '@/lib/notifications/telegram';
 
 const OTP_TTL_MS = 5 * 60_000;
 const RESEND_COOLDOWN_MS = 30_000;
@@ -23,16 +26,36 @@ function hash(phone: string, code: string) {
   return createHmac('sha256', secret).update(`${phone}:${code}`).digest('hex');
 }
 
+/**
+ * WhatsApp is the only customer sign-in, so a failed send means nobody can log in.
+ * Tell staff on Telegram (at most once per 30 minutes); never throws.
+ */
+async function alertSendFailure(detail: string) {
+  try {
+    const rl = await rateLimit('opsAlert', 'otp-send');
+    if (!rl.success) return;
+    await sendTelegramMessage(
+      `🚨 <b>WhatsApp sign-in codes are failing</b>\nCustomers may not be able to sign in.\n<code>${escapeHtml(detail.slice(0, 300))}</code>\n\n` +
+      'Check: access token in Vercel (permanent System User token?), the login template is approved and not paused, and the WhatsApp payment method.',
+    );
+  } catch (e) {
+    console.error('[otp] alert failed', e);
+  }
+}
+
 async function sendWhatsApp(phone: string, code: string) {
   const id = process.env.WHATSAPP_PHONE_NUMBER_ID;
   const token = process.env.WHATSAPP_ACCESS_TOKEN;
   if (!id || !token) {
-    if (process.env.NODE_ENV === 'production') throw new Error('WhatsApp OTP is not configured');
+    if (process.env.NODE_ENV === 'production') {
+      await alertSendFailure('WHATSAPP_PHONE_NUMBER_ID / WHATSAPP_ACCESS_TOKEN missing in Vercel');
+      throw new Error('WhatsApp OTP is not configured');
+    }
     console.info(`[dev] WhatsApp OTP for ${phone}: ${code}`);
     return;
   }
-  const template = process.env.WHATSAPP_OTP_TEMPLATE || 'login_otp';
-  const lang = process.env.WHATSAPP_OTP_LANG || 'en';
+  // Template name and language: admin → Settings → Phone sign-in (env as fallback).
+  const { template, lang } = await getPhoneOtpSettings();
   const res = await fetch(`https://graph.facebook.com/v21.0/${id}/messages`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
@@ -52,7 +75,16 @@ async function sendWhatsApp(phone: string, code: string) {
     }),
   });
   if (!res.ok) {
-    console.error('WhatsApp send failed', res.status, await res.text().catch(() => ''));
+    const text = await res.text().catch(() => '');
+    console.error('WhatsApp send failed', res.status, text);
+    // Meta error: {"error":{"message":"…","code":190,…}}. 131026 (not on WhatsApp) and 131021 (own number) are the customer's, not an outage.
+    let msg = text;
+    let code = 0;
+    try {
+      const err = JSON.parse(text)?.error;
+      if (err) { msg = `${err.code ?? ''} ${err.message ?? ''}`.trim(); code = Number(err.code) || 0; }
+    } catch { /* not JSON */ }
+    if (![131026, 131021].includes(code)) await alertSendFailure(`HTTP ${res.status}: ${msg}`);
     throw new Error('Could not send the code');
   }
 }

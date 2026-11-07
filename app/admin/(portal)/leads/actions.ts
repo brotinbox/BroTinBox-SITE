@@ -15,7 +15,7 @@ export async function updateLead(_prev: ActionResult | null, fd: FormData): Prom
   const note = cleanText(fd.get('note'), 500) || null;
 
   return staffAction('customers.write', async () => {
-    // otp schema is service-role only; staffAction has checked customers.write.
+    // crm schema is service-role only; staffAction has checked customers.write.
     const { error } = await leadsTable()
       .update({ contacted_at: contacted ? new Date().toISOString() : null, note })
       .eq('phone', phone.data);

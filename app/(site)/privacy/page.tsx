@@ -39,7 +39,7 @@ const sections: LegalSection[] = [
       <>
         <p>We collect only what we need to cook, deliver and support your meals. Fields marked optional can be left blank.</p>
         <KeyValue rows={[
-          ['Account', 'Name, email address, profile photo and Google account identifier, received from Google when you sign in with Google. We never receive your Google password. If you sign in with your mobile number instead, we keep the number and a one-time code we send to it on WhatsApp (stored only in hashed form; it expires after 5 minutes and works once).'],
+          ['Account', 'Your mobile number, which you use to sign in, and a one-time code we send to it on WhatsApp (stored only in hashed form; it expires after 5 minutes and works once). Your name, and your email address only if you choose to give it. For accounts created earlier with Google sign-in, we also hold the name, email address, profile photo and Google account identifier Google shared at that time; we never received a Google password.'],
           ['Contact and delivery', 'Mobile number; delivery address (flat, street, landmark, area, pincode); delivery instructions; and the name and mobile number of the person receiving the meal if that is someone else.'],
           ['Location', 'Your approximate area, and your precise location only if you allow your browser to share it, used to fill in your address and check whether we deliver there. You can type your address instead.'],
           ['Health and body (optional)', 'Fitness goal, diet type, gender, age, height, weight, target weight, activity level, food allergies and weight logs you choose to record.'],
@@ -90,10 +90,10 @@ const sections: LegalSection[] = [
           ['Delivery staff and partners', 'Recipient name, mobile number, address, delivery instructions and slot, to deliver your meal.'],
           ['Kitchen and support staff', 'Diet, allergies and meal preferences (to cook correctly), and order details (to help you). Staff access is limited by role.'],
           ['Hosting and infrastructure', 'Supabase (database, sign-in and file storage), Vercel (website hosting) and Upstash (abuse protection). They store or process data for us.'],
-          ['Sign-in and maps', 'Google (sign in with Google; address lookup through Google Maps) and OpenStreetMap Nominatim (backup address lookup, which receives map coordinates only).'],
+          ['Maps', 'Google (address lookup through Google Maps) and OpenStreetMap Nominatim (backup address lookup, which receives map coordinates only).'],
           ['Website analytics', 'If you accept analytics cookies, Google (Google Analytics) receives website usage data, including your IP address, pages visited and device details. Vercel (Web Analytics) receives page visit data without cookies. We do not send them your name, mobile number, address, health data or payment details.'],
           ['Payments', 'Your bank and UPI app, and our payment gateway (Cashfree Payments India Pvt Ltd) once card or online payments are enabled. They process payments under their own RBI-regulated terms.'],
-          ['Messaging', 'WhatsApp (Meta) when you message us or opt in to updates, and Telegram, which our team uses for internal order alerts.'],
+          ['Messaging', 'WhatsApp (Meta), which delivers your one-time sign-in codes and carries messages when you contact us or opt in to updates; and Telegram, which our team uses for internal order alerts.'],
           ['Authorities', 'Government, regulators, courts or law enforcement when the law requires it, for example the GST department, FSSAI, or a valid legal request.'],
           ['Business transfer', 'A buyer or successor of our business, which must keep the same protections.'],
         ]} />
@@ -151,7 +151,7 @@ const sections: LegalSection[] = [
         <ul>
           <li>Encryption in transit (HTTPS/TLS) and at rest on our database provider.</li>
           <li>Row-level access controls, so each customer can read only their own records, and role-based access for staff.</li>
-          <li>Sign-in through Google, so we hold no customer passwords; separate, restricted staff accounts.</li>
+          <li>Sign-in with a one-time code sent on WhatsApp, so we hold no customer passwords; separate, restricted staff accounts.</li>
           <li>Logs of account and staff actions, rate limiting and abuse protection.</li>
           <li>Payment data handled only by banks, UPI apps and PCI-DSS compliant payment gateways.</li>
         </ul>

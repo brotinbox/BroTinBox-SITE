@@ -6,19 +6,37 @@ import { getSupabaseServer } from '@/lib/supabase/server';
 import { getSupabaseService } from '@/lib/supabase/admin';
 import { rateLimit } from '@/lib/security/ratelimit';
 import { cleanText } from '@/lib/security/request';
-import { CheckoutError, cartSchema, quoteCart, type Cart, type QuoteLine } from '@/lib/checkout/quote';
+import { CheckoutError, cartSchema, quoteCart, type Cart, type CheckoutErrorCode, type QuoteLine } from '@/lib/checkout/quote';
+import { phoneOtpMode } from '@/lib/auth/otp-mode';
+import { getMyTrialStatus, type MyTrialStatus } from '@/lib/checkout/trial';
 import { createOrderFromQuote } from '@/lib/checkout/create-order';
 import { notifyOrderPlaced } from '@/lib/notifications/telegram';
 
-type Fail = { ok: false; error: string };
+type Fail = { ok: false; error: string; code?: CheckoutErrorCode };
+
+/** A failure the screen can turn into the right next step (plans card, verify link). */
+function checkoutFail(e: unknown, fallback: string): Fail {
+  if (e instanceof CheckoutError) return { ok: false, error: e.message, ...(e.code && { code: e.code }) };
+  // The database's own guard (two tabs / double click got past the first check).
+  if ((e as { message?: string } | null)?.message === 'TRIAL_USED') {
+    return { ok: false, error: "You've already booked your trial box.", code: 'TRIAL_USED' };
+  }
+  return { ok: false, error: fallback };
+}
 
 async function currentCustomer() {
   const supabase = await getSupabaseServer();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: 'Please sign in to continue.' } as const;
-  const { data: profile } = await supabase.from('profiles').select('id, is_blocked').eq('id', user.id).maybeSingle();
+  const { data: profile } = await supabase.from('profiles').select('id, is_blocked, phone_verified').eq('id', user.id).maybeSingle();
   if (!profile || profile.is_blocked) return { error: 'Your account cannot place orders. Contact us on WhatsApp.' } as const;
-  return { userId: user.id } as const;
+  return { userId: user.id, phoneVerified: !!profile.phone_verified } as const;
+}
+
+/** A trial needs a verified mobile number, so one person can't take several trials. */
+async function trialPhoneCheck(cart: Cart, phoneVerified: boolean): Promise<Fail | null> {
+  if (cart.type !== 'trial' || phoneVerified || (await phoneOtpMode()) === 'off') return null;
+  return { ok: false, error: 'Please verify your mobile number to book your trial box.', code: 'VERIFY_PHONE' };
 }
 
 export type QuoteResult =
@@ -33,11 +51,25 @@ export async function getQuote(input: Cart): Promise<QuoteResult> {
   if (!rl.success) return { ok: false, error: 'Too many requests. Wait a minute.' };
   const cart = cartSchema.safeParse(input);
   if (!cart.success) return { ok: false, error: 'Your selection is incomplete. Please go back and check it.' };
+  const phoneFail = await trialPhoneCheck(cart.data, me.phoneVerified);
+  if (phoneFail) return phoneFail;
   try {
     const q = await quoteCart(cart.data, me.userId);
     return { ok: true, lines: q.lines, subtotal: q.subtotal, discount: q.discount, deliveryFee: q.deliveryFee, total: q.total, couponMessage: q.couponMessage, couponApplied: !!q.couponId };
   } catch (e) {
-    return { ok: false, error: e instanceof CheckoutError ? e.message : 'Could not price your order. Please try again.' };
+    return checkoutFail(e, 'Could not price your order. Please try again.');
+  }
+}
+
+/** The signed-in customer's trial status (null when signed out or unavailable). */
+export async function myTrialStatus(): Promise<MyTrialStatus | null> {
+  const supabase = await getSupabaseServer();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+  try {
+    return await getMyTrialStatus(user.id);
+  } catch {
+    return null;
   }
 }
 
@@ -50,6 +82,8 @@ export async function placeOrder(input: Cart): Promise<PlaceOrderResult> {
   if (!rl.success) return { ok: false, error: 'Too many attempts. Wait a minute and try again.' };
   const cart = cartSchema.safeParse(input);
   if (!cart.success) return { ok: false, error: 'Your selection is incomplete. Please go back and check it.' };
+  const phoneFail = await trialPhoneCheck(cart.data, me.phoneVerified);
+  if (phoneFail) return phoneFail;
 
   try {
     const q = await quoteCart(cart.data, me.userId);
@@ -61,6 +95,11 @@ export async function placeOrder(input: Cart): Promise<PlaceOrderResult> {
         .eq('user_id', me.userId).eq('coupon_id', q.couponId).in('status', ['created', 'pending_payment']);
     }
     const order = await createOrderFromQuote(me.userId, cart.data, q);
+    // Consent ticked at checkout (only ever switches it on here; turning off is in the profile or "Stop offers").
+    if (cart.data.whatsappOffers) {
+      await db.from('profiles').update({ whatsapp_offers_opt_in: true, whatsapp_offers_opt_in_at: new Date().toISOString() })
+        .eq('id', me.userId).eq('whatsapp_offers_opt_in', false);
+    }
 
     // Fire Telegram order notification asynchronously (best effort)
     markLeadOrdered(me.userId, order.id).catch(() => {});
@@ -70,8 +109,7 @@ export async function placeOrder(input: Cart): Promise<PlaceOrderResult> {
 
     return { ok: true, orderId: order.id, orderNumber: order.order_number, total: Number(order.total) };
   } catch (e) {
-    if (e instanceof CheckoutError) return { ok: false, error: e.message };
-    return { ok: false, error: 'Could not place your order. Please try again.' };
+    return checkoutFail(e, 'Could not place your order. Please try again.');
   }
 }
 

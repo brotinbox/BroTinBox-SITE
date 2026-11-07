@@ -130,7 +130,8 @@ export async function updateProfile(_p: CustomerResult, fd: FormData): Promise<C
   if (!v.success) return { ok: false, message: v.error.issues[0]?.message ?? 'Check your details.' };
   const d = v.data;
   return run(async ({ supabase, userId }) => {
-    const { data: current } = await supabase.from('profiles').select('date_of_birth').eq('id', userId).maybeSingle();
+    const { data: current } = await supabase.from('profiles').select('date_of_birth, whatsapp_offers_opt_in').eq('id', userId).maybeSingle();
+    const offers = fd.get('whatsapp_offers_opt_in') === 'on';
     // Keep the stored birth date if the age it implies hasn't changed.
     const dob = d.age == null ? null
       : ageFromDob(current?.date_of_birth ?? null) === d.age ? current!.date_of_birth
@@ -152,6 +153,9 @@ export async function updateProfile(_p: CustomerResult, fd: FormData): Promise<C
       activity_level: d.activity_level ?? null,
       allergies: (d.allergies ?? '').split(',').map((a) => cleanText(a, 30)).filter(Boolean).slice(0, 12),
       whatsapp_opt_in: fd.get('whatsapp_opt_in') === 'on',
+      // Separate consent for promotional messages; the time is kept as a record of when they agreed.
+      whatsapp_offers_opt_in: offers,
+      ...(offers !== !!current?.whatsapp_offers_opt_in && { whatsapp_offers_opt_in_at: offers ? new Date().toISOString() : null }),
       target_calories: targets?.target_calories ?? null,
       target_protein: targets?.target_protein ?? null,
       target_carbs: targets?.target_carbs ?? null,

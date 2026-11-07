@@ -47,6 +47,10 @@ export default async function ProfilePage() {
               </label>
             </div>
             <label className="flex items-center gap-2 text-sm text-gray-700"><input type="checkbox" name="whatsapp_opt_in" defaultChecked={p.whatsapp_opt_in} /> WhatsApp delivery updates</label>
+            <label className="flex items-start gap-2 text-sm text-gray-700">
+              <input type="checkbox" name="whatsapp_offers_opt_in" defaultChecked={p.whatsapp_offers_opt_in} className="mt-0.5" />
+              <span>Offers and plan reminders on WhatsApp <span className="block text-xs text-gray-500">A few messages at most. Tap &ldquo;Stop offers&rdquo; in any of them to stop.</span></span>
+            </label>
           </section>
 
           <section id="body" className="rounded-2xl border border-gray-200 bg-white p-5 space-y-3 scroll-mt-24">

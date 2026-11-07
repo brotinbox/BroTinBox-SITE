@@ -1,3 +1,5 @@
-import { AccountSkeleton } from '@/components/account/AccountSkeleton';
+import { BrandLoader } from '@/components/brand/BrandLoader';
 
-export default AccountSkeleton;
+export default function Loading() {
+  return <BrandLoader />;
+}

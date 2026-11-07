@@ -6,7 +6,7 @@ import { getSupabaseServer } from '@/lib/supabase/server';
 
 /** Signed-in customers: send a WhatsApp code to verify (or change) their mobile number. */
 export async function POST(request: NextRequest) {
-  if (phoneOtpMode() === 'off') return NextResponse.json({ error: 'Phone verification is not available yet.' }, { status: 404 });
+  if ((await phoneOtpMode()) === 'off') return NextResponse.json({ error: 'Phone verification is not available yet.' }, { status: 404 });
 
   const supabase = await getSupabaseServer();
   const { data: { user } } = await supabase.auth.getUser();
@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null);
   const phone = typeof body?.phone === 'string' ? normalizeIndianPhone(body.phone) : null;
   if (!phone) return NextResponse.json({ error: 'Enter a valid 10-digit mobile number.' }, { status: 400 });
-  if (!phoneOtpAllowed(phone)) {
+  if (!(await phoneOtpAllowed(phone))) {
     return NextResponse.json({ error: 'Phone verification is coming soon.' }, { status: 403 });
   }
 

@@ -1,12 +1,12 @@
 import { requireStaff } from '@/lib/auth/session';
 import { Card, PageHeader } from '@/components/admin/ui';
-import { ActionForm, Field, Input, Select, SubmitButton } from '@/components/admin/forms';
+import { ActionForm, Checkbox, Field, Input, Select, SubmitButton } from '@/components/admin/forms';
 import { createManualOrder } from '../actions';
 
 export const metadata = { title: 'New WhatsApp order' };
 
 export default async function NewManualOrderPage() {
-  await requireStaff('orders.write');
+  const staff = await requireStaff('orders.write');
 
   return (
     <>
@@ -67,6 +67,18 @@ export default async function NewManualOrderPage() {
                 <Input name="start" type="date" />
               </Field>
             </div>
+            {staff.can('orders.refund') ? (
+              <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 space-y-2">
+                <Checkbox name="extra_trial" label="Allow an extra trial (trial plan only)" />
+                <p className="text-[11px] text-amber-900">
+                  A trial is one per customer: the same account, mobile number or delivery number can&apos;t book a second one.
+                  Tick this only for a real exception, e.g. a different person in the same family, or our mistake.
+                </p>
+                <Input name="extra_trial_reason" maxLength={200} placeholder="Reason (saved with the order)" />
+              </div>
+            ) : (
+              <p className="mt-3 text-[11px] text-gray-500">A trial is one per customer (account, mobile or delivery number). Ask an admin for exceptions.</p>
+            )}
           </Card>
         </div>
 

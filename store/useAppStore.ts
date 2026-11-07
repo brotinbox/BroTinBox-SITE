@@ -131,9 +131,14 @@ interface AppState {
   appliedCoupon: Coupon | null;
   applyCoupon: (coupon: Coupon | null) => void;
 
-  // Real-time Geofenced User Location
+  // Delivery location: the pincode the visitor typed in (no GPS). Persisted.
   currentLocation: UserLocation;
+  /** True once the visitor has entered or picked a pincode themselves. */
+  locationConfirmed: boolean;
   setCurrentLocation: (location: UserLocation) => void;
+  /** Pincode popup: opens on first visit, or from the header picker. Not persisted. */
+  isLocationPromptOpen: boolean;
+  setLocationPromptOpen: (open: boolean) => void;
 
   // Navigation drawer state
   isNavDrawerOpen: boolean;
@@ -194,7 +199,13 @@ export const useAppStore = create<AppState>()(
         set((state) => (open && !state.isLoggedIn ? { signIn: {} } : { isAuthDrawerOpen: open })),
 
       signIn: null,
-      openSignIn: (req = {}) => set({ signIn: req }),
+      // Leads keep the visitor's pincode even when the caller didn't pass one.
+      openSignIn: (req = {}) =>
+        set((state) => {
+          if (!state.locationConfirmed || req.context?.pincode) return { signIn: req };
+          const { area, pincode } = state.currentLocation;
+          return { signIn: { ...req, context: { ...req.context, area: area || undefined, pincode } } };
+        }),
       closeSignIn: () => set({ signIn: null }),
 
       isDetailsModalOpen: false,
@@ -346,7 +357,10 @@ export const useAppStore = create<AppState>()(
       applyCoupon: (coupon) => set({ appliedCoupon: coupon }),
 
       currentLocation: defaultLocation,
-      setCurrentLocation: (loc) => set({ currentLocation: loc }),
+      locationConfirmed: false,
+      setCurrentLocation: (loc) => set({ currentLocation: loc, locationConfirmed: true }),
+      isLocationPromptOpen: false,
+      setLocationPromptOpen: (open) => set({ isLocationPromptOpen: open }),
 
       // Rotating 5-Item Box Checkout State
       activeCheckoutType: 'trial',
@@ -546,6 +560,7 @@ export const useAppStore = create<AppState>()(
         weeklyOrder: state.weeklyOrder,
         monthlyOrder: state.monthlyOrder,
         currentLocation: state.currentLocation,
+        locationConfirmed: state.locationConfirmed,
       }),
     }
   )

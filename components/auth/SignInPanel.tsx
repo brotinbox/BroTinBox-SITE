@@ -29,8 +29,10 @@ function resolveTarget(req: SignInRequest): string {
  * `finish` runs the post-sign-in step: the popup closes itself first, the
  * /login page runs it directly.
  */
-export function SignInPanel({ phoneEnabled, request, finish, onBeforeGoogle }: {
+export function SignInPanel({ phoneEnabled, googleEnabled = true, request, finish, onBeforeGoogle }: {
   phoneEnabled: boolean;
+  /** Admin › Features › Google sign-in. Ignored when phone sign-in is off. */
+  googleEnabled?: boolean;
   request: SignInRequest;
   finish: (then: () => void) => void;
   onBeforeGoogle?: () => void;
@@ -241,10 +243,13 @@ export function SignInPanel({ phoneEnabled, request, finish, onBeforeGoogle }: {
         </button>
       </form>
 
-      <div className="my-6">{divider}</div>
-
-      <GoogleSignInButton next={target} onBeforeRedirect={onBeforeGoogle} />
-      <p className="text-xs text-gray-400 text-center mt-2.5">Signed up with Google before? Use Google to reach the same account.</p>
+      {googleEnabled && (
+        <>
+          <div className="my-6">{divider}</div>
+          <GoogleSignInButton next={target} onBeforeRedirect={onBeforeGoogle} />
+          <p className="text-xs text-gray-400 text-center mt-2.5">Signed up with Google before? Use Google to reach the same account.</p>
+        </>
+      )}
 
       <Terms />
     </div>

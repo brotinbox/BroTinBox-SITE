@@ -4,13 +4,13 @@ import { getSupabaseService } from '@/lib/supabase/admin';
 import { escapeHtml, sendTelegramMessage } from '@/lib/notifications/telegram';
 
 /**
- * Phone leads (otp.phone_leads, service role only): numbers that asked for a login code, what
+ * Phone leads (crm.phone_leads, service role only): numbers that asked for a login code, what
  * they were looking at, and how far they got. Every helper here is
  * best-effort: a failure is logged and never breaks sign-in or checkout.
  */
 
 // phone_leads is not in the generated Database types yet.
-const db = () => (getSupabaseService() as unknown as SupabaseClient).schema('otp');
+const db = () => (getSupabaseService() as unknown as SupabaseClient).schema('crm');
 
 /** For admin pages: call only after a staff permission check. */
 export const leadsTable = () => db().from('phone_leads');

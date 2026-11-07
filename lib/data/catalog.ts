@@ -192,3 +192,13 @@ export const getPublicSettings = unstable_cache(
   ['catalog-settings'],
   { tags: ['settings'], revalidate: HOUR }
 );
+
+/** Admin › Settings › Features › "Google sign-in for customers". On if the setting can't be read. */
+export const getGoogleLoginEnabled = unstable_cache(
+  async (): Promise<boolean> => {
+    const { data, error } = await getSupabasePublic().rpc('is_feature_enabled', { flag: 'google_login' });
+    return error ? true : data !== false;
+  },
+  ['feature-google-login'],
+  { tags: ['settings'], revalidate: HOUR }
+);

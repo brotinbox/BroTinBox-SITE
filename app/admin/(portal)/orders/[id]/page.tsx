@@ -7,6 +7,7 @@ import { adminHref } from '@/lib/admin/paths';
 import { Card, DataTable, PageHeader, StatusBadge, fmtDate, inr } from '@/components/admin/ui';
 import { ActionForm, Field, Input, Select, SubmitButton } from '@/components/admin/forms';
 import { cancelOrder, markOrderPaid, recheckCashfree } from '../actions';
+import { trialClaims, type TrialClaim } from '@/lib/admin/trials';
 
 export const metadata = { title: 'Order' };
 
@@ -26,6 +27,10 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
   if (!order) notFound();
 
   const o = order as any;
+  // crm data via service role; requireStaff('orders.read') has run.
+  const trialClaim = o.type === 'trial'
+    ? ((await trialClaims().select('*').eq('order_id', o.id).maybeSingle()).data as TrialClaim | null)
+    : null;
   const unpaid = ['created', 'pending_payment'].includes(o.status);
   const addr = o.address_snapshot as Record<string, string> | null;
 
@@ -91,6 +96,29 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
               </p>
             )}
           </Card>
+
+          {o.type === 'trial' && (
+            <Card title="Trial box">
+              {trialClaim ? (
+                <div className="space-y-2 text-sm">
+                  <StatusBadge
+                    value={trialClaim.status === 'used' ? 'paid' : trialClaim.status === 'pending' ? 'pending_payment' : 'cancelled'}
+                    label={trialClaim.is_override ? 'extra trial (allowed by staff)' : trialClaim.status === 'used' ? 'counts as their one trial' : trialClaim.status === 'pending' ? 'trial held until paid' : 'trial released'}
+                  />
+                  {trialClaim.override_reason && <p className="text-xs text-gray-600 italic">“{trialClaim.override_reason}”</p>}
+                  {trialClaim.release_reason && <p className="text-xs text-gray-500">{trialClaim.release_reason}</p>}
+                  {trialClaim.address_flag && (
+                    <p className="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1.5">
+                      Same flat and pincode as another customer&apos;s trial, under a different number. Could be family or a flatmate, or a second trial by the same person.
+                    </p>
+                  )}
+                  <Link href={adminHref(`/customers/${o.user_id}`)} className="text-xs text-primary underline">Customer&apos;s trial history</Link>
+                </div>
+              ) : (
+                <p className="text-xs text-gray-500">Placed before the one-trial rule; not tracked.</p>
+              )}
+            </Card>
+          )}
 
           {o.subscriptions && (
             <Card title="Subscription">

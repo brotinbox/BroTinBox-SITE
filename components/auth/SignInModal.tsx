@@ -18,7 +18,7 @@ const HISTORY_FLAG = '__brotinSignIn';
  * closes the popup instead of leaving the page. Next's own history state is
  * kept in that entry so the App Router treats Back as a no-op.
  */
-export function SignInModal({ phoneEnabled }: { phoneEnabled: boolean }) {
+export function SignInModal({ phoneEnabled, googleEnabled = true }: { phoneEnabled: boolean; googleEnabled?: boolean }) {
   const request = useAppStore((s) => s.signIn);
   const closeSignIn = useAppStore((s) => s.closeSignIn);
   const open = !!request;
@@ -91,7 +91,7 @@ export function SignInModal({ phoneEnabled }: { phoneEnabled: boolean }) {
 
         <div className="px-6 sm:px-10 pt-6 pb-8 sm:pb-10">
           {/* key: a fresh request (e.g. new autoSend number) resets the panel */}
-          <SignInPanel key={JSON.stringify({ p: request.phone, r: request.returnTo, t: request.title })} phoneEnabled={phoneEnabled} request={request} finish={close} />
+          <SignInPanel key={JSON.stringify({ p: request.phone, r: request.returnTo, t: request.title })} phoneEnabled={phoneEnabled} googleEnabled={googleEnabled} request={request} finish={close} />
         </div>
       </div>
     </div>

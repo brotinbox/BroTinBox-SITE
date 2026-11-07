@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { saveAddress } from '@/lib/checkout/actions';
+import { useSavedLocation } from '@/lib/location';
 
 const FIELDS = [
   ['recipientName', 'Full name', 80], ['phone', '10-digit mobile', 10], ['flat', 'Flat / house no.', 120],
@@ -16,9 +17,10 @@ export function AddAddressForm() {
   const [v, setV] = useState<Record<string, string>>({});
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
+  const saved = useSavedLocation();
 
   if (!open) {
-    return <button onClick={() => setOpen(true)} className="text-xs font-bold text-ink">+ Add address</button>;
+    return <button onClick={() => { setV((x) => ({ area: saved.area, pincode: saved.pincode, ...x })); setOpen(true); }} className="text-xs font-bold text-ink">+ Add address</button>;
   }
 
   async function submit(e: React.FormEvent) {

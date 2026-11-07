@@ -82,6 +82,8 @@ const manualOrderSchema = z.object({
   start: z.union([z.literal(''), z.string().regex(/^\d{4}-\d{2}-\d{2}$/)]),
   payment: z.enum(['unpaid', 'upi', 'cash', 'bank_transfer']),
   reference: z.string().max(60),
+  extra_trial: z.string(),
+  extra_trial_reason: z.string().max(200),
 });
 
 /** Same person on WhatsApp = same 10-digit number; reuse their account if it exists. */
@@ -122,12 +124,15 @@ async function planDates(start: string, count: number): Promise<string[]> {
 }
 
 export async function createManualOrder(_prev: ActionResult | null, fd: FormData): Promise<ActionResult> {
-  const v = manualOrderSchema.safeParse(Object.fromEntries(['name', 'phone', 'email', 'flat', 'street', 'landmark', 'area', 'pincode', 'type', 'diet', 'meals', 'start', 'payment', 'reference']
+  const v = manualOrderSchema.safeParse(Object.fromEntries(['name', 'phone', 'email', 'flat', 'street', 'landmark', 'area', 'pincode', 'type', 'diet', 'meals', 'start', 'payment', 'reference', 'extra_trial', 'extra_trial_reason']
     .map((k) => [k, String(fd.get(k) ?? '')])));
   if (!v.success) return fail('Check the form: name, 10-digit WhatsApp number, flat, street, area, 6-digit pincode and plan are needed.');
   const f = v.data;
   const reference = cleanText(f.reference, 60) || (f.payment === 'cash' ? 'CASH' : '');
   if (f.payment !== 'unpaid' && reference.length < 4) return fail('Enter the UPI / transaction reference you verified, or choose “Not paid yet”.');
+  const extraTrial = f.type === 'trial' && f.extra_trial === 'on';
+  const extraTrialReason = cleanText(f.extra_trial_reason, 200);
+  if (extraTrial && extraTrialReason.length < 4) return fail('Write why this customer is getting an extra trial.');
 
   let orderId: string | null = null;
   const result = await staffAction('orders.write', async (staff) => {
@@ -164,9 +169,14 @@ export async function createManualOrder(_prev: ActionResult | null, fd: FormData
         preferences: { isEggFree: false, skipLegume: false },
         addressId: address.id,
       };
-      const q = await quoteCart(cart, userId);
+      // An extra trial needs the refund permission (same people who can reset a trial).
+      if (extraTrial && !staff.can('orders.refund')) return fail('Only an admin can allow an extra trial.');
+      const q = await quoteCart(cart, userId, { source: 'admin', allowRepeatTrial: extraTrial });
       // Unpaid WhatsApp orders wait a week for the customer's payment instead of the website's 48 hours.
-      const order = await createOrderFromQuote(userId, cart, q, { expiresIn: '7 days' });
+      const order = await createOrderFromQuote(userId, cart, q, {
+        expiresIn: '7 days',
+        ...(extraTrial && { trialOverride: { reason: extraTrialReason, by: staff.profile.id } }),
+      });
       await db.from('orders').update({ metadata: { source: 'whatsapp', entered_by: staff.profile.id } }).eq('id', order.id);
       orderId = order.id;
       notifyOrderPlaced(order.id).catch((err) => console.error('[Order] Telegram notify error:', err));
@@ -180,7 +190,9 @@ export async function createManualOrder(_prev: ActionResult | null, fd: FormData
       }
       return ok(`Order ${order.order_number} created.`);
     } catch (e) {
-      if (e instanceof CheckoutError) return fail(e.message);
+      const extraHint = staff.can('orders.refund') ? ' To allow it anyway, tick “Allow an extra trial” and give a reason.' : ' Ask an admin if they should get another.';
+      if (e instanceof CheckoutError) return fail(e.code === 'TRIAL_USED' ? `${e.message}${extraHint}` : e.message);
+      if ((e as { message?: string } | null)?.message === 'TRIAL_USED') return fail(`This customer has already had a trial box.${extraHint}`);
       throw e;
     }
   });

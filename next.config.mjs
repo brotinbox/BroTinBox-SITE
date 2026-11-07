@@ -13,15 +13,18 @@ const cashfree = 'https://sdk.cashfree.com https://sandbox.cashfree.com https://
 const gaImg = 'https://*.google-analytics.com https://*.googletagmanager.com';
 const gaConnect = 'https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com';
 
+// Google Identity Services (One Tap / Sign in with Google), per Google's CSP guide.
+const gsi = 'https://accounts.google.com/gsi/';
+
 // Next.js needs inline scripts for hydration; 'unsafe-eval' only in dev (React refresh).
 const csp = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://sdk.cashfree.com https://*.googletagmanager.com`,
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://sdk.cashfree.com https://*.googletagmanager.com https://accounts.google.com/gsi/client`,
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com/gsi/style",
   "font-src 'self' data: https://fonts.gstatic.com",
   `img-src 'self' data: blob: https://images.unsplash.com https://plus.unsplash.com https://img.icons8.com https://lh3.googleusercontent.com ${gaImg}${supabaseHost ? ` https://${supabaseHost}` : ''}${r2Host ? ` https://${r2Host}` : ''}`,
-  `connect-src 'self'${supabaseHost ? ` https://${supabaseHost} wss://${supabaseHost}` : ''} https://api.bigdatacloud.net ${gaConnect} ${cashfree}`,
-  `frame-src https://maps.google.com https://www.google.com ${cashfree}`,
+  `connect-src 'self'${supabaseHost ? ` https://${supabaseHost} wss://${supabaseHost}` : ''} https://api.bigdatacloud.net ${gaConnect} ${cashfree} ${gsi}`,
+  `frame-src https://maps.google.com https://www.google.com ${cashfree} ${gsi}`,
   "frame-ancestors 'none'",
   "object-src 'none'",
   "base-uri 'self'",
@@ -41,6 +44,8 @@ const securityHeaders = [
 
 const nextConfig = {
   poweredByHeader: false,
+  // Let the dev server accept HMR/font requests through a Cloudflare quick tunnel.
+  allowedDevOrigins: ['*.trycloudflare.com'],
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },

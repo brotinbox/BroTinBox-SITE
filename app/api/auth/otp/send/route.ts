@@ -12,9 +12,9 @@ function clientIp(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null);
   const phone = typeof body?.phone === 'string' ? normalizeIndianPhone(body.phone) : null;
-  if (phoneOtpMode() === 'off') return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  if ((await phoneOtpMode()) === 'off') return NextResponse.json({ error: 'Not found' }, { status: 404 });
   if (!phone) return NextResponse.json({ error: 'Enter a valid 10-digit mobile number.' }, { status: 400 });
-  if (!phoneOtpAllowed(phone)) {
+  if (!(await phoneOtpAllowed(phone))) {
     return NextResponse.json({ error: 'Phone sign-in is coming soon. Please continue with Google for now.' }, { status: 403 });
   }
 

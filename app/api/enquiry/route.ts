@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { BRAND } from '@/config/brand';
 import { getSupabaseService } from '@/lib/supabase/admin';
 import { rateLimit } from '@/lib/security/ratelimit';
+import { getAlertSettings } from '@/lib/settings/runtime';
 import { cleanText, isSameOrigin } from '@/lib/security/request';
 
 const schema = z.object({
@@ -71,7 +72,7 @@ export async function POST(req: Request) {
 
   // Telegram notification (best effort; the lead is already saved).
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHAT_ID;
+  const { telegram_chat_id: chatId } = await getAlertSettings();
   let delivered = false;
   if (botToken && chatId) {
     const when = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' });

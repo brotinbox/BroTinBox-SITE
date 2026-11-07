@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createHmac, timingSafeEqual } from 'crypto';
+import { handleInbound, recordStatuses } from '@/lib/whatsapp/inbound';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -71,6 +72,13 @@ export async function POST(request: NextRequest) {
         }
         if (value.messages?.length) {
           console.info('[whatsapp] inbound messages', value.messages.length);
+        }
+        // Follow-up bookkeeping and reply handling; never let it break the 200 to Meta.
+        try {
+          if (value.statuses?.length) await recordStatuses(value.statuses);
+          if (value.messages?.length) await handleInbound(value.messages, value.contacts ?? []);
+        } catch (e) {
+          console.error('[whatsapp] webhook handling failed', e);
         }
       } else if (field === 'message_template_status_update') {
         console.warn('[whatsapp] template status', {

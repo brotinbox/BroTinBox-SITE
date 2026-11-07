@@ -51,7 +51,7 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
   const page = Math.max(1, Number(sp.page) || 1);
   const status = ['no_order', 'ordered', 'all'].includes(sp.status ?? '') ? sp.status! : '';
 
-  // otp schema is service-role only; requireStaff above has checked customers.read.
+  // crm schema is service-role only; requireStaff above has checked customers.read.
   const leads = leadsTable;
 
   let query = leads()
@@ -89,7 +89,7 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
 
       <Card padded={false}>
         {error ? (
-          <EmptyState title="Leads table not set up yet" description="Run the migration 20261104000025_phone_leads.sql in Supabase." />
+          <EmptyState title="Leads table not set up yet" description="Run the migration 20261107000028_crm_schema_one_trial.sql in Supabase and add `crm` to the exposed schemas." />
         ) : (
           <DataTable
             rows={(data ?? []) as unknown as Lead[]}

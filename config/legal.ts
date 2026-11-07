@@ -51,7 +51,7 @@ export const LEGAL = {
   jurisdiction: 'Coimbatore, Tamil Nadu',
 
   /** Shown on every policy page. Update when a policy changes materially. */
-  effectiveDate: '31 October 2026',
+  effectiveDate: '7 November 2026',
 } as const;
 
 /** A basic FSSAI Registration is not a Licence, so wording must follow the certificate. */

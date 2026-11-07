@@ -61,7 +61,7 @@ export async function ensurePaymentSession(orderId: string, userId: string, orig
       orderId: cfId,
       amount: Number(o.total),
       expiresAt: new Date(o.expires_at).toISOString(),
-      customer: { id: userId.replace(/-/g, ''), phone, email: profile?.email, name: addr.recipient_name || profile?.full_name },
+      customer: { id: userId.replace(/-/g, ''), phone, email: profile?.email && !/@phone\.brotinbox\.invalid$/.test(profile.email) ? profile.email : null, name: addr.recipient_name || profile?.full_name },
       returnUrl: `${site}/checkout/pay/${o.id}?cf=1`,
       // Cashfree only calls https endpoints; locally the return page confirms instead.
       notifyUrl: site.startsWith('https://') ? `${site}/api/webhooks/cashfree` : undefined,

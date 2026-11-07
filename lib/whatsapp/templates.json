@@ -1,0 +1,57 @@
+{
+  "_note": "Defaults for the trial follow-up WhatsApp templates. Wording, timing, sending mode and test numbers are edited in admin → Settings → WhatsApp follow-ups (stored in site_settings 'whatsapp_followups'); this file is only used until something is saved there. Buttons, category and variables are fixed per stage because the code depends on them.",
+  "templates": [
+    {
+      "stage": 1,
+      "base": "trial_feedback",
+      "label": "Feedback ask",
+      "days_after_box": 1,
+      "consent": "updates",
+      "category": "UTILITY",
+      "language": "en",
+      "variables": ["first name", "trial box date"],
+      "example": ["Anas", "Sun, 26 Oct"],
+      "body": "Hi {{1}}, thank you for trying BroTin Box! How was your trial box on {{2}}? Tap a reply below or send us a message. We read every one and use it to make the food better.",
+      "footer": "BroTin Box, Coimbatore",
+      "buttons": [
+        { "type": "QUICK_REPLY", "text": "Loved it", "payload": "LOVED_IT" },
+        { "type": "QUICK_REPLY", "text": "It was okay", "payload": "IT_WAS_OKAY" },
+        { "type": "QUICK_REPLY", "text": "Not for me", "payload": "NOT_FOR_ME" }
+      ]
+    },
+    {
+      "stage": 2,
+      "base": "trial_plan_offer",
+      "label": "Plan offer",
+      "days_after_box": 3,
+      "consent": "offers",
+      "category": "MARKETING",
+      "language": "en",
+      "variables": ["first name", "Weekly price per meal", "Monthly price per meal"],
+      "example": ["Anas", "₹209", "₹199"],
+      "body": "Hi {{1}}, ready to keep the good food coming? On a BroTin Box Weekly plan each meal is {{2}}, and Monthly brings it down to {{3}}. Fresh, macro-counted meals 6 days a week, and you can skip or pause any day.",
+      "footer": "Tap Stop offers to stop these messages",
+      "buttons": [
+        { "type": "URL", "text": "Choose a plan", "url": "https://www.brotinbox.com/pricing" },
+        { "type": "QUICK_REPLY", "text": "Stop offers", "payload": "STOP_OFFERS" }
+      ]
+    },
+    {
+      "stage": 3,
+      "base": "trial_last_reminder",
+      "label": "Last reminder",
+      "days_after_box": 7,
+      "consent": "offers",
+      "category": "MARKETING",
+      "language": "en",
+      "variables": ["first name", "earliest start date", "Monthly price per meal"],
+      "example": ["Anas", "Tue, 11 Nov", "₹199"],
+      "body": "Hi {{1}}, a last note from BroTin Box about your trial. Whenever you are ready, your meals can start from {{2}}, and the Monthly plan works out to {{3}} per meal. Have a question first? Just reply here and we will help.",
+      "footer": "Tap Stop offers to stop these messages",
+      "buttons": [
+        { "type": "URL", "text": "Choose a plan", "url": "https://www.brotinbox.com/pricing" },
+        { "type": "QUICK_REPLY", "text": "Stop offers", "payload": "STOP_OFFERS" }
+      ]
+    }
+  ]
+}

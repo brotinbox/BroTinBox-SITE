@@ -26,7 +26,8 @@ export function FloatingWhatsApp() {
       rel="noopener noreferrer"
       aria-label="Chat with our Nutritionist on WhatsApp"
       className={cn(
-        "fixed z-40 flex items-center gap-2 bg-[#25D366] hover:bg-[#1EBE5D] text-white p-2.5 md:px-4 md:py-3 rounded-full shadow-lg shadow-black/15 transition-all duration-300 hover:scale-105 active:scale-95 tap-active bottom-20 right-4 md:bottom-6 md:right-6 group",
+        // Mobile uses the "Order on WhatsApp" button in the bottom dock instead
+        "fixed z-40 hidden md:flex items-center gap-2 bg-[#25D366] hover:bg-[#1EBE5D] text-white p-2.5 md:px-4 md:py-3 rounded-full shadow-lg shadow-black/15 transition-all duration-300 hover:scale-105 active:scale-95 tap-active bottom-20 right-4 md:bottom-6 md:right-6 group",
         (isNavDrawerOpen || isDetailsModalOpen) && "translate-y-28 opacity-0 pointer-events-none"
       )}
     >

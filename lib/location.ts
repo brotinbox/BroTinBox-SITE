@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getSupabaseBrowser } from '@/lib/supabase/client';
 import { UserLocation } from '@/types';
+import { useAppStore } from '@/store/useAppStore';
 
 /**
  * Delivery areas come from the `delivery_zones` table — the same table checkout
@@ -111,4 +112,37 @@ export function notifyMeLink(whatsappNumber: string, brandName: string, zone?: {
   const where = zone ? `${zone.area} (${zone.pincode})` : 'my area';
   const text = `Hi ${brandName}! Please let me know when you start delivering to ${where}.`;
   return `https://wa.me/${whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent(text)}`;
+}
+
+/** A valid 6-digit Indian pincode. */
+export const isPincode = (pin: string) => /^[1-9]\d{5}$/.test(pin.trim());
+
+/**
+ * The location for a typed pincode: a zone we deliver to, a next-batch zone
+ * (saved but not orderable), or a pincode we don't cover yet.
+ */
+export function locationFromPincode(
+  pincode: string,
+  zones: ZoneLocation[],
+  comingSoonZones: ZoneLocation[]
+): UserLocation {
+  const pin = pincode.trim();
+  const zone = zones.find((z) => z.pincode === pin) ?? comingSoonZones.find((z) => z.pincode === pin);
+  if (zone) return zoneToUserLocation(zone);
+  return {
+    area: '',
+    pincode: pin,
+    city: 'Coimbatore',
+    tier: 'out-of-range',
+    deliveryFee: 0,
+    isDeliverable: false,
+    formattedAddress: `${pin}, Coimbatore`,
+  };
+}
+
+/** The pincode/area the visitor entered, for prefilling address forms. Empty until they set one. */
+export function useSavedLocation() {
+  const confirmed = useAppStore((s) => s.locationConfirmed);
+  const loc = useAppStore((s) => s.currentLocation);
+  return confirmed ? { pincode: loc.pincode, area: loc.area, isDeliverable: loc.isDeliverable } : { pincode: '', area: '', isDeliverable: false };
 }

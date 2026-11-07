@@ -1684,6 +1684,8 @@ export type Database = {
           updated_at: string
           weight_kg: number | null
           whatsapp_opt_in: boolean
+          whatsapp_offers_opt_in: boolean
+          whatsapp_offers_opt_in_at: string | null
         }
         Insert: {
           activity_level?: string | null
@@ -1718,6 +1720,8 @@ export type Database = {
           updated_at?: string
           weight_kg?: number | null
           whatsapp_opt_in?: boolean
+          whatsapp_offers_opt_in?: boolean
+          whatsapp_offers_opt_in_at?: string | null
         }
         Update: {
           activity_level?: string | null
@@ -1752,6 +1756,8 @@ export type Database = {
           updated_at?: string
           weight_kg?: number | null
           whatsapp_opt_in?: boolean
+          whatsapp_offers_opt_in?: boolean
+          whatsapp_offers_opt_in_at?: string | null
         }
         Relationships: [
           {
@@ -2237,6 +2243,14 @@ export type Database = {
         Args: { p_order: string; p_reason: string }
         Returns: undefined
       }
+      admin_reset_trial: {
+        Args: { p_claim: string; p_reason: string }
+        Returns: undefined
+      }
+      trial_eligibility: {
+        Args: { p_address?: string; p_user: string }
+        Returns: Json
+      }
       admin_mark_order_paid: {
         Args: { p_method?: string; p_order: string; p_reference: string }
         Returns: {
@@ -2311,6 +2325,7 @@ export type Database = {
           p_fee: number
           p_items: Json
           p_meals_total: number
+          p_override_by?: string
           p_plan: string
           p_preferences: Json
           p_pricing: Json
@@ -2318,6 +2333,7 @@ export type Database = {
           p_start: string
           p_subtotal: number
           p_total: number
+          p_trial_override?: string
           p_type: Database["public"]["Enums"]["plan_type"]
           p_user: string
         }

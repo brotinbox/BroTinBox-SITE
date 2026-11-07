@@ -6,11 +6,111 @@ import { getSupabaseServer } from '@/lib/supabase/server';
 import { adminHref } from '@/lib/admin/paths';
 import { Card, DataTable, EmptyState, PageHeader, StatCard, StatusBadge, fmtDate, inr } from '@/components/admin/ui';
 import { ActionForm, Field, Input, Select, SubmitButton, Textarea } from '@/components/admin/forms';
+import { getTrialEligibility, type TrialEligibility } from '@/lib/checkout/trial';
+import { customersById, trialBoxDates, trialClaims, type TrialClaim } from '@/lib/admin/trials';
+import { resetTrial } from '../../trials/actions';
 import {
   addNote, setBlocked, setTags, staffAddCredit, staffCancelSubscription, staffPause, staffResume, staffSkipDelivery,
 } from '../actions';
 
 export const metadata = { title: 'Customer' };
+
+type CustomerTrial = {
+  eligibility: TrialEligibility | null;
+  history: TrialClaim[];
+  /** When their number matched someone else's trial: that trial and its customer. */
+  other: (TrialClaim & { name: string | null }) | null;
+  boxes: Map<string, { date: string | null; orderNumber: string }>;
+};
+
+async function loadCustomerTrial(userId: string): Promise<CustomerTrial> {
+  // crm data via service role; requireStaff('customers.read') has run.
+  const [eligibility, historyRes] = await Promise.all([
+    getTrialEligibility(userId).catch(() => null),
+    trialClaims().select('*').eq('user_id', userId).order('claimed_at', { ascending: false }),
+  ]);
+  const history = (historyRes.data ?? []) as TrialClaim[];
+  let other: CustomerTrial['other'] = null;
+  if (eligibility?.claim_id && eligibility.matched_on !== 'account') {
+    const { data } = await trialClaims().select('*').eq('id', eligibility.claim_id).maybeSingle();
+    if (data) {
+      const people = await customersById([data.user_id]);
+      other = { ...(data as TrialClaim), name: people.get(data.user_id)?.full_name ?? people.get(data.user_id)?.email ?? null };
+    }
+  }
+  const boxes = await trialBoxDates([...history.map((c) => c.order_id), ...(other ? [other.order_id] : [])]);
+  return { eligibility, history, other, boxes };
+}
+
+function TrialPanel({ trial, canReset }: { trial: CustomerTrial; canReset: boolean }) {
+  const { eligibility: e, history, other, boxes } = trial;
+  const active = history.find((c) => c.status !== 'released' && !c.is_override) ?? history.find((c) => c.status !== 'released');
+  // Only this customer's own trial can be reset here; a shared-number block is lifted with an extra trial instead.
+  const resettable = active ?? null;
+  return (
+    <div className="space-y-3 text-sm">
+      {!e ? (
+        <p className="text-gray-500">Could not load trial status.</p>
+      ) : e.eligible && !e.own_pending ? (
+        <p><StatusBadge value="active" label="can book a trial" /> <span className="text-xs text-gray-500 ml-1">No trial used yet.</span></p>
+      ) : e.matched_on === 'account' ? (
+        <div className="space-y-1">
+          <StatusBadge value={e.status === 'used' ? 'paid' : 'pending_payment'} label={e.status === 'used' ? 'trial used' : 'trial awaiting payment'} />
+          {active && (
+            <p className="text-xs text-gray-600">
+              Box {boxes.get(active.order_id)?.date ? fmtDate(boxes.get(active.order_id)!.date) : '—'} ·{' '}
+              <Link href={adminHref(`/orders/${active.order_id}`)} className="text-primary underline">{boxes.get(active.order_id)?.orderNumber ?? 'order'}</Link>
+              {active.delivered_at ? ' · delivered' : ''}
+            </p>
+          )}
+        </div>
+      ) : (
+        <div className="space-y-1">
+          <StatusBadge value="pending" label="blocked: number already used" />
+          <p className="text-xs text-gray-600">
+            Their {e.matched_on === 'phone' ? 'mobile number' : 'delivery number'} matches a trial on{' '}
+            {other ? <Link href={adminHref(`/customers/${other.user_id}`)} className="text-primary underline">{other.name || 'another account'}</Link> : 'another account'}
+            {other && boxes.get(other.order_id)?.date ? ` (box ${fmtDate(boxes.get(other.order_id)!.date)})` : ''}. Usually the same person with two accounts.
+          </p>
+          <p className="text-xs text-gray-500">
+            Genuinely a different person? Create their trial from{' '}
+            <Link href={adminHref('/orders/new')} className="text-primary underline">New WhatsApp order</Link> with “Allow an extra trial” ticked.
+          </p>
+        </div>
+      )}
+
+      {history.some((c) => c.address_flag) && (
+        <p className="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1.5">
+          A trial was delivered to the same flat and pincode under a different number. Could be family or a flatmate; check before allowing another.
+        </p>
+      )}
+
+      {history.length > 0 && (
+        <ul className="text-xs text-gray-600 space-y-1 border-t border-gray-100 pt-2">
+          {history.map((c) => (
+            <li key={c.id}>
+              <Link href={adminHref(`/orders/${c.order_id}`)} className="text-primary underline">{boxes.get(c.order_id)?.orderNumber ?? 'order'}</Link>
+              {' · '}{c.status === 'used' ? 'used' : c.status === 'pending' ? 'awaiting payment' : 'released'}
+              {c.is_override ? ' · extra trial' : ''}
+              {c.release_reason ? ` (${c.release_reason})` : c.override_reason ? ` (“${c.override_reason}”)` : ''}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {canReset && resettable && (
+        <ActionForm action={resetTrial} className="space-y-1.5 border-t border-gray-100 pt-2">
+          <input type="hidden" name="claim_id" value={resettable.id} />
+          <Input name="reason" required minLength={4} maxLength={200} placeholder="Why give the trial back? e.g. refund, kitchen mistake" />
+          <SubmitButton variant="secondary" confirm="Give this customer their trial back?">
+            Reset trial
+          </SubmitButton>
+          <p className="text-[11px] text-gray-500">Saved in the activity log with your name.</p>
+        </ActionForm>
+      )}
+    </div>
+  );
+}
 
 type Summary = { lifetime_value: number; orders_paid: number; meals_delivered: number; meals_skipped: number; meals_upcoming: number; first_order_at: string | null };
 
@@ -35,6 +135,7 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
     supabase.from('activity_log').select('id, action, entity, actor_role, created_at, before, after').eq('user_id', id).order('created_at', { ascending: false }).limit(60),
     supabase.from('progress_logs').select('log_date, weight_kg').eq('user_id', id).order('log_date', { ascending: false }).limit(8),
   ]);
+  const trial = await loadCustomerTrial(id);
 
   const p = profileRes.data;
   if (!p) notFound();
@@ -180,6 +281,10 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
         </div>
 
         <div className="space-y-4">
+          <Card title="Trial box">
+            <TrialPanel trial={trial} canReset={staff.can('orders.refund')} />
+          </Card>
+
           <Card title="Profile">
             <dl className="grid grid-cols-2 gap-y-1.5 text-sm">
               <dt className="text-gray-500">Goal</dt><dd>{p.goal ?? '—'}</dd>
@@ -192,6 +297,7 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
               <dt className="text-gray-500">Allergies</dt><dd>{p.allergies?.length ? p.allergies.join(', ') : 'none'}</dd>
               <dt className="text-gray-500">Dislikes</dt><dd>{p.disliked_ingredients?.length ? p.disliked_ingredients.join(', ') : 'none'}</dd>
               <dt className="text-gray-500">WhatsApp updates</dt><dd>{p.whatsapp_opt_in ? 'yes' : 'no'}</dd>
+              <dt className="text-gray-500">WhatsApp offers</dt><dd>{p.whatsapp_offers_opt_in ? `yes${p.whatsapp_offers_opt_in_at ? ` (since ${fmtDate(p.whatsapp_offers_opt_in_at)})` : ''}` : 'no'}</dd>
               <dt className="text-gray-500">Referral code</dt><dd className="font-mono text-xs">{p.referral_code}</dd>
               <dt className="text-gray-500">Last seen</dt><dd>{fmtDate(p.last_seen_at, true)}</dd>
             </dl>

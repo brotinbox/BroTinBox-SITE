@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { getSupabaseService } from '@/lib/supabase/admin';
 import sidesData from '@/data/sides.json';
 import { MIN_PLAN_DAYS, secondMealPrice } from '@/lib/pricing';
+import { assertTrialAvailable } from '@/lib/checkout/trial';
 
 /**
  * Server-side pricing. The browser sends WHAT the customer chose; the server
@@ -21,6 +22,8 @@ export const cartSchema = z.object({
   preferences: z.object({ isEggFree: z.boolean().default(false), skipLegume: z.boolean().default(false), dietVariation: z.string().max(20).optional() }).default({}),
   addressId: z.string().uuid(),
   couponCode: z.string().trim().toUpperCase().max(30).optional(),
+  /** Ticked "WhatsApp me plan offers" at checkout (consent, not pricing). */
+  whatsappOffers: z.boolean().optional(),
 });
 export type Cart = z.infer<typeof cartSchema>;
 
@@ -41,12 +44,25 @@ export type Quote = {
   addonIds: string[];
 };
 
-export class CheckoutError extends Error {}
+export type CheckoutErrorCode = 'TRIAL_USED' | 'VERIFY_PHONE';
+
+export class CheckoutError extends Error {
+  constructor(message: string, public code?: CheckoutErrorCode) {
+    super(message);
+  }
+}
+
+export type QuoteOptions = {
+  /** Where the order comes from; recorded on blocked repeat-trial attempts. */
+  source?: 'web' | 'admin';
+  /** Staff-approved repeat trial (the database records the reason). */
+  allowRepeatTrial?: boolean;
+};
 
 const SIDE_ID_TO_SLUG = new Map((sidesData as { id: string; slug: string }[]).map((s) => [s.id, s.slug]));
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
-export async function quoteCart(cart: Cart, userId: string): Promise<Quote> {
+export async function quoteCart(cart: Cart, userId: string, opts: QuoteOptions = {}): Promise<Quote> {
   const db = getSupabaseService();
 
   // Ordering switch
@@ -68,6 +84,11 @@ export async function quoteCart(cart: Cart, userId: string): Promise<Quote> {
   if (!zone) throw new CheckoutError(`We don't deliver to ${address.pincode} yet.`);
   // Phase 2 areas are listed as "next batch" and don't take orders yet.
   if (zone.tier !== 'core') throw new CheckoutError(`${zone.area} is in our next delivery batch. We'll let you know as soon as we start delivering there.`);
+
+  // One trial box per customer (account, phone or delivery phone).
+  if (cart.type === 'trial' && !opts.allowRepeatTrial) {
+    await assertTrialAvailable(userId, cart.addressId, opts.source ?? 'web');
+  }
 
   // Dates: unique, operating days, not before the cutoff, not too far ahead
   const dates = [...new Map(cart.days.map((d) => [d.date, d])).values()].sort((a, b) => a.date.localeCompare(b.date));

@@ -9,7 +9,10 @@ export type CreatedOrder = { id: string; order_number: string; total: number };
  * the website checkout and staff-entered (WhatsApp) orders so both produce
  * identical rows.
  */
-export async function createOrderFromQuote(userId: string, cart: Cart, q: Quote, opts: { expiresIn?: string } = {}): Promise<CreatedOrder> {
+export async function createOrderFromQuote(
+  userId: string, cart: Cart, q: Quote,
+  opts: { expiresIn?: string; trialOverride?: { reason: string; by: string } } = {},
+): Promise<CreatedOrder> {
   const db = getSupabaseService();
   const prefs = cart.preferences;
   const { data, error } = await db.rpc('create_checkout_order', {
@@ -37,6 +40,8 @@ export async function createOrderFromQuote(userId: string, cart: Cart, q: Quote,
     p_pricing: { lines: q.lines, schedule: q.schedule, quoted_at: new Date().toISOString() },
     p_items: q.lines,
     ...(opts.expiresIn && { p_expires_in: opts.expiresIn }),
+    // Staff-approved extra trial: the database records the reason and who allowed it.
+    ...(opts.trialOverride && { p_trial_override: opts.trialOverride.reason, p_override_by: opts.trialOverride.by }),
   });
   if (error || !data) throw error ?? new Error('no order');
   return data as unknown as CreatedOrder;

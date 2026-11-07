@@ -10,7 +10,7 @@ import {
   Phone,
 } from 'lucide-react';
 import { useAppStore } from '@/store/useAppStore';
-import { useDeliveryZones, zoneToUserLocation, ZoneLocation, notifyMeLink } from '@/lib/location';
+import { useDeliveryZones, zoneToUserLocation, ZoneLocation, notifyMeLink, isPincode, locationFromPincode } from '@/lib/location';
 import { cn } from '@/lib/utils';
 import { BRAND } from '@/config/brand';
 
@@ -20,20 +20,11 @@ interface LocationSelectorProps {
 }
 
 export function LocationSelector({ variant = 'desktop', className }: LocationSelectorProps) {
-  const { currentLocation, setCurrentLocation } = useAppStore();
+  const { currentLocation, setCurrentLocation, locationConfirmed, setLocationPromptOpen } = useAppStore();
   const { zones, comingSoonZones, loading } = useDeliveryZones();
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // Reset a saved location that is no longer an active zone (or an old "Ward 88" label)
-  useEffect(() => {
-    if (loading || zones.length === 0) return;
-    const match = zones.find((z) => z.pincode === currentLocation?.pincode);
-    if (!match || /ward/i.test(currentLocation.area)) {
-      setCurrentLocation(zoneToUserLocation(match ?? zones[0]));
-    }
-  }, [loading, zones, currentLocation, setCurrentLocation]);
 
   // Close when clicking outside
   useEffect(() => {
@@ -73,8 +64,20 @@ export function LocationSelector({ variant = 'desktop', className }: LocationSel
     : `Hi ${BRAND.name}! I'd like delivery to my area. Area: , Pincode: `;
   const areaRequestLink = `https://wa.me/${BRAND.whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent(areaRequestText)}`;
 
-  const displayArea = currentLocation?.area || 'Kuniyamuthur';
-  const displayPincode = currentLocation?.pincode || '641008';
+  // Until the visitor enters a pincode we show a prompt, not a guessed area.
+  const displayPincode = locationConfirmed ? currentLocation.pincode : '';
+  const displayArea = !locationConfirmed ? 'Enter pincode' : currentLocation.area || `Pincode ${currentLocation.pincode}`;
+  const displaySub = !locationConfirmed
+    ? 'Check delivery in Coimbatore'
+    : currentLocation.isDeliverable
+      ? `${displayPincode}, Coimbatore`
+      : `${displayPincode} · Not delivering yet`;
+
+  const openPincodePrompt = () => {
+    setIsOpen(false);
+    setSearchQuery('');
+    setLocationPromptOpen(true);
+  };
 
   if (variant === 'mobile') {
     return (
@@ -97,7 +100,7 @@ export function LocationSelector({ variant = 'desktop', className }: LocationSel
                 )}
               />
             </div>
-            <span className="text-[10px] text-gray-500 font-semibold">{displayPincode}, Coimbatore</span>
+            <span className={cn("text-[10px] font-semibold", locationConfirmed && !currentLocation.isDeliverable ? "text-amber-700" : "text-gray-500")}>{displaySub}</span>
           </div>
         </button>
 
@@ -115,7 +118,7 @@ export function LocationSelector({ variant = 'desktop', className }: LocationSel
       >
         <MapPin className="w-4 h-4 text-accent shrink-0" />
         <span className="truncate max-w-[160px] sm:max-w-[200px]">
-          {displayArea}, {displayPincode}
+          {locationConfirmed ? `${displayArea}${currentLocation.area ? `, ${displayPincode}` : ''}` : displayArea}
         </span>
         <ChevronDown
           className={cn(
@@ -151,6 +154,15 @@ export function LocationSelector({ variant = 'desktop', className }: LocationSel
             <p className="text-[11px] text-gray-500 mt-0.5">
               Dispatched fresh twice daily across Coimbatore
             </p>
+
+            <button
+              type="button"
+              onClick={openPincodePrompt}
+              className="mt-3 w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-ink hover:bg-ink-soft text-white text-xs font-bold transition-colors"
+            >
+              <MapPin className="w-3.5 h-3.5" />
+              {locationConfirmed ? 'Change my pincode' : 'Enter my pincode'}
+            </button>
 
             {/* Search Input */}
             <div className="relative mt-3">
@@ -240,6 +252,19 @@ export function LocationSelector({ variant = 'desktop', className }: LocationSel
                 <p className="text-[11px] text-gray-400 mt-1">
                   We&apos;re expanding across Coimbatore. Send us your area and pincode below!
                 </p>
+                {isPincode(searchQuery) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCurrentLocation(locationFromPincode(searchQuery, zones, comingSoonZones));
+                      setIsOpen(false);
+                      setSearchQuery('');
+                    }}
+                    className="mt-3 px-3 py-1.5 rounded-full border border-ink/15 text-[11px] font-bold text-ink hover:bg-sand"
+                  >
+                    Save {searchQuery.trim()} as my pincode
+                  </button>
+                )}
               </div>
             )}
           </div>

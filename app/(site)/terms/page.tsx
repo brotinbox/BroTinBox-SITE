@@ -35,7 +35,7 @@ const sections: LegalSection[] = [
     body: (
       <ul>
         <li>You must be at least 18 years old and able to enter a binding contract under the Indian Contract Act, 1872.</li>
-        <li>You sign in with your Google account. Keep access to it secure; orders and changes made from your account are treated as made by you.</li>
+        <li>You sign in with your mobile number using a one-time code we send on WhatsApp. Keep your phone and WhatsApp secure and never share the code; orders and changes made from your account are treated as made by you.</li>
         <li>Give us accurate details, especially your mobile number, delivery address and allergies, and keep them up to date.</li>
         <li>
           You may order for family members or others (for example, elderly parents). You confirm you are authorised to do so, that you have shared our

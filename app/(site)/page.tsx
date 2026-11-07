@@ -1,6 +1,7 @@
 import React from 'react';
 import { getDrinks, getSides } from '@/lib/data/catalog';
 import { HomeHero } from '@/components/home/HomeHero';
+import { IntroSplash } from '@/components/brand/IntroSplash';
 import { WeeklyCalendarStrip } from '@/components/home/WeeklyCalendarStrip';
 import { AddASideSection } from '@/components/home/AddASideSection';
 import { DrinksStrip } from '@/components/home/DrinksStrip';
@@ -12,6 +13,9 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col min-h-screen">
+      {/* First-visit logo reveal, fades into the page */}
+      <IntroSplash />
+
       {/* 1. Main Home Hero Section */}
       <HomeHero />
 

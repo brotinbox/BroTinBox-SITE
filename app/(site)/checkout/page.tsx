@@ -8,7 +8,9 @@ import { useAppStore } from '@/store/useAppStore';
 import { getQuote, type QuoteResult } from '@/lib/checkout/actions';
 import type { Cart } from '@/lib/checkout/quote';
 import { SIGN_IN_PENDING, submitOrder, toDbDiet, type NewAddressInput } from '@/lib/checkout/submit';
+import { OrderErrorNotice } from '@/components/checkout/OrderErrorNotice';
 import { cn } from '@/lib/utils';
+import { useSavedLocation } from '@/lib/location';
 import { OrderTerms } from '@/components/legal/OrderTerms';
 
 const inr = (n: number) => `₹${n.toLocaleString('en-IN', { maximumFractionDigits: 2 })}`;
@@ -46,9 +48,16 @@ export default function CheckoutPage() {
   const [placing, setPlacing] = useState(false);
   const [error, setError] = useState('');
 
+  const saved = useSavedLocation();
   useEffect(() => {
-    setAddr((a) => ({ ...a, recipientName: a.recipientName || user.fullName, phone: a.phone || user.phone.replace(/^\+91/, '') }));
-  }, [user.fullName, user.phone]);
+    setAddr((a) => ({
+      ...a,
+      recipientName: a.recipientName || user.fullName,
+      phone: a.phone || user.phone.replace(/^\+91/, ''),
+      area: a.area || saved.area,
+      pincode: a.pincode || saved.pincode,
+    }));
+  }, [user.fullName, user.phone, saved.area, saved.pincode]);
   useEffect(() => { if (authReady && addresses.length === 0) setUseNew(true); }, [authReady, addresses.length]);
 
   const addressId = useNew ? undefined : (selectedAddressId || addresses[0]?.id);
@@ -154,7 +163,7 @@ export default function CheckoutPage() {
           ) : !quote ? (
             <p className="text-sm text-gray-500">Calculating…</p>
           ) : !quote.ok ? (
-            <p className="text-sm font-semibold text-rose-700">{quote.error}</p>
+            <OrderErrorNotice error={quote.code ? `${quote.code}::${quote.error}` : quote.error} />
           ) : (
             <ul className="space-y-1.5 text-sm">
               {quote.lines.map((l, i) => (
@@ -168,7 +177,7 @@ export default function CheckoutPage() {
           )}
         </section>
 
-        {error && <p role="alert" className="text-sm font-semibold text-rose-700 bg-rose-50 border border-rose-100 rounded-xl px-3 py-2">{error}</p>}
+        {error && !(quote && !quote.ok && quote.code && error.startsWith(`${quote.code}::`)) && <OrderErrorNotice error={error} />}
 
         <button
           type="button"

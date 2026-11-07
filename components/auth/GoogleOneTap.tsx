@@ -35,11 +35,16 @@ export function GoogleOneTap() {
   const router = useRouter();
   const pathname = usePathname();
   const isLoggedIn = useAppStore((s) => s.isLoggedIn);
+  const authReady = useAppStore((s) => s.authReady);
   const isInitialized = useRef(false);
+  // Only prompt once we know the visitor is signed out. Prompting earlier and
+  // cancelling when the session loads is what made GSI log
+  // "FedCM get() rejects with AbortError".
+  const canPrompt = authReady && !isLoggedIn;
 
   const initOneTap = () => {
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-    if (!clientId || !window.google?.accounts?.id || isLoggedIn || isInitialized.current) {
+    if (!clientId || !window.google?.accounts?.id || !canPrompt || isInitialized.current) {
       return;
     }
 
@@ -78,11 +83,8 @@ export function GoogleOneTap() {
         use_fedcm_for_prompt: true,
       });
 
-      window.google.accounts.id.prompt((notification) => {
-        if (notification.isNotDisplayed()) {
-          console.debug('Google One Tap not displayed:', notification.getNotDisplayedReason());
-        }
-      });
+      // No status callback: with FedCM, Google no longer reports display/skip reasons.
+      window.google.accounts.id.prompt();
     } catch (err) {
       console.warn('Google One Tap initialization error:', err);
     }
@@ -90,22 +92,18 @@ export function GoogleOneTap() {
 
   useEffect(() => {
     if (isLoggedIn) {
+      // Signed in some other way: allow a fresh prompt after a later sign-out.
+      // No cancel() here; the browser closes the FedCM prompt itself, and
+      // cancelling an open request is what logs the AbortError.
       isInitialized.current = false;
-      if (window.google?.accounts?.id) {
-        try {
-          window.google.accounts.id.cancel();
-        } catch {}
-      }
       return;
     }
+    if (canPrompt && window.google?.accounts?.id) initOneTap();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canPrompt, isLoggedIn, pathname]);
 
-    if (window.google?.accounts?.id) {
-      initOneTap();
-    }
-  }, [isLoggedIn, pathname]);
-
-  // If already logged in, do not render or prompt
-  if (isLoggedIn) return null;
+  // Wait until we know the visitor is signed out; never load or prompt for signed-in users.
+  if (!canPrompt) return null;
 
   return (
     <Script

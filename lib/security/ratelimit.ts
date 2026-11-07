@@ -20,6 +20,7 @@ export const LIMITS = {
   customerAction: { tokens: 30, window: '1 m' },   // skip/pause/profile edits, per user
   adminMutation: { tokens: 120, window: '1 m' },   // per staff user
   upload: { tokens: 20, window: '10 m' },          // per staff user
+  opsAlert: { tokens: 1, window: '30 m' },         // staff Telegram alerts about a breakage, per kind
 } as const satisfies Record<string, { tokens: number; window: Window }>;
 
 export type LimitName = keyof typeof LIMITS;

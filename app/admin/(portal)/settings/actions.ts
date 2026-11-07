@@ -6,6 +6,10 @@ import { cleanText } from '@/lib/security/request';
 import { fail, ok, staffAction, type ActionResult } from '@/lib/admin/actions';
 import { uploadImage } from '@/lib/admin/upload';
 import type { Json } from '@/types/database';
+import { updateTag } from 'next/cache';
+import { sendOtp } from '@/lib/auth/otp';
+import { escapeHtml, sendTelegramMessage } from '@/lib/notifications/telegram';
+import { ALERTS_KEY, PHONE_OTP_KEY, RUNTIME_SETTINGS_TAG, tenDigitMobile, whatsappSenderConfigured } from '@/lib/settings/runtime';
 
 async function put(key: string, value: Json, userId: string) {
   const supabase = await getSupabaseServer();
@@ -66,11 +70,85 @@ export async function saveAnnouncement(_p: ActionResult | null, fd: FormData): P
   }, { tags: ['settings'] });
 }
 
-const FLAGS = ['google_login', 'whatsapp_otp', 'autopay', 'coupons', 'reviews', 'rider_app', 'referrals', 'wallet'] as const;
+// whatsapp_otp moved to its own card (savePhoneOtp below).
+const FLAGS = ['google_login', 'autopay', 'coupons', 'reviews', 'rider_app', 'referrals', 'wallet'] as const;
 
 export async function saveFeatures(_p: ActionResult | null, fd: FormData): Promise<ActionResult> {
   return staffAction('settings.write', async (staff) => {
     await put('features', Object.fromEntries(FLAGS.map((f) => [f, fd.get(f) === 'on'])), staff.profile.id);
     return ok('Features saved.');
   }, { tags: ['settings'] });
+}
+
+/** Private runtime settings (not readable by customers); takes effect on the next request. */
+async function putPrivate(key: string, value: Json, userId: string) {
+  const supabase = await getSupabaseServer();
+  const { error } = await supabase.from('site_settings')
+    .upsert({ key, value, is_public: false, updated_by: userId }, { onConflict: 'key' });
+  if (error) throw error;
+  updateTag(RUNTIME_SETTINGS_TAG);
+}
+
+const OTP_TEMPLATE_RE = /^[a-z0-9_]{1,512}$/;
+const LANG_RE = /^[a-z]{2,3}(_[A-Z]{2})?$/;
+
+export async function savePhoneOtp(_p: ActionResult | null, fd: FormData): Promise<ActionResult> {
+  const mode = z.enum(['off', 'test', 'on']).safeParse(fd.get('mode'));
+  if (!mode.success) return fail('Choose Off, Test or Live.');
+  const raw = String(fd.get('test_numbers') ?? '').split(/[\s,]+/).filter(Boolean);
+  const numbers = raw.map(tenDigitMobile);
+  const bad = raw.filter((_, i) => !numbers[i]);
+  if (bad.length) return fail(`Not a valid Indian mobile: ${bad.slice(0, 3).join(', ')}`);
+  if (mode.data === 'test' && !numbers.length) return fail('Add at least one test number for Test mode.');
+  const template = cleanText(fd.get('template'), 512) || 'login_otp';
+  if (!OTP_TEMPLATE_RE.test(template)) return fail('Template name: lowercase letters, numbers and _ only (as in WhatsApp Manager).');
+  const lang = cleanText(fd.get('lang'), 10) || 'en';
+  if (!LANG_RE.test(lang)) return fail('Language code looks wrong (e.g. en or en_US).');
+  if (mode.data !== 'off' && !whatsappSenderConfigured()) {
+    return fail('WHATSAPP_PHONE_NUMBER_ID / WHATSAPP_ACCESS_TOKEN are not set in Vercel, so codes cannot be sent. Keep it Off until they are.');
+  }
+
+  return staffAction('settings.write', async (staff) => {
+    await putPrivate(PHONE_OTP_KEY, {
+      mode: mode.data,
+      test_numbers: [...new Set(numbers as string[])].slice(0, 20),
+      template,
+      lang,
+    }, staff.profile.id);
+    return ok(mode.data === 'on'
+      ? 'Saved. Phone sign-in is live for every customer.'
+      : mode.data === 'test'
+        ? 'Saved. Only the test numbers can sign in with a code (on /login?otp=1).'
+        : 'Saved. Phone sign-in is off; customers use Google.');
+  });
+}
+
+/** Sends a real login code to a number, using the saved template, to check WhatsApp delivery. */
+export async function sendTestOtp(_p: ActionResult | null, fd: FormData): Promise<ActionResult> {
+  const ten = tenDigitMobile(String(fd.get('phone') ?? ''));
+  if (!ten) return fail('Enter a valid 10-digit mobile.');
+  if (!whatsappSenderConfigured()) return fail('WhatsApp sender is not configured in Vercel.');
+  return staffAction('settings.write', async () => {
+    const r = await sendOtp(`+91${ten}`);
+    if (!r.ok) return fail(r.error);
+    return ok(`Code sent to ${ten} on WhatsApp. If it does not arrive, check the template name and that it is approved.`);
+  });
+}
+
+export async function saveAlerts(_p: ActionResult | null, fd: FormData): Promise<ActionResult> {
+  const chat = cleanText(fd.get('telegram_chat_id'), 64);
+  if (chat && !/^(-?\d{5,20}|@[A-Za-z0-9_]{5,32})$/.test(chat)) {
+    return fail('Telegram chat ID is a number like -1001234567890 (groups start with -), or @channelname.');
+  }
+  return staffAction('settings.write', async (staff) => {
+    await putPrivate(ALERTS_KEY, { telegram_chat_id: chat }, staff.profile.id);
+    return ok(chat ? 'Saved. New alerts go to this chat.' : 'Cleared. Alerts use TELEGRAM_CHAT_ID from Vercel.');
+  });
+}
+
+export async function sendTestAlert(_p: ActionResult | null, _fd: FormData): Promise<ActionResult> {
+  return staffAction('settings.write', async (staff) => {
+    const sent = await sendTelegramMessage(`✅ <b>Test alert</b>\nSent from admin settings by ${escapeHtml(staff.profile.full_name || 'staff')}.`);
+    return sent ? ok('Test alert sent. Check the Telegram chat.') : fail('Could not send. Check the chat ID, and that the bot is a member of that chat.');
+  });
 }

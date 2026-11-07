@@ -93,3 +93,12 @@
 .prose-blog code { background: #f3f4f6; padding: 0.1rem 0.35rem; border-radius: 0.25rem; font-size: 0.9em; }
 .prose-blog hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
 .prose-blog strong { font-weight: 700; color: #111827; }
+
+/* First-visit intro splash (components/brand/IntroSplash.tsx): html[data-intro] is set before paint. */
+.intro-splash { display: none; }
+html[data-intro] .intro-splash { display: block; }
+html[data-intro] body { overflow: hidden; }
+
+/* Route loader (components/brand/BrandLoader.tsx): wait a beat so fast loads never flash it. */
+.brand-loader { animation: brand-loader-in 300ms ease-out 250ms both; }
+@keyframes brand-loader-in { from { opacity: 0; } to { opacity: 1; } }

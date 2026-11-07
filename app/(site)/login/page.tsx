@@ -6,6 +6,7 @@ import { ShieldCheck } from 'lucide-react';
 import { BRAND } from '@/config/brand';
 import { LoginPagePanel } from '@/components/auth/LoginPagePanel';
 import { getSessionUser } from '@/lib/auth/session';
+import { getGoogleLoginEnabled } from '@/lib/data/catalog';
 import { showPhoneOtpForm } from '@/lib/auth/otp-mode';
 
 export const metadata: Metadata = {
@@ -31,6 +32,8 @@ export default async function LoginPage({
 }) {
   const { next, error, otp } = await searchParams;
   const destination = safeNext(next);
+  const phoneEnabled = await showPhoneOtpForm(otp);
+  const googleEnabled = (await getGoogleLoginEnabled()) || !phoneEnabled;
 
   if (await getSessionUser()) redirect(destination);
 
@@ -47,7 +50,7 @@ export default async function LoginPage({
               {ERRORS[error]}
             </p>
           )}
-          <LoginPagePanel phoneEnabled={showPhoneOtpForm(otp)} next={destination} />
+          <LoginPagePanel phoneEnabled={phoneEnabled} googleEnabled={googleEnabled} next={destination} />
         </div>
 
         <div className="mt-6 flex items-center justify-center gap-2 text-xs text-gray-500">

@@ -7,7 +7,8 @@
       "ClaudeInChromeDomain(www.google.com)",
       "ClaudeInChromeDomain(drive.google.com)",
       "ClaudeInChromeDomain(docs.google.com)",
-      "ClaudeInChromeDomain(business.facebook.com)"
+      "ClaudeInChromeDomain(business.facebook.com)",
+      "ClaudeInChromeDomain(localhost:3001)"
     ]
   }
 }
