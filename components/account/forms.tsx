@@ -3,6 +3,7 @@
 import { useActionState, type ReactNode } from 'react';
 import { useFormStatus } from 'react-dom';
 import { cn } from '@/lib/utils';
+import { useConfirmClick, type ConfirmInput } from '@/components/ui/ConfirmDialog';
 import type { CustomerResult } from '@/lib/customer/actions';
 
 export function CustomerForm({ action, children, className }: {
@@ -22,9 +23,10 @@ export function CustomerForm({ action, children, className }: {
 }
 
 export function Btn({ children, variant = 'primary', confirm, pendingText = '…', className }: {
-  children: ReactNode; variant?: 'primary' | 'ghost' | 'danger'; confirm?: string; pendingText?: string; className?: string;
+  children: ReactNode; variant?: 'primary' | 'ghost' | 'danger'; confirm?: ConfirmInput; pendingText?: string; className?: string;
 }) {
   const { pending } = useFormStatus();
+  const askFirst = useConfirmClick(confirm);
   const styles = {
     primary: 'bg-ink text-white hover:bg-ink-soft',
     ghost: 'bg-white border border-gray-200 text-gray-800 hover:bg-gray-50',
@@ -34,7 +36,7 @@ export function Btn({ children, variant = 'primary', confirm, pendingText = '…
     <button
       type="submit"
       disabled={pending}
-      onClick={(e) => { if (confirm && !window.confirm(confirm)) e.preventDefault(); }}
+      onClick={askFirst}
       className={cn('inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-colors disabled:opacity-60', styles[variant], className)}
     >
       {pending ? pendingText : children}

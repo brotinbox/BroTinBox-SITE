@@ -1,197 +1,139 @@
-import React from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
+'use client';
+
+import { usePathname } from 'next/navigation';
+import PushpinTearFooter, { type FooterColumn, type IconLink, type TearField } from '@/components/ui/pushpin-tear-footer';
 import { BRAND } from '@/config/brand';
 import { LEGAL, fssaiAbbr, hasFssai } from '@/config/legal';
-import { MapPin, Phone, Mail, Heart, Instagram } from 'lucide-react';
+import { useAppStore } from '@/store/useAppStore';
+import { isPincode, locationFromPincode, notifyMeLink, useDeliveryZones } from '@/lib/location';
 
-/** WhatsApp's own logo: lucide-react has no brand icon for it. */
-function WhatsAppIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className={className}>
-      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
-    </svg>
-  );
-}
+/**
+ * Site footer: a black poster pinned with an orange pushpin and torn to show the
+ * sand paper underneath. Layout and motion live in components/ui/pushpin-tear-footer.tsx;
+ * this file only decides what goes where.
+ *
+ *  sheet  ─ back to top · Instagram · WhatsApp | copy support email
+ *           "Do we deliver to you?" pincode check
+ *           Cooked in Coimbatore (desktop) | live IST clock (desktop)
+ *           Explore column → order.     |  Company column → talk. (WhatsApp)
+ *  paper  ─ tagline + WhatsApp bubble, BroTin Box wordmark, privacy / terms,
+ *           © line · FSSAI number · @brotinbox
+ */
+
+// Brand tokens (tailwind.config.ts): the component takes raw colours.
+const INK = '#121212';
+const SAND = '#F3F1EE';
+const ACCENT = '#EA580C';
+const WHITE = '#FFFFFF';
+
+const SOCIALS: IconLink[] = [
+  { icon: 'ig', label: 'Instagram', href: BRAND.socials.instagram },
+  { icon: 'whatsapp', label: 'WhatsApp', href: BRAND.socials.whatsapp },
+];
+
+const COLUMNS: FooterColumn[] = [
+  {
+    title: 'explore',
+    links: [
+      { label: 'Daily Menu & Macros', href: '/menu' },
+      { label: 'Pricing & Plans', href: '/pricing' },
+      { label: 'Delivery Areas', href: '/delivery-areas' },
+      { label: 'My Dashboard', href: '/dashboard' },
+    ],
+    cta: { label: 'order.', href: '/menu' },
+  },
+  {
+    title: 'company',
+    links: [
+      { label: 'About', href: '/about' },
+      { label: 'FAQ', href: '/faq' },
+      { label: 'Contact', href: '/contact' },
+      { label: 'Nutrition Blog', href: '/blog' },
+    ],
+    cta: { label: 'talk.', href: BRAND.socials.whatsapp },
+  },
+];
+
+const SIDE_LINKS: IconLink[] = [
+  { icon: 'shield', label: 'privacy', href: '/privacy' },
+  { icon: 'doc', label: 'terms', href: '/terms' },
+];
+
+// Signed-in dashboard pages: app-like screens, no marketing footer.
+const ACCOUNT_PREFIXES = ['/dashboard', '/my-plan', '/subscription', '/orders', '/progress', '/profile', '/onboarding'];
+const isAccountPage = (path: string) => ACCOUNT_PREFIXES.some((p) => path === p || path.startsWith(`${p}/`));
 
 export function Footer() {
+  const pathname = usePathname() ?? '';
+  const { zones, comingSoonZones } = useDeliveryZones();
+  const setCurrentLocation = useAppStore((s) => s.setCurrentLocation);
+  if (isAccountPage(pathname)) return null;
+
+  // The design's newsletter pill becomes our pincode check; the answer replaces its label.
+  const pincodeField: TearField = {
+    label: 'Do we deliver to you? Check your pincode',
+    placeholder: 'Your 6-digit pincode',
+    inputMode: 'numeric',
+    maxLength: 6,
+    submitLabel: 'Check pincode',
+    clean: (v) => v.replace(/\D/g, '').slice(0, 6),
+    onSubmit: (pin) => {
+      if (!isPincode(pin)) return 'That doesn’t look like a 6-digit pincode';
+      const loc = locationFromPincode(pin, zones, comingSoonZones);
+      setCurrentLocation(loc); // same as the pincode popup: remembered across the site
+      if (loc.isDeliverable) return `Yes! We deliver to ${loc.area || pin}, lunch and dinner.`;
+      if (loc.tier === 'phase2') {
+        return (
+          <>
+            {loc.area} is in our next batch.{' '}
+            <a href={notifyMeLink(BRAND.whatsappNumber, BRAND.name, { area: loc.area, pincode: pin })} target="_blank" rel="noopener noreferrer">
+              Notify me
+            </a>
+          </>
+        );
+      }
+      return (
+        <>
+          Not in {pin} yet.{' '}
+          <a href={notifyMeLink(BRAND.whatsappNumber, BRAND.name, { area: pin, pincode: pin })} target="_blank" rel="noopener noreferrer">
+            Request your area
+          </a>
+        </>
+      );
+    },
+  };
+
+  const year = new Date().getFullYear();
+
   return (
-    <footer className="bg-ink-deep text-white pt-16 pb-28 md:pb-12 border-t border-primary/40">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-white/10">
-          {/* Brand Intro */}
-          <div className="lg:col-span-2 space-y-4">
-            <Link href="/" className="inline-block group">
-              <div className="bg-white rounded-2xl p-2 px-3 shadow-md inline-flex items-center transition-transform group-hover:scale-105">
-                <Image
-                  src="/logo.png"
-                  alt={BRAND.name}
-                  width={150}
-                  height={50}
-                  className="h-11 w-auto object-contain"
-                />
-              </div>
-            </Link>
-            <p className="text-sm text-gray-300 max-w-sm leading-relaxed">
-              {BRAND.tagline} {BRAND.shortDescription}
-            </p>
-
-            {/* Contact details on the left, FSSAI card on the right (stacks on phones). */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="space-y-2 text-xs text-gray-300">
-              <div className="flex items-start gap-2">
-                <MapPin className="w-4 h-4 text-lime-brand shrink-0 mt-0.5" />
-                <span>{BRAND.address}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-lime-brand shrink-0" />
-                <span>{BRAND.phone}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-lime-brand shrink-0" />
-                <span>{BRAND.supportEmail}</span>
-              </div>
-            </div>
-
-            {/* FSSAI badge: shown only once a real licence number is set in config/legal.ts */}
-            {hasFssai() && (
-              <div className="self-start sm:self-auto shrink-0 inline-flex flex-col items-center text-center gap-2 bg-white/5 border border-white/10 px-3.5 py-3 rounded-xl text-xs">
-                {/* Dark navy logo: sits on a white tile so it reads on the dark footer. */}
-                <span className="bg-white rounded-lg px-2 py-1.5">
-                  <Image src="/FSSAI_logo.png" alt="FSSAI" width={450} height={221} className="h-8 w-auto" />
-                </span>
-                <div>
-                  <p className="font-semibold text-white">FSSAI {LEGAL.fssai.licenseType || 'Licence'}</p>
-                  <p className="text-[11px] text-gray-400">{fssaiAbbr()} No. {LEGAL.fssai.licenseNumber}</p>
-                </div>
-              </div>
-            )}
-            </div>
-          </div>
-
-          {/* Quick Links */}
-          <div>
-            <h3 className="font-heading font-bold text-sm uppercase tracking-wider text-lime-brand mb-4">
-              Explore
-            </h3>
-            <ul className="space-y-2.5 text-sm text-gray-300">
-              <li>
-                <Link href="/menu" className="hover:text-white transition-colors">
-                  Daily Menu & Macros
-                </Link>
-              </li>
-              <li>
-                <Link href="/pricing" className="hover:text-white transition-colors">
-                  Pricing & Subscriptions
-                </Link>
-              </li>
-              <li>
-                <Link href="/blog" className="hover:text-white transition-colors flex items-center gap-1.5">
-                  <span>Nutrition & Health Blog</span>
-                  <span className="text-[10px] font-bold bg-accent text-white px-1.5 py-0.2 rounded-sm">NEW</span>
-                </Link>
-              </li>
-              <li>
-                <Link href="/delivery-areas" className="hover:text-white transition-colors">
-                  Coimbatore Pincodes
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Customer & App */}
-          <div>
-            <h3 className="font-heading font-bold text-sm uppercase tracking-wider text-lime-brand mb-4">
-              Subscribers
-            </h3>
-            <ul className="space-y-2.5 text-sm text-gray-300">
-              <li>
-                <Link href="/dashboard" className="hover:text-white transition-colors">
-                  My Dashboard
-                </Link>
-              </li>
-              <li>
-                <Link href="/my-plan" className="hover:text-white transition-colors">
-                  Weekly Planner & Swaps
-                </Link>
-              </li>
-              <li>
-                <Link href="/subscription" className="hover:text-white transition-colors">
-                  Manage Subscription
-                </Link>
-              </li>
-              <li>
-                <Link href="/orders" className="hover:text-white transition-colors">
-                  Order Tracking
-                </Link>
-              </li>
-              <li>
-                <Link href="/progress" className="hover:text-white transition-colors">
-                  Weight & Macro Progress
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Trust & Policies */}
-          <div>
-            <h3 className="font-heading font-bold text-sm uppercase tracking-wider text-lime-brand mb-4">
-              Company
-            </h3>
-            <ul className="space-y-2.5 text-sm text-gray-300">
-              <li>
-                <Link href="/about" className="hover:text-white transition-colors">
-                  About
-                </Link>
-              </li>
-              <li>
-                <Link href="/faq" className="hover:text-white transition-colors">
-                  FAQ
-                </Link>
-              </li>
-              <li>
-                <Link href="/contact" className="hover:text-white transition-colors">
-                  Contact
-                </Link>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Bottom bar */}
-        <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-400">
-          <div className="flex flex-col sm:flex-row items-center gap-x-4 gap-y-2 text-center">
-            <p>© {new Date().getFullYear()} {LEGAL.entityName || BRAND.name}. All rights reserved.</p>
-            <nav aria-label="Legal" className="flex items-center gap-4">
-              <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
-              <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
-            </nav>
-          </div>
-          <p className="flex items-center gap-1 text-gray-400">
-            Cooked with <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500 inline" /> in Coimbatore, Tamil Nadu
-          </p>
-          <div className="flex items-center gap-4">
-            <a
-              href={BRAND.socials.instagram}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-400 hover:text-lime-brand transition-colors"
-              aria-label="Instagram"
-            >
-              <Instagram className="w-4 h-4" />
-            </a>
-            <a
-              href={BRAND.socials.whatsapp}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-400 hover:text-lime-brand transition-colors"
-              aria-label="WhatsApp"
-            >
-              <WhatsAppIcon className="w-4 h-4" />
-            </a>
-          </div>
-        </div>
-      </div>
-    </footer>
+    // The mobile dock (BottomNav) floats over the last ~6rem: pad below in the paper colour.
+    <div className="bg-sand bg-grain pb-24 md:pb-0">
+      <PushpinTearFooter
+        brand="BroTin Box"
+        name="Every gram counted."
+        logo={false}
+        socials={SOCIALS}
+        email={BRAND.supportEmail}
+        field={pincodeField}
+        status={null}
+        mark="Cooked in Coimbatore · Mon–Sat"
+        timeZone="Asia/Kolkata"
+        timeLabel="IST"
+        columns={COLUMNS}
+        chat={{ label: 'order on WhatsApp', href: BRAND.socials.whatsapp }}
+        sideLinks={SIDE_LINKS}
+        copyright={`© ${year} ${LEGAL.entityName || BRAND.name}`}
+        credit={hasFssai() ? `FSSAI ${fssaiAbbr()} No. ${LEGAL.fssai.licenseNumber}` : 'Cooked in Coimbatore, Tamil Nadu'}
+        handle={{ label: '@brotinbox', href: BRAND.socials.instagram }}
+        sheet={INK}
+        pinColor={ACCENT}
+        sheetInk={WHITE}
+        paper={SAND}
+        paperInk={INK}
+        seed={11}
+        height="100svh"
+        fontSans="'Plus Jakarta Sans', 'Inter', system-ui, sans-serif"
+      />
+    </div>
   );
 }

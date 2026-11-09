@@ -102,7 +102,7 @@ function TrialPanel({ trial, canReset }: { trial: CustomerTrial; canReset: boole
         <ActionForm action={resetTrial} className="space-y-1.5 border-t border-gray-100 pt-2">
           <input type="hidden" name="claim_id" value={resettable.id} />
           <Input name="reason" required minLength={4} maxLength={200} placeholder="Why give the trial back? e.g. refund, kitchen mistake" />
-          <SubmitButton variant="secondary" confirm="Give this customer their trial back?">
+          <SubmitButton variant="secondary" confirm={{ eyebrow: 'Reset trial', title: 'Give this customer their trial back?', message: 'They’ll be able to book the trial box again.', confirmLabel: 'Reset trial' }}>
             Reset trial
           </SubmitButton>
           <p className="text-[11px] text-gray-500">Saved in the activity log with your name.</p>
@@ -147,7 +147,7 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
     <>
       <PageHeader
         title={p.full_name || p.email || 'Customer'}
-        description={`${p.email ?? ''}${p.phone ? ` · ${p.phone}` : ''} · joined ${fmtDate(p.created_at)}`}
+        description={`${/@phone\.brotinbox\.invalid$/.test(p.email ?? '') ? 'Phone sign-in' : (p.email ?? '')}${p.phone ? ` · ${p.phone}` : ''} · joined ${fmtDate(p.created_at)}`}
         actions={
           <>
             {p.role !== 'customer' && <StatusBadge value={p.role} />}
@@ -195,7 +195,7 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
                     <p className="text-xs font-bold text-gray-700">Pause</p>
                     <Input type="date" name="from" required min={today} />
                     <Input type="date" name="until" required min={today} />
-                    <SubmitButton variant="secondary">Pause plan</SubmitButton>
+                    <SubmitButton variant="secondary" confirm={{ eyebrow: 'Pause plan', title: 'Pause this customer’s plan?', message: 'No meals go out between these dates.', confirmLabel: 'Pause plan' }}>Pause plan</SubmitButton>
                   </ActionForm>
                 ) : (
                   <ActionForm action={staffResume} className="space-y-2">
@@ -219,7 +219,7 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
                   <input type="hidden" name="subscription_id" value={sub.id} />
                   <p className="text-xs font-bold text-gray-700">Cancel plan</p>
                   <Input name="reason" maxLength={500} placeholder="Reason" />
-                  <SubmitButton variant="danger" confirm="Cancel this plan and remove future meals? Refunds are manual.">Cancel plan</SubmitButton>
+                  <SubmitButton variant="danger" confirm={{ eyebrow: 'Cancel plan', tone: 'danger', title: 'Cancel this plan?', message: 'Future meals are removed. Refunds are manual. This can’t be undone.', confirmLabel: 'Cancel plan', cancelLabel: 'Keep plan' }}>Cancel plan</SubmitButton>
                 </ActionForm>
               </div>
             </Card>
@@ -354,7 +354,7 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
                 <input type="hidden" name="customer_id" value={p.id} />
                 <input type="hidden" name="blocked" value={p.is_blocked ? 'false' : 'true'} />
                 <Field label={p.is_blocked ? 'This account is blocked' : 'Block this account'} hint="Blocked customers cannot sign in, order or change meals.">
-                  <SubmitButton variant={p.is_blocked ? 'secondary' : 'danger'} confirm={p.is_blocked ? undefined : 'Block this customer?'}>
+                  <SubmitButton variant={p.is_blocked ? 'secondary' : 'danger'} confirm={p.is_blocked ? undefined : { eyebrow: 'Block customer', tone: 'danger', title: 'Block this customer?', message: 'They won’t be able to place orders until unblocked.', confirmLabel: 'Block', cancelLabel: 'Go back' }}>
                     {p.is_blocked ? 'Unblock' : 'Block customer'}
                   </SubmitButton>
                 </Field>

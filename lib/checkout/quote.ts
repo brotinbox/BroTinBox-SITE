@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { getSupabaseService } from '@/lib/supabase/admin';
 import sidesData from '@/data/sides.json';
 import { MIN_PLAN_DAYS, secondMealPrice } from '@/lib/pricing';
-import { assertTrialAvailable } from '@/lib/checkout/trial';
+import { assertTrialAvailable, getTrialEligibility, trialUsedMessage } from '@/lib/checkout/trial';
 
 /**
  * Server-side pricing. The browser sends WHAT the customer chose; the server
@@ -12,15 +12,23 @@ import { assertTrialAvailable } from '@/lib/checkout/trial';
  */
 
 const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+export const MAX_ADDON_QTY = 5;
 
 export const cartSchema = z.object({
   type: z.enum(['trial', 'weekly', 'monthly']),
   mealsPerDay: z.union([z.literal(1), z.literal(2)]),
+  /** Full box (5 parts) or Lite box (3 smaller parts, own prices). */
+  boxSize: z.enum(['regular', 'lite']).default('regular'),
   slot: z.enum(['lunch', 'dinner']).default('lunch'),            // used when mealsPerDay = 1
   days: z.array(z.object({ date: isoDate, diet: z.enum(['veg', 'non_veg']) })).min(1).max(26),
-  addonIds: z.array(z.string().max(80)).max(10).default([]),      // applied to every day
+  /** Sides & juices: qty of each rides with one box on every delivery day. */
+  addons: z.array(z.object({ id: z.string().max(80), qty: z.number().int().min(1).max(MAX_ADDON_QTY) })).max(10).default([]),
+  /** Legacy shape (staff orders): one of each. */
+  addonIds: z.array(z.string().max(80)).max(10).default([]),
   preferences: z.object({ isEggFree: z.boolean().default(false), skipLegume: z.boolean().default(false), dietVariation: z.string().max(20).optional() }).default({}),
-  addressId: z.string().uuid(),
+  /** Required to place an order; a price preview can use `pincode` instead. */
+  addressId: z.string().uuid().optional(),
+  pincode: z.string().regex(/^\d{6}$/).optional(),
   couponCode: z.string().trim().toUpperCase().max(30).optional(),
   /** Ticked "WhatsApp me plan offers" at checkout (consent, not pricing). */
   whatsappOffers: z.boolean().optional(),
@@ -41,7 +49,9 @@ export type Quote = {
   primaryDiet: 'veg' | 'non_veg';
   slots: ('lunch' | 'dinner')[];
   schedule: { date: string; diet: 'veg' | 'non_veg' }[];
-  addonIds: string[];
+  boxSize: 'regular' | 'lite';
+  /** Stored on the subscription; the database attaches them to each delivery. */
+  addons: { addon_id: string; qty: number; slot: 'lunch' | 'dinner' }[];
 };
 
 export type CheckoutErrorCode = 'TRIAL_USED' | 'VERIFY_PHONE';
@@ -57,21 +67,30 @@ export type QuoteOptions = {
   source?: 'web' | 'admin';
   /** Staff-approved repeat trial (the database records the reason). */
   allowRepeatTrial?: boolean;
+  /** Price preview from a pincode (address not saved yet, or signed out). Never used to place an order. */
+  preview?: boolean;
 };
 
 const SIDE_ID_TO_SLUG = new Map((sidesData as { id: string; slug: string }[]).map((s) => [s.id, s.slug]));
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
-export async function quoteCart(cart: Cart, userId: string, opts: QuoteOptions = {}): Promise<Quote> {
+export async function quoteCart(cart: Cart, userId: string | null, opts: QuoteOptions = {}): Promise<Quote> {
   const db = getSupabaseService();
 
   // Ordering switch
   const { data: openSetting } = await db.from('site_settings').select('value').eq('key', 'ordering_open').maybeSingle();
   if (openSetting && openSetting.value === false) throw new CheckoutError('We are not taking new orders right now. Please check back soon.');
 
-  // Address belongs to the customer and is in a delivery zone
-  const { data: address } = await db.from('addresses').select('id, user_id, zone_id, pincode').eq('id', cart.addressId).maybeSingle();
-  if (!address || address.user_id !== userId) throw new CheckoutError('Choose a delivery address.');
+  // Address belongs to the customer and is in a delivery zone. A preview
+  // prices from the pincode alone; placing an order always needs a saved address.
+  let address: { id: string | null; user_id: string | null; zone_id: string | null; pincode: string } | null = null;
+  if (cart.addressId) {
+    const { data } = await db.from('addresses').select('id, user_id, zone_id, pincode').eq('id', cart.addressId).maybeSingle();
+    if (data && data.user_id === userId) address = data;
+  } else if (opts.preview && cart.pincode) {
+    address = { id: null, user_id: userId, zone_id: null, pincode: cart.pincode };
+  }
+  if (!address) throw new CheckoutError('Choose a delivery address.');
   // The zone must serve the address's own pincode (zone_id alone is not trusted).
   let zoneQuery = db.from('delivery_zones').select('id, area, tier, delivery_fee, is_active')
     .eq('pincode', address.pincode).eq('is_active', true);
@@ -86,8 +105,14 @@ export async function quoteCart(cart: Cart, userId: string, opts: QuoteOptions =
   if (zone.tier !== 'core') throw new CheckoutError(`${zone.area} is in our next delivery batch. We'll let you know as soon as we start delivering there.`);
 
   // One trial box per customer (account, phone or delivery phone).
-  if (cart.type === 'trial' && !opts.allowRepeatTrial) {
-    await assertTrialAvailable(userId, cart.addressId, opts.source ?? 'web');
+  if (cart.type === 'trial' && !opts.allowRepeatTrial && userId) {
+    if (cart.addressId) {
+      await assertTrialAvailable(userId, cart.addressId, opts.source ?? 'web');
+    } else {
+      // Preview: say so early; the address check runs again when the order is placed.
+      const e = await getTrialEligibility(userId);
+      if (!e.eligible) throw new CheckoutError(trialUsedMessage(e), 'TRIAL_USED');
+    }
   }
 
   // Dates: unique, operating days, not before the cutoff, not too far ahead
@@ -110,9 +135,11 @@ export async function quoteCart(cart: Cart, userId: string, opts: QuoteOptions =
 
   // Prices per diet for this plan type
   const { data: rules } = await db.from('pricing_rules').select('diet, price_per_meal, second_meal_discount, effective_from')
-    .eq('plan_type', cart.type).lte('effective_from', new Date().toISOString()).order('effective_from', { ascending: false });
+    .eq('plan_type', cart.type).eq('box_size', cart.boxSize)
+    .lte('effective_from', new Date().toISOString()).order('effective_from', { ascending: false });
   const price = (diet: 'veg' | 'non_veg') => {
     const r = (rules ?? []).find((x) => x.diet === diet);
+    if (!r && cart.boxSize === 'lite') throw new CheckoutError('The Lite box is not available yet. Please choose the full box.');
     if (!r) throw new CheckoutError('Prices are being updated. Please try again shortly.');
     return { meal: Number(r.price_per_meal), second: Number(r.second_meal_discount) };
   };
@@ -122,21 +149,32 @@ export async function quoteCart(cart: Cart, userId: string, opts: QuoteOptions =
     const n = dates.filter((d) => d.diet === diet).length;
     if (!n) continue;
     const p = price(diet);
-    const label = diet === 'veg' ? 'Veg box' : 'Non-veg box';
+    const label = `${cart.boxSize === 'lite' ? 'Lite ' : ''}${diet === 'veg' ? 'veg box' : 'non-veg box'}`.replace(/^./, (c) => c.toUpperCase());
     lines.push({ item_type: 'meal', ref_id: null, name: `${label} (${cart.type})`, qty: n, unit_price: p.meal, total: round2(p.meal * n) });
     if (cart.mealsPerDay === 2) {
       lines.push({ item_type: 'meal', ref_id: null, name: `${label}, 2nd meal of the day`, qty: n, unit_price: secondMealPrice(p.meal, p.second), total: round2(secondMealPrice(p.meal, p.second) * n) });
     }
   }
 
-  // Add-ons: accept DB slugs or legacy front-end ids; applied to every day
-  const slugs = cart.addonIds.map((id) => SIDE_ID_TO_SLUG.get(id) ?? id);
-  const addonIds: string[] = [];
-  if (slugs.length) {
-    const { data: addons } = await db.from('addons').select('id, slug, name, price').in('slug', slugs).eq('is_active', true);
-    for (const a of addons ?? []) {
-      addonIds.push(a.id);
-      lines.push({ item_type: 'addon', ref_id: a.id, name: a.name, qty: dates.length, unit_price: Number(a.price), total: round2(Number(a.price) * dates.length) });
+  // Add-ons (DB slugs or front-end ids): `qty` of each rides with the day's
+  // first box on every delivery day, so the customer pays qty × days.
+  const addonSlot = cart.mealsPerDay === 2 ? 'lunch' : cart.slot;
+  const wanted = new Map<string, number>();
+  for (const a of [...cart.addons, ...cart.addonIds.map((id) => ({ id, qty: 1 }))]) {
+    const slug = SIDE_ID_TO_SLUG.get(a.id) ?? a.id;
+    wanted.set(slug, Math.min((wanted.get(slug) ?? 0) + a.qty, MAX_ADDON_QTY));
+  }
+  const addons: Quote['addons'] = [];
+  if (wanted.size) {
+    const { data: rows } = await db.from('addons').select('id, slug, name, price, sort_order').in('slug', [...wanted.keys()]).eq('is_active', true).order('sort_order');
+    const found = new Set((rows ?? []).map((r) => r.slug));
+    const missing = [...wanted.keys()].filter((s) => !found.has(s));
+    if (missing.length) throw new CheckoutError('One of your sides or juices is not available right now. Please remove it and try again.');
+    for (const a of rows ?? []) {
+      const qty = wanted.get(a.slug)!;
+      addons.push({ addon_id: a.id, qty, slot: addonSlot });
+      const per = dates.length > 1 ? ` · ${qty} a day × ${dates.length} days` : '';
+      lines.push({ item_type: 'addon', ref_id: a.id, name: `${a.name}${per}`, qty: qty * dates.length, unit_price: Number(a.price), total: round2(Number(a.price) * qty * dates.length) });
     }
   }
 
@@ -158,12 +196,15 @@ export async function quoteCart(cart: Cart, userId: string, opts: QuoteOptions =
       // Redemptions are recorded at payment, so other customers' unpaid orders
       // count towards the total too. This customer's own unpaid coupon orders
       // are cancelled by placeOrder, so only one can ever be paid.
+      // Signed-out preview: per-customer limits are checked when the order is placed.
+      const none = Promise.resolve({ count: 0 });
+      const pending = db.from('orders').select('id', { count: 'exact', head: true }).eq('coupon_id', c.id)
+        .in('status', ['created', 'pending_payment']);
       const [{ count: redeemed }, { count: pendingByOthers }, { count: usedByMe }, { count: paidOrders }] = await Promise.all([
         db.from('coupon_redemptions').select('id', { count: 'exact', head: true }).eq('coupon_id', c.id),
-        db.from('orders').select('id', { count: 'exact', head: true }).eq('coupon_id', c.id)
-          .in('status', ['created', 'pending_payment']).neq('user_id', userId),
-        db.from('coupon_redemptions').select('id', { count: 'exact', head: true }).eq('coupon_id', c.id).eq('user_id', userId),
-        db.from('orders').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('status', 'paid'),
+        userId ? pending.neq('user_id', userId) : pending,
+        userId ? db.from('coupon_redemptions').select('id', { count: 'exact', head: true }).eq('coupon_id', c.id).eq('user_id', userId) : none,
+        userId ? db.from('orders').select('id', { count: 'exact', head: true }).eq('user_id', userId).eq('status', 'paid') : none,
       ]);
       if (c.usage_limit && (redeemed ?? 0) + (pendingByOthers ?? 0) >= c.usage_limit) couponMessage = 'That coupon has been fully used.';
       else if ((usedByMe ?? 0) >= c.per_user_limit) couponMessage = 'You have already used that coupon.';
@@ -196,6 +237,7 @@ export async function quoteCart(cart: Cart, userId: string, opts: QuoteOptions =
     primaryDiet: nonVegDays >= dates.length - nonVegDays ? 'non_veg' : 'veg',
     slots: cart.mealsPerDay === 2 ? ['lunch', 'dinner'] : [cart.slot],
     schedule: dates,
-    addonIds,
+    boxSize: cart.boxSize,
+    addons,
   };
 }

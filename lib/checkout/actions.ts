@@ -5,12 +5,14 @@ import { z } from 'zod';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { getSupabaseService } from '@/lib/supabase/admin';
 import { rateLimit } from '@/lib/security/ratelimit';
-import { cleanText } from '@/lib/security/request';
+import { cleanText, clientIp } from '@/lib/security/request';
 import { CheckoutError, cartSchema, quoteCart, type Cart, type CheckoutErrorCode, type QuoteLine } from '@/lib/checkout/quote';
 import { phoneOtpMode } from '@/lib/auth/otp-mode';
 import { getMyTrialStatus, type MyTrialStatus } from '@/lib/checkout/trial';
 import { createOrderFromQuote } from '@/lib/checkout/create-order';
 import { notifyOrderPlaced } from '@/lib/notifications/telegram';
+import { getDrinks, getSides } from '@/lib/data/catalog';
+import { isCashfreeConfigured } from '@/lib/cashfree';
 
 type Fail = { ok: false; error: string; code?: CheckoutErrorCode };
 
@@ -43,18 +45,29 @@ export type QuoteResult =
   | { ok: true; lines: QuoteLine[]; subtotal: number; discount: number; deliveryFee: number; total: number; couponMessage?: string; couponApplied: boolean }
   | Fail;
 
-/** Price preview for the checkout screen (same maths as placeOrder). */
+/**
+ * Price preview for the checkout screen (same maths as placeOrder). Works
+ * signed out and before the address is saved: it then prices from the pincode.
+ */
 export async function getQuote(input: Cart): Promise<QuoteResult> {
-  const me = await currentCustomer();
-  if ('error' in me) return { ok: false, error: me.error! };
-  const rl = await rateLimit('checkout', me.userId);
+  const supabase = await getSupabaseServer();
+  const { data: { user } } = await supabase.auth.getUser();
+  const rl = await rateLimit('quote', user?.id ?? `ip:${await clientIp()}`);
   if (!rl.success) return { ok: false, error: 'Too many requests. Wait a minute.' };
   const cart = cartSchema.safeParse(input);
   if (!cart.success) return { ok: false, error: 'Your selection is incomplete. Please go back and check it.' };
-  const phoneFail = await trialPhoneCheck(cart.data, me.phoneVerified);
-  if (phoneFail) return phoneFail;
+  // Signed out (or no saved address yet): pincode preview only.
+  if (!user || !cart.data.addressId) {
+    if (!cart.data.pincode) return { ok: false, error: 'Enter your delivery pincode to see the price.' };
+  }
+  if (user) {
+    const me = await currentCustomer();
+    if ('error' in me) return { ok: false, error: me.error! };
+    const phoneFail = await trialPhoneCheck(cart.data, me.phoneVerified);
+    if (phoneFail) return phoneFail;
+  }
   try {
-    const q = await quoteCart(cart.data, me.userId);
+    const q = await quoteCart(user ? cart.data : { ...cart.data, addressId: undefined }, user?.id ?? null, { preview: !user || !cart.data.addressId });
     return { ok: true, lines: q.lines, subtotal: q.subtotal, discount: q.discount, deliveryFee: q.deliveryFee, total: q.total, couponMessage: q.couponMessage, couponApplied: !!q.couponId };
   } catch (e) {
     return checkoutFail(e, 'Could not price your order. Please try again.');
@@ -73,7 +86,8 @@ export async function myTrialStatus(): Promise<MyTrialStatus | null> {
   }
 }
 
-export type PlaceOrderResult = { ok: true; orderId: string; orderNumber: string; total: number } | Fail;
+/** payOnline: Cashfree is switched on (Settings) and configured, so checkout can open it directly. */
+export type PlaceOrderResult = { ok: true; orderId: string; orderNumber: string; total: number; payOnline: boolean } | Fail;
 
 export async function placeOrder(input: Cart): Promise<PlaceOrderResult> {
   const me = await currentCustomer();
@@ -82,6 +96,7 @@ export async function placeOrder(input: Cart): Promise<PlaceOrderResult> {
   if (!rl.success) return { ok: false, error: 'Too many attempts. Wait a minute and try again.' };
   const cart = cartSchema.safeParse(input);
   if (!cart.success) return { ok: false, error: 'Your selection is incomplete. Please go back and check it.' };
+  if (!cart.data.addressId) return { ok: false, error: 'Add a delivery address.' };
   const phoneFail = await trialPhoneCheck(cart.data, me.phoneVerified);
   if (phoneFail) return phoneFail;
 
@@ -107,7 +122,9 @@ export async function placeOrder(input: Cart): Promise<PlaceOrderResult> {
       console.error('[Order] Telegram notify error:', err);
     });
 
-    return { ok: true, orderId: order.id, orderNumber: order.order_number, total: Number(order.total) };
+    const { data: paySetting } = await db.from('site_settings').select('value').eq('key', 'payment').maybeSingle();
+    const payOnline = (paySetting?.value as { mode?: string } | null)?.mode === 'cashfree' && isCashfreeConfigured();
+    return { ok: true, orderId: order.id, orderNumber: order.order_number, total: Number(order.total), payOnline };
   } catch (e) {
     return checkoutFail(e, 'Could not place your order. Please try again.');
   }
@@ -166,4 +183,18 @@ export async function saveAddress(input: z.input<typeof addressSchema>): Promise
     }).eq('id', user.id);
   }
   return { ok: true, id: data.id, deliverable: !!zone };
+}
+
+export type CheckoutAddon = {
+  id: string; type: 'side' | 'drink'; name: string; price: number; image: string;
+  calories: number; protein: number; isVeg: boolean; note: string;
+};
+
+/** Live sides & juices for the checkout (admin prices and availability). */
+export async function getCheckoutAddons(): Promise<CheckoutAddon[]> {
+  const [sides, drinks] = await Promise.all([getSides(), getDrinks()]);
+  return [
+    ...sides.map((s) => ({ id: s.id, type: 'side' as const, name: s.name, price: s.price, image: s.image, calories: s.calories, protein: s.protein, isVeg: s.isVeg, note: `${s.protein} g protein · ${s.calories} kcal` })),
+    ...drinks.map((d) => ({ id: d.id, type: 'drink' as const, name: d.name, price: d.price, image: d.image, calories: d.calories, protein: d.protein, isVeg: true, note: [d.volume, `${d.calories} kcal`, 'no added sugar'].filter(Boolean).join(' · ') })),
+  ];
 }

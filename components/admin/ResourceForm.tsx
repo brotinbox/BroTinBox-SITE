@@ -60,7 +60,7 @@ export function ResourceForm({ res, row, canWrite, canDelete }: {
         <ActionForm action={deleteResource} className="pt-4 border-t border-gray-100">
           <input type="hidden" name="__resource" value={res.key} />
           <input type="hidden" name="__id" value={row.id} />
-          <SubmitButton variant="danger" confirm={`Delete this ${res.singular}? This cannot be undone.`}>Delete {res.singular}</SubmitButton>
+          <SubmitButton variant="danger" confirm={{ eyebrow: 'Delete', tone: 'danger', title: `Delete this ${res.singular}?`, message: 'This can’t be undone.', confirmLabel: 'Delete', cancelLabel: 'Keep it' }}>Delete {res.singular}</SubmitButton>
         </ActionForm>
       )}
     </div>

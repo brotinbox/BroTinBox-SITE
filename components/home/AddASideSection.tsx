@@ -33,7 +33,7 @@ export function AddASideSection({ sides }: AddASideSectionProps) {
           </Link>
         </div>
 
-        <div className="flex md:grid overflow-x-auto md:overflow-visible snap-x snap-mandatory -mx-4 px-4 md:mx-0 md:px-0 pb-2 [scrollbar-width:none] md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-7">
+        <div className="flex md:grid overflow-x-auto md:overflow-visible snap-x snap-mandatory scroll-pl-4 md:scroll-pl-0 -mx-4 px-4 md:mx-0 md:px-0 pb-2 [scrollbar-width:none] md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-7">
           {sides.map((side) => (
             <div key={side.id} className="shrink-0 w-[150px] md:w-auto snap-start">
               <CurvedSideCard side={side} />

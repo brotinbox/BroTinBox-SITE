@@ -125,7 +125,7 @@ export function WeeklyCalendarStrip({ boxes, schedule }: WeeklyCalendarStripProp
         </div>
 
         {/* 6 Box Cards Grid (Mon to Sat) */}
-        <div className="flex md:grid overflow-x-auto md:overflow-visible snap-x snap-mandatory -mx-4 px-4 md:mx-0 md:px-0 pb-2 [scrollbar-width:none] md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-7">
+        <div className="flex md:grid overflow-x-auto md:overflow-visible snap-x snap-mandatory scroll-pl-4 md:scroll-pl-0 -mx-4 px-4 md:mx-0 md:px-0 pb-2 [scrollbar-width:none] md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-7">
           {operatingDays.map((day) => {
             const menu = getMenuForDate(day.date, diet);
             const isToday = day.dateStr === todayStr;

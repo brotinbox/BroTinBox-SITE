@@ -45,16 +45,6 @@ export function HomeHero() {
       image: '/monthly.png',
       imageAlt: 'BroTin Box Monthly lifestyle meal plan stack',
     },
-    {
-      id: 'custom',
-      title: 'BUILD YOUR OWN BOX',
-      subtitle: 'COMING SOON',
-      offer: 'CUSTOMIZE EVERY GRAM',
-      mobileOffer: 'CUSTOMIZE EVERY GRAM',
-      href: '/custom',
-      image: '/custom.png',
-      imageAlt: 'BroTin Box Custom digitally measured diet box',
-    },
   ];
 
   return (
@@ -71,12 +61,16 @@ export function HomeHero() {
 
       {/* Full-Bleed 1-to-1 Attached Images Strip (Left to Right Edge, 0 Gaps, Sharp Corners, No Buttons) */}
       <div className="w-full relative z-10 border-t border-black/10 bg-white shadow-2xl">
-        <div className="w-full grid grid-cols-2 md:grid-cols-4 gap-0">
-          {categoryCards.map((card) => (
+        {/* Mobile: trial box full-width on top, weekly + monthly side by side below.
+            Desktop: three equal columns. */}
+        <div className="w-full grid grid-cols-2 md:grid-cols-3 gap-0">
+          {categoryCards.map((card, i) => (
             <Link
               key={card.id}
               href={card.href}
-              className="group relative flex flex-col bg-white overflow-hidden border-r border-b md:border-b-0 border-black/10 [&:nth-child(2n)]:border-r-0 md:[&:nth-child(2n)]:border-r md:last:border-r-0 transition-all duration-300 tap-active"
+              className={`group relative flex flex-col bg-white overflow-hidden border-black/10 md:border-b-0 md:border-r md:last:border-r-0 transition-all duration-300 tap-active ${
+                i === 0 ? 'col-span-2 md:col-span-1 border-b' : i === 1 ? 'border-r' : ''
+              }`}
             >
               {/* Clean Title Bar (Sharp corners, no buttons) */}
               <div className="py-2.5 sm:py-3.5 px-2 sm:px-4 text-center bg-white border-b border-black/5">
@@ -86,12 +80,12 @@ export function HomeHero() {
               </div>
 
               {/* Seamless Attached Mockup Image (Edge-to-Edge Sharp) */}
-              <div className="relative w-full aspect-[4/3] overflow-hidden bg-paper">
+              <div className={`relative w-full overflow-hidden bg-paper ${i === 0 ? 'aspect-[16/9] md:aspect-[4/3]' : 'aspect-[4/3]'}`}>
                 <Image
                   src={card.image}
                   alt={card.imageAlt}
                   fill
-                  sizes="(max-width: 768px) 50vw, 25vw"
+                  sizes={i === 0 ? '(max-width: 768px) 100vw, 33vw' : '(max-width: 768px) 50vw, 33vw'}
                   className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                   priority={card.id === 'trial'}
                 />

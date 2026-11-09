@@ -1,40 +1,35 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAppStore } from '@/store/useAppStore';
-import {
-  X,
-  Home,
-  MapPin,
-  Sparkles,
-  Utensils,
-  Calendar,
-  ShieldCheck,
-  ChevronRight,
-  MessageCircle,
-  User as UserIcon,
-  LogOut,
-  Sliders,
-  ChevronDown,
-} from 'lucide-react';
+import { X, Menu as MenuIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { LocationSelector } from '@/components/layout/LocationSelector';
 import { DesktopNav } from '@/components/layout/DesktopNav';
 import { UserAvatar } from '@/components/layout/UserAvatar';
 import { signOutCustomer } from '@/lib/auth/customer';
-import { Menu as MenuIcon, LayoutDashboard, CalendarDays, Receipt } from 'lucide-react';
-import { BookOpen } from 'lucide-react';
+import { SIGN_OUT_CONFIRM, useConfirm } from '@/components/ui/ConfirmDialog';
 import { fssaiAdjective, hasFssai } from '@/config/legal';
+import { WhatsAppGlyph } from '@/components/ui/WhatsAppGlyph';
 
 export function Navbar() {
   const router = useRouter();
+  const confirm = useConfirm();
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const { isLoggedIn, authReady, user, isNavDrawerOpen, setNavDrawerOpen, setAuthDrawerOpen } = useAppStore();
   const [isMobileNavVisible, setIsMobileNavVisible] = useState(true);
   const lastScrollYRef = useRef(0);
+  const [drawerClosing, setDrawerClosing] = useState(false);
+  const closeDrawer = useCallback(() => {
+    setDrawerClosing(true);
+    window.setTimeout(() => {
+      setNavDrawerOpen(false);
+      setDrawerClosing(false);
+    }, 200);
+  }, [setNavDrawerOpen]);
 
   useEffect(() => {
     setMounted(true);
@@ -128,19 +123,19 @@ export function Navbar() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setNavDrawerOpen(false);
+      if (e.key === 'Escape') closeDrawer();
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [setNavDrawerOpen]);
+  }, [closeDrawer]);
 
   const navLinks = [
-    { label: 'Home', href: '/', icon: Home, desc: 'BroTin Box daily protein overview' },
-    { label: 'Weekly Menu', href: '/menu', icon: Utensils, desc: 'Rotating 6-day box menu with photos' },
-    { label: 'Monthly Subscription', href: '/monthly', icon: CalendarDays, badge: 'Best value', desc: '26 boxes a month, delivered Mon–Sat' },
-    { label: 'Pricing Plans', href: '/pricing', icon: Sparkles, badge: 'Save up to 16%', desc: 'Transparent breakdown: Trial vs Weekly vs Monthly' },
-    { label: 'Nutrition Blog', href: '/blog', icon: BookOpen, badge: 'New', desc: 'Clinical insights, macros & kitchen secrets' },
-    { label: 'Delivery Areas', href: '/delivery-areas', icon: MapPin, desc: 'Coimbatore coverage & pincodes' },
+    { label: 'Home', href: '/', desc: 'BroTin Box daily protein overview' },
+    { label: 'Weekly Menu', href: '/menu', desc: 'Rotating 6-day box menu with photos' },
+    { label: 'Monthly Subscription', href: '/monthly', badge: 'Best value', desc: '26 boxes a month, delivered Mon–Sat' },
+    { label: 'Pricing Plans', href: '/pricing', badge: 'Save up to 16%', desc: 'Transparent breakdown: Trial vs Weekly vs Monthly' },
+    { label: 'Nutrition Blog', href: '/blog', badge: 'New', desc: 'Clinical insights, macros & kitchen secrets' },
+    { label: 'Delivery Areas', href: '/delivery-areas', desc: 'Coimbatore coverage & pincodes' },
   ];
 
   return (
@@ -173,198 +168,152 @@ export function Navbar() {
 
       {/* Slide-out Drawer & Overlay */}
       {isNavDrawerOpen && (
-        <div className="fixed inset-0 z-50 flex justify-end animate-in fade-in duration-200">
+        <div
+          className={cn(
+            "fixed inset-0 z-50 flex justify-end duration-200",
+            drawerClosing ? "animate-out fade-out fill-mode-forwards" : "animate-in fade-in"
+          )}
+        >
           {/* Backdrop */}
-          <div
-            onClick={() => setNavDrawerOpen(false)}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
-            aria-hidden="true"
-          />
+          <div onClick={closeDrawer} className="fixed inset-0 bg-black/50 backdrop-blur-sm" aria-hidden="true" />
 
-          {/* Drawer Content */}
-          <div className="relative w-full max-w-sm sm:max-w-md bg-white h-full shadow-2xl z-10 flex flex-col justify-between overflow-y-auto animate-in slide-in-from-right duration-300">
-            {/* Drawer Header */}
-            <div>
-              <div className="p-5 sm:p-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/70">
-                {/* User Profile Card Summary */}
-                {mounted && authReady && isLoggedIn ? (
-                  <Link
-                    href="/dashboard"
-                    onClick={() => setNavDrawerOpen(false)}
-                    className="flex items-center gap-3 min-w-0 group cursor-pointer"
-                  >
-                    <UserAvatar size={48} className="border-2 border-primary/20 shadow-sm group-hover:scale-105 transition-transform" />
-                    <div className="min-w-0">
-                      <h3 className="font-heading font-bold text-gray-900 text-sm sm:text-base leading-tight truncate group-hover:text-primary transition-colors">
-                        {user?.fullName || 'My account'}
-                      </h3>
-                      <p className="text-xs text-gray-500 truncate mt-0.5">
-                        {user?.email || 'View dashboard →'}
-                      </p>
-                    </div>
-                  </Link>
-                ) : (
+          {/* Drawer */}
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Menu"
+            className={cn(
+              "relative z-10 w-full max-w-sm sm:max-w-md h-full bg-paper shadow-2xl flex flex-col ease-out",
+              drawerClosing
+                ? "animate-out slide-out-to-right fill-mode-forwards duration-200"
+                : "animate-in slide-in-from-right duration-300"
+            )}
+          >
+            {/* Header: account + close */}
+            <div className="bg-white border-b border-gray-200 px-5 pt-[max(1rem,env(safe-area-inset-top))] pb-4 flex items-center justify-between gap-3">
+              {mounted && authReady && isLoggedIn ? (
+                <Link href="/dashboard" onClick={closeDrawer} className="flex items-center gap-3 min-w-0">
+                  <UserAvatar size={44} className="shadow-sm" />
+                  <div className="min-w-0">
+                    <p className="font-heading font-black text-base text-ink leading-tight truncate">
+                      {user?.fullName || 'My account'}
+                    </p>
+                    <p className="text-xs text-gray-500 truncate mt-0.5">{user?.email || 'View dashboard'}</p>
+                  </div>
+                </Link>
+              ) : (
+                <div className="min-w-0">
+                  <p className="font-heading font-black text-xl text-ink leading-tight">Welcome</p>
                   <button
                     type="button"
-                    onClick={() => {
-                      setNavDrawerOpen(false);
-                      setAuthDrawerOpen(true);
-                    }}
-                    className="flex items-center gap-3 min-w-0 text-left group cursor-pointer"
+                    onClick={() => { closeDrawer(); setAuthDrawerOpen(true); }}
+                    className="text-sm font-bold text-accent mt-0.5"
                   >
-                    <span className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center shrink-0 group-hover:bg-primary-light transition-colors">
-                      <UserIcon className="w-5 h-5 text-gray-500 group-hover:text-primary transition-colors" />
-                    </span>
-                    <div className="min-w-0">
-                      <h3 className="font-heading font-bold text-gray-900 text-sm sm:text-base leading-tight truncate">
-                        Welcome
-                      </h3>
-                      <p className="text-xs text-ink font-bold truncate mt-0.5">
-                        Sign in / Sign up →
-                      </p>
-                    </div>
+                    Sign in / Sign up
                   </button>
-                )}
-
-                {/* Close Button */}
-                <button
-                  onClick={() => setNavDrawerOpen(false)}
-                  className="p-2 rounded-full text-gray-500 hover:text-gray-900 hover:bg-gray-200/80 transition-colors"
-                  aria-label="Close menu"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              {/* Prominent Quick Action Button */}
-              <div className="p-4 sm:p-5 pb-2">
-                <Link
-                  href="/tomorrow"
-                  onClick={() => setNavDrawerOpen(false)}
-                  className="w-full flex items-center justify-center gap-2 bg-cta hover:bg-cta-hover text-white text-sm font-bold py-3.5 px-4 rounded-2xl shadow-md shadow-cta/25 hover:shadow-lg transition-all tap-active"
-                >
-                  <Sparkles className="w-4 h-4 text-white" />
-                  <span>Order Tomorrow’s Daily Trial Box</span>
-                </Link>
-              </div>
-
-              {/* Navigation Items */}
-              <div className="p-4 sm:p-5 space-y-1">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400 px-3 pb-1">
-                  Navigation
-                </p>
-
-                {navLinks.map((link) => {
-                  const Icon = link.icon;
-                  const isActive = pathname === link.href;
-                  return (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      onClick={() => setNavDrawerOpen(false)}
-                      className={cn(
-                        "flex items-center justify-between p-3 rounded-2xl transition-all group tap-active",
-                        isActive
-                          ? "bg-primary-light text-primary font-bold"
-                          : "text-gray-700 hover:bg-gray-50 hover:text-primary"
-                      )}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={cn(
-                            "w-9 h-9 rounded-xl flex items-center justify-center transition-colors",
-                            isActive
-                              ? "bg-primary text-white"
-                              : "bg-gray-100 text-gray-600 group-hover:bg-primary-light group-hover:text-primary"
-                          )}
-                        >
-                          <Icon className="w-4 h-4" />
-                        </div>
-                        <div>
-                          <div className="text-sm font-semibold flex items-center gap-2">
-                            <span>{link.label}</span>
-                            {link.badge && (
-                              <span className="text-[10px] font-bold bg-cta text-white px-1.5 py-0.2 rounded-full uppercase tracking-wider">
-                                {link.badge}
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-xs text-gray-400 group-hover:text-gray-500 font-normal">
-                            {link.desc}
-                          </p>
-                        </div>
-                      </div>
-
-                      <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
-                    </Link>
-                  );
-                })}
-              </div>
-
-              {/* Account / Dashboard Section */}
-              <div className="px-4 sm:px-5 pb-4">
-                <div className="p-3 bg-gray-50 rounded-2xl border border-gray-100 space-y-1">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400 px-2 pb-1">
-                    Account & Orders
-                  </p>
-
-                  {mounted && isLoggedIn ? (
-                    <>
-                      {[
-                        { href: '/dashboard', label: 'Dashboard', Icon: LayoutDashboard },
-                        { href: '/my-plan', label: 'My meals', Icon: CalendarDays },
-                        { href: '/orders', label: 'Orders', Icon: Receipt },
-                        { href: '/profile', label: 'Profile', Icon: UserIcon },
-                      ].map(({ href, label, Icon }) => (
-                        <Link key={href} href={href} onClick={() => setNavDrawerOpen(false)}
-                          className="flex items-center justify-between p-2.5 rounded-xl text-sm font-semibold text-gray-800 hover:bg-white hover:text-primary transition-all">
-                          <div className="flex items-center gap-2.5"><Icon className="w-4 h-4 text-primary" /><span>{label}</span></div>
-                          <ChevronRight className="w-4 h-4 text-gray-400" />
-                        </Link>
-                      ))}
-                      <button
-                        type="button"
-                        onClick={async () => { setNavDrawerOpen(false); await signOutCustomer(); router.push('/'); router.refresh(); }}
-                        className="w-full flex items-center gap-2.5 p-2.5 rounded-xl text-sm font-semibold text-rose-700 hover:bg-white transition-all text-left"
-                      >
-                        <LogOut className="w-4 h-4" /><span>Sign out</span>
-                      </button>
-                    </>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => { setNavDrawerOpen(false); setAuthDrawerOpen(true); }}
-                      className="w-full flex items-center justify-between p-2.5 rounded-xl text-sm font-semibold text-gray-800 hover:bg-white hover:text-primary transition-all text-left"
-                    >
-                      <div className="flex items-center gap-2.5"><UserIcon className="w-4 h-4 text-primary" /><span>Sign in / Sign up</span></div>
-                      <ChevronRight className="w-4 h-4 text-gray-400" />
-                    </button>
-                  )}
-
                 </div>
-              </div>
+              )}
+              <button
+                type="button"
+                onClick={closeDrawer}
+                aria-label="Close menu"
+                className="shrink-0 w-10 h-10 rounded-full border border-gray-200 bg-white hover:border-ink flex items-center justify-center tap-active"
+              >
+                <X className="w-5 h-5 text-ink" />
+              </button>
             </div>
 
-            {/* Drawer Footer: Support & FSSAI Trust */}
-            <div className="p-5 border-t border-gray-100 bg-gray-50/50 space-y-3">
+            {/* Body */}
+            <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3">
+              <Link
+                href="/tomorrow"
+                onClick={closeDrawer}
+                className="block w-full text-center py-3.5 rounded-2xl bg-ink hover:bg-ink-soft text-white font-heading font-black text-sm tap-active"
+              >
+                Order tomorrow&apos;s trial box
+              </Link>
+
+              <section className="bg-white rounded-2xl border border-gray-200 p-2">
+                <h2 className="font-heading font-bold text-sm text-gray-900 px-3 pt-2 pb-1">Explore</h2>
+                <nav className="divide-y divide-gray-100">
+                  {navLinks.map((link) => {
+                    const isActive = pathname === link.href;
+                    return (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        onClick={closeDrawer}
+                        aria-current={isActive ? 'page' : undefined}
+                        className={cn(
+                          "relative block px-3 py-3 rounded-xl transition-colors tap-active",
+                          isActive ? "bg-paper" : "hover:bg-gray-50"
+                        )}
+                      >
+                        {isActive && <span className="absolute left-0 top-3 bottom-3 w-1 rounded-full bg-ink" aria-hidden="true" />}
+                        <span className="flex items-center gap-2">
+                          <span className={cn("font-heading text-sm text-gray-900", isActive ? "font-black" : "font-bold")}>
+                            {link.label}
+                          </span>
+                          {link.badge && (
+                            <span className="text-[11px] font-bold text-accent">{link.badge}</span>
+                          )}
+                        </span>
+                        <span className="block text-xs text-gray-500 mt-0.5">{link.desc}</span>
+                      </Link>
+                    );
+                  })}
+                </nav>
+              </section>
+
+              {mounted && isLoggedIn && (
+                <section className="bg-white rounded-2xl border border-gray-200 p-2">
+                  <h2 className="font-heading font-bold text-sm text-gray-900 px-3 pt-2 pb-1">Your account</h2>
+                  <nav className="divide-y divide-gray-100">
+                    {[
+                      { href: '/dashboard', label: 'Dashboard' },
+                      { href: '/my-plan', label: 'My meals' },
+                      { href: '/orders', label: 'Orders' },
+                      { href: '/profile', label: 'Profile' },
+                    ].map(({ href, label }) => (
+                      <Link
+                        key={href}
+                        href={href}
+                        onClick={closeDrawer}
+                        aria-current={pathname === href ? 'page' : undefined}
+                        className={cn(
+                          "block px-3 py-3 rounded-xl font-heading text-sm text-gray-900 transition-colors tap-active",
+                          pathname === href ? "bg-paper font-black" : "font-bold hover:bg-gray-50"
+                        )}
+                      >
+                        {label}
+                      </Link>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={async () => { if (!(await confirm(SIGN_OUT_CONFIRM))) return; setNavDrawerOpen(false); await signOutCustomer(); router.push('/'); router.refresh(); }}
+                      className="w-full text-left px-3 py-3 rounded-xl font-heading font-bold text-sm text-rose-700 hover:bg-gray-50"
+                    >
+                      Sign out
+                    </button>
+                  </nav>
+                </section>
+              )}
+            </div>
+
+            {/* Footer: support + trust line */}
+            <div className="bg-white border-t border-gray-200 px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))] space-y-2">
               <a
-                href="https://wa.me/918248606711?text=Hi%20BroTin%20Box%20Team,%20I%20have%20a%20question%20about%20your%20meal%20boxes"
+                href={`https://wa.me/918248606711?text=${encodeURIComponent("Hi BroTin Box! I'd like to place an order.")}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-bold py-2.5 px-4 rounded-xl shadow-xs transition-all"
+                className="flex w-full items-center justify-center gap-2 py-3 rounded-2xl bg-[#25D366] hover:bg-[#1EBE5D] text-sm font-bold text-white shadow-sm tap-active"
               >
-                <img
-                  src="https://img.icons8.com/color/480/whatsapp--v1.png"
-                  alt="WhatsApp"
-                  className="w-4 h-4 object-contain"
-                />
-                <span>Chat with Nutritionist on WhatsApp</span>
+                <WhatsAppGlyph className="w-5 h-5" />
+                Order on WhatsApp
               </a>
-
-              <div className="flex items-center justify-center gap-2 text-[11px] text-gray-400 font-medium">
-                <ShieldCheck className="w-3.5 h-3.5 text-primary" />
-                <span>100% Digitally Weighed{hasFssai() ? ` • FSSAI ${fssaiAdjective()} Kitchen` : ''}</span>
-              </div>
+              <p className="text-center text-xs text-gray-500">
+                100% digitally weighed{hasFssai() ? ` · FSSAI ${fssaiAdjective()} kitchen` : ''}
+              </p>
             </div>
           </div>
         </div>

@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import {
   MapPin,
   ChevronDown,
@@ -8,11 +9,14 @@ import {
   Loader2,
   Search,
   Phone,
+  BellRing,
+  X,
 } from 'lucide-react';
 import { useAppStore } from '@/store/useAppStore';
 import { useDeliveryZones, zoneToUserLocation, ZoneLocation, notifyMeLink, isPincode, locationFromPincode } from '@/lib/location';
 import { cn } from '@/lib/utils';
 import { BRAND } from '@/config/brand';
+import { WhatsAppGlyph } from '@/components/ui/WhatsAppGlyph';
 
 interface LocationSelectorProps {
   variant?: 'desktop' | 'mobile';
@@ -24,27 +28,36 @@ export function LocationSelector({ variant = 'desktop', className }: LocationSel
   const { zones, comingSoonZones, loading } = useDeliveryZones();
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close when clicking outside
+  // Full-screen sheet: slides in on open, slides out before unmounting.
+  const [closing, setClosing] = useState(false);
+  const open = () => { setClosing(false); setIsOpen(true); };
+  const close = useCallback(() => {
+    setClosing(true);
+    window.setTimeout(() => {
+      setIsOpen(false);
+      setClosing(false);
+      setSearchQuery('');
+    }, 220);
+  }, []);
+  const toggle = () => (isOpen ? close() : open());
+
+  // Lock page scroll and close on Escape while open.
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    }
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
+    if (!isOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') close(); };
+    window.addEventListener('keydown', onKey);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.body.style.overflow = prev;
+      window.removeEventListener('keydown', onKey);
     };
-  }, [isOpen]);
+  }, [isOpen, close]);
 
   const handleSelectZone = (zone: ZoneLocation) => {
     setCurrentLocation(zoneToUserLocation(zone));
-    setIsOpen(false);
-    setSearchQuery('');
+    close();
   };
 
   const filteredZones = zones.filter((z) => {
@@ -75,16 +88,17 @@ export function LocationSelector({ variant = 'desktop', className }: LocationSel
 
   const openPincodePrompt = () => {
     setIsOpen(false);
+    setClosing(false);
     setSearchQuery('');
     setLocationPromptOpen(true);
   };
 
   if (variant === 'mobile') {
     return (
-      <div className={cn("relative z-50", className)} ref={dropdownRef}>
+      <div className={cn("relative z-50", className)}>
         <button
           type="button"
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={toggle}
           className="flex items-center gap-2 text-ink tap-active -ml-1 p-1 rounded-xl text-left"
         >
           <div className="w-8 h-8 rounded-full bg-ink/10 flex items-center justify-center shrink-0">
@@ -104,16 +118,16 @@ export function LocationSelector({ variant = 'desktop', className }: LocationSel
           </div>
         </button>
 
-        {isOpen && renderDropdown(true)}
+        {isOpen && createPortal(renderDropdown(), document.body)}
       </div>
     );
   }
 
   return (
-    <div className={cn("relative z-50", className)} ref={dropdownRef}>
+    <div className={cn("relative z-50", className)}>
       <button
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={toggle}
         className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-white hover:bg-sand/70 text-sm font-semibold text-ink transition-colors border border-ink/10"
       >
         <MapPin className="w-4 h-4 text-accent shrink-0" />
@@ -128,177 +142,184 @@ export function LocationSelector({ variant = 'desktop', className }: LocationSel
         />
       </button>
 
-      {isOpen && renderDropdown(false)}
+      {isOpen && createPortal(renderDropdown(), document.body)}
     </div>
   );
 
-  function renderDropdown(isMobile: boolean) {
+  function renderDropdown() {
+    const noMatches = !loading && filteredZones.length === 0 && filteredSoon.length === 0;
     return (
-      <>
-        {/* Backdrop on mobile */}
-        <div
-          className="fixed inset-0 z-50 bg-black/20 sm:hidden"
-          onClick={() => setIsOpen(false)}
-        />
-        <div
-          className={cn(
-            "absolute mt-2 w-[calc(100vw-1.5rem)] max-w-sm sm:w-96 bg-white rounded-3xl shadow-2xl border border-gray-100 z-[100] overflow-hidden animate-in fade-in zoom-in-95 duration-150 flex flex-col max-h-[85vh]",
-            isMobile ? "left-0" : "right-0"
-          )}
-        >
-          {/* Header */}
-          <div className="px-4 pt-4 pb-3 border-b border-gray-100 bg-sand/50">
-            <h4 className="font-heading font-black text-sm text-ink">
-              Select Delivery Location
-            </h4>
-            <p className="text-[11px] text-gray-500 mt-0.5">
-              Dispatched fresh twice daily across Coimbatore
-            </p>
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Delivery location"
+        className={cn(
+          "fixed inset-0 z-[200] bg-paper flex flex-col duration-300 ease-out",
+          closing
+            ? "animate-out fade-out slide-out-to-top-6 fill-mode-forwards duration-200"
+            : "animate-in fade-in slide-in-from-top-6"
+        )}
+      >
+          {/* Header: same look as the order-flow step header */}
+          <div className="bg-white border-b border-gray-200 px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-3">
+            <div className="max-w-2xl mx-auto flex items-start justify-between gap-3">
+              <div>
+                <h4 className="font-heading font-black text-xl text-ink">Delivery location</h4>
+                <p className="text-sm text-gray-600 mt-0.5">Dispatched fresh twice daily across Coimbatore</p>
+              </div>
+              <button
+                type="button"
+                onClick={close}
+                aria-label="Close"
+                className="shrink-0 w-10 h-10 rounded-full border border-gray-200 bg-white hover:border-ink flex items-center justify-center tap-active"
+              >
+                <X className="w-5 h-5 text-ink" />
+              </button>
+            </div>
 
-            <button
-              type="button"
-              onClick={openPincodePrompt}
-              className="mt-3 w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-ink hover:bg-ink-soft text-white text-xs font-bold transition-colors"
-            >
-              <MapPin className="w-3.5 h-3.5" />
-              {locationConfirmed ? 'Change my pincode' : 'Enter my pincode'}
-            </button>
-
-            {/* Search Input */}
-            <div className="relative mt-3">
-              <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <div className="relative mt-3 max-w-2xl mx-auto">
+              <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search area or pincode (e.g. RS Puram, 641002)"
-                className="w-full pl-8 pr-3 py-1.5 rounded-xl border border-gray-200 text-xs text-gray-800 placeholder-gray-400 bg-white focus:outline-none focus:border-ink"
+                placeholder="Search area or pincode"
+                className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-900 placeholder-gray-400 bg-white focus:outline-none focus:border-ink focus:ring-1 focus:ring-ink"
               />
             </div>
           </div>
 
-          {/* Zones Scrollable List */}
-          <div className="overflow-y-auto max-h-64 divide-y divide-gray-100 flex-1 p-2 text-xs">
-            <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-400">
-              Available Delivery Areas
-            </div>
-            {filteredZones.map((zone) => {
-              const isSelected = displayPincode === zone.pincode;
-              return (
-                <button
-                  key={`${zone.pincode}-${zone.area}`}
-                  type="button"
-                  onClick={() => handleSelectZone(zone)}
-                  className={cn(
-                    "w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left transition-colors",
-                    isSelected
-                      ? "bg-sand text-ink font-bold"
-                      : "hover:bg-gray-50 text-gray-700"
-                  )}
-                >
-                  <div className="flex items-center gap-2">
-                    <MapPin
-                      className={cn(
-                        "w-3.5 h-3.5 shrink-0",
-                        isSelected ? "text-accent" : "text-gray-400"
-                      )}
-                    />
-                    <span className="font-semibold text-gray-900">{zone.area}</span>
-                    <span className="text-[10px] font-mono text-gray-400">
-                      ({zone.pincode})
-                    </span>
-                  </div>
-                  {isSelected && <Check className="w-4 h-4 text-ink stroke-[3]" />}
-                </button>
-              );
-            })}
+          {/* Areas */}
+          <div className="overflow-y-auto flex-1 min-h-0 p-4">
+          <div className="max-w-2xl mx-auto space-y-3">
+            {filteredZones.length > 0 && (
+              <section className="bg-white rounded-2xl border border-gray-200 p-3 space-y-2">
+                <h5 className="font-heading font-bold text-sm text-gray-900 px-0.5">Delivering now</h5>
+                <div className="grid gap-2" role="radiogroup" aria-label="Delivery area">
+                  {filteredZones.map((zone) => {
+                    const isSelected = displayPincode === zone.pincode;
+                    return (
+                      <button
+                        key={`${zone.pincode}-${zone.area}`}
+                        type="button"
+                        role="radio"
+                        aria-checked={isSelected}
+                        onClick={() => handleSelectZone(zone)}
+                        className={cn(
+                          "w-full flex items-center gap-3 rounded-xl border px-3.5 py-3 text-left transition-colors tap-active",
+                          isSelected ? "border-ink bg-paper ring-1 ring-ink" : "border-gray-200 bg-white hover:border-gray-300"
+                        )}
+                      >
+                        <span className={cn("w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0", isSelected ? "border-ink bg-ink text-white" : "border-gray-300")}>
+                          {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
+                        </span>
+                        <span className="flex-1 min-w-0">
+                          <span className="block font-heading font-bold text-sm text-gray-900">{zone.area}</span>
+                          <span className="block text-xs text-gray-500 mt-0.5">
+                            {zone.pincode} · {zone.distanceKm === 0 ? 'Our kitchen' : `${zone.distanceKm} km`}
+                          </span>
+                        </span>
+                        <span className="shrink-0 text-xs font-bold text-emerald-700">Free delivery</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
 
             {filteredSoon.length > 0 && (
-              <>
-                <div className="px-3 pt-3 pb-1.5 text-[10px] font-bold uppercase tracking-wider text-amber-700">
-                  Coming in our next batch
+              <section className="bg-white rounded-2xl border border-gray-200 p-3 space-y-2">
+                <div className="px-0.5">
+                  <h5 className="font-heading font-bold text-sm text-gray-900">Coming in our next batch</h5>
+                  <p className="text-xs text-gray-500 mt-0.5">Tap yours and we&apos;ll message you the day we start.</p>
                 </div>
-                {filteredSoon.map((zone) => (
-                  <a
-                    key={`soon-${zone.pincode}-${zone.area}`}
-                    href={notifyMeLink(BRAND.whatsappNumber, BRAND.name, zone)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left hover:bg-amber-50 text-gray-500"
-                  >
-                    <div className="flex items-center gap-2">
-                      <MapPin className="w-3.5 h-3.5 shrink-0 text-amber-500" />
-                      <span className="font-semibold text-gray-600">{zone.area}</span>
-                      <span className="text-[10px] font-mono text-gray-400">({zone.pincode})</span>
-                    </div>
-                    <span className="text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full">
-                      Notify me
-                    </span>
-                  </a>
-                ))}
-              </>
+                <div className="grid gap-2">
+                  {filteredSoon.map((zone) => (
+                    <a
+                      key={`soon-${zone.pincode}-${zone.area}`}
+                      href={notifyMeLink(BRAND.whatsappNumber, BRAND.name, zone)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full flex items-center gap-3 rounded-xl border border-dashed border-gray-300 bg-white px-3.5 py-3 text-left transition-colors hover:border-gray-400 tap-active"
+                    >
+                      <span className="flex-1 min-w-0">
+                        <span className="block font-heading font-bold text-sm text-gray-700">{zone.area}</span>
+                        <span className="block text-xs text-gray-500 mt-0.5">{zone.pincode}</span>
+                      </span>
+                      <span className="shrink-0 inline-flex items-center gap-1 text-xs font-bold text-accent">
+                        <BellRing className="w-3.5 h-3.5" />
+                        Notify me
+                      </span>
+                    </a>
+                  ))}
+                </div>
+              </section>
             )}
 
             {loading && (
-              <div className="py-6 flex items-center justify-center gap-2 text-gray-400">
+              <div className="py-6 flex items-center justify-center gap-2 text-sm text-gray-500">
                 <Loader2 className="w-4 h-4 animate-spin" />
                 <span>Loading delivery areas...</span>
               </div>
             )}
 
-            {!loading && filteredZones.length === 0 && filteredSoon.length === 0 && (
-              <div className="py-6 text-center text-gray-500">
-                <p className="font-bold">We don&apos;t deliver to &quot;{searchQuery.trim()}&quot; yet</p>
-                <p className="text-[11px] text-gray-400 mt-1">
-                  We&apos;re expanding across Coimbatore. Send us your area and pincode below!
+            {noMatches && (
+              <section className="bg-white rounded-2xl border border-gray-200 p-4 text-center">
+                <p className="font-heading font-bold text-sm text-gray-900">
+                  We don&apos;t deliver to &quot;{searchQuery.trim()}&quot; yet
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  We&apos;re expanding across Coimbatore. Send us your area and pincode below.
                 </p>
                 {isPincode(searchQuery) && (
                   <button
                     type="button"
                     onClick={() => {
                       setCurrentLocation(locationFromPincode(searchQuery, zones, comingSoonZones));
-                      setIsOpen(false);
-                      setSearchQuery('');
+                      close();
                     }}
-                    className="mt-3 px-3 py-1.5 rounded-full border border-ink/15 text-[11px] font-bold text-ink hover:bg-sand"
+                    className="mt-3 px-3.5 py-2 rounded-xl border border-gray-200 text-xs font-bold text-ink hover:border-ink"
                   >
                     Save {searchQuery.trim()} as my pincode
                   </button>
                 )}
-              </div>
+              </section>
             )}
           </div>
 
-          {/* Bottom WhatsApp / Call Order Assistance */}
-          <div className="p-3.5 bg-sand border-t border-ink/10">
-            <p className="text-[11px] font-bold text-ink mb-2">
-              Don&apos;t see your area? Tell us your area &amp; pincode and we&apos;ll reach out.
-            </p>
+          </div>
+          {/* Bottom bar: same as the flow's fixed bar */}
+          <div className="bg-white border-t border-gray-200 px-4 pt-3 pb-[max(0.875rem,env(safe-area-inset-bottom))]">
+            <div className="max-w-2xl mx-auto space-y-2">
+            <button
+              type="button"
+              onClick={openPincodePrompt}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-ink hover:bg-ink-soft text-white font-heading font-black text-sm"
+            >
+              {locationConfirmed ? 'Change my pincode' : 'Enter my pincode'}
+            </button>
+            <p className="text-xs text-gray-500 text-center">Don&apos;t see your area?</p>
             <div className="grid grid-cols-2 gap-2">
               <a
                 href={areaRequestLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl bg-[#25D366] hover:bg-[#1EBE5D] active:scale-[0.98] text-white font-bold text-[11px] sm:text-xs whitespace-nowrap transition-all shadow-2xs"
+                className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-gray-200 bg-white hover:border-gray-300 text-xs font-bold text-gray-900 tap-active"
               >
-                <img
-                  src="https://img.icons8.com/color/480/whatsapp--v1.png"
-                  alt="WhatsApp"
-                  className="w-3.5 h-3.5 shrink-0 object-contain"
-                />
-                <span>Request My Area</span>
+                <WhatsAppGlyph className="w-4 h-4 text-[#25D366]" />
+                Request my area
               </a>
               <a
                 href={`tel:${BRAND.whatsappNumber}`}
-                className="flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl bg-ink hover:bg-ink-soft active:scale-[0.98] text-white font-bold text-[11px] sm:text-xs whitespace-nowrap transition-all shadow-2xs"
+                className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-gray-200 bg-white hover:border-gray-300 text-xs font-bold text-gray-900 tap-active"
               >
-                <Phone className="w-3.5 h-3.5 shrink-0" />
-                <span>Call Kitchen</span>
+                <Phone className="w-4 h-4" />
+                Call kitchen
               </a>
             </div>
+            </div>
           </div>
-        </div>
-      </>
+      </div>
     );
   }
 }

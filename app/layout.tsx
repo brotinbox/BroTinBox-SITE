@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { BRAND } from '@/config/brand';
 import { Analytics } from '@vercel/analytics/next';
+import { INTRO_BOOT_SCRIPT } from '@/components/brand/intro';
+import { ConfirmProvider } from '@/components/ui/ConfirmDialog';
 
 export const metadata: Metadata = {
   title: {
@@ -69,9 +71,13 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800;900&display=swap"
           rel="stylesheet"
         />
+        {/* First-visit splash on the home page, decided before first paint so the page never flashes.
+            Plain inline script in the (server) root layout: it is in the HTML and runs synchronously,
+            and the root layout never re-renders on the client, so React never creates it there. */}
+        <script dangerouslySetInnerHTML={{ __html: INTRO_BOOT_SCRIPT }} />
       </head>
       <body className="min-h-screen flex flex-col bg-background text-gray-900 antialiased selection:bg-accent/20 selection:text-primary">
-        {children}
+        <ConfirmProvider>{children}</ConfirmProvider>
         <Analytics />
       </body>
     </html>

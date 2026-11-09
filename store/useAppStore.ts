@@ -64,6 +64,31 @@ const initialDayConfigs: Record<DayOfWeek, DayBoxConfig> = {
   Sat: { day: 'Sat', boxId: 'box-sat', boxCount: 1, isEggFree: false, skipLegume: false, doubleMain: false, selectedSides: [], selectedDrinks: [] },
 };
 
+/** The box plan in the cart (one at a time). The server re-prices everything. */
+export type CartPlan = {
+  type: 'trial' | 'weekly' | 'monthly';
+  /** "Weekly plan · Non-veg" */
+  title: string;
+  mealsPerDay: 1 | 2;
+  /** Full box or Lite box. Missing on carts saved before Lite existed = full. */
+  boxSize?: 'regular' | 'lite';
+  /** Delivery run for 1-meal plans (2-meal plans get both). */
+  slot: 'lunch' | 'dinner';
+  days: { date: string; diet: 'veg' | 'non_veg' }[];
+  preferences: { isEggFree: boolean; skipLegume: boolean; dietVariation?: string };
+  /** Client estimate for the cart bar until the server quote arrives. */
+  estimate: number;
+};
+
+/** A side or juice in the cart: `qty` rides with one box on every delivery day. */
+export type CartAddon = { id: string; qty: number; name: string; price: number; image?: string; type: 'side' | 'drink' };
+
+export const MAX_ADDON_QTY = 5;
+
+// Old front-end side ids ("side-grilled-chicken") → DB slugs, so one item never appears twice.
+const SIDE_SLUG = new Map((sidesData as { id: string; slug: string }[]).map((s) => [s.id, s.slug]));
+export const addonKey = (id: string) => SIDE_SLUG.get(id) ?? id;
+
 /** What the sign-in popup should do; every field is optional. */
 export type SignInRequest = {
   /** Where to land after sign-in. Default: stay on the current page (home/login → dashboard). */
@@ -166,6 +191,16 @@ interface AppState {
   setWeeklyOrder: (order: WeeklyOrderConfig | null) => void;
   monthlyOrder: MonthlyOrderConfig | null;
   setMonthlyOrder: (order: MonthlyOrderConfig | null) => void;
+
+  // Cart: one box plan + sides & juices. Persisted.
+  cartPlan: CartPlan | null;
+  cartAddons: CartAddon[];
+  setCartPlan: (plan: CartPlan | null) => void;
+  /** Adds one (or bumps the qty). */
+  addCartAddon: (addon: Omit<CartAddon, 'qty'>) => void;
+  /** qty 0 removes it. */
+  setCartAddonQty: (id: string, qty: number) => void;
+  clearCart: () => void;
 
   // Computed Calculation Helpers
   getPlanMealCount: () => number;
@@ -372,6 +407,27 @@ export const useAppStore = create<AppState>()(
       monthlyOrder: null,
       setMonthlyOrder: (order) => set({ monthlyOrder: order, activeCheckoutType: 'monthly' }),
 
+      cartPlan: null,
+      cartAddons: [],
+      setCartPlan: (plan) => set({ cartPlan: plan }),
+      addCartAddon: (addon) =>
+        set((state) => {
+          const id = addonKey(addon.id);
+          const existing = state.cartAddons.find((a) => a.id === id);
+          return {
+            cartAddons: existing
+              ? state.cartAddons.map((a) => (a.id === id ? { ...a, qty: Math.min(a.qty + 1, MAX_ADDON_QTY) } : a))
+              : [...state.cartAddons, { ...addon, id, qty: 1 }].slice(0, 10),
+          };
+        }),
+      setCartAddonQty: (id, qty) =>
+        set((state) => ({
+          cartAddons: qty <= 0
+            ? state.cartAddons.filter((a) => a.id !== id)
+            : state.cartAddons.map((a) => (a.id === id ? { ...a, qty: Math.min(qty, MAX_ADDON_QTY) } : a)),
+        })),
+      clearCart: () => set({ cartPlan: null, cartAddons: [] }),
+
       getPlanMealCount: () => {
         const { selectedDays, dayConfigs } = get();
         let total = 0;
@@ -559,6 +615,8 @@ export const useAppStore = create<AppState>()(
         trialOrder: state.trialOrder,
         weeklyOrder: state.weeklyOrder,
         monthlyOrder: state.monthlyOrder,
+        cartPlan: state.cartPlan,
+        cartAddons: state.cartAddons,
         currentLocation: state.currentLocation,
         locationConfirmed: state.locationConfirmed,
       }),

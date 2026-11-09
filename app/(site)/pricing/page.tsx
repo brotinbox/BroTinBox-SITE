@@ -45,12 +45,8 @@ export default function PricingPage() {
       {/* 1. Centered Header & Dual Interactive Switchers */}
       <section className="pt-8 sm:pt-14 pb-8 sm:pb-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <span className="text-xs font-black uppercase tracking-wider text-accent">
-            Transparent Pricing
-          </span>
-
-          <h1 className="font-heading font-black text-2xl sm:text-4xl lg:text-5xl text-ink mt-2 tracking-tight">
-            Simple, Honest Subscription Plans
+          <h1 className="font-heading font-black text-2xl sm:text-4xl lg:text-5xl text-ink tracking-tight">
+            Subscription Plans
           </h1>
 
           <p className="text-xs sm:text-sm text-gray-600 mt-2 max-w-xl mx-auto">

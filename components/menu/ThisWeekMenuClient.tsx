@@ -1,5 +1,6 @@
 'use client';
 
+import { AddToCartButton } from '@/components/checkout/AddToCartButton';
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -18,7 +19,6 @@ import {
   Calendar,
   Layers,
   Leaf,
-  Plus,
 } from 'lucide-react';
 import { cn, formatCurrency } from '@/lib/utils';
 
@@ -39,7 +39,7 @@ export function ThisWeekMenuClient({
 }: ThisWeekMenuClientProps) {
   const today = getTodayDayOfWeek();
   const [activeTab, setActiveTab] = useState<DayOfWeek | 'extras'>(today);
-  const { toggleDay, selectedDays, toggleSideForDay, toggleDrinkForDay, dayConfigs } = useAppStore();
+  const { toggleDay, selectedDays, toggleDrinkForDay, dayConfigs } = useAppStore();
 
   const currentBox = boxes.find((b) => b.day === activeTab);
 
@@ -418,13 +418,7 @@ export function ThisWeekMenuClient({
                       <span className="font-heading font-black text-xl text-gray-900">
                         {formatCurrency(side.price)}
                       </span>
-                      <Link
-                        href={`/build-plan?addSide=${side.id}`}
-                        className="bg-primary hover:bg-primary-hover text-white font-bold text-xs py-2 px-4 rounded-xl tap-active flex items-center gap-1.5"
-                      >
-                        <Plus className="w-3.5 h-3.5" />
-                        <span>Add To Plan</span>
-                      </Link>
+                      <AddToCartButton item={side} type="side" label="Add to cart" />
                     </div>
                   </div>
                 ))}
@@ -487,13 +481,7 @@ export function ThisWeekMenuClient({
                       <span className="font-heading font-black text-xl text-gray-900">
                         {formatCurrency(drink.price)}
                       </span>
-                      <Link
-                        href={`/build-plan?addDrink=${drink.id}`}
-                        className="bg-primary hover:bg-primary-hover text-white font-bold text-xs py-2 px-4 rounded-xl tap-active flex items-center gap-1.5"
-                      >
-                        <Plus className="w-3.5 h-3.5" />
-                        <span>Add Drink</span>
-                      </Link>
+                      <AddToCartButton item={drink} type="drink" label="Add to cart" />
                     </div>
                   </div>
                 ))}

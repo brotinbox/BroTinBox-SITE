@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { CalendarDays, ChevronDown, HelpCircle, LayoutDashboard, LogOut, MapPin, Receipt, Sparkles, User as UserIcon, UserPlus } from 'lucide-react';
 import { useAppStore } from '@/store/useAppStore';
 import { signOutCustomer } from '@/lib/auth/customer';
+import { SIGN_OUT_CONFIRM, useConfirm } from '@/components/ui/ConfirmDialog';
 import { cn } from '@/lib/utils';
 import { UserAvatar } from './UserAvatar';
 
@@ -27,6 +28,7 @@ const LINKS = [
  */
 export function AccountButton({ variant = 'desktop' }: { variant?: 'desktop' | 'mobile' }) {
   const router = useRouter();
+  const confirm = useConfirm();
   const { isLoggedIn, authReady, user, setAuthDrawerOpen } = useAppStore();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -96,7 +98,7 @@ export function AccountButton({ variant = 'desktop' }: { variant?: 'desktop' | '
             <button
               type="button"
               role="menuitem"
-              onClick={async () => { setOpen(false); await signOutCustomer(); router.push('/'); router.refresh(); }}
+              onClick={async () => { setOpen(false); if (!(await confirm(SIGN_OUT_CONFIRM))) return; await signOutCustomer(); router.push('/'); router.refresh(); }}
               className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-semibold text-rose-700 hover:bg-rose-50"
             >
               <LogOut className="w-4 h-4" /> Sign out

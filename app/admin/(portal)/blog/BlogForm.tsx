@@ -60,7 +60,7 @@ export function BlogForm({ post, categories, canWrite }: {
       {post && canWrite && (
         <ActionForm action={deleteBlogPost} className="pt-4 border-t border-gray-100">
           <input type="hidden" name="id" value={post.id} />
-          <SubmitButton variant="danger" confirm="Delete this post permanently?">Delete post</SubmitButton>
+          <SubmitButton variant="danger" confirm={{ eyebrow: 'Delete post', tone: 'danger', title: 'Delete this post permanently?', message: 'It comes off the blog straight away. This can’t be undone.', confirmLabel: 'Delete post', cancelLabel: 'Keep it' }}>Delete post</SubmitButton>
         </ActionForm>
       )}
     </div>

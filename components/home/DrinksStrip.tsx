@@ -1,10 +1,11 @@
 'use client';
 
+import { AddToCartButton } from '@/components/checkout/AddToCartButton';
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { AddonDrink } from '@/types';
-import { Plus, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 
 interface DrinksStripProps {
@@ -34,7 +35,7 @@ export function DrinksStrip({ addons }: DrinksStripProps) {
           </Link>
         </div>
 
-        <div className="flex md:grid overflow-x-auto md:overflow-visible snap-x snap-mandatory -mx-4 px-4 md:mx-0 md:px-0 pb-2 [scrollbar-width:none] md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
+        <div className="flex md:grid overflow-x-auto md:overflow-visible snap-x snap-mandatory scroll-pl-4 md:scroll-pl-0 -mx-4 px-4 md:mx-0 md:px-0 pb-2 [scrollbar-width:none] md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
           {addons.map((drink) => (
             <div
               key={drink.id}
@@ -60,13 +61,7 @@ export function DrinksStrip({ addons }: DrinksStripProps) {
                 <span className="font-heading font-black text-sm sm:text-xl text-gray-900">
                   {formatCurrency(drink.price)}
                 </span>
-                <Link
-                  href={`/build-plan?addDrink=${drink.id}`}
-                  className="bg-primary hover:bg-primary-hover text-white font-bold text-[11px] sm:text-xs py-1.5 sm:py-2 px-2.5 sm:px-4 rounded-xl tap-active flex items-center gap-1.5"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Add Drink</span><span className="sm:hidden">Add</span>
-                </Link>
+                <AddToCartButton item={drink} type="drink" className="text-[11px] sm:text-xs py-1.5 sm:py-2 px-2.5 sm:px-4" />
               </div>
             </div>
           ))}

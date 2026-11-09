@@ -40,7 +40,7 @@ export default async function DayPlanPage({ searchParams }: { searchParams: Prom
   const [{ data: deliveryData }, offCount, pending, { data: itemData }, ...menus] = await Promise.all([
     supabase
       .from('deliveries')
-      .select('id, slot, status, diet, is_egg_free, skip_legume, double_main, is_make_up, address_snapshot, delivery_addons(qty, addons(name)), delivery_zones(area)')
+      .select('id, slot, status, diet, is_egg_free, skip_legume, double_main, is_make_up, box_size, address_snapshot, delivery_addons(qty, addons(name)), delivery_zones(area)')
       .eq('delivery_date', date)
       .in('status', ACTIVE),
     supabase.from('deliveries').select('id', { count: 'exact', head: true }).eq('delivery_date', date).in('status', ['skipped', 'paused']),
@@ -67,6 +67,11 @@ export default async function DayPlanPage({ searchParams }: { searchParams: Prom
     if (!m) return [];
     const eggSide = items.get(m.protein_side_id ?? '')?.code === 'NVE';
     const out: string[] = [];
+    // Lite box: main, salad and carb only, smaller portions (lib/lite-box.ts).
+    if (r.box_size === 'lite') {
+      return [m.main_id && `${r.double_main ? '2× ' : ''}${name(m.main_id)}`, m.salad_id && name(m.salad_id), m.carb_id && name(m.carb_id)]
+        .filter(Boolean).map((x) => `${x} (Lite)`) as string[];
+    }
     if (m.main_id) out.push(`${r.double_main ? '2× ' : ''}${name(m.main_id)}`);
     if (m.protein_side_id && !(eggSide && r.is_egg_free)) out.push(name(m.protein_side_id)!);
     if (m.legume_id && !r.skip_legume) out.push(`${eggSide && r.is_egg_free ? '2× ' : ''}${name(m.legume_id)}`);
@@ -151,7 +156,7 @@ export default async function DayPlanPage({ searchParams }: { searchParams: Prom
                                 <div className="flex-1 min-w-0">
                                   <p className="font-semibold text-sm">
                                     {a.recipient_name || 'Customer'} · <a href={`tel:${a.phone}`} className="text-primary">{a.phone}</a>
-                                    <span className="ml-2 text-xs font-bold">{r.diet === 'veg' ? 'VEG' : 'NON-VEG'}</span>
+                                    <span className="ml-2 text-xs font-bold">{r.diet === 'veg' ? 'VEG' : 'NON-VEG'}{r.box_size === 'lite' && <span className="text-accent"> · LITE</span>}</span>
                                   </p>
                                   <p className="text-xs text-gray-600">{a.flat}, {a.street}{a.landmark ? `, ${a.landmark}` : ''}, {a.area} {a.pincode}</p>
                                   <p className="text-xs mt-1 text-gray-900">{boxFor(r).join(' · ') || 'Menu not set'}</p>

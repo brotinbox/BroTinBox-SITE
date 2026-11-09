@@ -28,6 +28,18 @@ export type PlanKind = 'trial' | 'weekly' | 'monthly';
 export type PricedDiet = 'veg' | 'non-veg';
 export type MealsPerDay = 1 | 2;
 export type RegularTrial = PricingMatrix['trial'];
+export type BoxSize = 'regular' | 'lite';
+
+/**
+ * The price table for one box size. Lite has its own prices (and its own
+ * trial price, used for "you save" on Lite plans); every helper below works
+ * the same on either. Throws if Lite isn't on sale (check `p.lite` first).
+ */
+export function pricingFor(p: PricingMatrix, size: BoxSize): PricingMatrix {
+  if (size === 'regular') return p;
+  if (!p.lite) throw new Error('Lite prices are not live');
+  return { ...p, trial: p.lite.trial, weekly: p.lite.weekly, monthly: p.lite.monthly, secondMealDiscount: p.lite.secondMealDiscount };
+}
 
 /** Delivery days in a full plan. */
 export const PLAN_DAYS = { trial: 1, weekly: 6, monthly: MONTHLY_PLAN_DAYS } as const;

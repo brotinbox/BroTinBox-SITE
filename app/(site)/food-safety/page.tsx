@@ -63,7 +63,7 @@ const sections: LegalSection[] = [
           <li>Mustard and sesame</li>
         </ul>
         <p>
-          <strong>How we protect you.</strong> Tell us your allergies in <Link href="/profile#body">My profile</Link> or at checkout. We leave those ingredients out of your meals
+          <strong>How we protect you.</strong> Tell us your allergies in <Link href="/profile/body">My profile</Link> or at checkout. We leave those ingredients out of your meals
           and flag your order for the kitchen. Ask us on WhatsApp for the full ingredient list of any dish.
         </p>
         <p>

@@ -146,15 +146,16 @@ export const RESOURCES: ResourceDef[] = [
     description: 'The newest price whose start time has passed is used. Add a new row to change a price; old rows stay as history.',
     readPermission: 'pricing.read', writePermission: 'pricing.write', creatable: true,
     order: { column: 'effective_from', ascending: false },
-    listColumns: ['plan_type', 'diet', 'price_per_meal', 'second_meal_discount', 'effective_from'],
+    listColumns: ['plan_type', 'diet', 'box_size', 'price_per_meal', 'second_meal_discount', 'effective_from'],
     fields: [
       { name: 'plan_type', label: 'Plan type', type: 'select', required: true, options: ['trial', 'weekly', 'monthly'].map(yesNo) },
       { name: 'diet', label: 'Diet', type: 'select', required: true, options: [{ value: 'non_veg', label: 'Non-veg' }, { value: 'veg', label: 'Veg' }] },
+      { name: 'box_size', label: 'Box', type: 'select', required: true, options: [{ value: 'regular', label: 'Full box' }, { value: 'lite', label: 'Lite box' }] },
       { name: 'price_per_meal', label: 'Price per box (₹)', type: 'number', required: true, min: 1, max: 5000, step: 1 },
       { name: 'second_meal_discount', label: 'Discount on 2nd box per day (₹)', type: 'number', min: 0, max: 1000, step: 1 },
       { name: 'effective_from', label: 'Starts', type: 'datetime', required: true },
     ],
-    revalidate: ['plans'], title: (r) => `${r.plan_type} · ${r.diet}`,
+    revalidate: ['plans'], title: (r) => `${r.plan_type} · ${r.diet} · ${r.box_size === 'lite' ? 'Lite' : 'Full'}`,
     links: [{ href: '/plans', label: '← Plans' }],
   },
   {

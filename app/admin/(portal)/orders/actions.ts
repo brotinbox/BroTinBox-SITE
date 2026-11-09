@@ -70,6 +70,9 @@ const PLAN_DAYS = { trial: 1, weekly: 6, monthly: 26 } as const;
 const manualOrderSchema = z.object({
   name: z.string().trim().min(2).max(80),
   phone: z.string().regex(/^[6-9]\d{9}$/),
+  delivery_phone: z.union([z.literal(''), z.string().regex(/^[6-9]\d{9}$/)]),
+  alt_phone: z.union([z.literal(''), z.string().regex(/^[6-9]\d{9}$/)]),
+  alt_label: z.string().max(40),
   email: z.union([z.literal(''), z.string().trim().toLowerCase().email().max(120)]),
   flat: z.string().trim().min(1).max(120),
   street: z.string().trim().min(2).max(160),
@@ -90,21 +93,27 @@ const manualOrderSchema = z.object({
 async function findOrCreateCustomer(name: string, phone: string, email: string): Promise<string> {
   const db = getSupabaseService();
   const e164 = `+91${phone}`;
+  // The account phone sign-in would open (verified number) wins over one where the number was only typed in.
+  const { data: byVerified } = await db.from('profiles').select('id').eq('phone', e164).eq('phone_verified', true).limit(1).maybeSingle();
+  if (byVerified) return byVerified.id;
   const { data: byPhone } = await db.from('profiles').select('id').in('phone', [e164, `91${phone}`, phone]).limit(1).maybeSingle();
   if (byPhone) return byPhone.id;
   if (email) {
     const { data: byEmail } = await db.from('profiles').select('id').eq('email', email).limit(1).maybeSingle();
     if (byEmail) return byEmail.id;
   }
-  // With an email, a later Google sign-in using that address lands on this same account.
+  // With a Gmail, a later Google sign-in lands on this account. Without one, use the same
+  // placeholder email phone sign-in uses (it needs an email to start a session).
   const { data, error } = await db.auth.admin.createUser({
     phone: e164,
     phone_confirm: true,
-    ...(email && { email, email_confirm: true }),
+    email: email || `91${phone}@phone.brotinbox.invalid`,
+    email_confirm: true,
     user_metadata: { full_name: name, source: 'whatsapp' },
   });
   if (error || !data.user) throw new CheckoutError('Could not create the customer account. Check the number and email are not used by someone else.');
-  await db.from('profiles').update({ full_name: name, phone: e164, is_onboarded: true, metadata: { source: 'whatsapp' } }).eq('id', data.user.id);
+  // We're chatting with them on this number, so treat it as verified: their OTP sign-in then opens this account.
+  await db.from('profiles').update({ full_name: name, phone: e164, phone_verified: true, is_onboarded: true, metadata: { source: 'whatsapp' } }).eq('id', data.user.id);
   return data.user.id;
 }
 
@@ -124,9 +133,9 @@ async function planDates(start: string, count: number): Promise<string[]> {
 }
 
 export async function createManualOrder(_prev: ActionResult | null, fd: FormData): Promise<ActionResult> {
-  const v = manualOrderSchema.safeParse(Object.fromEntries(['name', 'phone', 'email', 'flat', 'street', 'landmark', 'area', 'pincode', 'type', 'diet', 'meals', 'start', 'payment', 'reference', 'extra_trial', 'extra_trial_reason']
+  const v = manualOrderSchema.safeParse(Object.fromEntries(['name', 'phone', 'delivery_phone', 'alt_phone', 'alt_label', 'email','flat', 'street', 'landmark', 'area', 'pincode', 'type', 'diet', 'meals', 'start', 'payment', 'reference', 'extra_trial', 'extra_trial_reason']
     .map((k) => [k, String(fd.get(k) ?? '')])));
-  if (!v.success) return fail('Check the form: name, 10-digit WhatsApp number, flat, street, area, 6-digit pincode and plan are needed.');
+  if (!v.success) return fail('Check the form: name, 10-digit WhatsApp number, flat, street, area, 6-digit pincode and plan are needed. Delivery / alternate numbers must be 10 digits if given.');
   const f = v.data;
   const reference = cleanText(f.reference, 60) || (f.payment === 'cash' ? 'CASH' : '');
   if (f.payment !== 'unpaid' && reference.length < 4) return fail('Enter the UPI / transaction reference you verified, or choose “Not paid yet”.');
@@ -147,7 +156,7 @@ export async function createManualOrder(_prev: ActionResult | null, fd: FormData
         user_id: userId,
         label: 'Home',
         recipient_name: cleanText(f.name, 80),
-        phone: `+91${f.phone}`,
+        phone: `+91${f.delivery_phone || f.phone}`,
         flat: cleanText(f.flat, 120),
         street: cleanText(f.street, 160),
         landmark: cleanText(f.landmark, 120) || null,
@@ -159,13 +168,23 @@ export async function createManualOrder(_prev: ActionResult | null, fd: FormData
       }).select('id').single();
       if (addrErr || !address) throw addrErr ?? new Error('address');
 
+      if (f.alt_phone && f.alt_phone !== f.phone) {
+        const label = cleanText(f.alt_label, 40);
+        const { error: noteErr } = await db.from('customer_notes').insert({
+          customer_id: userId,
+          author_id: staff.profile.id,
+          body: `Alt number: +91${f.alt_phone}${label ? ` (${label})` : ''}`,
+        });
+        if (noteErr) console.error('[Order] alt-number note failed:', noteErr.message);
+      }
+
       const dates = await planDates(f.start, PLAN_DAYS[f.type]);
       const cart: Cart = {
         type: f.type,
         mealsPerDay: f.meals === 'both' ? 2 : 1,
         slot: f.meals === 'dinner' ? 'dinner' : 'lunch',
         days: dates.map((date) => ({ date, diet: f.diet })),
-        addonIds: [],
+        boxSize: 'regular', addons: [], addonIds: [],
         preferences: { isEggFree: false, skipLegume: false },
         addressId: address.id,
       };

@@ -180,7 +180,7 @@ const sections: LegalSection[] = [
       <p>
         Service messages about orders, payments, deliveries and your account are part of the Service. Promotional messages are sent only with your
         opt-in, and we honour Do-Not-Disturb preferences under the Telecom Commercial Communications Customer Preference Regulations, 2018 where they apply.
-        You can turn off WhatsApp updates in <Link href="/profile">My profile</Link> or reply STOP at any time.
+        You can turn off WhatsApp updates in <Link href="/profile/notifications">My profile</Link> or reply STOP at any time.
       </p>
     ),
   },

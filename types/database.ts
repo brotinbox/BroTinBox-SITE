@@ -542,6 +542,7 @@ export type Database = {
         Row: {
           address_id: string | null
           address_snapshot: Json | null
+          box_size: Database["public"]["Enums"]["box_size"]
           created_at: string
           delivered_at: string | null
           delivery_date: string
@@ -567,6 +568,7 @@ export type Database = {
         Insert: {
           address_id?: string | null
           address_snapshot?: Json | null
+          box_size?: Database["public"]["Enums"]["box_size"]
           created_at?: string
           delivered_at?: string | null
           delivery_date: string
@@ -592,6 +594,7 @@ export type Database = {
         Update: {
           address_id?: string | null
           address_snapshot?: Json | null
+          box_size?: Database["public"]["Enums"]["box_size"]
           created_at?: string
           delivered_at?: string | null
           delivery_date?: string
@@ -1611,6 +1614,7 @@ export type Database = {
       }
       pricing_rules: {
         Row: {
+          box_size: Database["public"]["Enums"]["box_size"]
           created_at: string
           created_by: string | null
           diet: Database["public"]["Enums"]["diet_type"]
@@ -1621,6 +1625,7 @@ export type Database = {
           second_meal_discount: number
         }
         Insert: {
+          box_size?: Database["public"]["Enums"]["box_size"]
           created_at?: string
           created_by?: string | null
           diet: Database["public"]["Enums"]["diet_type"]
@@ -1631,6 +1636,7 @@ export type Database = {
           second_meal_discount?: number
         }
         Update: {
+          box_size?: Database["public"]["Enums"]["box_size"]
           created_at?: string
           created_by?: string | null
           diet?: Database["public"]["Enums"]["diet_type"]
@@ -2296,6 +2302,7 @@ export type Database = {
       cook_sheet: {
         Args: { p_date: string; p_kitchen?: string }
         Returns: {
+          box_size: Database["public"]["Enums"]["box_size"]
           diet: Database["public"]["Enums"]["diet_type"]
           double_main: number
           egg_free: number
@@ -2630,6 +2637,7 @@ export type Database = {
         | "system"
         | "super_admin"
       addon_type: "side" | "drink"
+      box_size: "regular" | "lite"
       app_role:
         | "customer"
         | "admin"
@@ -2824,6 +2832,7 @@ export const Constants = {
         "super_admin",
       ],
       addon_type: ["side", "drink"],
+      box_size: ["regular", "lite"],
       app_role: [
         "customer",
         "admin",

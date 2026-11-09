@@ -1,284 +1,280 @@
 import Link from 'next/link';
-import {
-  AlertCircle,
-  CalendarDays,
-  ChevronRight,
-  Flame,
-  Target,
-  Utensils,
-  Sparkles,
-  MapPin,
-  BookOpen,
-  HelpCircle,
-  ShieldCheck,
-  MessageCircle,
-  Gift,
-  Repeat,
-  ArrowRight,
-  Smartphone,
-} from 'lucide-react';
+import { ChevronRight, Clock, Gift, MessageCircle, Smartphone, Target, Wallet } from 'lucide-react';
 import { requireCustomer } from '@/lib/auth/session';
 import { phoneOtpMode } from '@/lib/auth/otp-mode';
-import { dateLabel, getMyPendingOrders, getMySubscriptions, getUpcomingMeals, inr } from '@/lib/customer/data';
+import { dateLabel, dayWord, getMyPendingOrders, getMySubscriptions, getUpcomingMeals, inr, type UpcomingMeal } from '@/lib/customer/data';
+import { todayIST } from '@/lib/menu/rotation';
 import { AccountShell } from '@/components/account/AccountNav';
-import { MealCard } from '@/components/account/MealCard';
-import { ProfileProgress } from '@/components/account/ProfileProgress';
-import { getSupabaseServer } from '@/lib/supabase/server';
+import { Btn, CustomerForm } from '@/components/account/forms';
+import { skipMeal } from '@/lib/customer/actions';
 import { getPricingMatrix, getTrialOffer } from '@/lib/data/catalog';
-import { profileCompletion } from '@/lib/customer/profile-completion';
-import { fssaiAdjective, hasFssai } from '@/config/legal';
-
 import { getMyTrialStatus, type MyTrialStatus } from '@/lib/checkout/trial';
 import { TrialStatusCard } from '@/components/trial/TrialStatusCard';
+import { DietMark } from '@/components/trial/DietMark';
+import { SLOT_TIME } from '@/lib/meal-display';
+import { BRAND } from '@/config/brand';
+import { cn } from '@/lib/utils';
 
 export const metadata = { title: 'My dashboard', robots: { index: false } };
 export const dynamic = 'force-dynamic';
 
+const STATUS: Record<string, { text: string; tone: 'live' | 'done' | 'plain' | 'warn' }> = {
+  scheduled: { text: 'Scheduled', tone: 'plain' },
+  locked: { text: 'Being cooked', tone: 'live' },
+  preparing: { text: 'Being cooked', tone: 'live' },
+  packed: { text: 'Packed', tone: 'live' },
+  out_for_delivery: { text: 'On the way', tone: 'live' },
+  delivered: { text: 'Delivered', tone: 'done' },
+  failed: { text: 'Delivery issue', tone: 'warn' },
+};
+const TONE = {
+  live: 'bg-orange-50 text-orange-700 border-orange-200',
+  done: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  warn: 'bg-rose-50 text-rose-700 border-rose-200',
+  plain: 'bg-sand text-ink border-ink/15',
+};
+
+function nextWhen(date: string) {
+  const w = dayWord(date);
+  return w === 'Today' || w === 'Tomorrow' ? w.toLowerCase() : `on ${w}`;
+}
+const slotLine = (m: UpcomingMeal) => `${m.slot === 'lunch' ? 'Lunch' : 'Dinner'} · ${SLOT_TIME[m.slot]}`;
+const dishName = (m: UpcomingMeal) => m.menu?.dishes[0]?.name ?? (m.diet === 'veg' ? 'Veg box' : 'Non-veg box');
+const dietKind = (m: UpcomingMeal) => (m.diet === 'veg' ? 'veg' : 'non-veg') as 'veg' | 'non-veg';
+
 export default async function DashboardPage() {
   const profile = await requireCustomer('/dashboard');
-  const supabase = await getSupabaseServer();
 
-  const [meals, subs, pending, pricing, trialOffer, { count: addressCount }, trial] = await Promise.all([
+  const [meals, subs, pending, pricing, trialOffer, trial, otpMode] = await Promise.all([
     getUpcomingMeals(12), getMySubscriptions(), getMyPendingOrders(), getPricingMatrix(), getTrialOffer(),
-    supabase.from('addresses').select('id', { count: 'exact', head: true }).eq('user_id', profile.id),
     getMyTrialStatus(profile.id).catch((): MyTrialStatus => ({ state: 'available' })),
+    phoneOtpMode(),
   ]);
-  const live = subs.filter((s) => s.status === 'active' || s.status === 'paused');
+  const today = todayIST();
+  // A plan past its last day is over, even before the nightly job marks it completed.
+  const live = subs.filter((s) => (s.status === 'active' || s.status === 'paused') && !(s.end_date && s.end_date < today));
   const upcoming = meals.filter((m) => m.status !== 'skipped' && m.status !== 'paused');
+  const next = upcoming[0];
+  const later = upcoming.slice(1, 4);
   const firstName = (profile.full_name ?? '').split(' ')[0] || 'there';
-  const completion = profileCompletion(profile, (addressCount ?? 0) > 0);
-  // Brand-new customer: nothing bought, nothing pending, nothing coming up.
-  const isNew = !live.length && !pending.length && !upcoming.length;
   const diet = profile.diet_type === 'veg' ? 'veg' : 'non-veg';
-  // One trial per customer: once it's used, point them to the plans instead.
   const trialUsed = trial.state === 'used';
-  const showTrialCard = trialUsed && !live.length;
+  const hasPlanOrMeals = live.length > 0 || upcoming.length > 0;
+  // Trial booked/used and nothing else going on: the trial card is the next step.
+  const showTrialCard = trial.state !== 'available' && !hasPlanOrMeals;
+
+  const subtitle = next
+    ? `Your next box arrives ${nextWhen(next.delivery_date)}, ${next.slot}.`
+    : pending.length ? 'One step left: finish your payment.'
+    : live.length ? 'Your plan is set. Meals show up here.'
+    : 'Fresh, weighed meals delivered in Coimbatore.';
 
   return (
-    <AccountShell current="/dashboard" title={`Hi ${firstName}`} subtitle="Your meals, plan and orders in one place.">
-      <div className="space-y-6">
-        {pending.map((o) => (
-          <Link key={o.id} href={`/checkout/pay/${o.id}`} className="flex items-center gap-3 p-4 rounded-2xl border border-amber-200 bg-amber-50">
-            <AlertCircle className="w-5 h-5 text-amber-700 shrink-0" />
-            <span className="flex-1 text-sm text-amber-900">
-              <b>Order {o.order_number}</b> ({inr(o.total)}) is waiting for payment
-              {(o.metadata as { upi_reference?: string } | null)?.upi_reference ? ' confirmation.' : '. Tap to pay by UPI.'}
-            </span>
-            <ChevronRight className="w-4 h-4 text-amber-700" />
-          </Link>
-        ))}
+    <AccountShell current="/dashboard" title={`Hi ${firstName} 👋`} subtitle={subtitle}>
+      <div className="space-y-4">
+        {/* Things to do: only when they apply */}
+        {pending.map((o) => {
+          const waiting = !!(o.metadata as { upi_reference?: string } | null)?.upi_reference;
+          return (
+            <Link key={o.id} href={`/checkout/pay/${o.id}`} className="flex items-center gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3.5 tap-active">
+              <span className="w-9 h-9 rounded-xl bg-white text-amber-700 flex items-center justify-center shrink-0"><Clock className="w-4 h-4" /></span>
+              <span className="flex-1 min-w-0">
+                <span className="block text-sm font-bold text-amber-950">{waiting ? 'Checking your payment' : `Pay ${inr(o.total)} to confirm`}</span>
+                <span className="block text-xs text-amber-800">Order {o.order_number}{waiting ? ' · we’ll confirm shortly' : ' · your meals start once paid'}</span>
+              </span>
+              {!waiting && <span className="shrink-0 rounded-xl bg-ink text-white text-xs font-bold px-3 py-2">Pay now</span>}
+            </Link>
+          );
+        })}
 
-        {showTrialCard && <TrialStatusCard status={trial} />}
-
-        {isNew && !showTrialCard && (
-          <section className="rounded-3xl bg-ink text-white p-5 sm:p-6">
-            <p className="text-[11px] font-extrabold uppercase tracking-wider text-accent-bright">Get started</p>
-            <h2 className="font-heading font-black text-xl sm:text-2xl mt-1">How would you like to start?</h2>
-            <p className="text-xs text-white/70 mt-1">Fresh, macro-counted meals delivered across Coimbatore. Pay by UPI in under a minute.</p>
-            <div className="grid sm:grid-cols-2 gap-3 mt-4">
-              <Link href="/tomorrow" className="group rounded-2xl bg-white text-gray-900 p-4 flex flex-col gap-2 hover:shadow-lg transition-shadow">
-                <span className="flex items-center justify-between">
-                  <span className="w-9 h-9 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center"><Gift className="w-4 h-4" /></span>
-                  <span className="text-[10px] font-bold bg-orange-50 text-orange-700 px-2 py-0.5 rounded-full">{trialOffer?.label ?? 'No commitment'}</span>
-                </span>
-                <span className="font-heading font-black text-base">Try a Trial Box</span>
-                <span className="text-xs text-gray-600">One box tomorrow to taste the food first. {inr(pricing.trial[diet])} per meal{trialOffer && <> (usually <s>{inr(trialOffer.regular[diet])}</s>)</>}.</span>
-                <span className="mt-auto inline-flex items-center gap-1 text-xs font-bold text-ink">Order for tomorrow <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" /></span>
-              </Link>
-              <div className="rounded-2xl bg-white text-gray-900 p-4 flex flex-col gap-2">
-                <span className="flex items-center justify-between">
-                  <span className="w-9 h-9 rounded-xl bg-accent-soft text-ink flex items-center justify-center"><Repeat className="w-4 h-4" /></span>
-                  <span className="text-[10px] font-bold bg-accent-soft text-ink px-2 py-0.5 rounded-full">Best value</span>
-                </span>
-                <span className="font-heading font-black text-base">Subscribe &amp; save</span>
-                <span className="text-xs text-gray-600">Meals 6 days a week, from {inr(pricing.monthly[diet])} per meal. Skip or pause any day.</span>
-                <span className="mt-auto grid grid-cols-2 gap-2 pt-1">
-                  <Link href="/weekly" className="text-center px-3 py-2 rounded-xl border border-gray-200 text-xs font-bold hover:border-ink">Weekly</Link>
-                  <Link href="/monthly" className="text-center px-3 py-2 rounded-xl bg-ink text-white text-xs font-bold hover:bg-ink-soft">Monthly</Link>
-                </span>
-              </div>
-            </div>
-            <Link href="/pricing" className="inline-block mt-3 text-xs font-bold text-accent-bright hover:underline">Compare all plans →</Link>
-          </section>
-        )}
-
-        {!profile.phone_verified && (await phoneOtpMode()) !== 'off' && (
-          <Link href="/profile#phone" className="flex items-center gap-3 p-4 rounded-2xl border border-ink/10 bg-sand hover:border-ink/30 transition-colors">
-            <Smartphone className="w-5 h-5 text-ink shrink-0" />
-            <span className="flex-1 text-sm text-gray-800">
-              <b>Verify your mobile number.</b> Sign in with a WhatsApp code next time, and get delivery updates there.
+        {!profile.phone_verified && otpMode !== 'off' && (
+          <Link href="/profile/details" className="flex items-center gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3.5 tap-active">
+            <span className="w-9 h-9 rounded-xl bg-sand text-ink flex items-center justify-center shrink-0"><Smartphone className="w-4 h-4" /></span>
+            <span className="flex-1 min-w-0">
+              <span className="block text-sm font-bold text-gray-900">Verify your mobile</span>
+              <span className="block text-xs text-gray-500">Get delivery updates on WhatsApp</span>
             </span>
             <ChevronRight className="w-4 h-4 text-gray-400 shrink-0" />
           </Link>
         )}
-        <ProfileProgress percent={completion.percent} missing={completion.missing} href="/profile#body" />
 
-        <div className="grid sm:grid-cols-2 gap-3">
-          <div className="rounded-2xl border border-ink/15 bg-white p-4">
-            <p className="text-[11px] font-extrabold uppercase tracking-wider text-gray-500 flex items-center gap-1.5"><Target className="w-3.5 h-3.5" /> Daily targets</p>
-            {profile.target_calories ? (
-              <p className="font-heading font-black text-xl text-gray-900 mt-1">{profile.target_calories} kcal · {profile.target_protein} g protein</p>
-            ) : (
-              <Link href="/profile#body" className="block text-sm text-gray-600 mt-1">
-                Add age, height and weight to unlock your personal targets. <span className="font-bold text-ink">Add now →</span>
+        {/* Hero: next box, or how to start */}
+        {next ? (
+          <NextBoxCard meal={next} />
+        ) : showTrialCard ? (
+          <TrialStatusCard status={trial} />
+        ) : !hasPlanOrMeals && !pending.length ? (
+          <section className="space-y-2.5">
+            <h2 className="font-heading font-bold text-sm text-gray-900 px-1">Start eating better</h2>
+            {!trialUsed && (
+              <Link href="/tomorrow" className="flex items-center gap-3 rounded-2xl border border-ink/15 bg-white p-4 tap-active">
+                <span className="w-11 h-11 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center shrink-0"><Gift className="w-5 h-5" /></span>
+                <span className="flex-1 min-w-0">
+                  <span className="flex items-center gap-2">
+                    <span className="font-heading font-black text-base text-gray-900">Trial box</span>
+                    {trialOffer?.label && <span className="text-[10px] font-extrabold uppercase tracking-wide text-orange-700 bg-orange-50 rounded-full px-2 py-0.5">{trialOffer.label}</span>}
+                  </span>
+                  <span className="block text-xs text-gray-500 mt-0.5">Taste it first. One box, no commitment.</span>
+                </span>
+                <span className="text-right shrink-0">
+                  <span className="block font-heading font-black text-base text-ink">{inr(pricing.trial[diet])}</span>
+                  {trialOffer && <s className="block text-[11px] text-gray-400">{inr(trialOffer.regular[diet])}</s>}
+                </span>
               </Link>
             )}
-            <p className="text-xs text-gray-500 mt-0.5 capitalize">Goal: {profile.goal?.replace('-', ' ') ?? '—'}</p>
-          </div>
-          <div className="rounded-2xl border border-ink/15 bg-white p-4">
-            <p className="text-[11px] font-extrabold uppercase tracking-wider text-gray-500 flex items-center gap-1.5"><CalendarDays className="w-3.5 h-3.5" /> Your plan</p>
-            {live.length ? live.map((s) => (
-              <Link key={s.id} href="/subscription" className="block mt-1">
-                <p className="font-heading font-black text-xl text-gray-900 capitalize">{s.plans?.name ?? `${s.type} plan`}</p>
-                <p className="text-xs text-gray-600">
-                  {s.status === 'paused' ? `Paused until ${dateLabel(s.paused_until!)}` : `Until ${s.end_date ? dateLabel(s.end_date) : '—'}`} · {s.meals_delivered}/{s.meals_total} delivered
-                </p>
-              </Link>
-            )) : (
-              <>
-                <p className="text-sm text-gray-600 mt-1">No active plan yet.</p>
-                <div className="flex gap-2 mt-2">
-                  {!trialUsed && <Link href="/tomorrow" className="px-3 py-1.5 rounded-lg bg-ink text-white text-xs font-bold">Try a day</Link>}
-                  <Link href="/weekly" className={`px-3 py-1.5 rounded-lg text-xs font-bold ${trialUsed ? 'bg-ink text-white' : 'border border-gray-200'}`}>Weekly</Link>
-                  <Link href="/monthly" className="px-3 py-1.5 rounded-lg border border-gray-200 text-xs font-bold">Monthly</Link>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-
-        {!isNew && <div>
-          <div className="flex items-center justify-between pt-2 mb-3">
-            <h2 className="font-heading font-black text-lg text-gray-900 flex items-center gap-2"><Flame className="w-5 h-5 text-orange-500" /> Coming up</h2>
-            <Link href="/my-plan" className="text-xs font-bold text-ink">All meals →</Link>
-          </div>
-          {upcoming.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-gray-300 p-6 text-center text-sm text-gray-600">
-              {pending.length ? 'Your meals appear here once payment is confirmed.' : 'No meals scheduled yet.'}
+            <div className="grid grid-cols-2 gap-2.5">
+              <PlanTile href="/weekly" title="Weekly" note="6 days" price={inr(pricing.weekly[diet])} />
+              <PlanTile href="/monthly" title="Monthly" note="26 days" price={inr(pricing.monthly[diet])} badge="Best value" />
             </div>
-          ) : (
-            <div className="space-y-3">
-              {upcoming.slice(0, 4).map((m) => <MealCard key={m.id} meal={m} />)}
+          </section>
+        ) : null}
+
+        {/* Plan progress */}
+        {live.map((s) => {
+          const pct = s.meals_total ? Math.min(100, Math.round((s.meals_delivered / s.meals_total) * 100)) : 0;
+          const left = Math.max(0, s.meals_total - s.meals_delivered);
+          return (
+            <Link key={s.id} href="/subscription" className="block rounded-2xl border border-gray-200 bg-white p-4 tap-active">
+              <div className="flex items-center gap-3">
+                <span className="w-9 h-9 rounded-xl bg-sand text-ink flex items-center justify-center shrink-0"><Wallet className="w-4 h-4" /></span>
+                <span className="flex-1 min-w-0">
+                  <span className="block text-sm font-bold text-gray-900 capitalize truncate">{s.plans?.name ?? `${s.type} plan`}</span>
+                  <span className="block text-xs text-gray-500">
+                    {s.status === 'paused' ? `Paused until ${dateLabel(s.paused_until!)}` : `${left} meal${left === 1 ? '' : 's'} left${s.end_date ? ` · till ${dateLabel(s.end_date)}` : ''}`}
+                  </span>
+                </span>
+                <span className="text-xs font-bold text-ink shrink-0">Manage</span>
+              </div>
+              <div className="mt-3 h-1.5 rounded-full bg-gray-100 overflow-hidden"><div className="h-full rounded-full bg-ink" style={{ width: `${pct}%` }} /></div>
+              <p className="mt-1.5 text-[11px] text-gray-500">{s.meals_delivered} of {s.meals_total} delivered</p>
+            </Link>
+          );
+        })}
+
+        {/* Coming up */}
+        {later.length > 0 && (
+          <section className="rounded-2xl border border-gray-200 bg-white">
+            <div className="flex items-center justify-between px-4 pt-4 pb-2">
+              <h2 className="font-heading font-bold text-sm text-gray-900">Coming up</h2>
+              <Link href="/my-plan" className="text-xs font-bold text-ink">See all</Link>
             </div>
-          )}
-          <p className="text-[11px] text-gray-500 text-center pt-2">Skip, pause or change any meal until 9 PM the night before. Skipped meals move to the end of your plan.</p>
-        </div>}
+            <ul className="divide-y divide-gray-100">
+              {later.map((m) => (
+                <li key={m.id}>
+                  <Link href="/my-plan" className="flex items-center gap-3 px-4 py-3">
+                    <MealThumb meal={m} size="sm" />
+                    <span className="flex-1 min-w-0">
+                      <span className="block text-sm font-bold text-gray-900 truncate">{dishName(m)}</span>
+                      <span className="block text-xs text-gray-500">{dayWord(m.delivery_date)} · {m.slot === 'lunch' ? 'Lunch' : 'Dinner'}</span>
+                    </span>
+                    {m.menu && <span className="text-xs font-semibold text-gray-500 shrink-0">{Math.round(m.menu.protein)} g protein</span>}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
-        {/* Explore & Quick Shortcuts (from Menu Drawer) */}
-        <div className="pt-2">
-          <h2 className="font-heading font-black text-lg text-gray-900 mb-3">Explore & Quick Services</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-            <Link
-              href="/menu"
-              className="group p-3.5 rounded-2xl bg-white border border-ink/15 hover:border-ink transition-all shadow-2xs hover:shadow-xs flex flex-col justify-between"
-            >
-              <div className="w-8 h-8 rounded-xl bg-accent-soft text-ink flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
-                <Utensils className="w-4 h-4" />
-              </div>
-              <div>
-                <p className="text-xs sm:text-sm font-bold text-gray-900 leading-snug">Weekly Menu</p>
-                <p className="text-[11px] text-gray-500 mt-0.5 line-clamp-1">Rotating 6-day boxes & macros</p>
-              </div>
-            </Link>
+        {/* Daily target: one line */}
+        {profile.target_calories ? (
+          <Link href="/profile/body" className="flex items-center gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3.5 tap-active">
+            <span className="w-9 h-9 rounded-xl bg-accent-soft text-ink flex items-center justify-center shrink-0"><Target className="w-4 h-4" /></span>
+            <span className="flex-1 min-w-0">
+              <span className="block text-sm font-bold text-gray-900">{profile.target_calories} kcal · {profile.target_protein} g protein</span>
+              <span className="block text-xs text-gray-500">Your daily target</span>
+            </span>
+            <ChevronRight className="w-4 h-4 text-gray-400 shrink-0" />
+          </Link>
+        ) : (
+          <Link href="/profile/body" className="flex items-center gap-3 rounded-2xl border border-dashed border-gray-300 bg-white px-4 py-3.5 tap-active">
+            <span className="w-9 h-9 rounded-xl bg-accent-soft text-ink flex items-center justify-center shrink-0"><Target className="w-4 h-4" /></span>
+            <span className="flex-1 min-w-0">
+              <span className="block text-sm font-bold text-gray-900">Get your daily protein target</span>
+              <span className="block text-xs text-gray-500">Add age, height and weight. Takes 30 seconds.</span>
+            </span>
+            <ChevronRight className="w-4 h-4 text-gray-400 shrink-0" />
+          </Link>
+        )}
 
-            <Link
-              href="/pricing"
-              className="group p-3.5 rounded-2xl bg-white border border-ink/15 hover:border-ink transition-all shadow-2xs hover:shadow-xs flex flex-col justify-between"
-            >
-              <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
-                <Sparkles className="w-4 h-4" />
-              </div>
-              <div>
-                <p className="text-xs sm:text-sm font-bold text-gray-900 leading-snug">Pricing Plans</p>
-                <p className="text-[11px] text-gray-500 mt-0.5 line-clamp-1">Trial vs Weekly vs Monthly</p>
-              </div>
-            </Link>
-
-            <Link
-              href={trialUsed ? '/weekly' : '/tomorrow'}
-              className="group p-3.5 rounded-2xl bg-white border border-ink/15 hover:border-ink transition-all shadow-2xs hover:shadow-xs flex flex-col justify-between"
-            >
-              <div className="w-8 h-8 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
-                <CalendarDays className="w-4 h-4" />
-              </div>
-              <div>
-                <p className="text-xs sm:text-sm font-bold text-gray-900 leading-snug">{trialUsed ? 'Weekly Plan' : 'Trial Box'}</p>
-                <p className="text-[11px] text-gray-500 mt-0.5 line-clamp-1">{trialUsed ? 'Keep going after your trial' : 'Order tomorrow’s test box'}</p>
-              </div>
-            </Link>
-
-            <Link
-              href="/delivery-areas"
-              className="group p-3.5 rounded-2xl bg-white border border-ink/15 hover:border-ink transition-all shadow-2xs hover:shadow-xs flex flex-col justify-between"
-            >
-              <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
-                <MapPin className="w-4 h-4" />
-              </div>
-              <div>
-                <p className="text-xs sm:text-sm font-bold text-gray-900 leading-snug">Delivery Areas</p>
-                <p className="text-[11px] text-gray-500 mt-0.5 line-clamp-1">Coimbatore pincodes & slots</p>
-              </div>
-            </Link>
-
-            <Link
-              href="/blog"
-              className="group p-3.5 rounded-2xl bg-white border border-ink/15 hover:border-ink transition-all shadow-2xs hover:shadow-xs flex flex-col justify-between"
-            >
-              <div className="w-8 h-8 rounded-xl bg-sky-50 text-sky-700 flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
-                <BookOpen className="w-4 h-4" />
-              </div>
-              <div>
-                <p className="text-xs sm:text-sm font-bold text-gray-900 leading-snug">Nutrition Blog</p>
-                <p className="text-[11px] text-gray-500 mt-0.5 line-clamp-1">Clinical guides & kitchen secrets</p>
-              </div>
-            </Link>
-
-            <Link
-              href="/faq"
-              className="group p-3.5 rounded-2xl bg-white border border-ink/15 hover:border-ink transition-all shadow-2xs hover:shadow-xs flex flex-col justify-between"
-            >
-              <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
-                <HelpCircle className="w-4 h-4" />
-              </div>
-              <div>
-                <p className="text-xs sm:text-sm font-bold text-gray-900 leading-snug">Help & FAQ</p>
-                <p className="text-[11px] text-gray-500 mt-0.5 line-clamp-1">Skip cutoffs, billing & kitchen</p>
-              </div>
-            </Link>
-          </div>
-        </div>
-
-        {/* WhatsApp Nutritionist Support & FSSAI Trust Card */}
-        <div className="rounded-2xl border border-ink/15 bg-gradient-to-br from-accent-soft/40 to-white p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <p className="font-heading font-black text-sm sm:text-base text-gray-900 flex items-center gap-2">
-              <MessageCircle className="w-4 h-4 text-ink" />
-              Need help with your meals or subscription?
-            </p>
-            <p className="text-xs text-gray-600">
-              Speak directly with our nutrition team in Coimbatore for diet adjustments or delivery changes.
-            </p>
-            <div className="flex items-center gap-1.5 text-[11px] text-gray-500 pt-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-              <span>100% Digitally Weighed{hasFssai() ? ` • FSSAI ${fssaiAdjective()} Kitchen` : ''}</span>
-            </div>
-          </div>
-
-          <a
-            href="https://wa.me/918248606711?text=Hi%20BroTin%20Box%20Team,%20I%20have%20a%20question%20about%20my%20meal%20plan"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="shrink-0 inline-flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-bold py-2.5 px-4 rounded-xl shadow-xs transition-all active:scale-95"
-          >
-            <img
-              src="https://img.icons8.com/color/480/whatsapp--v1.png"
-              alt="WhatsApp"
-              className="w-4 h-4 object-contain"
-            />
-            <span>Chat on WhatsApp</span>
-          </a>
-        </div>
+        <a href={`${BRAND.socials.whatsapp}?text=${encodeURIComponent('Hi BroTin Box! I have a question about my meals.')}`} target="_blank" rel="noopener noreferrer"
+          className="flex items-center gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3.5 tap-active">
+          <span className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0"><MessageCircle className="w-4 h-4" /></span>
+          <span className="flex-1 min-w-0">
+            <span className="block text-sm font-bold text-gray-900">Need help?</span>
+            <span className="block text-xs text-gray-500">Chat with us on WhatsApp</span>
+          </span>
+          <ChevronRight className="w-4 h-4 text-gray-400 shrink-0" />
+        </a>
       </div>
     </AccountShell>
+  );
+}
+
+function MealThumb({ meal, size }: { meal: UpcomingMeal; size: 'sm' | 'lg' }) {
+  const img = meal.menu?.dishes[0]?.image_url;
+  const box = size === 'lg' ? 'w-full aspect-[16/9] rounded-xl' : 'w-12 h-12 rounded-xl';
+  return img ? (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={img} alt={dishName(meal)} loading="lazy" className={cn(box, 'object-cover bg-gray-100 shrink-0')} />
+  ) : (
+    <span className={cn(box, 'bg-sand flex items-center justify-center shrink-0')}>
+      <DietMark kind={dietKind(meal)} size={size === 'lg' ? undefined : 'sm'} />
+    </span>
+  );
+}
+
+/** Swiggy-style "your order" card for the next box. */
+function NextBoxCard({ meal }: { meal: UpcomingMeal }) {
+  const st = STATUS[meal.status] ?? { text: meal.status, tone: 'plain' as const };
+  const sides = meal.menu?.dishes.slice(1).map((d) => d.name).join(' · ');
+  return (
+    <section className="rounded-2xl border border-gray-200 bg-white p-3 space-y-3">
+      <div className="relative">
+        <MealThumb meal={meal} size="lg" />
+        <span className={cn('absolute top-2 left-2 text-[11px] font-bold px-2.5 py-1 rounded-full border shadow-sm', TONE[st.tone])}>{st.text}</span>
+        {meal.box_size === 'lite' && <span className="absolute top-2 right-2 text-[11px] font-bold px-2.5 py-1 rounded-full bg-white/95 text-ink shadow-sm">Lite box</span>}
+      </div>
+      <div className="px-1">
+        <p className="text-[11px] font-extrabold uppercase tracking-wider text-orange-600">Next box · {dayWord(meal.delivery_date)}</p>
+        <h2 className="font-heading font-black text-lg text-ink mt-0.5 flex items-center gap-2">
+          <DietMark kind={dietKind(meal)} size="sm" /> <span className="truncate">{dishName(meal)}</span>
+        </h2>
+        {sides && <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{sides}</p>}
+        <div className="flex flex-wrap gap-1.5 mt-2.5">
+          <span className="text-[11px] font-bold rounded-full bg-gray-100 text-gray-700 px-2.5 py-1">{slotLine(meal)}</span>
+          {meal.menu && <span className="text-[11px] font-bold rounded-full bg-gray-100 text-gray-700 px-2.5 py-1">{meal.menu.calories} kcal</span>}
+          {meal.menu && <span className="text-[11px] font-bold rounded-full bg-accent-soft text-ink px-2.5 py-1">{Math.round(meal.menu.protein)} g protein</span>}
+          {meal.addons.length > 0 && <span className="text-[11px] font-bold rounded-full bg-gray-100 text-gray-700 px-2.5 py-1">+ {meal.addons.join(', ')}</span>}
+        </div>
+      </div>
+      <div className="flex items-center gap-2 px-1 pb-1">
+        {meal.editable && meal.status === 'scheduled' ? (
+          <CustomerForm action={skipMeal} className="flex-1">
+            <input type="hidden" name="delivery_id" value={meal.id} />
+            <input type="hidden" name="undo" value="false" />
+            <Btn variant="ghost" className="w-full py-2.5"
+              confirm={{ eyebrow: 'Skip meal', title: 'Skip this meal?', message: 'It moves to the end of your plan, so you don’t lose it. You can undo until 9 PM the night before.', confirmLabel: 'Skip it', cancelLabel: 'Keep this meal' }}>
+              Skip
+            </Btn>
+          </CustomerForm>
+        ) : (
+          <p className="flex-1 text-[11px] text-gray-500">{meal.status === 'scheduled' ? 'Changes closed at 9 PM last night.' : 'Fresh from our kitchen.'}</p>
+        )}
+        <Link href="/my-plan" className="flex-1 text-center rounded-xl bg-ink text-white text-xs font-bold py-2.5">My meals</Link>
+      </div>
+    </section>
+  );
+}
+
+function PlanTile({ href, title, note, price, badge }: { href: string; title: string; note: string; price: string; badge?: string }) {
+  return (
+    <Link href={href} className="rounded-2xl border border-gray-200 bg-white p-4 tap-active flex flex-col gap-0.5">
+      <span className="flex items-center justify-between gap-1">
+        <span className="font-heading font-black text-base text-gray-900">{title}</span>
+        {badge && <span className="text-[10px] font-extrabold uppercase tracking-wide text-ink bg-accent-soft rounded-full px-2 py-0.5">{badge}</span>}
+      </span>
+      <span className="text-xs text-gray-500">{note} · free delivery</span>
+      <span className="mt-1.5 text-sm text-gray-900"><b className="font-heading font-black">{price}</b><span className="text-xs text-gray-500"> / meal</span></span>
+    </Link>
   );
 }

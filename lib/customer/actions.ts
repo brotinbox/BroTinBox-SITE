@@ -112,10 +112,12 @@ export async function cancelPlan(_p: CustomerResult, fd: FormData): Promise<Cust
 const blank = (v: unknown) => (v === '' || v == null ? undefined : v);
 const optNum = (min: number, max: number) => z.preprocess(blank, z.coerce.number().min(min).max(max).optional());
 
-const profileSchema = z.object({
-  full_name: z.string().trim().min(2).max(80),
+const detailsSchema = z.object({ full_name: z.string().trim().min(2, 'Enter your name.').max(80) });
+const dietSchema = z.object({
   goal: z.enum(['fat-loss', 'muscle-gain', 'stay-fit', 'elderly-care']),
   diet_type: z.enum(['veg', 'non-veg', 'eggetarian']),
+});
+const bodySchema = z.object({
   gender: z.preprocess(blank, z.enum(['male', 'female', 'other']).optional()),
   age: z.preprocess(blank, z.coerce.number().int().min(18, 'You must be 18 or older to use BroTin Box.').max(100).optional()),
   weight_kg: optNum(25, 300),
@@ -125,47 +127,87 @@ const profileSchema = z.object({
   allergies: z.string().max(200).optional(),
 });
 
+type ProfilePatch = Record<string, string | number | boolean | string[] | null>;
+
+/**
+ * Profile settings are edited one screen at a time (details, diet, body,
+ * notifications). Each form sends `section`, and only that section's columns
+ * are written, so saving one screen never clears another.
+ */
 export async function updateProfile(_p: CustomerResult, fd: FormData): Promise<CustomerResult> {
-  const v = profileSchema.safeParse(Object.fromEntries(fd));
-  if (!v.success) return { ok: false, message: v.error.issues[0]?.message ?? 'Check your details.' };
-  const d = v.data;
-  return run(async ({ supabase, userId }) => {
-    const { data: current } = await supabase.from('profiles').select('date_of_birth, whatsapp_offers_opt_in').eq('id', userId).maybeSingle();
-    const offers = fd.get('whatsapp_offers_opt_in') === 'on';
-    // Keep the stored birth date if the age it implies hasn't changed.
-    const dob = d.age == null ? null
-      : ageFromDob(current?.date_of_birth ?? null) === d.age ? current!.date_of_birth
-      : `${new Date().getFullYear() - d.age}-07-01`; // age only is collected; mid-year keeps it accurate to ±6 months
-    const targets = targetsFor({
-      goal: d.goal, gender: d.gender ?? null, age: d.age ?? null,
-      heightCm: d.height_cm ?? null, weightKg: d.weight_kg ?? null, activityLevel: d.activity_level ?? null,
-    });
-    const { error } = await supabase.from('profiles').update({
-      full_name: cleanText(d.full_name, 80),
-      // phone is saved only through WhatsApp verification (/api/account/phone/*).
-      goal: d.goal,
-      diet_type: d.diet_type,
+  const section = String(fd.get('section') ?? '');
+  const raw = Object.fromEntries(fd);
+  let patch: ProfilePatch;
+  let age: number | null | undefined; // only set by the body screen
+
+  if (section === 'details') {
+    const v = detailsSchema.safeParse(raw);
+    if (!v.success) return { ok: false, message: v.error.issues[0]?.message ?? 'Check your details.' };
+    // phone is saved only through WhatsApp verification (/api/account/phone/*).
+    patch = { full_name: cleanText(v.data.full_name, 80) };
+  } else if (section === 'diet') {
+    const v = dietSchema.safeParse(raw);
+    if (!v.success) return { ok: false, message: 'Choose your goal and diet.' };
+    patch = { goal: v.data.goal, diet_type: v.data.diet_type };
+  } else if (section === 'body') {
+    const v = bodySchema.safeParse(raw);
+    if (!v.success) return { ok: false, message: v.error.issues[0]?.message ?? 'Check your details.' };
+    const d = v.data;
+    age = d.age ?? null;
+    patch = {
       gender: d.gender ?? null,
-      date_of_birth: dob,
       weight_kg: d.weight_kg ?? null,
       target_weight_kg: d.target_weight_kg ?? null,
       height_cm: d.height_cm ?? null,
       activity_level: d.activity_level ?? null,
       allergies: (d.allergies ?? '').split(',').map((a) => cleanText(a, 30)).filter(Boolean).slice(0, 12),
-      whatsapp_opt_in: fd.get('whatsapp_opt_in') === 'on',
+    };
+  } else if (section === 'notifications') {
+    patch = { whatsapp_opt_in: fd.get('whatsapp_opt_in') === 'on', whatsapp_offers_opt_in: fd.get('whatsapp_offers_opt_in') === 'on' };
+  } else {
+    return { ok: false, message: 'Something went wrong. Please reload and try again.' };
+  }
+
+  return run(async ({ supabase, userId }) => {
+    const { data: cur } = await supabase.from('profiles')
+      .select('goal, gender, date_of_birth, height_cm, weight_kg, activity_level, whatsapp_offers_opt_in')
+      .eq('id', userId).maybeSingle();
+
+    if (age !== undefined) {
+      // Keep the stored birth date if the age it implies hasn't changed.
+      patch.date_of_birth = age == null ? null
+        : ageFromDob(cur?.date_of_birth ?? null) === age ? cur!.date_of_birth
+        : `${new Date().getFullYear() - age}-07-01`; // age only is collected; mid-year keeps it accurate to ±6 months
+    }
+    if (section === 'notifications' && patch.whatsapp_offers_opt_in !== !!cur?.whatsapp_offers_opt_in) {
       // Separate consent for promotional messages; the time is kept as a record of when they agreed.
-      whatsapp_offers_opt_in: offers,
-      ...(offers !== !!current?.whatsapp_offers_opt_in && { whatsapp_offers_opt_in_at: offers ? new Date().toISOString() : null }),
-      target_calories: targets?.target_calories ?? null,
-      target_protein: targets?.target_protein ?? null,
-      target_carbs: targets?.target_carbs ?? null,
-      target_fat: targets?.target_fat ?? null,
-      is_onboarded: true,
-    }).eq('id', userId);
+      patch.whatsapp_offers_opt_in_at = patch.whatsapp_offers_opt_in ? new Date().toISOString() : null;
+    }
+
+    // Goal and body both feed the calorie/protein targets: recompute from the merged values.
+    let targets: ReturnType<typeof targetsFor> = null;
+    if (section === 'diet' || section === 'body') {
+      const m = { ...cur, ...patch } as Record<string, unknown>;
+      targets = targetsFor({
+        goal: (m.goal as string) ?? null, gender: (m.gender as string) ?? null,
+        age: ageFromDob((m.date_of_birth as string) ?? null),
+        heightCm: (m.height_cm as number) ?? null, weightKg: (m.weight_kg as number) ?? null,
+        activityLevel: (m.activity_level as string) ?? null,
+      });
+      Object.assign(patch, {
+        target_calories: targets?.target_calories ?? null, target_protein: targets?.target_protein ?? null,
+        target_carbs: targets?.target_carbs ?? null, target_fat: targets?.target_fat ?? null,
+      });
+    }
+
+    const { error } = await supabase.from('profiles').update({ ...patch, is_onboarded: true }).eq('id', userId);
     if (error) throw error;
-    return targets
-      ? `Saved. Your daily target: ${targets.target_calories} kcal · ${targets.target_protein} g protein.`
-      : 'Saved. Add age, height and weight to get your calorie and protein targets.';
+    if (section === 'body') {
+      return targets
+        ? `Saved. Your daily target: ${targets.target_calories} kcal · ${targets.target_protein} g protein.`
+        : 'Saved. Add age, height and weight to get your calorie and protein targets.';
+    }
+    return 'Saved.';
   });
 }
 

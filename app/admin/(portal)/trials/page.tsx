@@ -225,7 +225,7 @@ export default async function TrialsPage({ searchParams }: { searchParams: Promi
                       <ActionForm action={resetTrial} className="flex gap-1.5 pt-1">
                         <input type="hidden" name="claim_id" value={r.id} />
                         <Input name="reason" required minLength={4} maxLength={200} placeholder="Reason to reset" className="!py-1 !text-[11px]" />
-                        <SubmitButton variant="secondary" className="!py-1 !px-2.5 !text-[11px]" confirm="Give this customer their trial back?">Reset</SubmitButton>
+                        <SubmitButton variant="secondary" className="!py-1 !px-2.5 !text-[11px]" confirm={{ eyebrow: 'Reset trial', title: 'Give this customer their trial back?', message: 'They’ll be able to book the trial box again.', confirmLabel: 'Reset trial' }}>Reset</SubmitButton>
                       </ActionForm>
                     )}
                   </div>

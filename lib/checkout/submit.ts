@@ -1,6 +1,7 @@
 'use client';
 
 import { placeOrder, saveAddress } from '@/lib/checkout/actions';
+import { startCashfreePayment } from '@/app/(site)/checkout/pay/[id]/actions';
 import type { Cart } from '@/lib/checkout/quote';
 import { useAppStore } from '@/store/useAppStore';
 
@@ -54,7 +55,15 @@ function cartSummary(cart: Omit<Cart, 'addressId'>): string {
  */
 export async function submitOrder(
   cart: Omit<Cart, 'addressId'> & { addressId?: string },
-  opts: { newAddress?: NewAddressInput; navigate: (href: string) => void; onSignedIn?: () => void }
+  opts: {
+    newAddress?: NewAddressInput;
+    navigate: (href: string) => void;
+    onSignedIn?: () => void;
+    /** The order exists (before payment opens): clear the cart / draft here. */
+    onPlaced?: (orderId: string) => void;
+    /** Called once the new address is saved, so a retry reuses it. */
+    onAddressSaved?: (id: string) => void;
+  }
 ): Promise<string | null> {
   const store = useAppStore.getState();
   if (!store.isLoggedIn) {
@@ -82,12 +91,34 @@ export async function submitOrder(
     if (!saved.ok) return saved.error;
     if (!saved.deliverable) return `We don't deliver to ${a.pincode} yet. Please use a Coimbatore address in our delivery area.`;
     addressId = saved.id;
+    opts.onAddressSaved?.(saved.id);
   }
 
   const result = await placeOrder({ ...cart, addressId } as Cart);
   if (!result.ok) return withCode(result);
+  opts.onPlaced?.(result.orderId);
+  // Straight to Cashfree (like Swiggy's one-tap pay). The payment page stays
+  // as the fallback: manual UPI mode, SDK failure, or retrying later.
+  if (result.payOnline && (await openCashfree(result.orderId))) return null;
   opts.navigate(`/checkout/pay/${result.orderId}`);
   return null;
+}
+
+const CF_MODE = process.env.NEXT_PUBLIC_CASHFREE_ENV === 'production' ? 'production' : 'sandbox';
+
+/** Opens Cashfree's page in this tab (it returns to /checkout/pay/[id]?cf=1). False if it couldn't. */
+async function openCashfree(orderId: string): Promise<boolean> {
+  try {
+    const r = await startCashfreePayment(orderId);
+    if (!r.ok) return false;
+    const { load } = await import('@cashfreepayments/cashfree-js');
+    const cashfree = await load({ mode: CF_MODE });
+    if (!cashfree) return false;
+    const res = await cashfree.checkout({ paymentSessionId: r.sessionId, redirectTarget: '_self' });
+    return !res?.error;
+  } catch {
+    return false;
+  }
 }
 
 export const toDbDiet = (d: string): 'veg' | 'non_veg' => (d === 'veg' ? 'veg' : 'non_veg');

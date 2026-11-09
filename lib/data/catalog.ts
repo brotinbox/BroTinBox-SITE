@@ -58,18 +58,31 @@ export const getPricingMatrix = unstable_cache(
   async (): Promise<PricingMatrix> => {
     const { data } = await getSupabasePublic()
       .from('pricing_rules')
-      .select('plan_type, diet, price_per_meal, second_meal_discount, effective_from')
+      .select('plan_type, diet, box_size, price_per_meal, second_meal_discount, effective_from')
       .lte('effective_from', new Date().toISOString())
       .order('effective_from', { ascending: false });
     const m: PricingMatrix = JSON.parse(JSON.stringify(PRICING));
     const seen = new Set<string>();
+    const lite: Record<string, Record<string, number>> = {};
+    let liteDiscount = m.secondMealDiscount;
     for (const r of data ?? []) {
-      const key = `${r.plan_type}|${r.diet}`;
+      const key = `${r.plan_type}|${r.diet}|${r.box_size}`;
       if (seen.has(key) || !(r.plan_type in m)) continue;
       seen.add(key);
-      m[r.plan_type as 'trial' | 'weekly' | 'monthly'][r.diet === 'veg' ? 'veg' : 'non-veg'] = Number(r.price_per_meal);
+      const diet = r.diet === 'veg' ? 'veg' : 'non-veg';
+      if (r.box_size === 'lite') {
+        (lite[r.plan_type] ??= {})[diet] = Number(r.price_per_meal);
+        liteDiscount = Number(r.second_meal_discount);
+        continue;
+      }
+      m[r.plan_type as 'trial' | 'weekly' | 'monthly'][diet] = Number(r.price_per_meal);
       m.secondMealDiscount = Number(r.second_meal_discount);
     }
+    // Lite is offered only when every plan type and diet has a live Lite price.
+    const complete = (['trial', 'weekly', 'monthly'] as const).every((t) => lite[t]?.veg && lite[t]?.['non-veg']);
+    m.lite = complete
+      ? { trial: lite.trial as never, weekly: lite.weekly as never, monthly: lite.monthly as never, secondMealDiscount: liteDiscount }
+      : null;
     return m;
   },
   ['catalog-pricing'],

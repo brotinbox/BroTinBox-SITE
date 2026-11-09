@@ -138,7 +138,7 @@ export default async function WhatsAppFollowupsPage() {
                     {!latestAtMeta && (
                       <ActionForm action={submitFollowupTemplate}>
                         <input type="hidden" name="stage" value={spec.stage} />
-                        <SubmitButton confirm={`Submit ${latest.name} to Meta for approval? The text can't be changed after approval (a later edit becomes a new version).`}>
+                        <SubmitButton confirm={{ eyebrow: 'Send for approval', title: `Submit ${latest.name} to Meta?`, message: 'The text can’t be changed after approval. A later edit becomes a new version.', confirmLabel: 'Submit' }}>
                           Submit to Meta
                         </SubmitButton>
                       </ActionForm>

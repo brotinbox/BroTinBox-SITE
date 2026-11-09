@@ -95,7 +95,7 @@ export default async function MenuCalendarPage({ searchParams }: { searchParams:
                           {m.override && canWrite && (
                             <ActionForm action={removeOverride} className="mt-2">
                               <input type="hidden" name="id" value={m.override.id} />
-                              <SubmitButton variant="secondary" pendingText="…">Undo change</SubmitButton>
+                              <SubmitButton variant="secondary" pendingText="…" confirm={{ eyebrow: 'Undo change', title: 'Undo this menu change?', message: 'The meal goes back to the 30-day menu’s dish.', confirmLabel: 'Undo change' }}>Undo change</SubmitButton>
                             </ActionForm>
                           )}
                         </div>
@@ -140,7 +140,7 @@ export default async function MenuCalendarPage({ searchParams }: { searchParams:
                   <span>{fmtDate(c.closed_date)} · {c.reason}</span>
                   <ActionForm action={removeClosure}>
                     <input type="hidden" name="id" value={c.id} />
-                    <SubmitButton variant="secondary" pendingText="…" confirm="Remove this closure?">Remove</SubmitButton>
+                    <SubmitButton variant="secondary" pendingText="…" confirm={{ eyebrow: 'Remove closure', tone: 'danger', title: 'Remove this closure?', message: 'Customers can book meals for that day again.', confirmLabel: 'Remove', cancelLabel: 'Keep it' }}>Remove</SubmitButton>
                   </ActionForm>
                 </li>
               ))}

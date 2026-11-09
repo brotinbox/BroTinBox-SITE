@@ -163,7 +163,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                     { value: 'bank_transfer', label: 'Bank transfer' }, { value: 'card', label: 'Card' },
                   ]} />
                 </Field>
-                <SubmitButton confirm={`Confirm you received ${inr(o.total)}? This schedules the customer's meals.`}>Mark as paid</SubmitButton>
+                <SubmitButton confirm={{ eyebrow: 'Mark as paid', title: `Did you receive ${inr(o.total)}?`, message: 'Marking it paid schedules the customer’s meals.', confirmLabel: 'Yes, mark paid', cancelLabel: 'Not yet' }}>Mark as paid</SubmitButton>
               </ActionForm>
             </Card>
           )}
@@ -173,7 +173,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
               <ActionForm action={cancelOrder} className="space-y-3">
                 <input type="hidden" name="order_id" value={o.id} />
                 <Field label="Reason"><Input name="reason" maxLength={300} placeholder="e.g. customer asked to cancel" /></Field>
-                <SubmitButton variant="danger" confirm="Cancel this unpaid order?">Cancel order</SubmitButton>
+                <SubmitButton variant="danger" confirm={{ eyebrow: 'Cancel order', tone: 'danger', title: 'Cancel this unpaid order?', message: 'The customer will need to order again. This can’t be undone.', confirmLabel: 'Cancel order', cancelLabel: 'Keep order' }}>Cancel order</SubmitButton>
               </ActionForm>
             </Card>
           )}

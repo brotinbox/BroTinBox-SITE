@@ -12,7 +12,9 @@ import { rateLimit } from '@/lib/security/ratelimit';
  * Authorisation is NOT decided here; server code and RLS do that.
  */
 
-const CUSTOMER_PAGES = ['/dashboard', '/profile', '/orders', '/subscription', '/my-plan', '/progress', '/onboarding', '/checkout'];
+// /checkout itself is open (cart + price preview; the phone popup appears at Pay).
+// Payment pages still need a session.
+const CUSTOMER_PAGES = ['/dashboard', '/profile', '/orders', '/subscription', '/my-plan', '/progress', '/onboarding', '/checkout/pay', '/checkout/success'];
 
 function adminPrefix() {
   const p = (process.env.ADMIN_PATH || '').replace(/^\/+|\/+$/g, '');

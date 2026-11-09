@@ -15,6 +15,7 @@ export async function createOrderFromQuote(
 ): Promise<CreatedOrder> {
   const db = getSupabaseService();
   const prefs = cart.preferences;
+  if (!cart.addressId) throw new Error('order needs a saved address');
   const { data, error } = await db.rpc('create_checkout_order', {
     p_user: userId,
     p_plan: q.planId as string,
@@ -23,13 +24,14 @@ export async function createOrderFromQuote(
     p_slots: q.slots,
     p_excluded: [],
     p_start: q.schedule[0].date,
-    p_address: cart.addressId,
+    p_address: cart.addressId,  // checked above
     p_preferences: {
       schedule: q.schedule,
       is_egg_free: prefs.isEggFree,
       skip_legume: prefs.skipLegume,
       diet_variation: prefs.dietVariation ?? null,
-      addon_ids: q.addonIds,
+      addons: q.addons,
+      box_size: q.boxSize,
     },
     p_meals_total: q.mealsTotal,
     p_subtotal: q.subtotal,

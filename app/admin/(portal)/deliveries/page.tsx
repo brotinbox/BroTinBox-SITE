@@ -30,7 +30,7 @@ export default async function DeliveriesPage({ searchParams }: { searchParams: P
 
   let query = supabase
     .from('deliveries')
-    .select('id, slot, status, diet, is_egg_free, skip_legume, double_main, is_make_up, address_snapshot, rider_id, delivery_addons(qty, addons(name)), delivery_zones(area, tier)')
+    .select('id, slot, status, diet, is_egg_free, skip_legume, double_main, is_make_up, box_size, address_snapshot, rider_id, delivery_addons(qty, addons(name)), delivery_zones(area, tier)')
     .eq('delivery_date', date)
     .not('status', 'in', '(skipped,paused,cancelled,scheduled)')
     .order('slot');
@@ -79,7 +79,7 @@ export default async function DeliveriesPage({ searchParams }: { searchParams: P
               <span className="text-xs font-bold text-gray-600">Selected:</span>
               <Select name="status" options={STATUS_OPTIONS} className="w-48" />
               <Select name="rider_id" className="w-48" options={[{ value: '', label: 'Rider: no change' }, ...(riders ?? []).map((r) => ({ value: r.id, label: r.full_name || r.email || 'Rider' }))]} />
-              <SubmitButton>Apply</SubmitButton>
+              <SubmitButton confirm={{ eyebrow: 'Bulk update', title: 'Apply to all selected deliveries?', message: 'The status and rider change for every ticked delivery.', confirmLabel: 'Apply' }}>Apply</SubmitButton>
             </div>
           )}
           {[...byArea.entries()].map(([area, list]) => (
@@ -96,7 +96,7 @@ export default async function DeliveriesPage({ searchParams }: { searchParams: P
                         {a.instructions && <p className="text-xs text-gray-500 italic">“{a.instructions}”</p>}
                         <p className="text-xs mt-1">
                           <span className="capitalize font-semibold">{r.slot}</span> · {r.diet === 'veg' ? 'Veg' : 'Non-veg'}
-                          {r.is_egg_free && ' · egg-free'}{r.skip_legume && ' · no legume'}{r.double_main && ' · double main'}{r.is_make_up && ' · make-up'}
+                          {r.box_size === 'lite' && <b className="text-accent"> · LITE</b>}{r.is_egg_free && ' · egg-free'}{r.skip_legume && ' · no legume'}{r.double_main && ' · double main'}{r.is_make_up && ' · make-up'}
                           {(r.delivery_addons ?? []).length > 0 && ` · + ${(r.delivery_addons as any[]).map((x) => `${x.qty}× ${x.addons?.name}`).join(', ')}`}
                         </p>
                       </div>

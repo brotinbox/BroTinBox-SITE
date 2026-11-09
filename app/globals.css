@@ -31,6 +31,32 @@
   }
 }
 
+/* Paper grain in the BACKGROUND only: the footer poster's tile (public/grain.png,
+   made by scripts/make-grain.mjs). It goes on the page and on full-width sections,
+   never on cards, images or buttons. Base layer, so a gradient utility
+   (bg-gradient-to-*) still wins. Add `bg-grain` to opt anything else in. */
+@layer base {
+  body,
+  section.bg-white,
+  section.bg-background,
+  section.bg-paper,
+  section.bg-sand,
+  .min-h-screen.bg-white,
+  .min-h-screen.bg-background,
+  .min-h-screen.bg-paper,
+  .min-h-screen.bg-sand {
+    background-image: url('/grain.png');
+    background-size: 160px 160px;
+  }
+}
+.bg-grain {
+  background-image: url('/grain.png');
+  background-size: 160px 160px;
+}
+@media print {
+  body, section, .bg-grain { background-image: none !important; }
+}
+
 /* Custom interactive effects */
 .tap-active:active {
   transform: scale(0.97);

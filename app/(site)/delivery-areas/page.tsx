@@ -81,7 +81,6 @@ export default function DeliveryAreasPage() {
                       : "bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50"
                   )}
                 >
-                  <MapPin className={cn("w-3.5 h-3.5", isSelected ? "text-accent" : "text-emerald-600")} />
                   <span>{area.area}</span>
                   <span className={cn("text-[11px] font-mono", isSelected ? "text-white/80" : "text-gray-400")}>
                     ({area.pincode})
@@ -109,9 +108,19 @@ export default function DeliveryAreasPage() {
               <Clock className="w-4 h-4 text-amber-600" />
               Coming in our next batch
             </h2>
-            <span className="text-xs font-bold text-amber-800 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200">
+            <a
+              href={
+                selectedArea && !selectedArea.isDeliverable
+                  ? notifyMeLink(BRAND.whatsappNumber, BRAND.name, selectedArea)
+                  : areaRequestLink
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-xs font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 px-2.5 py-0.5 rounded-full border border-amber-200 transition-colors"
+            >
+              <BellRing className="w-3.5 h-3.5" />
               Get notified
-            </span>
+            </a>
           </div>
           <div className="flex flex-wrap items-center gap-2 mt-3">
             {comingSoonZones.map((area) => {
@@ -128,7 +137,6 @@ export default function DeliveryAreasPage() {
                       : "bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50"
                   )}
                 >
-                  <MapPin className={cn("w-3.5 h-3.5", isSelected ? "text-accent" : "text-amber-600")} />
                   <span>{area.area}</span>
                   <span className={cn("text-[11px] font-mono", isSelected ? "text-white/80" : "text-gray-400")}>
                     ({area.pincode})

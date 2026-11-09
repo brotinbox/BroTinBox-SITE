@@ -17,6 +17,7 @@ export const LIMITS = {
   otpVerify: { tokens: 10, window: '10 m' },       // per phone number and per IP
   publicForm: { tokens: 5, window: '1 h' },        // enquiry / waitlist / review, per IP
   checkout: { tokens: 10, window: '1 m' },         // per user
+  quote: { tokens: 60, window: '1 m' },            // checkout price refresh (+/- taps), per user or IP
   customerAction: { tokens: 30, window: '1 m' },   // skip/pause/profile edits, per user
   adminMutation: { tokens: 120, window: '1 m' },   // per staff user
   upload: { tokens: 20, window: '10 m' },          // per staff user

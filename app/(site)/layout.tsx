@@ -13,6 +13,7 @@ import { AuthSidebar } from '@/components/auth/AuthSidebar';
 import { SignInModal } from '@/components/auth/SignInModal';
 import { GoogleOneTap } from '@/components/auth/GoogleOneTap';
 import { PincodePrompt } from '@/components/delivery/PincodePrompt';
+import { CartBar } from '@/components/checkout/CartBar';
 import { phoneOtpMode } from '@/lib/auth/otp-mode';
 
 // Public pages are cached HTML (ISR). Freshness comes from cache tags cleared
@@ -60,6 +61,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <Footer />
       <FloatingWhatsApp />
       <BottomNav />
+      <CartBar />
       <AuthSidebar />
       <SignInModal phoneEnabled={phoneEnabled} googleEnabled={googleEnabled} />
       <PincodePrompt />

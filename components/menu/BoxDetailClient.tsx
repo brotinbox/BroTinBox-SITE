@@ -1,5 +1,6 @@
 'use client';
 
+import { AddToCartButton } from '@/components/checkout/AddToCartButton';
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -34,7 +35,7 @@ export function BoxDetailClient({
 }: BoxDetailClientProps) {
   const router = useRouter();
   const [selectedVersion, setSelectedVersion] = useState<'standard' | 'egg-free'>('standard');
-  const { toggleDay, selectedDays, toggleSideForDay, setDayConfig } = useAppStore();
+  const { toggleDay, selectedDays, setDayConfig } = useAppStore();
 
   const isEggFree = selectedVersion === 'egg-free';
   const currentMacros = isEggFree ? box.eggFreeVersion : box.totals;
@@ -419,16 +420,7 @@ export function BoxDetailClient({
 
                 <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
                   <span className="font-bold text-xs text-gray-900">{formatCurrency(side.price)}</span>
-                  <button
-                    onClick={() => {
-                      toggleSideForDay(box.day, side.id);
-                      router.push(`/build-plan?day=${box.day}`);
-                    }}
-                    className="text-primary font-bold text-xs hover:underline flex items-center gap-1"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                    <span>Add Side</span>
-                  </button>
+                  <AddToCartButton item={side} type="side" label="Add side" className="py-1.5 px-3" />
                 </div>
               </div>
             ))}

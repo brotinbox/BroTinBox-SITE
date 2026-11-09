@@ -26,6 +26,10 @@ export default async function NewManualOrderPage() {
               <Field label="Gmail (optional)" hint="If given, they can later sign in with Google and see this plan.">
                 <Input name="email" type="email" maxLength={120} />
               </Field>
+              <Field label="Alternate number (optional)" hint="Saved as a staff note on their customer page.">
+                <Input name="alt_phone" inputMode="numeric" pattern="[6-9][0-9]{9}" maxLength={10} placeholder="98XXXXXXXX" />
+              </Field>
+              <Field label="Whose number? (optional)"><Input name="alt_label" maxLength={40} placeholder="e.g. wife, office" /></Field>
             </div>
           </Card>
 
@@ -38,6 +42,9 @@ export default async function NewManualOrderPage() {
                 <Input name="pincode" required inputMode="numeric" pattern="[0-9]{6}" maxLength={6} />
               </Field>
               <Field label="Landmark (optional)"><Input name="landmark" maxLength={120} /></Field>
+              <Field label="Delivery number (optional)" hint="Who to call at the door. Blank = their WhatsApp number.">
+                <Input name="delivery_phone" inputMode="numeric" pattern="[6-9][0-9]{9}" maxLength={10} placeholder="98XXXXXXXX" />
+              </Field>
             </div>
           </Card>
 

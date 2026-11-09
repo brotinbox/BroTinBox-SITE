@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAppStore } from '@/store/useAppStore';
 import { signOutCustomer } from '@/lib/auth/customer';
+import { SIGN_OUT_CONFIRM, useConfirm } from '@/components/ui/ConfirmDialog';
 import {
   X,
   ShieldCheck,
@@ -23,6 +24,7 @@ export function AuthSidebar() {
 
   const [mounted, setMounted] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
+  const confirm = useConfirm();
 
   useEffect(() => {
     setMounted(true);
@@ -46,6 +48,7 @@ export function AuthSidebar() {
   }, [isAuthDrawerOpen, setAuthDrawerOpen]);
 
   const handleSignOut = async () => {
+    if (!(await confirm(SIGN_OUT_CONFIRM))) return;
     setSigningOut(true);
     await signOutCustomer();
     setSigningOut(false);

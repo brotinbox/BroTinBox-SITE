@@ -2,10 +2,11 @@
 
 import React from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { SideBox } from '@/types';
-import { Plus } from 'lucide-react';
+import { Check, Plus } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
+import { useAppStore, addonKey } from '@/store/useAppStore';
+import { AddToCartButton } from '@/components/checkout/AddToCartButton';
 
 interface CurvedSideCardProps {
   side: SideBox;
@@ -13,6 +14,10 @@ interface CurvedSideCardProps {
 
 export function CurvedSideCard({ side }: CurvedSideCardProps) {
   const CARD_BG = '#ffffff';
+  // Adds to the cart and stays here (the cart bar appears), like the menu page.
+  const added = useAppStore((s) => s.cartAddons.some((a) => a.id === addonKey(side.id)));
+  const addCartAddon = useAppStore((s) => s.addCartAddon);
+  const add = () => { if (!added) addCartAddon({ id: side.id, name: side.name, price: side.price, image: side.image, type: 'side' }); };
 
   return (
     <div className="h-full rounded-[24px] sm:rounded-[32px] p-2 sm:p-5 flex flex-col justify-between group relative overflow-hidden transition-all duration-300 bg-white border border-gray-200/90 hover:border-gray-300 shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_16px_36px_rgba(0,0,0,0.08)]">
@@ -31,23 +36,23 @@ export function CurvedSideCard({ side }: CurvedSideCardProps) {
 
           {/* Signature Inverted Curved Cutout (Bottom-Right Scoop Nook) in Pure White */}
           <div
-            className="absolute bottom-0 right-0 z-20 w-[68px] h-[68px] rounded-tl-[24px] flex items-center justify-center pointer-events-auto"
+            className="absolute bottom-0 right-0 z-20 w-11 h-11 rounded-tl-[14px] sm:w-[68px] sm:h-[68px] sm:rounded-tl-[24px] flex items-center justify-center pointer-events-auto"
             style={{ backgroundColor: CARD_BG }}
           >
-            {/* Top concave curved connector */}
+            {/* Top concave curved connector (smaller on mobile) */}
             <svg
-              className="absolute right-0 pointer-events-none"
-              style={{ bottom: '67px', width: '22px', height: '22px', color: CARD_BG }}
+              className="absolute right-0 bottom-[43px] w-3.5 h-3.5 sm:bottom-[67px] sm:w-[22px] sm:h-[22px] pointer-events-none"
+              style={{ color: CARD_BG }}
               viewBox="0 0 22 22"
               fill="currentColor"
             >
               <path d="M22 0 C22 12.15 12.15 22 0 22 H22 V0 Z" />
             </svg>
 
-            {/* Left concave curved connector */}
+            {/* Left concave curved connector (smaller on mobile) */}
             <svg
-              className="absolute bottom-0 pointer-events-none"
-              style={{ right: '67px', width: '22px', height: '22px', color: CARD_BG }}
+              className="absolute bottom-0 right-[43px] w-3.5 h-3.5 sm:right-[67px] sm:w-[22px] sm:h-[22px] pointer-events-none"
+              style={{ color: CARD_BG }}
               viewBox="0 0 22 22"
               fill="currentColor"
             >
@@ -55,19 +60,22 @@ export function CurvedSideCard({ side }: CurvedSideCardProps) {
             </svg>
 
             {/* Circular Add Action Button */}
-            <Link
-              href={`/build-plan?addSide=${side.id}`}
-              className="w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-gray-900 text-white flex items-center justify-center hover:bg-primary hover:text-white hover:scale-110 active:scale-95 transition-all duration-300 shadow-md group/btn"
-              aria-label={`Add ${side.name} to plan`}
+            <button
+              type="button"
+              onClick={add}
+              className={`w-7 h-7 sm:w-11 sm:h-11 rounded-full flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-300 shadow-md group/btn ${added ? 'bg-accent text-white' : 'bg-gray-900 text-white hover:bg-accent'}`}
+              aria-label={added ? `${side.name} is in your cart` : `Add ${side.name} to cart`}
             >
-              <Plus className="w-5 h-5 group-hover/btn:rotate-90 transition-transform stroke-[2.5]" />
-            </Link>
+              {added
+                ? <Check className="w-3.5 h-3.5 sm:w-5 sm:h-5 stroke-[2.5]" />
+                : <Plus className="w-3.5 h-3.5 sm:w-5 sm:h-5 group-hover/btn:rotate-90 transition-transform stroke-[2.5]" />}
+            </button>
           </div>
         </div>
 
         {/* Content Section */}
         <div className="pt-2 sm:pt-3">
-          <h3 className="font-heading font-black text-xs sm:text-xl text-gray-900 group-hover:text-primary transition-colors tracking-tight line-clamp-1">
+          <h3 className="font-heading font-black text-xs sm:text-xl text-gray-900 group-hover:text-accent transition-colors tracking-tight line-clamp-1">
             {side.name}
           </h3>
 
@@ -82,13 +90,7 @@ export function CurvedSideCard({ side }: CurvedSideCardProps) {
           </span>
         </div>
 
-        <Link
-          href={`/build-plan?addSide=${side.id}`}
-          className="bg-primary hover:bg-primary-hover text-white text-[11px] sm:text-xs font-bold py-1.5 sm:py-2 px-2.5 sm:px-4 rounded-xl shadow-md hover:scale-105 transition-all tap-active flex items-center gap-1.5"
-        >
-          <Plus className="w-3.5 h-3.5" />
-          <span>Add</span>
-        </Link>
+        <AddToCartButton item={side} type="side" className="text-[11px] sm:text-xs py-1.5 sm:py-2 px-2.5 sm:px-4" />
       </div>
     </div>
   );

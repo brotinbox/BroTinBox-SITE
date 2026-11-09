@@ -55,7 +55,7 @@ export default async function CustomersPage({ searchParams }: { searchParams: Pr
             { header: 'Customer', cell: (r) => (
               <Link href={adminHref(`/customers/${r.id}`)} className="block">
                 <p className="font-bold text-primary">{r.full_name || 'No name yet'}</p>
-                <p className="text-xs text-gray-500">{r.email}</p>
+                <p className="text-xs text-gray-500">{/@phone\.brotinbox\.invalid$/.test(r.email ?? '') ? 'Signs in with phone (no email)' : r.email}</p>
               </Link>
             ) },
             { header: 'Phone', cell: (r) => r.phone || <span className="text-gray-400">—</span> },

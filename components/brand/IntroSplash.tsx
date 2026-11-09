@@ -12,8 +12,7 @@ const SPEED = 1.25; // the 3.5 s reveal plays in ~2.8 s
 const FADE_MS = 500;
 const SAFETY_MS = 7000; // never trap anyone behind the splash (slow network, no WebGL)
 
-// Runs inline before the page paints, so a first-time visitor never sees the page flash first.
-const BOOT = `try{if(!localStorage.getItem('${SEEN_KEY}')&&!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.setAttribute('${INTRO_ATTR}','')}catch(e){}`;
+// html[data-intro] is set before first paint by INTRO_BOOT_SCRIPT (root layout).
 
 type Phase = 'idle' | 'playing' | 'fading' | 'done';
 
@@ -55,7 +54,6 @@ export function IntroSplash() {
 
   return (
     <>
-      <script dangerouslySetInnerHTML={{ __html: BOOT }} />
       <div
         className={cn(
           'intro-splash fixed inset-0 z-[1000] transition-opacity ease-out',

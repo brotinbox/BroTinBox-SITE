@@ -8,6 +8,7 @@ import {
   LogOut, MapPin, Menu, Newspaper, PhoneCall, Receipt, Settings, ShieldCheck, Star, Tags, Ticket, Users, Utensils, X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useConfirmClick } from '@/components/ui/ConfirmDialog';
 import type { AdminNavGroup } from '@/lib/admin/nav';
 
 const ICONS = {
@@ -24,6 +25,7 @@ export function AdminSidebar({ base, groups, userName, roleLabel, logoutAction }
 }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const askSignOut = useConfirmClick({ eyebrow: 'Signing out', title: 'Sign out of the admin portal?', message: 'Unsaved changes on this page will be lost.', confirmLabel: 'Sign out', cancelLabel: 'Stay signed in' });
   const rel = pathname.startsWith(base) ? pathname.slice(base.length) || '/' : pathname;
 
   const isActive = (href: string) =>
@@ -65,7 +67,7 @@ export function AdminSidebar({ base, groups, userName, roleLabel, logoutAction }
         <p className="text-[11px] text-lime-brand/80 font-semibold">{roleLabel}</p>
       </div>
       <form action={logoutAction}>
-        <button type="submit" className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-[13px] font-semibold text-white/70 hover:text-white hover:bg-white/5">
+        <button type="submit" onClick={askSignOut} className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-[13px] font-semibold text-white/70 hover:text-white hover:bg-white/5">
           <LogOut className="w-4 h-4" /> Sign out
         </button>
       </form>

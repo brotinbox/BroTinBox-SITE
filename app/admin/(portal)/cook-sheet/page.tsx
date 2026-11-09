@@ -5,10 +5,11 @@ import { adminHref } from '@/lib/admin/paths';
 import { Card, DataTable, EmptyState, PageHeader, StatCard, fmtDate } from '@/components/admin/ui';
 import { DatePicker, isIsoDate } from '@/components/admin/DatePicker';
 import { PrintButton } from '@/components/admin/PrintButton';
+import { liteFactor } from '@/lib/lite-box';
 
 export const metadata = { title: 'Cook sheet' };
 
-type Row = { slot: 'lunch' | 'dinner'; diet: 'veg' | 'non_veg'; total: number; egg_free: number; skip_legume: number; double_main: number; make_up: number };
+type Row = { slot: 'lunch' | 'dinner'; diet: 'veg' | 'non_veg'; box_size: 'regular' | 'lite'; total: number; egg_free: number; skip_legume: number; double_main: number; make_up: number };
 type Item = { id: string; code: string; name: string; category: string; grams: number; cooked_state: string | null; metadata: { raw_qty_g?: number } | null };
 
 const CATEGORY_ORDER = ['main', 'protein_side', 'legume', 'salad', 'carb'];
@@ -42,23 +43,51 @@ export default async function CookSheetPage({ searchParams }: { searchParams: Pr
 
   const items = new Map((itemData as Item[] ?? []).map((i) => [i.id, i]));
 
-  // Portions to cook per dish across all boxes that day.
-  const portions = new Map<string, number>();
+  // Portions to cook per dish across all boxes that day. Lite boxes get main,
+  // salad and carb (veg Lite also the curd cup), in smaller portions
+  // (lib/lite-box.ts), so they are
+  // counted separately and their weight is scaled.
+  // liteEq: Lite portions in "full portions" (count × Lite share), so kg stay exact.
+  const portions = new Map<string, { full: number; lite: number; liteEq: number }>();
+  const add = (id: string | null, n: number, size: 'full' | 'lite', veg = false) => {
+    if (!id || n <= 0) return;
+    const p = portions.get(id) ?? { full: 0, lite: 0, liteEq: 0 };
+    p[size] += n;
+    if (size === 'lite') {
+      const item = items.get(id);
+      p.liteEq += n * (item ? liteFactor(item.category, item.grams, item.name, veg) : 0);
+    }
+    portions.set(id, p);
+  };
   combos.forEach(([diet, slot], idx) => {
     const m = menuRows[idx];
-    const r = rows.find((x) => x.diet === diet && x.slot === slot);
-    if (!m || !r || r.total === 0) return;
-    const add = (id: string | null, n: number) => id && portions.set(id, (portions.get(id) ?? 0) + n);
-    add(m.main_id, r.total + r.double_main);
-    add(m.protein_side_id, items.get(m.protein_side_id)?.code === 'NVE' ? r.total - r.egg_free : r.total);
-    add(m.legume_id, r.total - r.skip_legume + (items.get(m.protein_side_id)?.code === 'NVE' ? r.egg_free : 0));
-    add(m.salad_id, r.total);
-    add(m.carb_id, r.total);
+    if (!m) return;
+    for (const r of rows.filter((x) => x.diet === diet && x.slot === slot && x.total > 0)) {
+      if (r.box_size === 'lite') {
+        const veg = diet === 'veg';
+        add(m.main_id, r.total + r.double_main, 'lite', veg);
+        if (veg) add(m.protein_side_id, r.total, 'lite', veg); // veg Lite keeps the curd cup
+        add(m.salad_id, r.total, 'lite', veg);
+        add(m.carb_id, r.total, 'lite', veg);
+        continue;
+      }
+      const eggs = items.get(m.protein_side_id)?.code === 'NVE';
+      add(m.main_id, r.total + r.double_main, 'full');
+      add(m.protein_side_id, eggs ? r.total - r.egg_free : r.total, 'full');
+      add(m.legume_id, r.total - r.skip_legume + (eggs ? r.egg_free : 0), 'full');
+      add(m.salad_id, r.total, 'full');
+      add(m.carb_id, r.total, 'full');
+    }
   });
   const dishRows = [...portions.entries()]
-    .map(([id, n]) => ({ item: items.get(id)!, n }))
-    .filter((d) => d.item && d.n > 0)
+    .map(([id, p]) => {
+      const item = items.get(id)!;
+      // Weight in "full portions", so cooked and raw kg stay exact.
+      return { item, full: p.full, lite: p.lite, fullEq: p.full + p.liteEq };
+    })
+    .filter((d) => d.item && d.full + d.lite > 0)
     .sort((a, b) => CATEGORY_ORDER.indexOf(a.item.category) - CATEGORY_ORDER.indexOf(b.item.category));
+  const liteBoxes = rows.filter((r) => r.box_size === 'lite').reduce((s, r) => s + r.total, 0);
 
   const totalBoxes = rows.reduce((s, r) => s + r.total, 0);
   const sum = (slot: string) => rows.filter((r) => r.slot === slot).reduce((s, r) => s + r.total, 0);
@@ -79,18 +108,19 @@ export default async function CookSheetPage({ searchParams }: { searchParams: Pr
             <StatCard label="Total boxes" value={totalBoxes} />
             <StatCard label="Lunch" value={sum('lunch')} />
             <StatCard label="Dinner" value={sum('dinner')} />
-            <StatCard label="Make-up meals" value={rows.reduce((s, r) => s + r.make_up, 0)} hint="from skips / pauses / credits" />
+            <StatCard label="Make-up meals" value={rows.reduce((s, r) => s + r.make_up, 0)} hint={liteBoxes ? `${liteBoxes} Lite box${liteBoxes > 1 ? 'es' : ''} today` : 'from skips / pauses / credits'} />
           </div>
 
           <div className="grid lg:grid-cols-2 gap-4 mb-4">
             <Card title="Boxes by slot and diet" padded={false}>
               <DataTable
                 rows={rows}
-                rowKey={(r) => `${r.slot}-${r.diet}`}
+                rowKey={(r) => `${r.slot}-${r.diet}-${r.box_size}`}
                 empty={<EmptyState title="No boxes for this day" />}
                 columns={[
                   { header: 'Slot', cell: (r) => <span className="capitalize">{r.slot}</span> },
                   { header: 'Diet', cell: (r) => (r.diet === 'veg' ? 'Veg' : 'Non-veg') },
+                  { header: 'Box', cell: (r) => (r.box_size === 'lite' ? <span className="font-bold text-accent">Lite</span> : 'Full') },
                   { header: 'Boxes', cell: (r) => <span className="font-black">{r.total}</span>, className: 'text-right' },
                   { header: 'Egg-free', cell: (r) => r.egg_free, className: 'text-right' },
                   { header: 'No legume', cell: (r) => r.skip_legume, className: 'text-right' },
@@ -119,9 +149,11 @@ export default async function CookSheetPage({ searchParams }: { searchParams: Pr
               empty={<EmptyState title="Nothing to cook" description="No paid boxes for this date yet." />}
               columns={[
                 { header: 'Dish', cell: (r) => <div><p className="font-semibold">{r.item.name}</p><p className="text-xs text-gray-500">{r.item.code} · {r.item.cooked_state}</p></div> },
-                { header: 'Portions', cell: (r) => <span className="font-black">{r.n}</span>, className: 'text-right' },
-                { header: 'Cooked total', cell: (r) => `${((r.item.grams * r.n) / 1000).toFixed(2)} kg`, className: 'text-right' },
-                { header: 'Raw to prep', cell: (r) => r.item.metadata?.raw_qty_g ? `${((r.item.metadata.raw_qty_g * r.n) / 1000).toFixed(2)} kg` : '—', className: 'text-right' },
+                { header: 'Portions', cell: (r) => (
+                  <span><span className="font-black">{r.full + r.lite}</span>{r.lite > 0 && <span className="block text-xs text-gray-500">{r.full} full + {r.lite} Lite</span>}</span>
+                ), className: 'text-right' },
+                { header: 'Cooked total', cell: (r) => `${((r.item.grams * r.fullEq) / 1000).toFixed(2)} kg`, className: 'text-right' },
+                { header: 'Raw to prep', cell: (r) => r.item.metadata?.raw_qty_g ? `${((r.item.metadata.raw_qty_g * r.fullEq) / 1000).toFixed(2)} kg` : '—', className: 'text-right' },
               ]}
             />
           </Card>

@@ -43,7 +43,7 @@ export default async function StaffPage() {
                   <ActionForm action={changeRole} className="flex gap-2 items-center">
                     <input type="hidden" name="user_id" value={r.id} />
                     <Select name="role" defaultValue={r.role} options={[...ROLE_OPTIONS, { value: 'customer', label: 'Remove staff access' }]} className="w-44" />
-                    <SubmitButton variant="secondary" pendingText="…">Save</SubmitButton>
+                    <SubmitButton variant="secondary" pendingText="…" confirm={{ eyebrow: 'Staff access', title: `Change access for ${r.full_name || r.email || 'this person'}?`, message: 'If you picked “Remove staff access” they lose the admin portal right away.', confirmLabel: 'Save', cancelLabel: 'Go back' }}>Save</SubmitButton>
                   </ActionForm>
                 ) },
               ]}

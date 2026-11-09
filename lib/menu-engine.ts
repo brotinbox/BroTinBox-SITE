@@ -151,6 +151,15 @@ export const PRICING = {
     'veg': 249,
   },
   secondMealDiscount: 10, // second meal per day is -₹10
+  /** Lite box prices once they are live in the database; null hides the Lite option. */
+  lite: null as LitePrices | null,
+};
+
+export type LitePrices = {
+  trial: { 'non-veg': number; veg: number };
+  weekly: { 'non-veg': number; veg: number };
+  monthly: { 'non-veg': number; veg: number };
+  secondMealDiscount: number;
 };
 
 // ==========================================

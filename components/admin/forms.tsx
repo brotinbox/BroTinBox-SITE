@@ -3,12 +3,14 @@
 import { useActionState, useEffect, useRef, type ReactNode } from 'react';
 import { useFormStatus } from 'react-dom';
 import { cn } from '@/lib/utils';
+import { useConfirmClick, type ConfirmInput } from '@/components/ui/ConfirmDialog';
 import type { ActionResult } from '@/lib/admin/actions';
 
 export function SubmitButton({ children, pendingText = 'Saving…', variant = 'primary', className, confirm }: {
-  children: ReactNode; pendingText?: string; variant?: 'primary' | 'secondary' | 'danger'; className?: string; confirm?: string;
+  children: ReactNode; pendingText?: string; variant?: 'primary' | 'secondary' | 'danger'; className?: string; confirm?: ConfirmInput;
 }) {
   const { pending } = useFormStatus();
+  const askFirst = useConfirmClick(confirm);
   const styles = {
     primary: 'bg-primary text-white hover:bg-primary-hover',
     secondary: 'bg-white border border-gray-200 text-gray-800 hover:bg-gray-50',
@@ -18,9 +20,7 @@ export function SubmitButton({ children, pendingText = 'Saving…', variant = 'p
     <button
       type="submit"
       disabled={pending}
-      onClick={(e) => {
-        if (confirm && !window.confirm(confirm)) e.preventDefault();
-      }}
+      onClick={askFirst}
       className={cn('inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-colors disabled:opacity-60', styles[variant], className)}
     >
       {pending ? pendingText : children}

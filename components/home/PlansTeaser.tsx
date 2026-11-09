@@ -52,8 +52,7 @@ export function PlansTeaser() {
     <section className="py-12 sm:py-16 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-10">
-          <span className="text-xs font-extrabold uppercase tracking-wider text-accent">Transparent Pricing</span>
-          <h2 className="font-heading font-black text-lg sm:text-4xl text-gray-900 mt-1">Simple, Honest Subscription Plans</h2>
+          <h2 className="font-heading font-black text-lg sm:text-4xl text-gray-900">Subscription Plans</h2>
           <p className="hidden sm:block text-gray-600 text-sm mt-2">
             Cooked fresh 6 days a week (Monday to Saturday). Skip a day and your bill drops.
           </p>
