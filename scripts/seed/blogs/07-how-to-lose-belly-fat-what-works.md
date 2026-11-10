@@ -64,7 +64,7 @@ Most people who stay consistent see their waist start to shrink within **3–4 w
 
 The three things that matter most for belly fat are **calorie control, high protein and consistency**, and they are exactly the three things that are hardest to manage with a busy schedule.
 
-Every BroTin Box is weighed on digital scales with measured cold-pressed oil, and the label tells you exactly what you are eating: calories, protein, carbs and fat. Our boxes carry **43.8–81.4 g protein** each, so one box goes a long way towards your daily target. Delivery is Monday to Saturday, **7–9 AM** and **7–9 PM**, across our [Coimbatore delivery areas](/delivery-areas).
+Every BroTin Box is weighed on digital scales with measured cold-pressed oil, and the label tells you exactly what you are eating: calories, protein, carbs and fat. Our boxes carry **43.8–81.4 g protein** each, so one box goes a long way towards your daily target. Delivery is free, Monday to Saturday, at lunch (**11:30 AM–1:30 PM**) and dinner (**7–9 PM**), across our [Coimbatore delivery areas](/delivery-areas).
 
 # Frequently asked questions
 

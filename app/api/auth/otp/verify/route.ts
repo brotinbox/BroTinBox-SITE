@@ -5,7 +5,7 @@ import { rateLimit, resetRateLimit } from '@/lib/security/ratelimit';
 import { phoneOtpAllowed, phoneOtpMode } from '@/lib/auth/otp-mode';
 import { getLead, markLeadVerified, notifyNewSignup } from '@/lib/leads';
 
-const ORDER_PATHS = ['/checkout', '/tomorrow', '/weekly', '/monthly', '/custom', '/build-plan', '/box/'];
+const ORDER_PATHS = ['/checkout', '/tomorrow', '/weekly', '/monthly', '/build-plan', '/box/'];
 
 function safeNext(next: unknown): string {
   if (typeof next !== 'string' || !next.startsWith('/') || next.startsWith('//') || next.startsWith('/\\')) return '/dashboard';

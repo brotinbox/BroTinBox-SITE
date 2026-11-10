@@ -12,7 +12,7 @@ If you have never tried a service before, do not commit to a month straight away
 
 ## Check your area and delivery slot
 
-We deliver **Monday to Saturday**, in two slots: **7:00–9:00 AM** and **7:00–9:00 PM**. There is no delivery on Sundays. Check your pincode on our [delivery areas page](/delivery-areas) to confirm coverage and any delivery fee.
+We deliver **Monday to Saturday**, in two slots: lunch at **11:30 AM–1:30 PM** and dinner at **7:00–9:00 PM**. There is no delivery on Sundays, and no delivery fee. Check your pincode on our [delivery areas page](/delivery-areas) to confirm we cover your area.
 
 ## Know your numbers
 

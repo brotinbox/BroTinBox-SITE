@@ -67,12 +67,12 @@ Use this simple formula:
 
 # What if you do not have time to cook?
 
-That is the problem we built BroTin Box to solve. Our morning box is delivered between **7:00 and 9:00 AM**, Monday to Saturday, and every box lists its exact protein. Two examples from our weekly menu:
+That is the problem we built BroTin Box to solve, at least for the rest of your day. We deliver measured lunch boxes between **11:30 AM and 1:30 PM** and dinner boxes between **7:00 and 9:00 PM**, Monday to Saturday, and every box lists its exact protein. Make one of the quick breakfasts above, and let us handle the bigger meals. Two examples from our weekly menu:
 
 - **Friday:** boiled grilled chicken (150 g), 2 boiled eggs, rajma, coleslaw and **oats pongal**: **81.2 g protein, 898 kcal**
 - **Thursday:** boiled smashed chicken (150 g), 2 boiled eggs, boiled peanuts, cucumber salad and **oats upma**: **75.9 g protein, 839 kcal**
 
-Our boxes are full meals, so many customers treat the morning box as a large breakfast and keep the rest of their day light. Vegetarian? Our Tuesday box delivers **43.8 g protein** with soya, curd, sprouted kollu and masala oats.
+Our boxes are full meals, so a light, protein-first breakfast plus one of our boxes covers a large part of your daily protein. Vegetarian? Our Tuesday box delivers **43.8 g protein** with soya, curd, sprouted kollu and masala oats.
 
 See the full rotation on our [menu](/menu).
 
@@ -92,4 +92,4 @@ It is convenient, but whole food keeps you fuller and gives you fibre and micron
 
 ---
 
-Skip the morning cooking. [Order a BroTin Box for tomorrow morning](/tomorrow) and start your day with a measured, protein-packed meal.
+Keep breakfast simple and skip the lunch cooking. [Order a BroTin Box for tomorrow](/tomorrow) and get a measured, protein-packed meal delivered.

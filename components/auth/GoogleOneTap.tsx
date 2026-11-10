@@ -29,7 +29,7 @@ declare global {
   }
 }
 
-const ORDER_PATHS = ['/checkout', '/tomorrow', '/weekly', '/monthly', '/custom', '/build-plan', '/box/'];
+const ORDER_PATHS = ['/checkout', '/tomorrow', '/weekly', '/monthly', '/build-plan', '/box/'];
 
 export function GoogleOneTap() {
   const router = useRouter();

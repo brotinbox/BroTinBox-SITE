@@ -10,7 +10,6 @@ import {
   CalendarRange,
   ChevronDown,
   Repeat,
-  SlidersHorizontal,
   Sunrise,
   Utensils,
 } from 'lucide-react';
@@ -23,7 +22,6 @@ const PLAN_TILES = [
   { href: '/tomorrow', icon: Sunrise, title: 'Daily Trial Box', desc: 'One box, delivered tomorrow. The easiest way to try us.' },
   { href: '/weekly', icon: Repeat, title: 'Weekly Plan', desc: 'A week of measured meals, planned around your goal.' },
   { href: '/monthly', icon: CalendarRange, title: 'Monthly Plan', desc: 'Our best value. A full month of protein, sorted.' },
-  { href: '/custom', icon: SlidersHorizontal, title: 'Build Your Own', desc: 'Dial your own protein grams and compartments. Coming soon.' },
   { href: '/menu', icon: Utensils, title: "This Week's Menu", desc: 'Every box with photos, macros and ingredients.' },
   { href: '/pricing', icon: BadgePercent, title: 'Compare Pricing', desc: 'Trial vs weekly vs monthly, side by side.' },
 ];

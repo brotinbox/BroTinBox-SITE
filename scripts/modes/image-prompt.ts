@@ -30,11 +30,6 @@ export async function generateAndUploadCoverImage(
   openAiKey: string,
   promptSuffix = 'Natural food photography, authentic South Indian meal, realistic warm morning lighting, top-down perspective, fresh and appetizing, zero artificial styling, no watermarks, no text.'
 ): Promise<string> {
-  const r2AccessKey = process.env.CLOUDFLARE_R2_ACCESS_KEY_ID;
-  const r2SecretKey = process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY;
-  const r2Endpoint = process.env.CLOUDFLARE_R2_ENDPOINT;
-  const r2Bucket = process.env.CLOUDFLARE_R2_BUCKET_NAME;
-  const r2PublicUrl = process.env.CLOUDFLARE_R2_PUBLIC_URL?.replace(/\/$/, '');
 
   if (!openAiKey) {
     console.warn('⚠️  OPENAI_API_KEY is not set. Using curated South Indian cover image fallback.');
@@ -45,13 +40,16 @@ export async function generateAndUploadCoverImage(
   // OPENAI_IMAGE_FALLBACK_MODEL=none disables the (≈4× pricier) DALL·E retry.
   const fallbackModel = process.env.OPENAI_IMAGE_FALLBACK_MODEL || 'dall-e-3';
 
+  // OPENAI_IMAGE_QUALITY=high for realistic covers; low is the cheap default.
+  const imageQuality = process.env.OPENAI_IMAGE_QUALITY || 'low';
+
   let rawBuffer: Buffer | null = null;
 
   // Try primary model first, fallback to dall-e-3 if endpoint rejects
   const models = fallbackModel === 'none' ? [primaryModel] : [primaryModel, fallbackModel];
   for (const modelToUse of models) {
     try {
-      console.log(`🎨 Generating image via OpenAI with model [${modelToUse}] (quality: low)...`);
+      console.log(`🎨 Generating image via OpenAI with model [${modelToUse}] (quality: ${imageQuality})...`);
       const isGptImage = modelToUse.startsWith('gpt-image');
       
       const payload: Record<string, any> = {
@@ -59,7 +57,7 @@ export async function generateAndUploadCoverImage(
         prompt: `${prompt}. ${promptSuffix}`,
         n: 1,
         size: isGptImage ? '1536x1024' : '1024x1024',
-        quality: isGptImage ? 'low' : 'standard',
+        quality: isGptImage ? imageQuality : 'standard',
         // gpt-image models always return b64 and reject response_format; only DALL·E takes it.
         ...(modelToUse.startsWith('dall-e') ? { response_format: 'b64_json' } : {}),
       };
@@ -106,6 +104,17 @@ export async function generateAndUploadCoverImage(
     console.warn('⚠️  Could not generate image from OpenAI. Using curated fallback.');
     return FALLBACK_COVERS[Math.floor(Math.random() * FALLBACK_COVERS.length)];
   }
+
+  return uploadCoverBuffer(rawBuffer, slug);
+}
+
+/** Strip metadata, convert to WebP and upload to R2 as blog-images/<slug>.webp. */
+export async function uploadCoverBuffer(rawBuffer: Buffer, slug: string): Promise<string> {
+  const r2AccessKey = process.env.CLOUDFLARE_R2_ACCESS_KEY_ID;
+  const r2SecretKey = process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY;
+  const r2Endpoint = process.env.CLOUDFLARE_R2_ENDPOINT;
+  const r2Bucket = process.env.CLOUDFLARE_R2_BUCKET_NAME;
+  const r2PublicUrl = process.env.CLOUDFLARE_R2_PUBLIC_URL?.replace(/\/$/, '');
 
   try {
     // 1. Strip all AI metadata, C2PA provenance, EXIF, and camera tags

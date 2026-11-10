@@ -8,7 +8,7 @@ function safeNext(next: string | null): string {
 }
 
 // Customers who sign in mid-order go straight back to it; onboarding is optional.
-const ORDER_PATHS = ['/checkout', '/tomorrow', '/weekly', '/monthly', '/custom', '/build-plan', '/box/'];
+const ORDER_PATHS = ['/checkout', '/tomorrow', '/weekly', '/monthly', '/build-plan', '/box/'];
 
 /** OAuth (Google) return URL: exchanges the code for a session cookie. */
 export async function GET(request: NextRequest) {

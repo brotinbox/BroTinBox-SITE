@@ -28,7 +28,7 @@ Oil is the biggest hidden source of calories in Indian cooking. Ask what oil is 
 
 ## 6. Are delivery times fixed?
 
-If your breakfast arrives at 11 AM, it is not breakfast. A good service gives you a fixed window. We deliver **Monday to Saturday**, in two slots: **7:00–9:00 AM** for your morning box and **7:00–9:00 PM** for dinner.
+If your lunch arrives at 3 PM, it is not lunch. A good service gives you a fixed window. We deliver **Monday to Saturday**, in two slots: **11:30 AM–1:30 PM** for lunch and **7:00–9:00 PM** for dinner.
 
 ## 7. Can you pause or skip without losing money?
 
@@ -63,14 +63,14 @@ Our vegetarian Tuesday box (smashed veggie soya chunks, mint curd, sprouted hors
 
 - **Just curious?** Start with a [one-day trial](/tomorrow).
 - **One healthy meal a day** (most office workers): the 6-Day Weekly Plan gives you one box per day, Monday to Saturday.
-- **Gym-goers and anyone with high protein needs**: the 12-Meal Weekly Plan covers both morning and dinner, which puts you at roughly **85–126 g protein per day** from our boxes alone.
-- **Building a long-term habit**: the 24-Day Monthly Plan has the lowest price per meal.
+- **Gym-goers and anyone with high protein needs**: the 12-Meal Weekly Plan covers both lunch and dinner, which puts you at roughly **85–126 g protein per day** from our boxes alone.
+- **Building a long-term habit**: the 26-Day Monthly Plan has the lowest price per meal.
 
 Compare all of them on our [plans page](/plans). Subscription meals start from **₹249 per meal**.
 
 # Where we deliver in Coimbatore
 
-Our kitchen is in **Kuniyamuthur**. Delivery is free in Kuniyamuthur, Kovaipudhur, Sundarapuram and Ukkadam. We also deliver to RS Puram, Race Course, Ramanathapuram, Gandhipuram, Saibaba Colony, Ganapathy, Singanallur, Peelamedu and Vadavalli for a flat **₹35 delivery fee**. Check your pincode on our [delivery areas page](/delivery-areas), or read our [area-by-area delivery guide](/blog/healthy-food-delivery-near-me-coimbatore).
+Our kitchen is in **Kuniyamuthur**. We currently deliver to **Kuniyamuthur, Kovaipudhur and Sundarapuram**, and delivery is **free**, with no delivery fee. Ukkadam, RS Puram, Race Course, Gandhipuram, Ramanathapuram and Saibaba Colony are in our next delivery batch. Check your pincode on our [delivery areas page](/delivery-areas), or read our [area-by-area delivery guide](/blog/healthy-food-delivery-near-me-coimbatore).
 
 # Frequently asked questions
 

@@ -89,7 +89,7 @@ The hardest part of a gym diet is not the plan. It is cooking 150 g of chicken a
 
 Our non-veg boxes deliver **58–81 g of protein** each, weighed on digital scales, with exact macros printed on the box. For example, our Monday box (green mint grilled chicken, 2 eggs, black chana, corn salad and 2 chapatis) is **81.4 g protein and 977 kcal**.
 
-With the **12-Meal Weekly Plan** you get a box at **7–9 AM** and another at **7–9 PM**, Monday to Saturday. That covers **about 85–126 g protein per day** from our boxes alone, before you add anything else. Add a lunch and a snack, and your bulk is done. See the [plans page](/plans) for details.
+With the **12-Meal Weekly Plan** you get a lunch box at **11:30 AM–1:30 PM** and a dinner box at **7–9 PM**, Monday to Saturday. That covers **about 85–126 g protein per day** from our boxes alone, before you add anything else. Add a breakfast and a snack, and your bulk is done. See the [plans page](/plans) for details.
 
 # Frequently asked questions
 

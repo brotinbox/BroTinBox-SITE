@@ -10,6 +10,7 @@
     "generate:blog": "node --import tsx scripts/generate-blog.ts",
     "seed:blogs": "node --import tsx scripts/seed/publish-seo-blogs.ts",
     "seed:blogs:october": "node --import tsx scripts/seed/publish-seo-blogs.ts --october",
+    "seed:blogs:november": "node --import tsx scripts/seed/publish-seo-blogs.ts --november",
     "gsc": "node --import tsx scripts/gsc.ts"
   },
   "dependencies": {

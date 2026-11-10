@@ -49,7 +49,7 @@ This matters more than most people realise, especially in a warm city. Food left
 - **Reheat until piping hot** all the way through, and reheat only once.
 - **Do not reheat curd or salad.** Pack them separately.
 
-The same rule applies to our boxes. Delivery is between 7:00 and 9:00 AM, so if you take a morning box to work, refrigerate it within 2 hours of delivery, or eat it within that time. Our [food safety page](/food-safety) has the full guidance.
+The same rule applies to our boxes. Our lunch box is delivered between 11:30 AM and 1:30 PM, so eat it within 2 hours of delivery, or refrigerate it if lunch will be later than that. Our [food safety page](/food-safety) has the full guidance.
 
 # Three habits that beat the slump
 

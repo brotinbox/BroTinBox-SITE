@@ -63,7 +63,7 @@ None of this needs protein powder. Powder is convenient, not essential.
 Planning protein every day is tiring. That is why every BroTin Box lists the exact protein it contains. Our non-veg boxes carry **58–81 g protein** each and our veg box carries **43.8 g**, all from real food: grilled chicken, eggs, mackerel, soya, sprouted legumes and curd.
 
 - One box a day covers half or more of most people's target.
-- Two boxes a day (morning and dinner) on our 12-Meal Weekly Plan delivers **about 85–126 g protein**, enough for most gym-goers without extra planning.
+- Two boxes a day (lunch and dinner) on our 12-Meal Weekly Plan delivers **about 85–126 g protein**, enough for most gym-goers without extra planning.
 
 See every box and its macros on our [menu](/menu).
 

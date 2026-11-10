@@ -58,6 +58,10 @@ const nextConfig = {
   experimental: {
     serverActions: { bodySizeLimit: '6mb' },
   },
+  async redirects() {
+    // The "Build Your Own Box" page was removed; send old links to the plans page.
+    return [{ source: '/custom', destination: '/plans', permanent: true }];
+  },
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }];
   },

@@ -54,9 +54,9 @@ With a subscription, the price you see is what you pay. At BroTin Box:
 
 - **Daily trial:** ₹279 (veg) or ₹309 (non-veg) per box
 - **Subscriptions:** from **₹249 per meal**, with the lowest prices on the monthly plan
-- **Delivery:** free in Kuniyamuthur, Kovaipudhur, Sundarapuram and Ukkadam; a flat ₹35 in our Phase 2 areas
+- **Delivery:** free, with no delivery fee, in Kuniyamuthur, Kovaipudhur and Sundarapuram
 
-That price covers ingredients, measured cold-pressed oil, cooking, packing and delivery between **7–9 AM** or **7–9 PM**. Full details are on our [pricing page](/pricing).
+That price covers ingredients, measured cold-pressed oil, cooking, packing and delivery at lunch (**11:30 AM–1:30 PM**) or dinner (**7–9 PM**). Full details are on our [pricing page](/pricing).
 
 # Side-by-side: what you are really comparing
 
@@ -90,7 +90,7 @@ That price covers ingredients, measured cold-pressed oil, cooking, packing and d
 
 # The middle path most people choose
 
-You do not have to choose all-or-nothing. Many of our customers subscribe to **one box a day** (the meal that is hardest for them to get right, often dinner) and cook simpler meals at home. Our 6-Day Weekly and 24-Day Monthly plans are built for exactly this. Compare them on the [plans page](/plans).
+You do not have to choose all-or-nothing. Many of our customers subscribe to **one box a day** (the meal that is hardest for them to get right, often lunch at work or dinner) and cook simpler meals at home. Our 6-Day Weekly and 26-Day Monthly plans are built for exactly this. Compare them on the [plans page](/plans).
 
 # Frequently asked questions
 

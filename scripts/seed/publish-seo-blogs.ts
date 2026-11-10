@@ -15,22 +15,24 @@ import * as dotenv from 'dotenv';
 dotenv.config({ path: '.env.local', quiet: true });
 dotenv.config({ quiet: true });
 
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createClient } from '@supabase/supabase-js';
 import { readingMinutes, renderMarkdown } from '../../lib/content/markdown';
-import { generateAndUploadCoverImage } from '../modes/image-prompt';
-import { AUTHOR, OCTOBER_2026_POSTS, SEO_POSTS } from './blogs/manifest';
+import { generateAndUploadCoverImage, uploadCoverBuffer } from '../modes/image-prompt';
+import { AUTHOR, NOVEMBER_2026_POSTS, OCTOBER_2026_POSTS, SEO_POSTS } from './blogs/manifest';
 
 const DRY_RUN = process.argv.includes('--dry-run');
-const POSTS = process.argv.includes('--october') ? OCTOBER_2026_POSTS : SEO_POSTS;
+const POSTS = process.argv.includes('--october') ? OCTOBER_2026_POSTS : process.argv.includes('--november') ? NOVEMBER_2026_POSTS : SEO_POSTS;
 const DIR = join(process.cwd(), 'scripts/seed/blogs');
 const SCENE_SUFFIX = 'Natural documentary-style photography, realistic lighting, authentic South Indian setting, no watermarks, no text, no logos.';
 const SITE_PATHS = new Set(['/', '/menu', '/plans', '/pricing', '/weekly', '/monthly', '/tomorrow', '/delivery-areas', '/blog', '/faq', '/about', '/contact', '/food-safety', '/refund-policy']);
 
 // ─── 1. Validate ────────────────────────────────────────────────────────────
 const slugs = new Set(POSTS.map((p) => p.slug));
-const linkableSlugs = new Set([...SEO_POSTS, ...OCTOBER_2026_POSTS].map((p) => p.slug));
+const ALL_POSTS = [...SEO_POSTS, ...OCTOBER_2026_POSTS, ...NOVEMBER_2026_POSTS];
+const goesLiveAt = new Map(ALL_POSTS.map((p) => [p.slug, p.published_at ? new Date(p.published_at).getTime() : 0]));
+const linkableSlugs = new Set(ALL_POSTS.map((p) => p.slug));
 const problems: string[] = [];
 const bodies = new Map<string, string>();
 
@@ -40,7 +42,8 @@ for (const p of POSTS) {
   const at = (msg: string) => problems.push(`${p.slug}: ${msg}`);
 
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(p.slug)) at('invalid slug');
-  if (p.published_at && new Date(p.published_at).getTime() > Date.now()) at(`published_at ${p.published_at} is in the future`);
+  // A future published_at schedules the post: the site hides it until then.
+  if (p.published_at && new Date(p.published_at).getTime() > Date.now()) console.log(`🗓  ${p.slug} is scheduled for ${p.published_at}`);
   if (p.seo_title.length > 60) at(`seo_title is ${p.seo_title.length} chars (max 60)`);
   if (p.seo_description.length > 155) at(`seo_description is ${p.seo_description.length} chars (max 155)`);
   if (/^\s*\|.*\|\s*$/m.test(md)) at('contains a markdown table (renderer does not support tables)');
@@ -49,6 +52,8 @@ for (const p of POSTS) {
   for (const [, href] of md.matchAll(/\]\(([^)]+)\)/g)) {
     if (href.startsWith('/blog/')) {
       if (!linkableSlugs.has(href.slice(6))) at(`links to unknown post ${href}`);
+      // A link to a post that goes live later would 404 until then.
+      else if ((goesLiveAt.get(href.slice(6)) ?? 0) > (p.published_at ? new Date(p.published_at).getTime() : Date.now())) at(`links to ${href}, which goes live after this post`);
     } else if (href.startsWith('/')) {
       if (!SITE_PATHS.has(href)) at(`links to unknown page ${href}`);
     } else if (!href.startsWith('https://')) {
@@ -116,6 +121,19 @@ async function main() {
   // ─── 3. Covers ────────────────────────────────────────────────────────────
   const covers = new Map(POSTS.map((p) => [p.slug, current.get(p.slug)?.cover_image_url ?? null]));
   const missing = POSTS.filter((p) => !hasOwnCover(covers.get(p.slug)));
+
+  // A photo saved as scripts/seed/blogs/covers/<slug>.jpg|.png|.webp is used instead of generating one.
+  for (const p of [...missing]) {
+    const local = ['jpg', 'jpeg', 'png', 'webp'].map((ext) => join(DIR, 'covers', `${p.slug}.${ext}`)).find((f) => existsSync(f));
+    if (!local) continue;
+    console.log(`\n🖼  ${p.slug}: using ${local}`);
+    const url = await uploadCoverBuffer(readFileSync(local), p.slug);
+    if (!hasOwnCover(url)) continue;
+    const { error } = await supabase.from('blog_posts').update({ cover_image_url: url, og_image_url: url }).eq('slug', p.slug);
+    if (error) throw error;
+    covers.set(p.slug, url);
+    missing.splice(missing.indexOf(p), 1);
+  }
 
   if (missing.length && !OPENAI_KEY) {
     console.warn(`⚠️  OPENAI_API_KEY is empty: ${missing.length} posts have no cover. They stay as drafts.`);
