@@ -41,7 +41,7 @@ export default function ContactPage() {
                 Coimbatore Central Kitchen
               </h3>
               <p className="text-xs text-gray-500 mt-1">
-                {LEGAL.entityName || BRAND.name}{hasFssai() ? ` • FSSAI ${fssaiAbbr()} ${LEGAL.fssai.licenseNumber}` : ''}
+                {BRAND.name} (operated by GOVINDHARAJ MOHAMMED ANAS){hasFssai() ? ` • FSSAI ${fssaiAbbr()} ${LEGAL.fssai.licenseNumber}` : ''}
               </p>
             </div>
 
