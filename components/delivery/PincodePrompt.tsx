@@ -17,8 +17,11 @@ import {
 
 /** "Skip for now" lasts for this browser session; the popup asks again on the next visit. */
 const SKIP_KEY = 'brotin-pincode-skipped';
-/** Pages where the popup would get in the way (legal / policy reading). */
-const QUIET_PATHS = ['/privacy', '/terms', '/refund-policy', '/delivery-policy', '/grievance', '/food-safety'];
+/**
+ * Pages where the popup would get in the way: checkout / payment (the address
+ * form there has the pincode) and legal / policy reading.
+ */
+const QUIET_PATHS = ['/checkout', '/privacy', '/terms', '/refund-policy', '/delivery-policy', '/grievance', '/food-safety'];
 
 function readSkipped() {
   try {
@@ -42,6 +45,12 @@ export function PincodePrompt() {
   const isOpen = useAppStore((s) => s.isLocationPromptOpen);
   const setOpen = useAppStore((s) => s.setLocationPromptOpen);
   const signInOpen = useAppStore((s) => !!s.signIn);
+  const authReady = useAppStore((s) => s.authReady);
+  const savedPincode = useAppStore((s) => {
+    if (!s.isLoggedIn) return '';
+    const a = s.addresses.find((x) => x.isDefault) ?? s.addresses[0];
+    return a?.pincode ?? '';
+  });
 
   const [hydrated, setHydrated] = useState(false);
   const [pin, setPin] = useState('');
@@ -54,9 +63,17 @@ export function PincodePrompt() {
     return useAppStore.persist.onFinishHydration(() => setHydrated(true));
   }, []);
 
-  // First visit: ask once the page has painted.
+  // Signed-in customer with a saved address: use its pincode, never ask.
   useEffect(() => {
-    if (!hydrated || locationConfirmed || readSkipped()) return;
+    if (!hydrated || locationConfirmed || !isPincode(savedPincode) || loading) return;
+    setCurrentLocation(locationFromPincode(savedPincode, zones, comingSoonZones));
+    setOpen(false);
+  }, [hydrated, locationConfirmed, savedPincode, loading, zones, comingSoonZones, setCurrentLocation, setOpen]);
+
+  // First visit: ask once the page has painted (and we know the visitor has
+  // no saved address to take the pincode from).
+  useEffect(() => {
+    if (!hydrated || !authReady || locationConfirmed || isPincode(savedPincode) || readSkipped()) return;
     if (QUIET_PATHS.some((p) => pathname?.startsWith(p))) return;
     // While the first-visit intro splash is up, wait for it to go before asking.
     let t: ReturnType<typeof setTimeout> | undefined;
@@ -68,7 +85,7 @@ export function PincodePrompt() {
       clearTimeout(t);
       window.removeEventListener(INTRO_DONE_EVENT, ask);
     };
-  }, [hydrated, locationConfirmed, pathname, setOpen]);
+  }, [hydrated, authReady, locationConfirmed, savedPincode, pathname, setOpen]);
 
   // Keep a saved pincode in step with the zones (e.g. a next-batch area that has since launched).
   useEffect(() => {
