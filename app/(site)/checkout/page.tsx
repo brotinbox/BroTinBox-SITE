@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ChevronDown, ChevronLeft, Clock, Lock, MapPin, Minus, Plus, ShieldCheck, Tag, Trash2 } from 'lucide-react';
+import { ChevronDown, ChevronLeft, Clock, Loader2, Lock, MapPin, Minus, Plus, ShieldCheck, Tag, Trash2 } from 'lucide-react';
 import { useAppStore, MAX_ADDON_QTY, type CartPlan } from '@/store/useAppStore';
 import { getCheckoutAddons, getQuote, type CheckoutAddon, type QuoteResult } from '@/lib/checkout/actions';
 import type { Cart } from '@/lib/checkout/quote';
@@ -108,6 +108,11 @@ export default function CheckoutPage() {
 
   const [placing, setPlacing] = useState(false);
   const [error, setError] = useState('');
+  // Order created by an attempt whose payment couldn't open: the retry pays it
+  // instead of placing a second order. A changed cart means a new order.
+  const [placed, setPlaced] = useState<{ id: string; key: string } | null>(null);
+  const placedOrderId = placed && placed.key === quoteKey ? placed.id : null;
+  const [leaving, setLeaving] = useState(false);
   const [billOpen, setBillOpen] = useState(true);
 
   const q = quote?.ok ? quote : null;
@@ -123,6 +128,8 @@ export default function CheckoutPage() {
     if (!cart) return;
     setError('');
     setPlacing(true);
+    const key = quoteKey;
+    const snapshot = { cartPlan, cartAddons };
     const err = await submitOrder(
       { ...cart, addressId },
       {
@@ -134,11 +141,29 @@ export default function CheckoutPage() {
           setSelectedAddressId(id);
           setUseNew(false);
         },
-        onPlaced: () => { clearCart(); clearDraft('trial'); clearDraft('weekly'); forgetTrialStatus(); },
+        placedOrderId: placedOrderId ?? undefined,
+        onPlaced: (id) => setPlaced({ id, key }),
+        onLeaving: () => { setLeaving(true); clearCart(); clearDraft('trial'); clearDraft('weekly'); forgetTrialStatus(); },
       }
     );
-    if (err) { setError(err === SIGN_IN_PENDING ? '' : err); setPlacing(false); }
+    if (err) {
+      // Cashfree refused after the cart was cleared: put it back for the retry.
+      if (!useAppStore.getState().cartPlan && snapshot.cartPlan) useAppStore.setState(snapshot);
+      setLeaving(false);
+      setError(err === SIGN_IN_PENDING ? '' : err);
+      setPlacing(false);
+    }
   };
+
+  // Cart was just cleared because Cashfree is opening: don't flash "empty cart".
+  if (leaving) {
+    return (
+      <div className="min-h-[70vh] bg-paper flex flex-col items-center justify-center gap-3 px-4">
+        <Loader2 className="w-6 h-6 animate-spin text-ink" />
+        <p className="font-heading font-bold text-sm text-ink">Opening secure payment…</p>
+      </div>
+    );
+  }
 
   // ----- empty states
   if (!cartPlan) {
@@ -388,7 +413,7 @@ export default function CheckoutPage() {
             className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-ink hover:bg-ink-soft disabled:opacity-50 text-white font-heading font-black text-sm"
           >
             <Lock className="w-4 h-4" />
-            {placing ? 'Placing your order…' : !isLoggedIn ? 'Verify number & pay' : 'Place order & pay'}
+            {placing ? (placedOrderId ? 'Opening payment…' : 'Placing your order…') : !isLoggedIn ? 'Verify number & pay' : placedOrderId ? 'Try payment again' : 'Place order & pay'}
           </button>
         </div>
         {enteringNew && !newAddrValid && (

@@ -50,7 +50,9 @@ function cartSummary(cart: Omit<Cart, 'addressId'>): string {
  *  number prefilled and the WhatsApp code already sent; after sign-in,
  *  `onSignedIn` (usually the same pay handler) runs again with nothing lost.
  *  new address → saved first; then the server prices and creates the order
- *  and the customer goes to the payment page.
+ *  and Cashfree opens straight away (manual UPI mode → the payment page).
+ *  If Cashfree can't open, the customer stays here with the reason, and the
+ *  retry passes `placedOrderId` so the same order is paid (no duplicate).
  * Returns an error message to show, SIGN_IN_PENDING, or null when it navigated away.
  */
 export async function submitOrder(
@@ -59,12 +61,18 @@ export async function submitOrder(
     newAddress?: NewAddressInput;
     navigate: (href: string) => void;
     onSignedIn?: () => void;
-    /** The order exists (before payment opens): clear the cart / draft here. */
+    /** The order exists: remember its id so a retry reuses it. */
     onPlaced?: (orderId: string) => void;
+    /** Leaving for payment: clear the cart / drafts here. */
+    onLeaving?: () => void;
+    /** Order already placed by an earlier attempt that couldn't open Cashfree. */
+    placedOrderId?: string;
     /** Called once the new address is saved, so a retry reuses it. */
     onAddressSaved?: (id: string) => void;
   }
 ): Promise<string | null> {
+  if (opts.placedOrderId) return payNow(opts.placedOrderId, true, opts);
+
   const store = useAppStore.getState();
   if (!store.isLoggedIn) {
     const phone = (opts.newAddress?.phone ?? '').replace(/\D/g, '').slice(-10);
@@ -97,25 +105,36 @@ export async function submitOrder(
   const result = await placeOrder({ ...cart, addressId } as Cart);
   if (!result.ok) return withCode(result);
   opts.onPlaced?.(result.orderId);
-  // Straight to Cashfree (like Swiggy's one-tap pay). The payment page stays
-  // as the fallback: manual UPI mode, SDK failure, or retrying later.
-  if (result.payOnline && (await openCashfree(result.orderId))) return null;
-  opts.navigate(`/checkout/pay/${result.orderId}`);
-  return null;
+  return payNow(result.orderId, result.payOnline, opts);
 }
 
-/** Opens Cashfree's page in this tab (it returns to /checkout/pay/[id]?cf=1). False if it couldn't. */
-async function openCashfree(orderId: string): Promise<boolean> {
+/** Straight to Cashfree (one tap). Manual UPI mode uses the payment page. */
+async function payNow(orderId: string, online: boolean, opts: { navigate: (href: string) => void; onLeaving?: () => void }): Promise<string | null> {
+  const payPage = `/checkout/pay/${orderId}`;
+  if (!online) {
+    opts.onLeaving?.();
+    opts.navigate(payPage);
+    return null;
+  }
   try {
     const r = await startCashfreePayment(orderId);
-    if (!r.ok) return false;
+    if (!r.ok) {
+      if (r.paid) { opts.onLeaving?.(); opts.navigate(payPage); return null; }
+      return `Your order is saved, but payment couldn't start: ${r.error}`;
+    }
     const { load } = await import('@cashfreepayments/cashfree-js');
     const cashfree = await load({ mode: r.mode });
-    if (!cashfree) return false;
+    if (!cashfree) throw new Error('Cashfree did not load');
+    opts.onLeaving?.();
     const res = await cashfree.checkout({ paymentSessionId: r.sessionId, redirectTarget: '_self' });
-    return !res?.error;
-  } catch {
-    return false;
+    if (res?.error) {
+      console.error('[Cashfree] checkout error', res.error);
+      return `Your order is saved, but Cashfree couldn't open: ${res.error.message || 'unknown error'}. Tap the button to try again.`;
+    }
+    return null;
+  } catch (e) {
+    console.error('[Cashfree] could not open', e);
+    return 'Your order is saved, but the payment page could not open. Check your connection and tap the button to try again.';
   }
 }
 
