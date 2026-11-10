@@ -11,6 +11,7 @@ import { SIGN_IN_PENDING, submitOrder, type NewAddressInput } from '@/lib/checko
 import { clearDraft } from '@/lib/checkout/draft';
 import { OrderErrorNotice } from '@/components/checkout/OrderErrorNotice';
 import { AddonRail } from '@/components/checkout/AddonRail';
+import { FreeJuiceCard } from '@/components/checkout/FreeJuiceCard';
 import { PlanDetails } from '@/components/checkout/PlanDetails';
 import { forgetTrialStatus } from '@/components/trial/TrialGate';
 import { PincodeStatus } from '@/components/delivery/PincodeStatus';
@@ -70,6 +71,11 @@ export default function CheckoutPage() {
   const [couponInput, setCouponInput] = useState('');
   const [coupon, setCoupon] = useState<string | undefined>();
   const [offersOptIn, setOffersOptIn] = useState(false);
+  // ----- poster offers: free-juice picks and the referral code
+  const [freePicks, setFreePicks] = useState<Record<string, { juice: string; day: number }>>({});
+  const [showReferral, setShowReferral] = useState(false);
+  const [referralInput, setReferralInput] = useState('');
+  const [referral, setReferral] = useState<string | undefined>();
 
   // ----- server quote (debounced; works signed out from the pincode)
   const cart = useMemo((): (Omit<Cart, 'addressId'> & { addressId?: string }) | null => {
@@ -79,9 +85,10 @@ export default function CheckoutPage() {
       preferences: cartPlan.preferences,
       addons: cartAddons.map((a) => ({ id: a.id, qty: a.qty })), addonIds: [],
       addressId, pincode: /^\d{6}$/.test(pincode) ? pincode : undefined, couponCode: coupon,
+      freeJuices: Object.entries(freePicks).map(([key, p]) => ({ key, ...p })), referralCode: referral,
       whatsappOffers: offersOptIn || undefined,
     };
-  }, [cartPlan, cartAddons, addressId, pincode, coupon, offersOptIn]);
+  }, [cartPlan, cartAddons, addressId, pincode, coupon, freePicks, referral, offersOptIn]);
 
   const [quote, setQuote] = useState<QuoteResult | null>(null);
   const [quoting, setQuoting] = useState(false);
@@ -278,6 +285,15 @@ export default function CheckoutPage() {
           ))}
         </section>
 
+        {/* ---------- Poster offers: free juices ---------- */}
+        {q && (
+          <FreeJuiceCard
+            offers={q.offers}
+            dates={cartPlan.days.map((d) => d.date)}
+            onPick={(key, pick) => setFreePicks((p) => ({ ...p, [key]: pick }))}
+          />
+        )}
+
         {/* ---------- Complete your meal ---------- */}
         <AddonRail
           catalog={catalog.filter((c) => !(allVeg && !c.isVeg))}
@@ -295,6 +311,23 @@ export default function CheckoutPage() {
             <button className="px-4 py-2 rounded-xl bg-gray-900 text-white text-xs font-bold">Apply</button>
           </form>
           {q?.couponMessage && <p className={cn('text-xs font-semibold', q.couponApplied ? 'text-emerald-700' : 'text-rose-700')}>{q.couponMessage}</p>}
+          {q?.offers.referralOn && cartPlan.type !== 'trial' && (
+            showReferral ? (
+              <form onSubmit={(e) => { e.preventDefault(); setReferral(referralInput.trim().toUpperCase() || undefined); }} className="flex gap-2 items-center pt-1">
+                <span className="w-4 shrink-0" />
+                <input value={referralInput} onChange={(e) => setReferralInput(e.target.value)} maxLength={20} placeholder="Friend's referral code" autoFocus
+                  className="flex-1 min-w-0 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm uppercase focus:bg-white focus:border-ink focus:outline-none" />
+                <button className="px-4 py-2 rounded-xl bg-gray-900 text-white text-xs font-bold">Apply</button>
+              </form>
+            ) : (
+              <button type="button" onClick={() => setShowReferral(true)} className="pl-6 text-xs font-bold text-accent hover:underline underline-offset-2">
+                Have a referral code?
+              </button>
+            )
+          )}
+          {referral && q?.offers.referral && (
+            <p className={cn('pl-6 text-xs font-semibold', q.offers.referral.applied ? 'text-emerald-700' : 'text-rose-700')}>{q.offers.referral.message}</p>
+          )}
         </section>
 
         {/* ---------- Bill ---------- */}
@@ -312,7 +345,7 @@ export default function CheckoutPage() {
                   {q ? q.lines.map((l, i) => (
                     <li key={i} className="flex justify-between gap-3">
                       <span className="text-gray-600">{l.name}{l.item_type === 'meal' && l.qty > 1 ? ` × ${l.qty}` : ''}</span>
-                      <span className={l.total < 0 ? 'text-emerald-700' : 'text-gray-900'}>{l.total < 0 ? `− ${inr(-l.total)}` : inr(l.total)}</span>
+                      <span className={l.total <= 0 ? 'text-emerald-700 font-semibold' : 'text-gray-900'}>{l.total < 0 ? `− ${inr(-l.total)}` : l.total === 0 ? 'FREE' : inr(l.total)}</span>
                     </li>
                   )) : (
                     <li className="text-xs text-gray-500">{pincode.length === 6 ? 'Calculating…' : 'Enter your pincode to see the exact price.'}</li>

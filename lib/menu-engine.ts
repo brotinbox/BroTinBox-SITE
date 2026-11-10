@@ -147,7 +147,7 @@ export const PRICING = {
     'veg': 259,
   },
   monthly: {
-    'non-veg': 279,
+    'non-veg': 269,
     'veg': 249,
   },
   secondMealDiscount: 10, // second meal per day is -₹10

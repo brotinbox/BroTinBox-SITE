@@ -13,6 +13,7 @@ import { createOrderFromQuote } from '@/lib/checkout/create-order';
 import { notifyOrderPlaced } from '@/lib/notifications/telegram';
 import { getDrinks, getSides } from '@/lib/data/catalog';
 import { isCashfreeConfigured } from '@/lib/cashfree';
+import type { FreeOffer } from '@/lib/checkout/offers';
 
 type Fail = { ok: false; error: string; code?: CheckoutErrorCode };
 
@@ -41,8 +42,17 @@ async function trialPhoneCheck(cart: Cart, phoneVerified: boolean): Promise<Fail
   return { ok: false, error: 'Please verify your mobile number to book your trial box.', code: 'VERIFY_PHONE' };
 }
 
+/** Free-juice offers as the checkout shows them (no internal ids). */
+export type CheckoutOffers = {
+  slots: { key: string; offer: FreeOffer; day: number; dayChoice: boolean; juice: string; juiceName: string }[];
+  juices: { slug: string; name: string; image: string }[];
+  note?: string;
+  referralOn: boolean;
+  referral?: { applied: boolean; message: string };
+};
+
 export type QuoteResult =
-  | { ok: true; lines: QuoteLine[]; subtotal: number; discount: number; deliveryFee: number; total: number; couponMessage?: string; couponApplied: boolean }
+  | { ok: true; lines: QuoteLine[]; subtotal: number; discount: number; deliveryFee: number; total: number; couponMessage?: string; couponApplied: boolean; offers: CheckoutOffers }
   | Fail;
 
 /**
@@ -68,7 +78,12 @@ export async function getQuote(input: Cart): Promise<QuoteResult> {
   }
   try {
     const q = await quoteCart(user ? cart.data : { ...cart.data, addressId: undefined }, user?.id ?? null, { preview: !user || !cart.data.addressId });
-    return { ok: true, lines: q.lines, subtotal: q.subtotal, discount: q.discount, deliveryFee: q.deliveryFee, total: q.total, couponMessage: q.couponMessage, couponApplied: !!q.couponId };
+    const o = q.offers;
+    const offers: CheckoutOffers = {
+      slots: o.slots.map(({ key, offer, day, dayChoice, juice, juiceName }) => ({ key, offer, day, dayChoice, juice, juiceName })),
+      juices: o.juices, note: o.note, referralOn: o.referralOn, referral: o.referral,
+    };
+    return { ok: true, lines: q.lines, subtotal: q.subtotal, discount: q.discount, deliveryFee: q.deliveryFee, total: q.total, couponMessage: q.couponMessage, couponApplied: !!q.couponId, offers };
   } catch (e) {
     return checkoutFail(e, 'Could not price your order. Please try again.');
   }
@@ -123,7 +138,7 @@ export async function placeOrder(input: Cart): Promise<PlaceOrderResult> {
     });
 
     const { data: paySetting } = await db.from('site_settings').select('value').eq('key', 'payment').maybeSingle();
-    const payOnline = (paySetting?.value as { mode?: string } | null)?.mode === 'cashfree' && isCashfreeConfigured();
+    const payOnline = (paySetting?.value as { mode?: string } | null)?.mode === 'cashfree' && (await isCashfreeConfigured());
     return { ok: true, orderId: order.id, orderNumber: order.order_number, total: Number(order.total), payOnline };
   } catch (e) {
     return checkoutFail(e, 'Could not place your order. Please try again.');

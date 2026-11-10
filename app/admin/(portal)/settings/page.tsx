@@ -5,9 +5,9 @@ import { requireStaff } from '@/lib/auth/session';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { Card, PageHeader } from '@/components/admin/ui';
 import { ActionForm, Checkbox, Field, Input, Select, SubmitButton, Textarea } from '@/components/admin/forms';
-import { cashfreeMode, isCashfreeConfigured } from '@/lib/cashfree';
-import { getAlertSettings, getPhoneOtpSettings, whatsappSenderConfigured } from '@/lib/settings/runtime';
-import { saveAlerts, saveAnnouncement, saveFeatures, saveOrdering, savePayment, savePhoneOtp, sendTestAlert, sendTestOtp } from './actions';
+import { cashfreeKeys } from '@/lib/cashfree';
+import { getAlertSettings, getCashfreeSettings, getPhoneOtpSettings, whatsappSenderConfigured } from '@/lib/settings/runtime';
+import { saveAlerts, saveAnnouncement, saveCashfreeMode, saveFeatures, saveOrdering, savePayment, savePhoneOtp, sendTestAlert, sendTestOtp } from './actions';
 
 export const metadata = { title: 'Settings' };
 
@@ -36,7 +36,9 @@ export default async function SettingsPage() {
   const payment = s.payment ?? {};
   const announcement = s.announcement ?? {};
   const features = s.features ?? {};
-  const [otp, alerts] = await Promise.all([getPhoneOtpSettings({ fresh: true }), getAlertSettings({ fresh: true })]);
+  const [otp, alerts, cf] = await Promise.all([getPhoneOtpSettings({ fresh: true }), getAlertSettings({ fresh: true }), getCashfreeSettings({ fresh: true })]);
+  const cfKeys = { production: !!cashfreeKeys('production'), sandbox: !!cashfreeKeys('sandbox') };
+  const cfReady = cfKeys[cf.mode];
   const waReady = whatsappSenderConfigured();
   const tgReady = !!process.env.TELEGRAM_BOT_TOKEN;
 
@@ -49,9 +51,9 @@ export default async function SettingsPage() {
             <fieldset disabled={!canWrite} className="space-y-3">
               <Field
                 label="How customers pay"
-                hint={isCashfreeConfigured()
-                  ? `Cashfree keys found (${cashfreeMode() === 'sandbox' ? 'TEST mode: no real money' : 'LIVE mode'}).`
-                  : 'Cashfree keys are not set on the server, so customers see manual UPI whatever you choose here.'}
+                hint={cfReady
+                  ? `Cashfree is in ${cf.mode === 'sandbox' ? 'TEST mode: no real money' : 'LIVE mode'} (switch it in the Cashfree card).`
+                  : `No Cashfree ${cf.mode === 'sandbox' ? 'test' : 'live'} keys on the server, so customers see manual UPI whatever you choose here.`}
               >
                 <Select name="mode" defaultValue={payment.mode === 'manual_upi' ? 'manual_upi' : 'cashfree'} options={[
                   { value: 'cashfree', label: 'Online via Cashfree (confirmed automatically)' },
@@ -69,6 +71,30 @@ export default async function SettingsPage() {
               {payment.qr_image_url && <Checkbox name="remove_qr" label="Remove the current QR image" />}
             </fieldset>
             {canWrite && <SubmitButton>Save payment details</SubmitButton>}
+          </ActionForm>
+        </Card>
+
+        <Card title="Cashfree: Test or Live">
+          <ActionForm action={saveCashfreeMode} className="space-y-4">
+            <fieldset disabled={!canWrite} className="space-y-2">
+              {([
+                { value: 'sandbox', label: 'Test', hint: 'Sandbox. No real money; use Cashfree test UPI/cards.' },
+                { value: 'production', label: 'Live', hint: 'Real payments to your bank account.' },
+              ] as const).map((m) => (
+                <label key={m.value} className="flex items-start gap-2 text-sm cursor-pointer">
+                  <input type="radio" name="mode" value={m.value} defaultChecked={cf.mode === m.value} className="mt-1" />
+                  <span>
+                    <b>{m.label}</b> <span className="text-gray-500">· {m.hint}</span>{' '}
+                    <span className={cfKeys[m.value] ? 'text-emerald-700' : 'text-rose-700'}>{cfKeys[m.value] ? '· keys found' : '· keys missing in Vercel'}</span>
+                  </span>
+                </label>
+              ))}
+            </fieldset>
+            <p className="text-xs text-gray-600">
+              Now: <b>{cf.mode === 'production' ? 'LIVE' : 'TEST'}</b>{cf.source === 'env' ? ' (from NEXT_PUBLIC_CASHFREE_ENV; not saved here yet)' : ''}.
+              Webhook URL for the Cashfree dashboard: <code className="break-all">https://www.brotinbox.com/api/webhooks/cashfree</code>
+            </p>
+            {canWrite && <SubmitButton>Save Cashfree mode</SubmitButton>}
           </ActionForm>
         </Card>
 

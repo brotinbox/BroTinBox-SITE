@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { rateLimit } from '@/lib/security/ratelimit';
 import { notifyPaymentReferenceSubmitted } from '@/lib/notifications/telegram';
-import { isCashfreeConfigured } from '@/lib/cashfree';
+import { cashfreeMode, isCashfreeConfigured, type CashfreeMode } from '@/lib/cashfree';
 import { ensurePaymentSession } from '@/lib/payments/cashfree-checkout';
 
 export type RefState = { ok?: boolean; error?: string } | null;
@@ -35,7 +35,7 @@ export async function submitReference(_p: RefState, fd: FormData): Promise<RefSt
   return { ok: true };
 }
 
-export type StartPaymentResult = { ok: true; sessionId: string } | { ok: false; error: string; paid?: boolean };
+export type StartPaymentResult = { ok: true; sessionId: string; mode: CashfreeMode } | { ok: false; error: string; paid?: boolean };
 
 /** Creates (or reuses) the Cashfree payment session for the customer's order. */
 export async function startCashfreePayment(orderId: string): Promise<StartPaymentResult> {
@@ -46,8 +46,10 @@ export async function startCashfreePayment(orderId: string): Promise<StartPaymen
   if (!rl.success) return { ok: false, error: 'Too many attempts. Wait a minute and try again.' };
   const id = z.string().uuid().safeParse(orderId);
   if (!id.success) return { ok: false, error: 'Invalid order.' };
-  if (!isCashfreeConfigured()) return { ok: false, error: 'Online payment is not available right now. Please WhatsApp us.' };
-  return ensurePaymentSession(id.data, user.id, await requestOrigin());
+  if (!(await isCashfreeConfigured())) return { ok: false, error: 'Online payment is not available right now. Please WhatsApp us.' };
+  const r = await ensurePaymentSession(id.data, user.id, await requestOrigin());
+  // The browser SDK must open the same mode (Test/Live) the session was made in.
+  return r.ok ? { ...r, mode: await cashfreeMode() } : r;
 }
 
 /**

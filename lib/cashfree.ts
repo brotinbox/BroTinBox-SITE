@@ -1,23 +1,44 @@
 import 'server-only';
 import { createHmac, timingSafeEqual } from 'node:crypto';
+import { getCashfreeSettings, type CashfreeMode } from '@/lib/settings/runtime';
 
 /**
  * Cashfree Payment Gateway REST client. Server only: it holds the secret key.
- * Sandbox vs production is chosen by NEXT_PUBLIC_CASHFREE_ENV (shared with the
- * browser SDK so the two can never disagree). Keys come from the matching
- * mode of the Merchant Dashboard → Developers → API Keys.
+ *
+ * Test / Live is switched in admin → Settings → Payments (falls back to
+ * NEXT_PUBLIC_CASHFREE_ENV). Each mode has its own keys in Vercel:
+ *   Live: CASHFREE_APP_ID + CASHFREE_SECRET_KEY
+ *   Test: CASHFREE_TEST_APP_ID + CASHFREE_TEST_SECRET_KEY
+ * Cashfree test app ids start with "TEST", so test keys left in
+ * CASHFREE_APP_ID (as in .env.local) still count as test keys and are never
+ * sent to the live API.
  */
 
 const API_VERSION = '2025-01-01';
 
-export type CashfreeMode = 'sandbox' | 'production';
+export type { CashfreeMode };
 
-export const cashfreeMode = (): CashfreeMode =>
-  process.env.NEXT_PUBLIC_CASHFREE_ENV === 'production' ? 'production' : 'sandbox';
+type Keys = { appId: string; secret: string };
 
-const baseUrl = () => (cashfreeMode() === 'production' ? 'https://api.cashfree.com/pg' : 'https://sandbox.cashfree.com/pg');
+const isTestId = (id: string) => /^TEST/i.test(id);
 
-export const isCashfreeConfigured = () => !!(process.env.CASHFREE_APP_ID && process.env.CASHFREE_SECRET_KEY);
+export function cashfreeKeys(mode: CashfreeMode): Keys | null {
+  const id = process.env.CASHFREE_APP_ID?.trim() || '';
+  const secret = process.env.CASHFREE_SECRET_KEY?.trim() || '';
+  if (mode === 'production') return id && secret && !isTestId(id) ? { appId: id, secret } : null;
+  const tId = process.env.CASHFREE_TEST_APP_ID?.trim() || '';
+  const tSecret = process.env.CASHFREE_TEST_SECRET_KEY?.trim() || '';
+  if (tId && tSecret) return { appId: tId, secret: tSecret };
+  return id && secret && isTestId(id) ? { appId: id, secret } : null;
+}
+
+/** Current mode (admin switch, cached). */
+export const cashfreeMode = async (): Promise<CashfreeMode> => (await getCashfreeSettings()).mode;
+
+/** Keys exist for the mode currently switched on. */
+export const isCashfreeConfigured = async () => !!cashfreeKeys(await cashfreeMode());
+
+const baseUrl = (mode: CashfreeMode) => (mode === 'production' ? 'https://api.cashfree.com/pg' : 'https://sandbox.cashfree.com/pg');
 
 export class CashfreeError extends Error {
   constructor(message: string, readonly status: number, readonly code?: string) {
@@ -53,17 +74,17 @@ export type CfPayment = {
 };
 
 async function request<T>(path: string, init: { method?: 'GET' | 'POST'; body?: unknown } = {}): Promise<T> {
-  const appId = process.env.CASHFREE_APP_ID;
-  const secret = process.env.CASHFREE_SECRET_KEY;
-  if (!appId || !secret) throw new CashfreeError('Cashfree keys are not set', 500, 'not_configured');
+  const mode = await cashfreeMode();
+  const keys = cashfreeKeys(mode);
+  if (!keys) throw new CashfreeError(`Cashfree ${mode} keys are not set`, 500, 'not_configured');
 
-  const res = await fetch(`${baseUrl()}${path}`, {
+  const res = await fetch(`${baseUrl(mode)}${path}`, {
     method: init.method ?? 'GET',
     headers: {
       'content-type': 'application/json',
       'x-api-version': API_VERSION,
-      'x-client-id': appId,
-      'x-client-secret': secret,
+      'x-client-id': keys.appId,
+      'x-client-secret': keys.secret,
     },
     body: init.body === undefined ? undefined : JSON.stringify(init.body),
     cache: 'no-store',
@@ -72,7 +93,7 @@ async function request<T>(path: string, init: { method?: 'GET' | 'POST'; body?: 
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
     const err = data as { message?: string; code?: string };
-    if (res.status === 401) console.error('[Cashfree] 401: check CASHFREE_APP_ID / CASHFREE_SECRET_KEY match NEXT_PUBLIC_CASHFREE_ENV');
+    if (res.status === 401) console.error(`[Cashfree] 401 in ${mode} mode: the ${mode === 'production' ? 'CASHFREE_APP_ID / CASHFREE_SECRET_KEY' : 'CASHFREE_TEST_APP_ID / CASHFREE_TEST_SECRET_KEY'} keys are wrong for this mode`);
     throw new CashfreeError(err.message || `Cashfree request failed (${res.status})`, res.status, err.code);
   }
   return data as T;
@@ -117,11 +138,17 @@ export const getOrderPayments = (orderId: string) =>
 /**
  * Webhook signature: base64(HMAC-SHA256(timestamp + rawBody, secret key)).
  * Must be computed on the body exactly as received, before JSON parsing.
+ * Accepts either mode's secret, so webhooks for payments started just before
+ * the Test/Live switch was flipped still verify. If a separate webhook secret
+ * was generated in the Cashfree dashboard, it goes in CASHFREE_WEBHOOK_SECRET.
  */
 export function verifyWebhookSignature(rawBody: string, timestamp: string | null, signature: string | null): boolean {
-  const secret = process.env.CASHFREE_SECRET_KEY;
-  if (!secret || !timestamp || !signature) return false;
-  const expected = Buffer.from(createHmac('sha256', secret).update(timestamp + rawBody).digest('base64'));
+  if (!timestamp || !signature) return false;
   const given = Buffer.from(signature);
-  return expected.length === given.length && timingSafeEqual(expected, given);
+  const secrets = new Set([process.env.CASHFREE_WEBHOOK_SECRET?.trim(), cashfreeKeys('production')?.secret, cashfreeKeys('sandbox')?.secret].filter((x): x is string => !!x));
+  for (const secret of secrets) {
+    const expected = Buffer.from(createHmac('sha256', secret).update(timestamp + rawBody).digest('base64'));
+    if (expected.length === given.length && timingSafeEqual(expected, given)) return true;
+  }
+  return false;
 }

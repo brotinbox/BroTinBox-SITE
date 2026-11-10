@@ -229,7 +229,8 @@ export type PushpinTearFooterProps = {
   /** Two links either side of the wordmark. */
   sideLinks?: IconLink[]
   copyright?: string
-  credit?: string
+  /** Centre line under the wordmark (text, or text plus a small badge). */
+  credit?: React.ReactNode
   handle?: TearLink
   sheet?: string
   /** The pushpin's colour; defaults to the sheet. */
@@ -515,7 +516,9 @@ const CSS =
   ".tpf-side span{background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat;transition:background-size .4s var(--ease)}" +
   ".tpf-side:hover span{background-size:100% 1px}" +
   ".tpf-foot{left:0;right:0;bottom:5%;display:flex;align-items:center;justify-content:space-between;gap:1.5em;padding:0 15%;font-size:max(12px,1.85cqmin)}" +
-  ".tpf-credit{position:absolute;left:50%;transform:translateX(-50%);font-size:max(10px,1.4cqmin);letter-spacing:.08em;text-transform:uppercase;opacity:.62;white-space:nowrap}" +
+  ".tpf-credit{position:absolute;left:50%;transform:translateX(-50%);font-size:max(10px,1.4cqmin);letter-spacing:.08em;text-transform:uppercase;opacity:.62;white-space:nowrap;display:inline-flex;align-items:center;gap:.8em}" +
+  ".tpf-halal{display:inline-flex;align-items:center;gap:.5em;padding:.3em .8em;border:1px solid currentColor;border-radius:999px;font-weight:700;letter-spacing:.14em}" +
+  ".tpf-halal [lang=ar]{letter-spacing:0;font-size:1.15em;line-height:1}" +
   ".tpf-handle:hover{text-decoration:underline;text-underline-offset:.2em}" +
   // phone column
   "@container (max-width: 620px){" +
@@ -525,7 +528,7 @@ const CSS =
   ".tpf-big{font-size:max(24px,4.6cqmin)}" +
   ".tpf-col{top:31.5%;max-width:40cqw}.tpf-col.l{left:7%}.tpf-col.r{right:7%}.tpf-col li:nth-child(n+5){display:none}" +
   ".tpf-side{top:86%}.tpf-side.l{left:14%!important}.tpf-side.r{left:86%!important}" +
-  ".tpf-foot{padding:0 7%;bottom:3.5%}.tpf-credit{bottom:2.4em}" +
+  ".tpf-foot{padding:0 7%;bottom:3.5%}.tpf-credit{bottom:2.4em;flex-direction:column;gap:.55em}" +
   "}" +
   // short phones: tighten the columns so the ridge never cuts them
   "@container (max-width: 620px) and (max-height: 720px){.tpf-col{top:31%}.tpf-col li:nth-child(n+4){display:none}}" +

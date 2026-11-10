@@ -6,8 +6,6 @@ import { Loader2, Lock } from 'lucide-react';
 import { load } from '@cashfreepayments/cashfree-js';
 import { startCashfreePayment } from './actions';
 
-const MODE = process.env.NEXT_PUBLIC_CASHFREE_ENV === 'production' ? 'production' : 'sandbox';
-
 export function CashfreeButton({ orderId, amountLabel }: { orderId: string; amountLabel: string }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
@@ -23,7 +21,7 @@ export function CashfreeButton({ orderId, amountLabel }: { orderId: string; amou
         if (r.paid) router.refresh();
         return;
       }
-      const cashfree = await load({ mode: MODE });
+      const cashfree = await load({ mode: r.mode });
       if (!cashfree) throw new Error('sdk');
       // Opens Cashfree's page in this tab; it returns to /checkout/pay/[id]?cf=1.
       const result = await cashfree.checkout({ paymentSessionId: r.sessionId, redirectTarget: '_self' });

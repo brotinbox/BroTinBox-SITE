@@ -30,7 +30,7 @@ export const BUSINESS_MODEL = {
     tiers: {
       trial: { nonVeg: 309, veg: 279 },
       weeklyPerMeal: { nonVeg: 289, veg: 259 },
-      monthlyPerMeal: { nonVeg: 279, veg: 249 },
+      monthlyPerMeal: { nonVeg: 269, veg: 249 },
       secondMealDiscountPerMeal: 10,
     },
   },

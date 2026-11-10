@@ -31,12 +31,13 @@ export default async function PayPage({ params, searchParams }: { params: Promis
 
   const pay = (setting?.value ?? {}) as { mode?: string; upi_id?: string; payee_name?: string; qr_image_url?: string | null; instructions?: string };
   // Cashfree when switched on in Settings AND the keys are set; otherwise manual UPI.
-  const online = pay.mode === 'cashfree' && isCashfreeConfigured();
+  const [cfReady, cfMode] = await Promise.all([isCashfreeConfigured(), cashfreeMode()]);
+  const online = pay.mode === 'cashfree' && cfReady;
   const meta = (order.metadata ?? {}) as { upi_reference?: string };
 
   // Back from Cashfree (?cf=1): ask Cashfree directly instead of waiting for the webhook.
   let cfState: SyncState = 'none';
-  if (cf && order.status !== 'paid' && isCashfreeConfigured()) {
+  if (cf && order.status !== 'paid' && cfReady) {
     cfState = await syncOrderFromCashfree(order.id).catch((e) => {
       console.error('[Cashfree] return sync failed', e);
       return 'none' as const;
@@ -93,7 +94,7 @@ export default async function PayPage({ params, searchParams }: { params: Promis
                   <h2 className="font-heading font-black text-lg text-gray-900">Pay securely</h2>
                   <p className="text-xs text-gray-600 mt-1">UPI, cards, net banking and wallets via Cashfree. Your meals are scheduled as soon as the payment goes through.</p>
                 </div>
-                {cashfreeMode() === 'sandbox' && (
+                {cfMode === 'sandbox' && (
                   <p className="text-[11px] font-bold text-amber-900 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">Test mode: no real money is charged.</p>
                 )}
                 {cfState === 'pending' && (

@@ -14,10 +14,12 @@ import { getSupabaseService } from '@/lib/supabase/admin';
 export const RUNTIME_SETTINGS_TAG = 'runtime-settings';
 export const PHONE_OTP_KEY = 'phone_otp';
 export const ALERTS_KEY = 'alerts';
+export const CASHFREE_KEY = 'cashfree';
 
 export type PhoneOtpMode = 'off' | 'test' | 'on';
 export type PhoneOtpSettings = { mode: PhoneOtpMode; test_numbers: string[]; template: string; lang: string };
 export type AlertSettings = { telegram_chat_id: string };
+export type CashfreeMode = 'sandbox' | 'production';
 
 /** 10-digit Indian mobile (6-9…), or null. */
 export function tenDigitMobile(input: string): string | null {
@@ -79,6 +81,16 @@ export async function getAlertSettings(opts: { fresh?: boolean } = {}): Promise<
   const saved = await readSetting(ALERTS_KEY, opts.fresh);
   const id = typeof saved?.telegram_chat_id === 'string' ? saved.telegram_chat_id.trim() : '';
   return id ? { telegram_chat_id: id, source: 'admin' } : { telegram_chat_id: env, source: 'env' };
+}
+
+/**
+ * Cashfree Test / Live switch. Admin value → NEXT_PUBLIC_CASHFREE_ENV → sandbox.
+ * The keys themselves stay in Vercel (see lib/cashfree.ts).
+ */
+export async function getCashfreeSettings(opts: { fresh?: boolean } = {}): Promise<{ mode: CashfreeMode; source: 'admin' | 'env' }> {
+  const saved = await readSetting(CASHFREE_KEY, opts.fresh);
+  if (saved?.mode === 'production' || saved?.mode === 'sandbox') return { mode: saved.mode, source: 'admin' };
+  return { mode: process.env.NEXT_PUBLIC_CASHFREE_ENV === 'production' ? 'production' : 'sandbox', source: 'env' };
 }
 
 /** Whether the WhatsApp sender credentials are present (they stay in Vercel). */

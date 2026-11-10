@@ -184,7 +184,7 @@ export async function createManualOrder(_prev: ActionResult | null, fd: FormData
         mealsPerDay: f.meals === 'both' ? 2 : 1,
         slot: f.meals === 'dinner' ? 'dinner' : 'lunch',
         days: dates.map((date) => ({ date, diet: f.diet })),
-        boxSize: 'regular', addons: [], addonIds: [],
+        boxSize: 'regular', addons: [], addonIds: [], freeJuices: [], // first-order juices get the default pick
         preferences: { isEggFree: false, skipLegume: false },
         addressId: address.id,
       };

@@ -4,6 +4,7 @@ import { getSupabaseService } from '@/lib/supabase/admin';
 import sidesData from '@/data/sides.json';
 import { MIN_PLAN_DAYS, secondMealPrice } from '@/lib/pricing';
 import { assertTrialAvailable, getTrialEligibility, trialUsedMessage } from '@/lib/checkout/trial';
+import { OFFER_LABEL, resolveOffers, type OfferResult } from '@/lib/checkout/offers';
 
 /**
  * Server-side pricing. The browser sends WHAT the customer chose; the server
@@ -30,6 +31,10 @@ export const cartSchema = z.object({
   addressId: z.string().uuid().optional(),
   pincode: z.string().regex(/^\d{6}$/).optional(),
   couponCode: z.string().trim().toUpperCase().max(30).optional(),
+  /** Poster offers: the customer's juice (and day) for each free juice. */
+  freeJuices: z.array(z.object({ key: z.string().max(60), juice: z.string().max(80), day: z.number().int().min(1).max(26) })).max(8).default([]),
+  /** A friend's referral code ("Have a referral code?"). */
+  referralCode: z.string().trim().toUpperCase().max(20).optional(),
   /** Ticked "WhatsApp me plan offers" at checkout (consent, not pricing). */
   whatsappOffers: z.boolean().optional(),
 });
@@ -52,6 +57,10 @@ export type Quote = {
   boxSize: 'regular' | 'lite';
   /** Stored on the subscription; the database attaches them to each delivery. */
   addons: { addon_id: string; qty: number; slot: 'lunch' | 'dinner' }[];
+  /** Free juices (₹0), placed on the Nth delivery day when the order is paid. */
+  freeJuices: { addon_id: string; day: number; offer: string; claim_id?: string }[];
+  referrerId: string | null;
+  offers: OfferResult;
 };
 
 export type CheckoutErrorCode = 'TRIAL_USED' | 'VERIFY_PHONE';
@@ -178,6 +187,14 @@ export async function quoteCart(cart: Cart, userId: string | null, opts: QuoteOp
     }
   }
 
+  // Poster offers: free juices at ₹0 on the day they arrive.
+  const offers = await resolveOffers(userId, cart, dates.length);
+  for (const f of offers.slots) {
+    const when = dates[f.day - 1]?.date;
+    const on = dates.length > 1 && when ? ` · ${new Date(`${when}T00:00:00`).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })}` : '';
+    lines.push({ item_type: 'addon', ref_id: f.addonId, name: `${f.juiceName} (${OFFER_LABEL[f.offer].toLowerCase()})${on}`, qty: 1, unit_price: 0, total: 0 });
+  }
+
   const subtotal = round2(lines.reduce((s, l) => s + l.total, 0));
   // Delivery is free in every area we serve.
   const deliveryFee = 0;
@@ -239,5 +256,8 @@ export async function quoteCart(cart: Cart, userId: string | null, opts: QuoteOp
     schedule: dates,
     boxSize: cart.boxSize,
     addons,
+    freeJuices: offers.slots.map((f) => ({ addon_id: f.addonId, day: f.day, offer: f.offer, ...(f.claimId && { claim_id: f.claimId }) })),
+    referrerId: offers.referrerId ?? null,
+    offers,
   };
 }

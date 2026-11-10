@@ -4,6 +4,7 @@ import { usePricing, useRegularTrialPrice, useTrialOffer } from '@/components/pr
 import React, { useState } from 'react';
 import Link from 'next/link';
 import {
+  Gift,
   Check,
   Sparkles,
   ArrowRight,
@@ -212,6 +213,7 @@ export default function PricingPage() {
                   <Check className="w-4 h-4 text-accent shrink-0 mt-0.5" />
                   <span>Free delivery in every area we serve</span>
                 </div>
+                <PosterOffer cycle={billingCycle} />
               </div>
             </div>
 
@@ -312,6 +314,7 @@ export default function PricingPage() {
                   <Check className="w-4 h-4 text-accent shrink-0 mt-0.5 stroke-[2.5]" />
                   <span>Dedicated WhatsApp dietitian consultation included</span>
                 </div>
+                <PosterOffer cycle={billingCycle} />
               </div>
             </div>
 
@@ -418,6 +421,18 @@ export default function PricingPage() {
           </div>
         </div>
       </section>
+    </div>
+  );
+}
+
+/** Poster offer for first plans (free juices, ABC not included). */
+function PosterOffer({ cycle }: { cycle: 'weekly' | 'monthly' }) {
+  return (
+    <div className="flex items-start gap-2.5">
+      <Gift className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+      <span className="font-semibold text-gray-900">
+        {cycle === 'weekly' ? 'First plan: 1 free juice when you renew for week 2' : 'First plan: 2 free juices in your first month'}
+      </span>
     </div>
   );
 }

@@ -14,6 +14,7 @@ import { DietMark } from '@/components/trial/DietMark';
 import { SLOT_TIME } from '@/lib/meal-display';
 import { BRAND } from '@/config/brand';
 import { cn } from '@/lib/utils';
+import { referralsOn } from '@/lib/checkout/offers';
 
 export const metadata = { title: 'My dashboard', robots: { index: false } };
 export const dynamic = 'force-dynamic';
@@ -45,11 +46,15 @@ const dietKind = (m: UpcomingMeal) => (m.diet === 'veg' ? 'veg' : 'non-veg') as 
 export default async function DashboardPage() {
   const profile = await requireCustomer('/dashboard');
 
-  const [meals, subs, pending, pricing, trialOffer, trial, otpMode] = await Promise.all([
+  const [meals, subs, pending, pricing, trialOffer, trial, otpMode, referrals] = await Promise.all([
     getUpcomingMeals(12), getMySubscriptions(), getMyPendingOrders(), getPricingMatrix(), getTrialOffer(),
     getMyTrialStatus(profile.id).catch((): MyTrialStatus => ({ state: 'available' })),
     phoneOtpMode(),
+    referralsOn().catch(() => false),
   ]);
+  const referralShare = profile.referral_code
+    ? `Try BroTin Box: home-cooked protein meals in Coimbatore. Use my referral code ${profile.referral_code} at checkout ("Have a referral code?") when you start a weekly or monthly plan, and we both get a free juice. ${BRAND.siteUrl}/weekly`
+    : '';
   const today = todayIST();
   // A plan past its last day is over, even before the nightly job marks it completed.
   const live = subs.filter((s) => (s.status === 'active' || s.status === 'paused') && !(s.end_date && s.end_date < today));
@@ -194,6 +199,19 @@ export default async function DashboardPage() {
             </span>
             <ChevronRight className="w-4 h-4 text-gray-400 shrink-0" />
           </Link>
+        )}
+
+        {/* Refer a friend (poster offer): both get a free juice */}
+        {referrals && profile.referral_code && (
+          <a href={`https://wa.me/?text=${encodeURIComponent(referralShare)}`} target="_blank" rel="noopener noreferrer"
+            className="flex items-center gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3.5 tap-active">
+            <span className="w-9 h-9 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center shrink-0"><Gift className="w-4 h-4" /></span>
+            <span className="flex-1 min-w-0">
+              <span className="block text-sm font-bold text-gray-900">Refer a friend · <span className="font-mono tracking-wide">{profile.referral_code}</span></span>
+              <span className="block text-xs text-gray-500">When they start a weekly plan, you both get a free juice</span>
+            </span>
+            <span className="text-xs font-bold text-ink shrink-0">Share</span>
+          </a>
         )}
 
         <a href={`${BRAND.socials.whatsapp}?text=${encodeURIComponent('Hi BroTin Box! I have a question about my meals.')}`} target="_blank" rel="noopener noreferrer"

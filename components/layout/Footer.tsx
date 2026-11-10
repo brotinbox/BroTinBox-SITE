@@ -123,7 +123,15 @@ export function Footer() {
         chat={{ label: 'order on WhatsApp', href: BRAND.socials.whatsapp }}
         sideLinks={SIDE_LINKS}
         copyright={`© ${year} ${LEGAL.entityName || BRAND.name}`}
-        credit={hasFssai() ? `FSSAI ${fssaiAbbr()} No. ${LEGAL.fssai.licenseNumber}` : 'Cooked in Coimbatore, Tamil Nadu'}
+        credit={
+          <>
+            {/* Chicken comes from a halal supplier (matches the printed posters). */}
+            <span className="tpf-halal" title="All our chicken is halal">
+              <span lang="ar" dir="rtl">حلال</span>Halal
+            </span>
+            <span>{hasFssai() ? `FSSAI ${fssaiAbbr()} No. ${LEGAL.fssai.licenseNumber}` : 'Cooked in Coimbatore, Tamil Nadu'}</span>
+          </>
+        }
         handle={{ label: '@brotinbox', href: BRAND.socials.instagram }}
         sheet={INK}
         pinColor={ACCENT}

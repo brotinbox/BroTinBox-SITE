@@ -32,6 +32,9 @@ export async function createOrderFromQuote(
       diet_variation: prefs.dietVariation ?? null,
       addons: q.addons,
       box_size: q.boxSize,
+      // Poster offers: placed on their delivery day when the order is paid (migration 0035).
+      free_juices: q.freeJuices,
+      ...(q.referrerId && { referral: { referrer_id: q.referrerId } }),
     },
     p_meals_total: q.mealsTotal,
     p_subtotal: q.subtotal,

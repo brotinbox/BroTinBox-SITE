@@ -104,15 +104,13 @@ export async function submitOrder(
   return null;
 }
 
-const CF_MODE = process.env.NEXT_PUBLIC_CASHFREE_ENV === 'production' ? 'production' : 'sandbox';
-
 /** Opens Cashfree's page in this tab (it returns to /checkout/pay/[id]?cf=1). False if it couldn't. */
 async function openCashfree(orderId: string): Promise<boolean> {
   try {
     const r = await startCashfreePayment(orderId);
     if (!r.ok) return false;
     const { load } = await import('@cashfreepayments/cashfree-js');
-    const cashfree = await load({ mode: CF_MODE });
+    const cashfree = await load({ mode: r.mode });
     if (!cashfree) return false;
     const res = await cashfree.checkout({ paymentSessionId: r.sessionId, redirectTarget: '_self' });
     return !res?.error;

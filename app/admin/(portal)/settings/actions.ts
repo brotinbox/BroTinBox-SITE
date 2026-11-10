@@ -9,7 +9,8 @@ import type { Json } from '@/types/database';
 import { updateTag } from 'next/cache';
 import { sendOtp } from '@/lib/auth/otp';
 import { escapeHtml, sendTelegramMessage } from '@/lib/notifications/telegram';
-import { ALERTS_KEY, PHONE_OTP_KEY, RUNTIME_SETTINGS_TAG, tenDigitMobile, whatsappSenderConfigured } from '@/lib/settings/runtime';
+import { cashfreeKeys } from '@/lib/cashfree';
+import { ALERTS_KEY, CASHFREE_KEY, PHONE_OTP_KEY, RUNTIME_SETTINGS_TAG, tenDigitMobile, whatsappSenderConfigured } from '@/lib/settings/runtime';
 
 async function put(key: string, value: Json, userId: string) {
   const supabase = await getSupabaseServer();
@@ -132,6 +133,23 @@ export async function sendTestOtp(_p: ActionResult | null, fd: FormData): Promis
     const r = await sendOtp(`+91${ten}`);
     if (!r.ok) return fail(r.error);
     return ok(`Code sent to ${ten} on WhatsApp. If it does not arrive, check the template name and that it is approved.`);
+  });
+}
+
+/** Cashfree Test / Live switch. Keys stay in Vercel; this only picks which pair is used. */
+export async function saveCashfreeMode(_p: ActionResult | null, fd: FormData): Promise<ActionResult> {
+  const mode = z.enum(['sandbox', 'production']).safeParse(fd.get('mode'));
+  if (!mode.success) return fail('Choose Test or Live.');
+  if (!cashfreeKeys(mode.data)) {
+    return fail(mode.data === 'production'
+      ? 'Live keys are not set in Vercel (CASHFREE_APP_ID + CASHFREE_SECRET_KEY from Cashfree Production mode). Add them and redeploy first.'
+      : 'Test keys are not set in Vercel (CASHFREE_TEST_APP_ID + CASHFREE_TEST_SECRET_KEY). Add them and redeploy first.');
+  }
+  return staffAction('settings.write', async (staff) => {
+    await putPrivate(CASHFREE_KEY, { mode: mode.data }, staff.profile.id);
+    return ok(mode.data === 'production'
+      ? 'Saved. Cashfree is LIVE: customers are charged real money.'
+      : 'Saved. Cashfree is in TEST mode: no real money is charged.');
   });
 }
 
