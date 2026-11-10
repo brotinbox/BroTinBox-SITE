@@ -33,3 +33,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Source photos for blog covers (published copies live on R2)
+scripts/seed/blogs/covers/

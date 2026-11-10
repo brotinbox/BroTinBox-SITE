@@ -352,9 +352,9 @@ export const OCTOBER_2026_POSTS: SeoPost[] = [
   },
 ];
 
-// November 2026 set: scheduled one every 3 days at 9 AM IST. Future dates stay hidden on the
-// site until they pass (lib/content/blog.ts filters published_at <= now), so posts only link
-// to posts that are already live. Prices are left to /pricing.
+// November 2026 set: dated every 2 days at 9 AM IST. A future date would keep a post hidden
+// until it passes (lib/content/blog.ts filters published_at <= now), so posts only link to
+// earlier posts. Prices are left to /pricing.
 export const NOVEMBER_2026_POSTS: SeoPost[] = [
   {
     file: '26-wedding-season-diet-tamil-nadu.md',
@@ -368,7 +368,7 @@ export const NOVEMBER_2026_POSTS: SeoPost[] = [
     macros_highlight: 'Virundhu: 1,200–1,500 kcal',
     scene: true,
     image_prompt: 'A traditional Tamil wedding lunch on a long dining hall table: green banana leaves served with white rice, sambar, beans poriyal, kootu, a medu vadai, an appalam, a small steel cup of payasam and a boondi laddu, guests hands reaching in, side angle, slightly busy wedding hall in soft focus behind',
-    published_at: '2026-11-10T09:00:00+05:30',
+    published_at: '2026-11-02T09:00:00+05:30',
   },
   {
     file: '27-eating-late-at-night-weight-loss.md',
@@ -382,7 +382,7 @@ export const NOVEMBER_2026_POSTS: SeoPost[] = [
     macros_highlight: 'Finish dinner 2–3 hours before bed',
     scene: true,
     image_prompt: 'A simple Indian home dinner on a wooden dining table in the evening under a warm pendant lamp: two chapatis, grilled chicken pieces, a bowl of dal and a cucumber tomato salad on a steel plate, a dark window with city lights softly blurred behind, nobody in frame',
-    published_at: '2026-11-13T09:00:00+05:30',
+    published_at: '2026-11-04T09:00:00+05:30',
   },
   {
     file: '28-walking-for-weight-loss-steps.md',
@@ -396,7 +396,7 @@ export const NOVEMBER_2026_POSTS: SeoPost[] = [
     macros_highlight: '10,000 steps ≈ 250–300 kcal',
     scene: true,
     image_prompt: 'A middle-aged Indian woman in a salwar kameez and sports shoes walking briskly on a paved lakeside walkway in a South Indian city at early morning, coconut palms and a calm lake beside the path, a few other walkers far in the distance, shot from the side at a distance',
-    published_at: '2026-11-16T09:00:00+05:30',
+    published_at: '2026-11-06T09:00:00+05:30',
   },
   {
     file: '29-protein-for-indian-women.md',
@@ -409,6 +409,6 @@ export const NOVEMBER_2026_POSTS: SeoPost[] = [
     tags: ['protein', 'women', 'vegetarian protein', 'iron'],
     macros_highlight: '60 kg woman: 70–95 g a day',
     image_prompt: 'A high-protein South Indian vegetarian lunch on a steel plate: paneer curry, a bowl of yellow dal, a bowl of thick curd, sprouted green gram salad and two chapatis, a woman\'s hand with a thin gold bangle tearing a chapati',
-    published_at: '2026-11-19T09:00:00+05:30',
+    published_at: '2026-11-08T09:00:00+05:30',
   },
 ];

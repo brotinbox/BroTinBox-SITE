@@ -75,7 +75,10 @@ if (DRY_RUN) process.exit(0);
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const R2_PUBLIC = process.env.CLOUDFLARE_R2_PUBLIC_URL?.replace(/\/$/, '');
-const OPENAI_KEY = process.env.OPENAI_API_KEY || '';
+// Covers come from scripts/seed/blogs/covers/ (e.g. Canva downloads). OpenAI is only used with --openai.
+const OPENAI_KEY = process.argv.includes('--openai') ? process.env.OPENAI_API_KEY || '' : '';
+// Scheduled sets only link backwards, so each post can go live on its own once it has a cover.
+const PARTIAL = process.argv.includes('--november');
 if (!SUPABASE_URL || !SERVICE_KEY) {
   console.error('❌ NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required.');
   process.exit(1);
@@ -136,7 +139,7 @@ async function main() {
   }
 
   if (missing.length && !OPENAI_KEY) {
-    console.warn(`⚠️  OPENAI_API_KEY is empty: ${missing.length} posts have no cover. They stay as drafts.`);
+    console.warn(`⚠️  ${missing.length} posts have no cover (add scripts/seed/blogs/covers/<slug>.jpg, or pass --openai). They stay as drafts.`);
   } else {
     for (const p of missing) {
       console.log(`\n📸 ${p.slug}`);
@@ -153,7 +156,7 @@ async function main() {
 
   // ─── 4. Publish together ──────────────────────────────────────────────────
   const stillMissing = POSTS.filter((p) => !hasOwnCover(covers.get(p.slug))).map((p) => p.slug);
-  if (stillMissing.length) {
+  if (stillMissing.length && !PARTIAL) {
     console.warn(`\n⏸  Not publishing: ${stillMissing.length} posts still need covers:\n   ${stillMissing.join('\n   ')}\n   Fix the cause and re-run; finished covers are kept.`);
     return;
   }
@@ -161,6 +164,10 @@ async function main() {
   // Manifest order = reading order on /blog: first post newest. Existing dates are kept unless pinned.
   const now = Date.now();
   for (const [i, p] of POSTS.entries()) {
+    if (stillMissing.includes(p.slug)) {
+      console.warn(`⏸  ${p.slug} has no cover yet; left as a draft.`);
+      continue;
+    }
     const prev = current.get(p.slug);
     const update = p.published_at
       ? { status: 'published' as const, published_at: new Date(p.published_at).toISOString() }
@@ -171,8 +178,8 @@ async function main() {
     if (error) throw error;
   }
   const site = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-  console.log(`\n🚀 Published ${POSTS.length} posts. The /blog cache refreshes within 5 minutes.`);
-  POSTS.forEach((p) => console.log(`   ${site}/blog/${p.slug}`));
+  console.log(`\n🚀 Published ${POSTS.length - stillMissing.length} posts. The /blog cache refreshes within 5 minutes.`);
+  POSTS.filter((p) => !stillMissing.includes(p.slug)).forEach((p) => console.log(`   ${site}/blog/${p.slug}`));
 }
 
 main().catch((err) => {
