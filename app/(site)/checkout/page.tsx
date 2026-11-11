@@ -13,6 +13,7 @@ import { OrderErrorNotice } from '@/components/checkout/OrderErrorNotice';
 import { AddonRail } from '@/components/checkout/AddonRail';
 import { FreeJuiceCard } from '@/components/checkout/FreeJuiceCard';
 import { PlanDetails } from '@/components/checkout/PlanDetails';
+import { PlanPicks } from '@/components/checkout/PlanPicks';
 import { forgetTrialStatus } from '@/components/trial/TrialGate';
 import { PincodeStatus } from '@/components/delivery/PincodeStatus';
 import { OrderTerms } from '@/components/legal/OrderTerms';
@@ -26,12 +27,6 @@ const shortDate = (iso: string) =>
 
 /** Where to change the plan itself. */
 const PLAN_EDIT_HREF: Record<CartPlan['type'], string> = { trial: '/tomorrow', weekly: '/weekly', monthly: '/monthly' };
-
-const PLAN_PICKS = [
-  { href: '/tomorrow', title: 'Try one day', note: 'A single box, delivered tomorrow' },
-  { href: '/weekly', title: 'Weekly plan', note: '6 days, lower price per meal' },
-  { href: '/monthly', title: 'Monthly plan', note: 'Best price per meal' },
-];
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -178,17 +173,7 @@ export default function CheckoutPage() {
               ? `Sides and juices come in the same bag as your box. Choose a box and your ${cartAddons.length === 1 ? 'extra stays' : `${cartAddons.length} extras stay`} in the cart.`
               : 'Choose a box first: a single day to try us, or a weekly or monthly plan.'}
           </p>
-          <div className="space-y-2">
-            {PLAN_PICKS.map((p) => (
-              <Link key={p.href} href={p.href} className="flex items-center justify-between rounded-2xl border border-gray-200 bg-white px-4 py-3.5 hover:border-ink">
-                <span>
-                  <span className="block font-heading font-bold text-sm text-ink">{p.title}</span>
-                  <span className="block text-xs text-gray-500">{p.note}</span>
-                </span>
-                <ChevronLeft className="w-4 h-4 rotate-180 text-gray-400" />
-              </Link>
-            ))}
-          </div>
+          <PlanPicks />
           {cartAddons.length > 0 && (
             <ul className="rounded-2xl border border-gray-200 bg-white divide-y divide-gray-100">
               {cartAddons.map((a) => (

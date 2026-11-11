@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { BRAND } from '@/config/brand';
 import { LEGAL, fssaiAbbr, hasFssai } from '@/config/legal';
-import { MapPin, Phone, Mail, MessageCircle, Clock, ShieldCheck, Check } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, ShieldCheck, Check } from 'lucide-react';
 
 export default function ContactPage() {
   const [name, setName] = useState('');
@@ -34,14 +34,14 @@ export default function ContactPage() {
 
       <section className="max-w-5xl mx-auto px-4 sm:px-6 pt-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Left: Contact Info & Kitchen */}
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-200 shadow-sm space-y-6">
+          {/* Left: Contact Info & Kitchen (below the form on mobile) */}
+          <div className="order-2 md:order-1 bg-white rounded-3xl p-6 sm:p-8 border border-gray-200 shadow-sm space-y-6">
             <div>
               <h3 className="font-heading font-black text-xl text-gray-900">
                 Coimbatore Central Kitchen
               </h3>
               <p className="text-xs text-gray-500 mt-1">
-                {BRAND.name} (operated by GOVINDHARAJ MOHAMMED ANAS){hasFssai() ? ` • FSSAI ${fssaiAbbr()} ${LEGAL.fssai.licenseNumber}` : ''}
+                {BRAND.name}{hasFssai() ? ` • FSSAI ${fssaiAbbr()} ${LEGAL.fssai.licenseNumber}` : ''}
               </p>
             </div>
 
@@ -79,22 +79,10 @@ export default function ContactPage() {
                 </div>
               </div>
             </div>
-
-            <div className="pt-4 border-t border-gray-100">
-              <a
-                href={`https://wa.me/${BRAND.whatsappNumber.replace(/[^0-9]/g, '')}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 shadow-sm tap-active"
-              >
-                <MessageCircle className="w-4 h-4 fill-white" />
-                <span>Instant WhatsApp Concierge</span>
-              </a>
-            </div>
           </div>
 
-          {/* Right: Message Form */}
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-gray-200 shadow-sm">
+          {/* Right: Message Form (on top on mobile) */}
+          <div className="order-1 md:order-2 bg-white rounded-3xl p-6 sm:p-8 border border-gray-200 shadow-sm">
             {submitted ? (
               <div className="text-center py-12 space-y-3">
                 <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
