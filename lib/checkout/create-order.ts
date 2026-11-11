@@ -11,7 +11,7 @@ export type CreatedOrder = { id: string; order_number: string; total: number };
  */
 export async function createOrderFromQuote(
   userId: string, cart: Cart, q: Quote,
-  opts: { expiresIn?: string; trialOverride?: { reason: string; by: string } } = {},
+  opts: { expiresIn?: string; trialOverride?: { reason: string; by: string }; ignoreCapacity?: boolean } = {},
 ): Promise<CreatedOrder> {
   const db = getSupabaseService();
   const prefs = cart.preferences;
@@ -35,6 +35,8 @@ export async function createOrderFromQuote(
       // Poster offers: placed on their delivery day when the order is paid (migration 0035).
       free_juices: q.freeJuices,
       ...(q.referrerId && { referral: { referrer_id: q.referrerId } }),
+      // Staff orders may go over the trial seat limit (migration 0037).
+      ...(opts.ignoreCapacity && { capacity_override: true }),
     },
     p_meals_total: q.mealsTotal,
     p_subtotal: q.subtotal,

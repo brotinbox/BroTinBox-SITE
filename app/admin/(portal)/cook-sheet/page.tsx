@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { requireStaff } from '@/lib/auth/session';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { getNextOperatingDay } from '@/lib/menu/next-operating-day';
@@ -148,7 +149,12 @@ export default async function CookSheetPage({ searchParams }: { searchParams: Pr
               rowKey={(r) => r.item.id}
               empty={<EmptyState title="Nothing to cook" description="No paid boxes for this date yet." />}
               columns={[
-                { header: 'Dish', cell: (r) => <div><p className="font-semibold">{r.item.name}</p><p className="text-xs text-gray-500">{r.item.code} · {r.item.cooked_state}</p></div> },
+                { header: 'Dish', cell: (r) => (
+                  <div>
+                    <Link href={adminHref(`/cook-book/${r.item.id}?portions=${Math.round(r.fullEq * 10) / 10}`)} className="font-semibold text-primary hover:underline print:text-gray-900 print:no-underline">{r.item.name}</Link>
+                    <p className="text-xs text-gray-500">{r.item.code} · {r.item.cooked_state} <span className="print:hidden">· recipe →</span></p>
+                  </div>
+                ) },
                 { header: 'Portions', cell: (r) => (
                   <span><span className="font-black">{r.full + r.lite}</span>{r.lite > 0 && <span className="block text-xs text-gray-500">{r.full} full + {r.lite} Lite</span>}</span>
                 ), className: 'text-right' },

@@ -14,6 +14,7 @@ import { notifyOrderPlaced } from '@/lib/notifications/telegram';
 import { getDrinks, getSides } from '@/lib/data/catalog';
 import { isCashfreeConfigured } from '@/lib/cashfree';
 import type { FreeOffer } from '@/lib/checkout/offers';
+import { FEW_SEATS, getSlotSeats } from '@/lib/capacity';
 
 type Fail = { ok: false; error: string; code?: CheckoutErrorCode };
 
@@ -23,6 +24,10 @@ function checkoutFail(e: unknown, fallback: string): Fail {
   // The database's own guard (two tabs / double click got past the first check).
   if ((e as { message?: string } | null)?.message === 'TRIAL_USED') {
     return { ok: false, error: "You've already booked your trial box.", code: 'TRIAL_USED' };
+  }
+  // Someone took the last seat between the price check and the order.
+  if ((e as { message?: string } | null)?.message === 'SLOT_FULL') {
+    return { ok: false, error: 'That time just got fully booked. Please pick another time or day.', code: 'SLOT_FULL' };
   }
   return { ok: false, error: fallback };
 }
@@ -212,4 +217,32 @@ export async function getCheckoutAddons(): Promise<CheckoutAddon[]> {
     ...sides.map((s) => ({ id: s.id, type: 'side' as const, name: s.name, price: s.price, image: s.image, calories: s.calories, protein: s.protein, isVeg: s.isVeg, note: `${s.protein} g protein · ${s.calories} kcal` })),
     ...drinks.map((d) => ({ id: d.id, type: 'drink' as const, name: d.name, price: d.price, image: d.image, calories: d.calories, protein: d.protein, isVeg: true, note: [d.volume, `${d.calories} kcal`, 'no added sugar'].filter(Boolean).join(' · ') })),
   ];
+}
+
+/**
+ * Trial seats left per date and slot, for the trial booking screen. Counts
+ * above FEW_SEATS are capped (the screen only says "N left" when it's low),
+ * so order volume isn't public. Unknown → null (the screen shows no badge).
+ */
+export type TrialSeats = Record<string, { lunch: number; dinner: number }>;
+
+export async function getTrialSeats(dates: string[]): Promise<TrialSeats | null> {
+  const parsed = z.array(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).min(1).max(14).safeParse(dates);
+  if (!parsed.success) return null;
+  const sorted = [...parsed.data].sort();
+  const from = sorted[0];
+  const to = sorted[sorted.length - 1];
+  if ((Date.parse(to) - Date.parse(from)) / 864e5 > 31) return null;
+  try {
+    const rows = await getSlotSeats(from, to);
+    const out: TrialSeats = {};
+    for (const r of rows) {
+      if (!parsed.data.includes(r.day)) continue;
+      (out[r.day] ??= { lunch: FEW_SEATS + 1, dinner: FEW_SEATS + 1 })[r.slot] = Math.min(r.seats_left, FEW_SEATS + 1);
+    }
+    return out;
+  } catch (e) {
+    console.error('[Capacity] seats unavailable:', e);
+    return null;
+  }
 }

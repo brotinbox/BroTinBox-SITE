@@ -19,13 +19,13 @@ export type NewAddressInput = {
 export const SIGN_IN_PENDING = '__sign_in_pending__';
 
 /** Errors that need a next step on screen travel as "CODE::message". */
-type OrderErrorCode = 'TRIAL_USED' | 'VERIFY_PHONE';
+type OrderErrorCode = 'TRIAL_USED' | 'VERIFY_PHONE' | 'SLOT_FULL';
 const CODE_SEP = '::';
 
 export function parseOrderError(error: string): { code?: OrderErrorCode; message: string } {
   const i = error.indexOf(CODE_SEP);
   const code = i > 0 ? error.slice(0, i) : '';
-  if (code === 'TRIAL_USED' || code === 'VERIFY_PHONE') return { code, message: error.slice(i + CODE_SEP.length) };
+  if (code === 'TRIAL_USED' || code === 'VERIFY_PHONE' || code === 'SLOT_FULL') return { code, message: error.slice(i + CODE_SEP.length) };
   return { message: error };
 }
 

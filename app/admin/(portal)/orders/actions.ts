@@ -194,6 +194,7 @@ export async function createManualOrder(_prev: ActionResult | null, fd: FormData
       // Unpaid WhatsApp orders wait a week for the customer's payment instead of the website's 48 hours.
       const order = await createOrderFromQuote(userId, cart, q, {
         expiresIn: '7 days',
+        ignoreCapacity: true,
         ...(extraTrial && { trialOverride: { reason: extraTrialReason, by: staff.profile.id } }),
       });
       await db.from('orders').update({ metadata: { source: 'whatsapp', entered_by: staff.profile.id } }).eq('id', order.id);

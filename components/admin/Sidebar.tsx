@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import {
-  BookOpen, Bike, CalendarDays, CalendarRange, ChefHat, ClipboardList, CupSoda, Gift, HelpCircle, History, Inbox, LayoutDashboard,
+  BookMarked, BookOpen, Bike, CalendarDays, CalendarRange, ChefHat, ClipboardList, CupSoda, Gauge, Gift, HelpCircle, History, Inbox, LayoutDashboard,
   LogOut, MapPin, Menu, Newspaper, PhoneCall, Receipt, Settings, ShieldCheck, Star, Tags, Ticket, Users, Utensils, X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -12,7 +12,7 @@ import { useConfirmClick } from '@/components/ui/ConfirmDialog';
 import type { AdminNavGroup } from '@/lib/admin/nav';
 
 const ICONS = {
-  BookOpen, Bike, CalendarDays, CalendarRange, ChefHat, ClipboardList, CupSoda, Gift, HelpCircle, History, Inbox, LayoutDashboard,
+  BookMarked, BookOpen, Bike, CalendarDays, CalendarRange, ChefHat, ClipboardList, CupSoda, Gauge, Gift, HelpCircle, History, Inbox, LayoutDashboard,
   MapPin, Newspaper, PhoneCall, Receipt, Settings, ShieldCheck, Star, Tags, Ticket, Users, Utensils,
 } as const;
 

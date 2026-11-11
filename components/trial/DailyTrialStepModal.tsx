@@ -14,6 +14,9 @@ import { DietMark } from '@/components/trial/DietMark';
 import { BoxContents, BoxSizeSection, DayChip, FlowBar, FlowShell, OptionCard, Section, Segmented } from '@/components/flow/FlowUI';
 import { pricingFor } from '@/lib/pricing';
 import { boxView, type BoxSize } from '@/lib/lite-box';
+import { getTrialSeats, type TrialSeats } from '@/lib/checkout/actions';
+
+const FEW = 3; // same as FEW_SEATS in lib/capacity.ts
 
 /**
  * Trial box: 2 steps, then the one-page checkout (address, sides & juices, pay).
@@ -46,6 +49,17 @@ export function DailyTrialStepModal() {
   }, [bookableDays, dateStr]);
   const day = bookableDays.find((d) => d.dateStr === dateStr) ?? bookableDays[0];
 
+  // Seats left per day and slot (null until loaded or if unavailable: no badges, the server still checks).
+  const [seats, setSeats] = useState<TrialSeats | null>(null);
+  useEffect(() => {
+    if (bookableDays.length) getTrialSeats(bookableDays.map((d) => d.dateStr)).then(setSeats).catch(() => {});
+  }, [bookableDays]);
+  const left = (date: string, s: 'lunch' | 'dinner') => seats?.[date]?.[s];
+  const isFull = (date: string, s: 'lunch' | 'dinner') => left(date, s) === 0;
+  /** The day can't take this many meals: 2 meals need both slots, 1 meal needs either. */
+  const dayFull = (date: string, n: 1 | 2) =>
+    n === 2 ? isFull(date, 'lunch') || isFull(date, 'dinner') : isFull(date, 'lunch') && isFull(date, 'dinner');
+
   // Draft: survives refreshes and sign-in redirects. Saving waits for the restore.
   const [draftReady, setDraftReady] = useState(false);
   useEffect(() => {
@@ -77,6 +91,22 @@ export function DailyTrialStepModal() {
     if (draftReady) saveDraft('trial', { step, diet, selectedDateStr: dateStr, mealSlot, mealsPerDay, boxSize });
   }, [draftReady, step, diet, dateStr, mealSlot, mealsPerDay, boxSize]);
 
+  // Steer away from a fully booked choice: other slot, then 1 meal, then the next open day.
+  useEffect(() => {
+    if (!seats || !draftReady || !dateStr) return;
+    if (mealsPerDay === 2 && dayFull(dateStr, 2) && !dayFull(dateStr, 1)) { setMealsPerDay(1); return; }
+    if (dayFull(dateStr, mealsPerDay)) {
+      const open = bookableDays.find((d) => !dayFull(d.dateStr, mealsPerDay)) ?? bookableDays.find((d) => !dayFull(d.dateStr, 1));
+      if (open && open.dateStr !== dateStr) setDateStr(open.dateStr);
+      return;
+    }
+    if (mealsPerDay === 1) {
+      const s = mealSlot === 'dinner' ? 'dinner' : 'lunch';
+      if (isFull(dateStr, s)) setMealSlot(s === 'lunch' ? 'dinner' : 'lunch');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seats, draftReady, dateStr, mealsPerDay, mealSlot]);
+
   const menus = useMemo(() => ({
     veg: getMenuForDate(dateStr, 'veg'),
     'non-veg': getMenuForDate(dateStr, 'non-veg'),
@@ -95,6 +125,13 @@ export function DailyTrialStepModal() {
   const strike = regularTotal && regularTotal !== total ? inr(regularTotal) : undefined;
   const when = `${day?.dayOfWeek}, ${day?.formatted}`;
   const timeLabel = mealsPerDay === 2 ? 'Lunch & dinner' : slot === 'dinner' ? 'Dinner' : 'Lunch';
+  const choiceFull = !!dateStr && (mealsPerDay === 2 ? dayFull(dateStr, 2) : isFull(dateStr, slot));
+  const allFull = !!seats && bookableDays.every((d) => dayFull(d.dateStr, 1));
+  const slotNote = (s: 'lunch' | 'dinner') => {
+    const n = left(dateStr, s);
+    if (n === 0) return 'Fully booked';
+    return n !== undefined && n <= FEW ? `Only ${n} left · ${SLOT_TIME[s]}` : SLOT_TIME[s];
+  };
 
   const goToCheckout = () => {
     setCartPlan({
@@ -117,7 +154,7 @@ export function DailyTrialStepModal() {
         title="Build your trial box"
         subtitle="One fresh box, weighed to the gram. Delivery is free."
         bar={<FlowBar price={inr(total)} strike={strike} note={`${timeLabel} · ${when}`}
-          cta="See what's inside" onClick={() => setStep(2)} disabled={!dateStr} />}
+          cta="See what's inside" onClick={() => setStep(2)} disabled={!dateStr || choiceFull} />}
       >
         <BoxSizeSection value={boxSize} onChange={setBoxSize}
           full={{ price: PRICING.trial[diet], strike: trialOffer ? TRIAL_REGULAR[diet] : undefined, ...view(diet, 'regular').totals }}
@@ -142,26 +179,37 @@ export function DailyTrialStepModal() {
           <div className="grid gap-2" role="radiogroup" aria-label="Meals that day">
             <OptionCard selected={mealsPerDay === 1} onClick={() => setMealsPerDay(1)}
               title="1 meal" note="Lunch or dinner" />
-            <OptionCard selected={mealsPerDay === 2} onClick={() => setMealsPerDay(2)}
-              title="2 meals" note={`Lunch and dinner · ₹${P.secondMealDiscount} off the second`}
+            <OptionCard selected={mealsPerDay === 2} onClick={() => setMealsPerDay(2)} disabled={dayFull(dateStr, 2)}
+              title="2 meals" note={dayFull(dateStr, 2) ? 'Not available this day: one slot is fully booked' : `Lunch and dinner · ₹${P.secondMealDiscount} off the second`}
               right={<span className="text-xs font-bold text-gray-700">+{inr(priceFor(2) - priceFor(1))}</span>} />
           </div>
         </Section>
 
         <Section title="Day" note="Order by 9 PM for the next day. Sundays closed.">
           <div className="grid grid-cols-3 gap-2">
-            {bookableDays.map((d, i) => (
-              <DayChip key={d.dateStr} selected={dateStr === d.dateStr} onClick={() => setDateStr(d.dateStr)}
-                top={i === 0 ? 'Earliest' : undefined} main={d.dayOfWeek} sub={d.formatted} />
-            ))}
+            {bookableDays.map((d, i) => {
+              const full = dayFull(d.dateStr, mealsPerDay);
+              const few = Math.min(...(['lunch', 'dinner'] as const).map((s) => left(d.dateStr, s) ?? FEW + 1).filter((n) => n > 0));
+              return (
+                <DayChip key={d.dateStr} selected={dateStr === d.dateStr && !full} onClick={() => setDateStr(d.dateStr)} disabled={full}
+                  top={full ? 'Full' : few <= FEW ? `${few} left` : i === 0 ? 'Earliest' : undefined}
+                  topTone={!full && few <= FEW ? 'warn' : undefined}
+                  main={d.dayOfWeek} sub={d.formatted} />
+              );
+            })}
           </div>
+          {allFull && (
+            <p role="alert" className="mt-2 text-xs font-semibold text-orange-700">
+              Trial boxes are fully booked for these days. Check back tomorrow, or start a weekly plan (no limit).
+            </p>
+          )}
         </Section>
 
         <Section title="Delivery time" note={mealsPerDay === 2 ? `Lunch ${SLOT_TIME.lunch} and dinner ${SLOT_TIME.dinner}.` : undefined}>
           {mealsPerDay === 1 && (
             <div className="grid gap-2 sm:grid-cols-2" role="radiogroup" aria-label="Delivery time">
-              <OptionCard selected={mealSlot !== 'dinner'} onClick={() => setMealSlot('lunch')} title="Lunch" note={SLOT_TIME.lunch} />
-              <OptionCard selected={mealSlot === 'dinner'} onClick={() => setMealSlot('dinner')} title="Dinner" note={SLOT_TIME.dinner} />
+              <OptionCard selected={mealSlot !== 'dinner'} onClick={() => setMealSlot('lunch')} disabled={isFull(dateStr, 'lunch')} title="Lunch" note={slotNote('lunch')} />
+              <OptionCard selected={mealSlot === 'dinner'} onClick={() => setMealSlot('dinner')} disabled={isFull(dateStr, 'dinner')} title="Dinner" note={slotNote('dinner')} />
             </div>
           )}
         </Section>

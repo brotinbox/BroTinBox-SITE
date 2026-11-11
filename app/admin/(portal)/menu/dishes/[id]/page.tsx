@@ -4,9 +4,11 @@ import { z } from 'zod';
 import { requireStaff } from '@/lib/auth/session';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { adminHref } from '@/lib/admin/paths';
-import { ButtonLink, Card, PageHeader } from '@/components/admin/ui';
+import { ButtonLink, Card, PageHeader, fmtDate } from '@/components/admin/ui';
 import { ActionForm, Checkbox, Field, Input, SubmitButton, Textarea } from '@/components/admin/forms';
-import { saveDish } from '../../actions';
+import { RecipeEditor } from '@/components/admin/RecipeEditor';
+import { toRecipe } from '@/lib/recipes';
+import { restoreRecipeVersion, saveDish, saveRecipe } from '../../actions';
 
 export const metadata = { title: 'Edit dish' };
 
@@ -16,13 +18,18 @@ export default async function DishEditPage({ params }: { params: Promise<{ id: s
   if (!z.string().uuid().safeParse(id).success) notFound();
 
   const supabase = await getSupabaseServer();
-  const [{ data: d }, { data: c }] = await Promise.all([
+  const [{ data: d }, { data: c }, { data: recipeRow }, { data: versions }] = await Promise.all([
     supabase.from('menu_items').select('*').eq('id', id).maybeSingle(),
     supabase.from('menu_item_costs').select('*').eq('menu_item_id', id).maybeSingle(),
+    supabase.from('dish_recipes').select('*, profiles!dish_recipes_updated_by_fkey(full_name)').eq('menu_item_id', id).maybeSingle(),
+    supabase.from('dish_recipe_versions').select('id, created_at, profiles!dish_recipe_versions_edited_by_fkey(full_name)')
+      .eq('menu_item_id', id).order('created_at', { ascending: false }).limit(8),
   ]);
   if (!d) notFound();
   const canWrite = staff.can('menu.write');
-  const notes = (d.metadata as { kitchen_notes?: string } | null)?.kitchen_notes;
+  // Before migration 0038 runs, fall back to the workbook note.
+  const recipe = recipeRow ? toRecipe(recipeRow) : { ...toRecipe(null), notes: (d.metadata as { kitchen_notes?: string } | null)?.kitchen_notes ?? null };
+  const editedBy = (recipeRow as { profiles?: { full_name?: string | null } | null } | null)?.profiles?.full_name;
 
   return (
     <>
@@ -66,9 +73,43 @@ export default async function DishEditPage({ params }: { params: Promise<{ id: s
               ? <Image src={d.image_url} alt={d.name} width={400} height={300} className="w-full rounded-xl object-cover" unoptimized={d.image_url.startsWith('/')} />
               : <p className="text-sm text-gray-500">No photo yet.</p>}
           </Card>
-          {notes && <Card title="Kitchen notes (from workbook)"><p className="text-sm text-gray-700">{notes}</p></Card>}
+          {(versions?.length ?? 0) > 0 && (
+            <Card title="Recipe history">
+              <ul className="space-y-2 text-xs">
+                {versions!.map((v) => (
+                  <li key={v.id} className="flex items-center justify-between gap-2">
+                    <span className="text-gray-600">
+                      Before the edit on {fmtDate(v.created_at, true)}
+                      {(v as { profiles?: { full_name?: string | null } | null }).profiles?.full_name && ` by ${(v as { profiles?: { full_name?: string | null } | null }).profiles!.full_name}`}
+                    </span>
+                    {canWrite && (
+                      <ActionForm action={restoreRecipeVersion}>
+                        <input type="hidden" name="version_id" value={v.id} />
+                        <SubmitButton variant="secondary" pendingText="…" confirm={{ title: 'Restore this version?', message: 'The current recipe is kept in the history.' }}>Restore</SubmitButton>
+                      </ActionForm>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          )}
         </div>
       </div>
+
+      <Card
+        title="Recipe"
+        className="mt-4"
+        actions={<ButtonLink href={adminHref(`/cook-book/${d.id}`)} variant="secondary">Open in cook book</ButtonLink>}
+      >
+        {recipeRow?.updated_at && (
+          <p className="text-[11px] text-gray-500 mb-4">Last edited {fmtDate(recipeRow.updated_at, true)}{editedBy ? ` by ${editedBy}` : ''}.</p>
+        )}
+        {canWrite ? (
+          <RecipeEditor menuItemId={d.id} recipe={recipe} action={saveRecipe} />
+        ) : (
+          <p className="text-sm text-gray-600">Open the cook book to see the recipe. Only admins can change it.</p>
+        )}
+      </Card>
     </>
   );
 }

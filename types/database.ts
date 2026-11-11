@@ -783,6 +783,102 @@ export type Database = {
           },
         ]
       }
+      dish_recipe_versions: {
+        Row: {
+          created_at: string
+          edited_by: string | null
+          id: string
+          menu_item_id: string
+          snapshot: Json
+        }
+        Insert: {
+          created_at?: string
+          edited_by?: string | null
+          id?: string
+          menu_item_id: string
+          snapshot: Json
+        }
+        Update: {
+          created_at?: string
+          edited_by?: string | null
+          id?: string
+          menu_item_id?: string
+          snapshot?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dish_recipe_versions_edited_by_fkey"
+            columns: ["edited_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dish_recipe_versions_menu_item_id_fkey"
+            columns: ["menu_item_id"]
+            isOneToOne: false
+            referencedRelation: "menu_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dish_recipes: {
+        Row: {
+          cook_minutes: number | null
+          created_at: string
+          equipment: string | null
+          ingredients: Json
+          menu_item_id: string
+          notes: string | null
+          prep_minutes: number | null
+          steps: Json
+          tips: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          cook_minutes?: number | null
+          created_at?: string
+          equipment?: string | null
+          ingredients?: Json
+          menu_item_id: string
+          notes?: string | null
+          prep_minutes?: number | null
+          steps?: Json
+          tips?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          cook_minutes?: number | null
+          created_at?: string
+          equipment?: string | null
+          ingredients?: Json
+          menu_item_id?: string
+          notes?: string | null
+          prep_minutes?: number | null
+          steps?: Json
+          tips?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dish_recipes_menu_item_id_fkey"
+            columns: ["menu_item_id"]
+            isOneToOne: false
+            referencedRelation: "menu_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dish_recipes_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       domain_events: {
         Row: {
           attempts: number
@@ -2006,6 +2102,51 @@ export type Database = {
           },
         ]
       }
+      slot_capacity: {
+        Row: {
+          capacity: number
+          capacity_date: string | null
+          id: string
+          kitchen_id: string
+          slot: Database["public"]["Enums"]["meal_slot"]
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          capacity: number
+          capacity_date?: string | null
+          id?: string
+          kitchen_id?: string
+          slot: Database["public"]["Enums"]["meal_slot"]
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          capacity?: number
+          capacity_date?: string | null
+          id?: string
+          kitchen_id?: string
+          slot?: Database["public"]["Enums"]["meal_slot"]
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "slot_capacity_kitchen_id_fkey"
+            columns: ["kitchen_id"]
+            isOneToOne: false
+            referencedRelation: "kitchens"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "slot_capacity_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscriptions: {
         Row: {
           address_id: string | null
@@ -2576,7 +2717,26 @@ export type Database = {
         }
         Returns: undefined
       }
+      set_slot_capacity: {
+        Args: {
+          p_capacity: number | null
+          p_date: string | null
+          p_slot: Database["public"]["Enums"]["meal_slot"]
+        }
+        Returns: undefined
+      }
       skip_delivery: { Args: { p_delivery: string }; Returns: Json }
+      slot_availability: {
+        Args: { p_from: string; p_kitchen?: string; p_to: string }
+        Returns: {
+          booked: number
+          capacity: number
+          day: string
+          held: number
+          seats_left: number
+          slot: Database["public"]["Enums"]["meal_slot"]
+        }[]
+      }
       staff_user_by_email: { Args: { p_email: string }; Returns: string }
       submit_payment_reference: {
         Args: { p_order: string; p_reference: string }

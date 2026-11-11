@@ -4,9 +4,10 @@ import Link from 'next/link';
 import { parseOrderError } from '@/lib/checkout/submit';
 
 /**
- * Shows an order/price error. Two cases get a next step instead of red text:
+ * Shows an order/price error. Three cases get a next step instead of red text:
  *  - trial already used → Weekly / Monthly plan buttons
  *  - mobile not verified → link to verify it on the profile page
+ *  - trial slot fully booked → pick another time / weekly plan
  */
 export function OrderErrorNotice({ error, className = '' }: { error: string; className?: string }) {
   const { code, message } = parseOrderError(error);
@@ -32,6 +33,19 @@ export function OrderErrorNotice({ error, className = '' }: { error: string; cla
         <p className="text-sm font-bold text-ink">{message}</p>
         <p className="mt-0.5 text-xs text-gray-700">It takes a few seconds. We&apos;ll send a code to your WhatsApp.</p>
         <Link href="/profile/details" className="mt-3 inline-block px-4 py-2.5 rounded-xl bg-ink text-white text-sm font-bold">Verify my number</Link>
+      </div>
+    );
+  }
+
+  if (code === 'SLOT_FULL') {
+    return (
+      <div role="alert" className={`rounded-2xl border border-orange-200 bg-orange-50 p-3 sm:p-4 ${className}`}>
+        <p className="text-sm font-bold text-ink">{message}</p>
+        <p className="mt-0.5 text-xs text-gray-700">We cook a set number of trial boxes each lunch and dinner so every box is fresh.</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Link href="/tomorrow" className="px-4 py-2.5 rounded-xl bg-ink text-white text-sm font-bold">Pick another time</Link>
+          <Link href="/weekly" className="px-4 py-2.5 rounded-xl border border-ink/20 bg-white text-sm font-bold text-ink">See weekly plan</Link>
+        </div>
       </div>
     );
   }

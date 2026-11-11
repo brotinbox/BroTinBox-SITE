@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { requireStaff } from '@/lib/auth/session';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { adminHref } from '@/lib/admin/paths';
+import { cn } from '@/lib/utils';
 import { CACHE_KEYS, cached } from '@/lib/cache/redis';
 import { Card, DataTable, EmptyState, PageHeader, StatCard, StatusBadge, fmtDate, inr } from '@/components/admin/ui';
 
@@ -17,7 +18,7 @@ export default async function OverviewPage() {
   const staff = await requireStaff('dashboard.read');
   const supabase = await getSupabaseServer();
 
-  const [overview, revenue, forecast, pending, activity] = await Promise.all([
+  const [overview, revenue, forecast, pending, activity, seats] = await Promise.all([
     // Expensive aggregates: shared across staff for 30–60 s (permission already checked above).
     cached(CACHE_KEYS.overview, 30, async () => ({ data: (await supabase.rpc('admin_overview')).data })),
     staff.can('analytics.read')
@@ -32,7 +33,16 @@ export default async function OverviewPage() {
       ? supabase.from('activity_log').select('id, action, entity, actor_role, created_at, after, profiles!activity_log_user_id_fkey(full_name, email)')
           .neq('entity', 'auth').order('created_at', { ascending: false }).limit(12)
       : Promise.resolve({ data: [] }),
+    // Seats for the next 7 days (Capacity page); empty if migration 0037 isn't run yet.
+    staff.can('deliveries.read')
+      ? (() => {
+          const from = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+          const to = new Date(Date.now() + 8 * 864e5).toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+          return supabase.rpc('slot_availability', { p_from: from, p_to: to });
+        })()
+      : Promise.resolve({ data: [] }),
   ]);
+  const cap = new Map(((seats.data ?? []) as { day: string; slot: string; capacity: number }[]).map((r) => [`${r.day}:${r.slot}`, r.capacity]));
 
   const o = (overview.data ?? {}) as Overview;
   const rev = (revenue.data ?? []) as { day: string; revenue: number; orders: number }[];
@@ -65,7 +75,8 @@ export default async function OverviewPage() {
             </div>
           </Card>
         )}
-        <Card title="Meals, next 7 days" className={rev.length > 0 ? '' : 'lg:col-span-3'}>
+        <Card title="Meals, next 7 days" className={rev.length > 0 ? '' : 'lg:col-span-3'}
+          actions={cap.size > 0 ? <Link href={adminHref('/capacity')} className="text-xs font-bold text-primary hover:underline">Capacity →</Link> : undefined}>
           {fc.length === 0 ? (
             <EmptyState title="No meals scheduled yet" description="Paid subscriptions appear here." />
           ) : (
@@ -73,7 +84,11 @@ export default async function OverviewPage() {
               {fc.map((d) => (
                 <li key={d.day} className="flex items-center justify-between">
                   <span className="text-gray-600">{fmtDate(d.day)}</span>
-                  <span className="font-bold">{d.lunch} lunch · {d.dinner} dinner {d.skipped > 0 && <span className="text-gray-400 font-medium">({d.skipped} off)</span>}</span>
+                  <span className="font-bold">
+                    <span className={cn(cap.has(`${d.day}:lunch`) && d.lunch >= cap.get(`${d.day}:lunch`)! && 'text-rose-700')}>{d.lunch}{cap.has(`${d.day}:lunch`) && `/${cap.get(`${d.day}:lunch`)}`} lunch</span>
+                    {' · '}
+                    <span className={cn(cap.has(`${d.day}:dinner`) && d.dinner >= cap.get(`${d.day}:dinner`)! && 'text-rose-700')}>{d.dinner}{cap.has(`${d.day}:dinner`) && `/${cap.get(`${d.day}:dinner`)}`} dinner</span>{' '}
+                    {d.skipped > 0 && <span className="text-gray-400 font-medium">({d.skipped} off)</span>}</span>
                 </li>
               ))}
             </ul>

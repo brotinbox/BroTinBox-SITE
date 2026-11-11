@@ -12,6 +12,8 @@ export const ADMIN_NAV: AdminNavGroup[] = [
       { href: '/', label: 'Overview', icon: 'LayoutDashboard', permission: 'dashboard.read' },
       { href: '/plan', label: 'Day plan', icon: 'ClipboardList', permission: 'deliveries.read' },
       { href: '/cook-sheet', label: 'Cook sheet', icon: 'ChefHat', permission: 'cooksheet.read' },
+      { href: '/capacity', label: 'Capacity', icon: 'Gauge', permission: 'deliveries.read' },
+      { href: '/cook-book', label: 'Cook book', icon: 'BookMarked', permission: 'menu.read' },
       { href: '/deliveries', label: 'Deliveries', icon: 'Bike', permission: 'deliveries.read' },
     ],
   },

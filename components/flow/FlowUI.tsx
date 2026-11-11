@@ -123,7 +123,7 @@ export function OptionCard({ selected, onClick, title, note, right, lead, disabl
 }
 
 /** Day / date pill. */
-export function DayChip({ selected, onClick, top, main, sub, crossed }: {
+export function DayChip({ selected, onClick, top, main, sub, crossed, disabled, topTone }: {
   selected: boolean;
   onClick: () => void;
   top?: string;
@@ -131,19 +131,25 @@ export function DayChip({ selected, onClick, top, main, sub, crossed }: {
   sub?: string;
   /** Skipped day: shown crossed out. */
   crossed?: boolean;
+  /** Fully booked: greyed out and can't be picked. */
+  disabled?: boolean;
+  /** 'warn' shows the top label in orange (e.g. "2 left"). */
+  topTone?: 'warn';
 }) {
   return (
     <button
       type="button"
       aria-pressed={selected}
+      disabled={disabled}
       onClick={onClick}
       className={cn(
         'min-h-[56px] rounded-xl border px-2 py-2 text-center transition-colors tap-active',
         selected ? 'border-ink bg-ink text-white' : 'border-gray-200 bg-white text-gray-800 hover:border-gray-300',
-        crossed && 'bg-gray-50 text-gray-400 border-dashed'
+        crossed && 'bg-gray-50 text-gray-400 border-dashed',
+        disabled && 'bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed hover:border-gray-200'
       )}
     >
-      {top && <span className={cn('block text-[11px] font-bold', selected ? 'text-accent-bright' : 'text-gray-400')}>{top}</span>}
+      {top && <span className={cn('block text-[11px] font-bold', topTone === 'warn' && !selected ? 'text-orange-600' : selected ? 'text-accent-bright' : 'text-gray-400')}>{top}</span>}
       <span className={cn('block font-heading font-black text-sm', crossed && 'line-through')}>{main}</span>
       {sub && <span className={cn('block text-[11px]', selected ? 'text-white/75' : 'text-gray-500')}>{sub}</span>}
     </button>

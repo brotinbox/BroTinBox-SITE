@@ -5,6 +5,7 @@ import sidesData from '@/data/sides.json';
 import { MIN_PLAN_DAYS, secondMealPrice } from '@/lib/pricing';
 import { assertTrialAvailable, getTrialEligibility, trialUsedMessage } from '@/lib/checkout/trial';
 import { OFFER_LABEL, resolveOffers, type OfferResult } from '@/lib/checkout/offers';
+import { fullSlots, slotFullMessage } from '@/lib/capacity';
 
 /**
  * Server-side pricing. The browser sends WHAT the customer chose; the server
@@ -63,7 +64,7 @@ export type Quote = {
   offers: OfferResult;
 };
 
-export type CheckoutErrorCode = 'TRIAL_USED' | 'VERIFY_PHONE';
+export type CheckoutErrorCode = 'TRIAL_USED' | 'VERIFY_PHONE' | 'SLOT_FULL';
 
 export class CheckoutError extends Error {
   constructor(message: string, public code?: CheckoutErrorCode) {
@@ -140,6 +141,14 @@ export async function quoteCart(cart: Cart, userId: string | null, opts: QuoteOp
     if (d.date > maxDate) throw new CheckoutError('Pick dates within the next 60 days.');
     const { data: open } = await db.rpc('is_operating_day', { d: d.date });
     if (!open) throw new CheckoutError(`The kitchen is closed on ${d.date}. Please pick another day.`);
+  }
+
+  // Seats: only the trial box is limited (staff orders skip it). The database
+  // checks again when the order is created (migration 0037).
+  if (cart.type === 'trial' && opts.source !== 'admin') {
+    const want: ('lunch' | 'dinner')[] = cart.mealsPerDay === 2 ? ['lunch', 'dinner'] : [cart.slot];
+    const full = await fullSlots(dates[0].date, want);
+    if (full.length) throw new CheckoutError(slotFullMessage(dates[0].date, full), 'SLOT_FULL');
   }
 
   // Prices per diet for this plan type

@@ -5,6 +5,7 @@ import { getSupabaseServer } from '@/lib/supabase/server';
 import { cleanText } from '@/lib/security/request';
 import { fail, ok, staffAction, type ActionResult } from '@/lib/admin/actions';
 import { uploadImage } from '@/lib/admin/upload';
+import { recipeSchema, toRecipe } from '@/lib/recipes';
 
 const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 const optId = z.string().uuid().or(z.literal('')).transform((v) => v || null);
@@ -111,4 +112,58 @@ export async function saveDish(_p: ActionResult | null, fd: FormData): Promise<A
     }
     return ok('Dish saved.');
   }, { tags: MENU_TAGS });
+}
+
+// ---------------------------------------------------------------------------
+// Recipe workbook (migration 0038). The form sends the whole recipe as JSON.
+// ---------------------------------------------------------------------------
+export async function saveRecipe(_p: ActionResult | null, fd: FormData): Promise<ActionResult> {
+  const id = z.string().uuid().safeParse(fd.get('menu_item_id'));
+  if (!id.success) return fail('Invalid dish.');
+  let raw: unknown;
+  try {
+    raw = JSON.parse(String(fd.get('recipe') ?? ''));
+  } catch {
+    return fail('Could not read the recipe. Refresh and try again.');
+  }
+  const parsed = recipeSchema.safeParse(raw);
+  if (!parsed.success) {
+    const first = parsed.error.issues[0];
+    return fail(`Check the recipe (${first.path.join(' ')}: ${first.message}).`);
+  }
+  const r = parsed.data;
+  return staffAction('menu.write', async () => {
+    const supabase = await getSupabaseServer();
+    const { error } = await supabase.from('dish_recipes').upsert({
+      menu_item_id: id.data,
+      ingredients: r.ingredients.map((i) => ({
+        name: cleanText(i.name, 80), qty: i.qty, unit: cleanText(i.unit, 12),
+        ...(i.note && { note: cleanText(i.note, 120) }),
+      })),
+      steps: r.steps.map((s) => cleanText(s, 600)).filter(Boolean),
+      prep_minutes: r.prep_minutes,
+      cook_minutes: r.cook_minutes,
+      equipment: cleanText(r.equipment, 300) || null,
+      tips: cleanText(r.tips, 2000) || null,
+      notes: cleanText(r.notes, 2000) || null,
+    });
+    if (error) throw error;
+    return ok('Recipe saved. The kitchen sees it straight away.');
+  });
+}
+
+/** Puts an older version back (the current one is kept as a version too). */
+export async function restoreRecipeVersion(_p: ActionResult | null, fd: FormData): Promise<ActionResult> {
+  const id = z.string().uuid().safeParse(fd.get('version_id'));
+  if (!id.success) return fail('Invalid version.');
+  return staffAction('menu.write', async () => {
+    const supabase = await getSupabaseServer();
+    const { data: v, error: vErr } = await supabase.from('dish_recipe_versions').select('menu_item_id, snapshot').eq('id', id.data).maybeSingle();
+    if (vErr) throw vErr;
+    if (!v) return fail('That version no longer exists.');
+    const r = toRecipe(v.snapshot as Record<string, unknown>);
+    const { error } = await supabase.from('dish_recipes').upsert({ menu_item_id: v.menu_item_id, ...r });
+    if (error) throw error;
+    return ok('Older version restored.');
+  });
 }
