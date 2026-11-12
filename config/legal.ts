@@ -17,6 +17,8 @@ export const LEGAL = {
   tradeName: BRAND.name,
   /** Registered name of the business, exactly as on the registration certificate. */
   entityName: '',
+  /** Owner's legal name as on PAN/bank KYC (shown on the contact page; Cashfree verifies it). */
+  ownerName: 'Govindharaj Mohammed Anas',
   /** e.g. 'private limited company', 'limited liability partnership', 'sole proprietorship'. */
   entityType: '',
   /** CIN (company) or LLPIN (LLP); leave '' for a proprietorship. */

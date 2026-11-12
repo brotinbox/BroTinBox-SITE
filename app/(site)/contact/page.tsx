@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { BRAND } from '@/config/brand';
 import { LEGAL, fssaiAbbr, hasFssai } from '@/config/legal';
-import { MapPin, Phone, Mail, Clock, ShieldCheck, Check } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, ShieldCheck, Check, User } from 'lucide-react';
 
 export default function ContactPage() {
   const [name, setName] = useState('');
@@ -46,6 +46,14 @@ export default function ContactPage() {
             </div>
 
             <div className="space-y-4 text-xs">
+              <div className="flex items-start gap-3">
+                <User className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-bold text-gray-900">Owner</p>
+                  <p className="text-gray-600 mt-0.5">{LEGAL.ownerName}</p>
+                </div>
+              </div>
+
               <div className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                 <div>
