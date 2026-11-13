@@ -2,7 +2,7 @@
   {
     "id": "box-mon",
     "slug": "power-chicken-box",
-    "name": "Green mint grilled chicken Box",
+    "name": "Mint Grilled Chicken Box",
     "day": "Mon",
     "image": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
     "images": [
@@ -10,7 +10,7 @@
       "https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?auto=format&fit=crop&w=800&q=80"
     ],
-    "description": "Green mint grilled chicken (150 g cooked), 2 boiled eggs, with yolk, Boiled black chana, Corn salad, and Chapati (2 pieces).",
+    "description": "Mint Grilled Chicken (150 g cooked), Golden Boiled Eggs, Black Chana Bowl, Sweet Corn Salad, and Soft Chapati (2 pieces).",
     "isVeg": false,
     "containsEgg": true,
     "tags": [
@@ -38,7 +38,7 @@
     "items": [
       {
         "type": "main",
-        "name": "Green mint grilled chicken",
+        "name": "Mint Grilled Chicken",
         "grams": 150,
         "calories": 360,
         "protein": 48,
@@ -48,7 +48,7 @@
       },
       {
         "type": "egg",
-        "name": "2 boiled eggs, with yolk",
+        "name": "Golden Boiled Eggs",
         "grams": 100,
         "calories": 140,
         "protein": 12.5,
@@ -58,7 +58,7 @@
       },
       {
         "type": "legume",
-        "name": "Boiled black chana",
+        "name": "Black Chana Bowl",
         "grams": 100,
         "calories": 140,
         "protein": 8,
@@ -68,7 +68,7 @@
       },
       {
         "type": "salad",
-        "name": "Corn salad",
+        "name": "Sweet Corn Salad",
         "grams": 150,
         "calories": 145,
         "protein": 4.5,
@@ -78,7 +78,7 @@
       },
       {
         "type": "carb",
-        "name": "Chapati (2 pieces)",
+        "name": "Soft Chapati",
         "grams": 70,
         "calories": 190,
         "protein": 6,
@@ -93,7 +93,7 @@
       "Zero added preservatives, cooked fresh each morning in Coimbatore"
     ],
     "eggFreeVersion": {
-      "description": "Replaces 2 boiled eggs with an extra portion of tender Boiled black chana (+80g)",
+      "description": "Replaces 2 boiled eggs with an extra portion of tender Black Chana Bowl (+80g)",
       "extraLegumeName": "Extra Boiled black chana",
       "price": 319,
       "calories": 947,
@@ -114,7 +114,7 @@
   {
     "id": "box-tue",
     "slug": "paneer-balance-box",
-    "name": "Smashed veggie soya chunks Box",
+    "name": "Smashed Soya Bowl Box",
     "day": "Tue",
     "image": "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?auto=format&fit=crop&w=800&q=80",
     "images": [
@@ -122,7 +122,7 @@
       "https://images.unsplash.com/photo-1668236543090-82eba5ee5976?auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80"
     ],
-    "description": "Smashed veggie soya chunks (110 g cooked), Mint mixed curd, Sprouted horse gram (kollu), Mixed salad, and Veg masala oats (50 g dry oats).",
+    "description": "Smashed Soya Bowl (110 g cooked), Cool Mint Curd, Kollu Sprout Bowl, Rainbow Salad, and Masala Oats (50 g dry oats).",
     "isVeg": true,
     "containsEgg": false,
     "tags": [
@@ -150,7 +150,7 @@
     "items": [
       {
         "type": "main",
-        "name": "Smashed veggie soya chunks",
+        "name": "Smashed Soya Bowl",
         "grams": 110,
         "calories": 195,
         "protein": 26,
@@ -160,7 +160,7 @@
       },
       {
         "type": "curd",
-        "name": "Mint mixed curd",
+        "name": "Cool Mint Curd",
         "grams": 130,
         "calories": 95,
         "protein": 5,
@@ -170,7 +170,7 @@
       },
       {
         "type": "legume",
-        "name": "Sprouted horse gram (kollu)",
+        "name": "Kollu Sprout Bowl",
         "grams": 100,
         "calories": 135,
         "protein": 9,
@@ -180,7 +180,7 @@
       },
       {
         "type": "salad",
-        "name": "Mixed salad",
+        "name": "Rainbow Salad",
         "grams": 150,
         "calories": 65,
         "protein": 2.5,
@@ -190,7 +190,7 @@
       },
       {
         "type": "carb",
-        "name": "Veg masala oats (50 g dry oats)",
+        "name": "Masala Oats",
         "grams": 120,
         "calories": 195,
         "protein": 6.5,
@@ -217,7 +217,7 @@
   {
     "id": "box-wed",
     "slug": "lean-fish-box",
-    "name": "Chicken steak Box",
+    "name": "Pepper Chicken Steak Box",
     "day": "Wed",
     "image": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=800&q=80",
     "images": [
@@ -225,7 +225,7 @@
       "https://images.unsplash.com/photo-1516684732162-798a0062be99?auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?auto=format&fit=crop&w=800&q=80"
     ],
-    "description": "Chicken steak (150 g cooked), 2 boiled eggs, with yolk, Sprouted green gram (pachai payaru), Cabbage salad, and Chapati (2 pieces).",
+    "description": "Pepper Chicken Steak (150 g cooked), Golden Boiled Eggs, Green Gram Sprouts, Crunchy Cabbage Salad, and Soft Chapati (2 pieces).",
     "isVeg": false,
     "containsEgg": true,
     "tags": [
@@ -252,7 +252,7 @@
     "items": [
       {
         "type": "main",
-        "name": "Chicken steak",
+        "name": "Pepper Chicken Steak",
         "grams": 150,
         "calories": 320,
         "protein": 46,
@@ -262,7 +262,7 @@
       },
       {
         "type": "egg",
-        "name": "2 boiled eggs, with yolk",
+        "name": "Golden Boiled Eggs",
         "grams": 100,
         "calories": 140,
         "protein": 12.5,
@@ -272,7 +272,7 @@
       },
       {
         "type": "legume",
-        "name": "Sprouted green gram (pachai payaru)",
+        "name": "Green Gram Sprouts",
         "grams": 100,
         "calories": 120,
         "protein": 8.5,
@@ -282,7 +282,7 @@
       },
       {
         "type": "salad",
-        "name": "Cabbage salad",
+        "name": "Crunchy Cabbage Salad",
         "grams": 150,
         "calories": 55,
         "protein": 2,
@@ -292,7 +292,7 @@
       },
       {
         "type": "carb",
-        "name": "Chapati (2 pieces)",
+        "name": "Soft Chapati",
         "grams": 70,
         "calories": 190,
         "protein": 6,
@@ -307,7 +307,7 @@
       "Zero added preservatives, cooked fresh each morning in Coimbatore"
     ],
     "eggFreeVersion": {
-      "description": "Replaces 2 boiled eggs with an extra portion of tender Sprouted green gram (pachai payaru) (+80g)",
+      "description": "Replaces 2 boiled eggs with an extra portion of tender Green Gram Sprouts (+80g)",
       "extraLegumeName": "Extra Sprouted green gram (pachai payaru)",
       "price": 319,
       "calories": 808,
@@ -328,7 +328,7 @@
   {
     "id": "box-thu",
     "slug": "tikka-chicken-box",
-    "name": "Boiled smashed chicken Box",
+    "name": "Smashed Chicken Bowl Box",
     "day": "Thu",
     "image": "https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=800&q=80",
     "images": [
@@ -336,7 +336,7 @@
       "https://images.unsplash.com/photo-1567620832903-9fc6debc209f?auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?auto=format&fit=crop&w=800&q=80"
     ],
-    "description": "Boiled smashed chicken (150 g cooked), 2 boiled eggs, with yolk, Boiled peanut, Sliced cucumber salad, and Oats upma (50 g dry oats).",
+    "description": "Smashed Chicken Bowl (150 g cooked), Golden Boiled Eggs, Warm Peanut Bites, Fresh Cucumber Salad, and Oats Upma Bowl (50 g dry oats).",
     "isVeg": false,
     "containsEgg": true,
     "tags": [
@@ -364,7 +364,7 @@
     "items": [
       {
         "type": "main",
-        "name": "Boiled smashed chicken",
+        "name": "Smashed Chicken Bowl",
         "grams": 150,
         "calories": 310,
         "protein": 47,
@@ -374,7 +374,7 @@
       },
       {
         "type": "egg",
-        "name": "2 boiled eggs, with yolk",
+        "name": "Golden Boiled Eggs",
         "grams": 100,
         "calories": 140,
         "protein": 12.5,
@@ -384,7 +384,7 @@
       },
       {
         "type": "legume",
-        "name": "Boiled peanut",
+        "name": "Warm Peanut Bites",
         "grams": 50,
         "calories": 280,
         "protein": 12.5,
@@ -394,7 +394,7 @@
       },
       {
         "type": "salad",
-        "name": "Sliced cucumber salad",
+        "name": "Fresh Cucumber Salad",
         "grams": 150,
         "calories": 40,
         "protein": 1.5,
@@ -404,7 +404,7 @@
       },
       {
         "type": "carb",
-        "name": "Oats upma (50 g dry oats)",
+        "name": "Oats Upma Bowl",
         "grams": 120,
         "calories": 195,
         "protein": 6.5,
@@ -419,7 +419,7 @@
       "Zero added preservatives, cooked fresh each morning in Coimbatore"
     ],
     "eggFreeVersion": {
-      "description": "Replaces 2 boiled eggs with an extra portion of tender Boiled peanut (+80g)",
+      "description": "Replaces 2 boiled eggs with an extra portion of tender Warm Peanut Bites (+80g)",
       "extraLegumeName": "Extra Boiled peanut",
       "price": 319,
       "calories": 809,
@@ -440,7 +440,7 @@
   {
     "id": "box-fri",
     "slug": "soya-strong-box",
-    "name": "Boiled grilled chicken Box",
+    "name": "Smoky Grilled Chicken Box",
     "day": "Fri",
     "image": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
     "images": [
@@ -448,7 +448,7 @@
       "https://images.unsplash.com/photo-1584947926176-7caeb8aef7cb?auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?auto=format&fit=crop&w=800&q=80"
     ],
-    "description": "Boiled grilled chicken (150 g cooked), 2 boiled eggs, with yolk, Boiled kidney beans (rajma), Creamy coleslaw, and Oats pongal (40 g oats + 15 g moong dal).",
+    "description": "Smoky Grilled Chicken (150 g cooked), Golden Boiled Eggs, Rajma Bowl, Creamy Slaw, and Pepper Pongal Oats (40 g oats + 15 g moong dal).",
     "isVeg": false,
     "containsEgg": true,
     "tags": [
@@ -476,7 +476,7 @@
     "items": [
       {
         "type": "main",
-        "name": "Boiled grilled chicken",
+        "name": "Smoky Grilled Chicken",
         "grams": 150,
         "calories": 325,
         "protein": 47.5,
@@ -486,7 +486,7 @@
       },
       {
         "type": "egg",
-        "name": "2 boiled eggs, with yolk",
+        "name": "Golden Boiled Eggs",
         "grams": 100,
         "calories": 140,
         "protein": 12.5,
@@ -496,7 +496,7 @@
       },
       {
         "type": "legume",
-        "name": "Boiled kidney beans (rajma)",
+        "name": "Rajma Bowl",
         "grams": 100,
         "calories": 130,
         "protein": 8.5,
@@ -506,7 +506,7 @@
       },
       {
         "type": "salad",
-        "name": "Creamy coleslaw",
+        "name": "Creamy Slaw",
         "grams": 150,
         "calories": 125,
         "protein": 3.5,
@@ -516,7 +516,7 @@
       },
       {
         "type": "carb",
-        "name": "Oats pongal (40 g oats + 15 g moong dal)",
+        "name": "Pepper Pongal Oats",
         "grams": 130,
         "calories": 200,
         "protein": 7.5,
@@ -531,7 +531,7 @@
       "Zero added preservatives, cooked fresh each morning in Coimbatore"
     ],
     "eggFreeVersion": {
-      "description": "Replaces 2 boiled eggs with an extra portion of tender Boiled kidney beans (rajma) (+80g)",
+      "description": "Replaces 2 boiled eggs with an extra portion of tender Rajma Bowl (+80g)",
       "extraLegumeName": "Extra Boiled kidney beans (rajma)",
       "price": 319,
       "calories": 868,
@@ -552,7 +552,7 @@
   {
     "id": "box-sat",
     "slug": "paneer-tikka-box",
-    "name": "Grilled mackerel Box",
+    "name": "Crispy Grilled Mackerel Box",
     "day": "Sat",
     "image": "https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?auto=format&fit=crop&w=800&q=80",
     "images": [
@@ -560,7 +560,7 @@
       "https://images.unsplash.com/photo-1516684732162-798a0062be99?auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?auto=format&fit=crop&w=800&q=80"
     ],
-    "description": "Grilled mackerel (130 g cooked edible), 2 boiled eggs, with yolk, Boiled green peas, Broccoli salad, and Chapati (2 pieces).",
+    "description": "Crispy Grilled Mackerel (130 g cooked edible), Golden Boiled Eggs, Green Pea Bowl, Green Broccoli Salad, and Soft Chapati (2 pieces).",
     "isVeg": false,
     "containsEgg": true,
     "tags": [
@@ -588,7 +588,7 @@
     "items": [
       {
         "type": "main",
-        "name": "Grilled mackerel",
+        "name": "Crispy Grilled Mackerel",
         "grams": 130,
         "calories": 305,
         "protein": 31.5,
@@ -598,7 +598,7 @@
       },
       {
         "type": "egg",
-        "name": "2 boiled eggs, with yolk",
+        "name": "Golden Boiled Eggs",
         "grams": 100,
         "calories": 140,
         "protein": 12.5,
@@ -608,7 +608,7 @@
       },
       {
         "type": "legume",
-        "name": "Boiled green peas",
+        "name": "Green Pea Bowl",
         "grams": 100,
         "calories": 90,
         "protein": 6,
@@ -618,7 +618,7 @@
       },
       {
         "type": "salad",
-        "name": "Broccoli salad",
+        "name": "Green Broccoli Salad",
         "grams": 150,
         "calories": 80,
         "protein": 4.2,
@@ -628,7 +628,7 @@
       },
       {
         "type": "carb",
-        "name": "Chapati (2 pieces)",
+        "name": "Soft Chapati",
         "grams": 70,
         "calories": 190,
         "protein": 6,
@@ -643,7 +643,7 @@
       "Zero added preservatives, cooked fresh each morning in Coimbatore"
     ],
     "eggFreeVersion": {
-      "description": "Replaces 2 boiled eggs with an extra portion of tender Boiled green peas (+80g)",
+      "description": "Replaces 2 boiled eggs with an extra portion of tender Green Pea Bowl (+80g)",
       "extraLegumeName": "Extra Boiled green peas",
       "price": 319,
       "calories": 778,

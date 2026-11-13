@@ -6,7 +6,7 @@ const catalog = {
   mains: {
     NVM1: {
       id: 'NVM1',
-      name: 'Green mint grilled chicken',
+      name: 'Mint Grilled Chicken',
       category: 'main',
       grams: 150,
       cookedState: '150 g cooked',
@@ -21,7 +21,7 @@ const catalog = {
     },
     NVM2: {
       id: 'NVM2',
-      name: 'Juicy chicken',
+      name: 'Juicy Roast Chicken',
       category: 'main',
       grams: 150,
       cookedState: '150 g cooked',
@@ -36,7 +36,7 @@ const catalog = {
     },
     NVM3: {
       id: 'NVM3',
-      name: 'Chicken steak',
+      name: 'Pepper Chicken Steak',
       category: 'main',
       grams: 150,
       cookedState: '150 g cooked',
@@ -51,7 +51,7 @@ const catalog = {
     },
     NVM4: {
       id: 'NVM4',
-      name: 'Boiled smashed chicken',
+      name: 'Smashed Chicken Bowl',
       category: 'main',
       grams: 150,
       cookedState: '150 g cooked',
@@ -66,7 +66,7 @@ const catalog = {
     },
     NVM5: {
       id: 'NVM5',
-      name: 'Boiled grilled chicken',
+      name: 'Smoky Grilled Chicken',
       category: 'main',
       grams: 150,
       cookedState: '150 g cooked',
@@ -81,7 +81,7 @@ const catalog = {
     },
     NVM6: {
       id: 'NVM6',
-      name: 'Grilled mackerel',
+      name: 'Crispy Grilled Mackerel',
       category: 'main',
       grams: 130,
       cookedState: '130 g cooked edible',
@@ -97,7 +97,7 @@ const catalog = {
 
     VM1: {
       id: 'VM1',
-      name: 'Grilled tandoori paneer',
+      name: 'Tandoori Paneer Tikka',
       category: 'main',
       grams: 100,
       cookedState: '100 g paneer',
@@ -112,7 +112,7 @@ const catalog = {
     },
     VM2: {
       id: 'VM2',
-      name: 'Mint paneer',
+      name: 'Fresh Mint Paneer',
       category: 'main',
       grams: 100,
       cookedState: '100 g paneer',
@@ -127,7 +127,7 @@ const catalog = {
     },
     VM3: {
       id: 'VM3',
-      name: 'Juicy onion paneer',
+      name: 'Caramel Onion Paneer',
       category: 'main',
       grams: 100,
       cookedState: '100 g paneer',
@@ -142,7 +142,7 @@ const catalog = {
     },
     VM4: {
       id: 'VM4',
-      name: 'Grilled tandoori tofu',
+      name: 'Tandoori Tofu Tikka',
       category: 'main',
       grams: 150,
       cookedState: '150 g tofu',
@@ -157,7 +157,7 @@ const catalog = {
     },
     VM5: {
       id: 'VM5',
-      name: 'Grilled mint tofu',
+      name: 'Fresh Mint Tofu',
       category: 'main',
       grams: 150,
       cookedState: '150 g tofu',
@@ -172,7 +172,7 @@ const catalog = {
     },
     VM6: {
       id: 'VM6',
-      name: 'Onion creamy mushroom',
+      name: 'Creamy Mushroom',
       category: 'main',
       grams: 150,
       cookedState: '150 g mushroom',
@@ -187,7 +187,7 @@ const catalog = {
     },
     VM7: {
       id: 'VM7',
-      name: 'Smashed veggie soya chunks',
+      name: 'Smashed Soya Bowl',
       category: 'main',
       grams: 110,
       cookedState: '110 g cooked',
@@ -205,7 +205,7 @@ const catalog = {
   proteinSides: {
     NVE: {
       id: 'NVE',
-      name: '2 boiled eggs, with yolk',
+      name: 'Golden Boiled Eggs',
       category: 'protein-side',
       grams: 100,
       calories: 140,
@@ -219,7 +219,7 @@ const catalog = {
     },
     CD1: {
       id: 'CD1',
-      name: 'Beetroot mixed curd',
+      name: 'Pink Beetroot Curd',
       category: 'protein-side',
       grams: 130,
       calories: 115,
@@ -233,7 +233,7 @@ const catalog = {
     },
     CD2: {
       id: 'CD2',
-      name: 'Mint mixed curd',
+      name: 'Cool Mint Curd',
       category: 'protein-side',
       grams: 130,
       calories: 95,
@@ -247,7 +247,7 @@ const catalog = {
     },
     CD3: {
       id: 'CD3',
-      name: 'Carrot crunch curd',
+      name: 'Crunchy Carrot Curd',
       category: 'protein-side',
       grams: 130,
       calories: 110,
@@ -261,7 +261,7 @@ const catalog = {
     },
     CD4: {
       id: 'CD4',
-      name: 'Potato mixed curd',
+      name: 'Soft Potato Curd',
       category: 'protein-side',
       grams: 130,
       calories: 135,
@@ -275,7 +275,7 @@ const catalog = {
     },
     CD5: {
       id: 'CD5',
-      name: 'Cube cucumber curd',
+      name: 'Fresh Cucumber Curd',
       category: 'protein-side',
       grams: 130,
       calories: 90,
@@ -289,7 +289,7 @@ const catalog = {
     },
     CD6: {
       id: 'CD6',
-      name: 'Corn added curd',
+      name: 'Sweet Corn Curd',
       category: 'protein-side',
       grams: 130,
       calories: 125,
@@ -306,7 +306,7 @@ const catalog = {
   legumes: {
     LG1: {
       id: 'LG1',
-      name: 'Boiled black chana',
+      name: 'Black Chana Bowl',
       category: 'legume',
       grams: 100,
       calories: 140,
@@ -320,7 +320,7 @@ const catalog = {
     },
     LG2: {
       id: 'LG2',
-      name: 'Sprouted horse gram (kollu)',
+      name: 'Kollu Sprout Bowl',
       category: 'legume',
       grams: 100,
       calories: 135,
@@ -334,7 +334,7 @@ const catalog = {
     },
     LG3: {
       id: 'LG3',
-      name: 'Sprouted green gram (pachai payaru)',
+      name: 'Green Gram Sprouts',
       category: 'legume',
       grams: 100,
       calories: 120,
@@ -348,7 +348,7 @@ const catalog = {
     },
     LG4: {
       id: 'LG4',
-      name: 'Boiled peanut',
+      name: 'Warm Peanut Bites',
       category: 'legume',
       grams: 50,
       calories: 280,
@@ -362,7 +362,7 @@ const catalog = {
     },
     LG5: {
       id: 'LG5',
-      name: 'Boiled kidney beans (rajma)',
+      name: 'Rajma Bowl',
       category: 'legume',
       grams: 100,
       calories: 130,
@@ -376,7 +376,7 @@ const catalog = {
     },
     LG6: {
       id: 'LG6',
-      name: 'Boiled green peas',
+      name: 'Green Pea Bowl',
       category: 'legume',
       grams: 100,
       calories: 90,
@@ -393,7 +393,7 @@ const catalog = {
   salads: {
     SL1: {
       id: 'SL1',
-      name: 'Corn salad',
+      name: 'Sweet Corn Salad',
       category: 'salad',
       grams: 150,
       calories: 145,
@@ -407,7 +407,7 @@ const catalog = {
     },
     SL2: {
       id: 'SL2',
-      name: 'Mixed salad',
+      name: 'Rainbow Salad',
       category: 'salad',
       grams: 150,
       calories: 65,
@@ -421,7 +421,7 @@ const catalog = {
     },
     SL3: {
       id: 'SL3',
-      name: 'Cabbage salad',
+      name: 'Crunchy Cabbage Salad',
       category: 'salad',
       grams: 150,
       calories: 55,
@@ -435,7 +435,7 @@ const catalog = {
     },
     SL4: {
       id: 'SL4',
-      name: 'Sliced cucumber salad',
+      name: 'Fresh Cucumber Salad',
       category: 'salad',
       grams: 150,
       calories: 40,
@@ -449,7 +449,7 @@ const catalog = {
     },
     SL5: {
       id: 'SL5',
-      name: 'Creamy coleslaw',
+      name: 'Creamy Slaw',
       category: 'salad',
       grams: 150,
       calories: 125,
@@ -463,7 +463,7 @@ const catalog = {
     },
     SL6: {
       id: 'SL6',
-      name: 'Broccoli salad',
+      name: 'Green Broccoli Salad',
       category: 'salad',
       grams: 150,
       calories: 80,
@@ -480,7 +480,7 @@ const catalog = {
   carbs: {
     CB1: {
       id: 'CB1',
-      name: 'Chapati (2 pieces)',
+      name: 'Soft Chapati',
       category: 'carb',
       grams: 70,
       calories: 190,
@@ -494,7 +494,7 @@ const catalog = {
     },
     CB2: {
       id: 'CB2',
-      name: 'Veg masala oats (50 g dry oats)',
+      name: 'Masala Oats',
       category: 'carb',
       grams: 120,
       calories: 195,
@@ -508,7 +508,7 @@ const catalog = {
     },
     CB3: {
       id: 'CB3',
-      name: 'Oats upma (50 g dry oats)',
+      name: 'Oats Upma Bowl',
       category: 'carb',
       grams: 120,
       calories: 195,
@@ -522,7 +522,7 @@ const catalog = {
     },
     CB4: {
       id: 'CB4',
-      name: 'Oats pongal (40 g oats + 15 g moong dal)',
+      name: 'Pepper Pongal Oats',
       category: 'carb',
       grams: 130,
       calories: 200,
@@ -536,7 +536,7 @@ const catalog = {
     },
     CB5: {
       id: 'CB5',
-      name: 'Oats dosa (2 pieces)',
+      name: 'Crispy Oats Dosa',
       category: 'carb',
       grams: 70,
       calories: 185,
