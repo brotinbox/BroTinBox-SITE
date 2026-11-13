@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ShoppingBag } from 'lucide-react';
 import { useMenuVersion, usePricing, useRegularTrialPrice, useTrialOffer } from '@/components/providers/CatalogProvider';
 import { getMenuForDate, getNextBookableDays, type DietType } from '@/lib/menu-engine';
 import { useAppStore } from '@/store/useAppStore';
@@ -180,8 +179,7 @@ export function DailyTrialStepModal() {
             <OptionCard selected={mealsPerDay === 1} onClick={() => setMealsPerDay(1)}
               title="1 meal" note="Lunch or dinner" />
             <OptionCard selected={mealsPerDay === 2} onClick={() => setMealsPerDay(2)} disabled={dayFull(dateStr, 2)}
-              title="2 meals" note={dayFull(dateStr, 2) ? 'Not available this day: one slot is fully booked' : `Lunch and dinner · ₹${P.secondMealDiscount} off the second`}
-              right={<span className="text-xs font-bold text-gray-700">+{inr(priceFor(2) - priceFor(1))}</span>} />
+              title="2 meals" note={dayFull(dateStr, 2) ? 'Not available this day: one slot is fully booked' : `Lunch and dinner · ₹${P.secondMealDiscount} off the second`} />
           </div>
         </Section>
 
@@ -225,7 +223,7 @@ export function DailyTrialStepModal() {
       title={box.items.main.name}
       subtitle={`${boxSize === 'lite' ? 'Lite box · ' : ''}${diet === 'veg' ? 'Veg' : 'Non-veg'} · ${timeLabel} · ${when}`}
       bar={<FlowBar price={inr(total)} strike={strike} note="Add sides & juices at checkout"
-        cta="Continue to checkout" icon={<ShoppingBag className="w-4 h-4 text-accent-bright" />} onClick={goToCheckout} />}
+        cta="Continue to checkout" onClick={goToCheckout} />}
     >
       <Section
         title={mealsPerDay === 2 ? 'Your two boxes' : 'Inside your box'}

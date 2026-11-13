@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ChevronDown, ShoppingBag } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { useMenuVersion, usePricing, useRegularTrialPrice } from '@/components/providers/CatalogProvider';
 import { MONTHLY_MIN_DAYS, MONTHLY_PLAN_DAYS, getMenuForDate, getMonthlyOperatingDays, type DietType } from '@/lib/menu-engine';
 import { planTotal, savingsVsTrial } from '@/lib/pricing';
@@ -209,7 +209,7 @@ export default function MonthlyPlanPage() {
       title="Your month's menu"
       subtitle={`${boxSize === 'lite' ? 'Lite box · ' : ''}${active.length} days · ${mealsPerDay === 2 ? 'lunch & dinner' : `${deliverySlot} ${SLOT_TIME[deliverySlot]}`}`}
       bar={<FlowBar price={inr(total)} note={barNote} cta="Continue to checkout"
-        icon={<ShoppingBag className="w-4 h-4 text-accent-bright" />} onClick={goToCheckout} disabled={!enough} />}
+        onClick={goToCheckout} disabled={!enough} />}
     >
       <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none]" role="tablist" aria-label="Week">
         {weeks.map((w) => (

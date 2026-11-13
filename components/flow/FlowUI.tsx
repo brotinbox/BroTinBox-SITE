@@ -88,8 +88,10 @@ export function Section({ title, note, right, children, className }: {
 }
 
 /** Radio-style card (like picking a delivery address). */
-export function OptionCard({ selected, onClick, title, note, right, lead, disabled }: {
+export function OptionCard({ selected, onClick, title, note, right, lead, disabled, featured }: {
   selected: boolean;
+  /** Soft orange glow in the top-right corner, for the option we lead with. */
+  featured?: boolean;
   onClick: () => void;
   title: ReactNode;
   note?: ReactNode;
@@ -106,9 +108,13 @@ export function OptionCard({ selected, onClick, title, note, right, lead, disabl
       onClick={onClick}
       className={cn(
         'w-full min-h-[56px] flex items-center gap-3 rounded-xl border px-3.5 py-3 text-left transition-colors tap-active disabled:opacity-50',
-        selected ? 'border-ink bg-paper ring-1 ring-ink' : 'border-gray-200 bg-white hover:border-gray-300'
+        selected ? 'border-ink bg-paper ring-1 ring-ink' : 'border-gray-200 bg-white hover:border-gray-300',
+        featured && 'relative overflow-hidden isolate', featured && !selected && 'border-accent-muted hover:border-accent-bright'
       )}
     >
+      {featured && (
+        <span aria-hidden className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(120%_140%_at_100%_0%,rgba(251,146,60,0.28)_0%,rgba(255,225,204,0.45)_35%,transparent_70%)]" />
+      )}
       <span className={cn('w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0', selected ? 'border-ink bg-ink text-white' : 'border-gray-300')}>
         {selected && <Check className="w-3 h-3 stroke-[3]" />}
       </span>
@@ -238,7 +244,7 @@ export function BoxSizeSection({ value, onChange, full, lite, priceNote }: {
   return (
     <Section title="Box size" note={extraProtein > 0 ? `The full box has about ${extraProtein} g more protein.` : undefined}>
       <div className="grid gap-2" role="radiogroup" aria-label="Box size">
-        <OptionCard selected={value === 'regular'} onClick={() => onChange('regular')}
+        <OptionCard selected={value === 'regular'} onClick={() => onChange('regular')} featured
           title="Full box" note={`5 items · ${g1(full.protein)} g protein · ${Math.round(full.calories)} kcal`} right={price(full)} />
         <OptionCard selected={value === 'lite'} onClick={() => onChange('lite')}
           title="Lite box" note={`Smaller portions · ${g1(lite.protein)} g protein · ${Math.round(lite.calories)} kcal`} right={price(lite)} />
@@ -280,7 +286,7 @@ export function FlowBar({ price, strike, note, cta, onClick, disabled, icon, hin
   return (
     <div className="fixed bottom-0 inset-x-0 z-40 bg-white border-t border-gray-200 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_24px_-12px_rgba(0,0,0,0.25)]">
       <div className="max-w-2xl mx-auto flex items-center gap-3">
-        <div className="min-w-0">
+        <div className="min-w-0 shrink">
           <p className="font-heading font-black text-lg text-ink leading-none">
             {strike && <s className="mr-1.5 text-xs font-bold text-gray-400">{strike}</s>}
             {price}
@@ -291,7 +297,7 @@ export function FlowBar({ price, strike, note, cta, onClick, disabled, icon, hin
           type="button"
           onClick={onClick}
           disabled={disabled}
-          className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-ink hover:bg-ink-soft disabled:opacity-50 text-white font-heading font-black text-sm"
+          className="flex-1 shrink-0 flex items-center justify-center gap-2 h-12 px-5 rounded-xl bg-ink hover:bg-ink-soft active:scale-[0.98] transition disabled:opacity-50 text-white font-heading font-black text-sm whitespace-nowrap"
         >
           {icon}
           {cta}
