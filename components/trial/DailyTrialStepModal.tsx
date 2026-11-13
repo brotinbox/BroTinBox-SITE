@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMenuVersion, usePricing, useRegularTrialPrice, useTrialOffer } from '@/components/providers/CatalogProvider';
-import { getMenuForDate, getNextBookableDays, type DietType } from '@/lib/menu-engine';
+import { LAUNCH_DATE, getMenuForDate, getNextBookableDays, type DietType } from '@/lib/menu-engine';
 import { useAppStore } from '@/store/useAppStore';
 import type { MealSlot } from '@/types';
 import { toDbDiet } from '@/lib/checkout/submit';
@@ -40,7 +40,8 @@ export function DailyTrialStepModal() {
   const [mealSlot, setMealSlot] = useState<MealSlot>('lunch');
   const [viewSlot, setViewSlot] = useState<'lunch' | 'dinner'>('lunch');
 
-  const bookableDays = useMemo(() => getNextBookableDays(3), []);
+  // Look a week ahead so fully booked days can roll over to the next open ones.
+  const bookableDays = useMemo(() => getNextBookableDays(6), []);
   const [dateStr, setDateStr] = useState(bookableDays[0]?.dateStr ?? '');
   // Never keep a date the screen isn't showing (cutoff passed, stale draft).
   useEffect(() => {
@@ -58,6 +59,9 @@ export function DailyTrialStepModal() {
   /** The day can't take this many meals: 2 meals need both slots, 1 meal needs either. */
   const dayFull = (date: string, n: 1 | 2) =>
     n === 2 ? isFull(date, 'lunch') || isFull(date, 'dinner') : isFull(date, 'lunch') && isFull(date, 'dinner');
+  // The three days on screen: the next ones with any seat left (sold-out days drop off).
+  const openDays = bookableDays.filter((d) => !dayFull(d.dateStr, 1));
+  const shownDays = (openDays.length ? openDays : bookableDays).slice(0, 3);
 
   // Draft: survives refreshes and sign-in redirects. Saving waits for the restore.
   const [draftReady, setDraftReady] = useState(false);
@@ -95,7 +99,7 @@ export function DailyTrialStepModal() {
     if (!seats || !draftReady || !dateStr) return;
     if (mealsPerDay === 2 && dayFull(dateStr, 2) && !dayFull(dateStr, 1)) { setMealsPerDay(1); return; }
     if (dayFull(dateStr, mealsPerDay)) {
-      const open = bookableDays.find((d) => !dayFull(d.dateStr, mealsPerDay)) ?? bookableDays.find((d) => !dayFull(d.dateStr, 1));
+      const open = shownDays.find((d) => !dayFull(d.dateStr, mealsPerDay)) ?? shownDays.find((d) => !dayFull(d.dateStr, 1));
       if (open && open.dateStr !== dateStr) setDateStr(open.dateStr);
       return;
     }
@@ -183,14 +187,14 @@ export function DailyTrialStepModal() {
           </div>
         </Section>
 
-        <Section title="Day" note="Order by 9 PM for the next day. Sundays closed.">
+        <Section title="Day" note={bookableDays[0]?.dateStr === LAUNCH_DATE ? 'We launch on Monday 16 Nov. Sundays closed.' : 'Order by 9 PM for the next day. Sundays closed.'}>
           <div className="grid grid-cols-3 gap-2">
-            {bookableDays.map((d, i) => {
+            {shownDays.map((d) => {
               const full = dayFull(d.dateStr, mealsPerDay);
               const few = Math.min(...(['lunch', 'dinner'] as const).map((s) => left(d.dateStr, s) ?? FEW + 1).filter((n) => n > 0));
               return (
                 <DayChip key={d.dateStr} selected={dateStr === d.dateStr && !full} onClick={() => setDateStr(d.dateStr)} disabled={full}
-                  top={full ? 'Full' : few <= FEW ? `${few} left` : i === 0 ? 'Earliest' : undefined}
+                  top={full ? 'Full' : few <= FEW ? `${few} left` : d.isEarliest ? (d.dateStr === LAUNCH_DATE ? 'Launch day' : 'Earliest') : undefined}
                   topTone={!full && few <= FEW ? 'warn' : undefined}
                   main={d.dayOfWeek} sub={d.formatted} />
               );
@@ -198,7 +202,7 @@ export function DailyTrialStepModal() {
           </div>
           {allFull && (
             <p role="alert" className="mt-2 text-xs font-semibold text-orange-700">
-              Trial boxes are fully booked for these days. Check back tomorrow, or start a weekly plan (no limit).
+              Trial boxes are fully booked for the next week. Check back tomorrow, or start a weekly plan (no limit).
             </p>
           )}
         </Section>

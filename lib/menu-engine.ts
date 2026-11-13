@@ -508,6 +508,13 @@ const addDays = (date: Date, n: number) => new Date(date.getTime() + n * DAY_MS)
 const istLabel = (date: Date, opts: Intl.DateTimeFormatOptions) =>
   date.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', ...opts });
 
+/**
+ * First delivery day of the public launch. Nothing earlier can be booked; the
+ * database enforces the same with a kitchen closure on the pre-launch days.
+ * Harmless once it's in the past.
+ */
+export const LAUNCH_DATE = '2026-11-16';
+
 export function getEarliestBookableDate(nowInput?: Date) {
   // Cutoff is 9:00 PM IST the night before the delivery day.
   const now = nowInput || new Date();
@@ -517,6 +524,7 @@ export function getEarliestBookableDate(nowInput?: Date) {
 
   let candidate = addDays(today, isPast9PM ? 2 : 1);
   if (candidate.getUTCDay() === 0) candidate = addDays(candidate, 1); // no Sunday deliveries
+  if (formatDateToYMD(candidate) < LAUNCH_DATE) candidate = parseDate(LAUNCH_DATE);
 
   const dateStr = formatDateToYMD(candidate);
   const eve = addDays(candidate, -1);
