@@ -4,11 +4,13 @@ import { OfferBar } from '@/components/layout/OfferBar';
 import { BottomNav } from '@/components/layout/BottomNav';
 import { Footer } from '@/components/layout/Footer';
 import { FloatingWhatsApp } from '@/components/layout/FloatingWhatsApp';
+import { RouteMemory } from '@/components/layout/FocusHeader';
 import { GoogleAnalytics } from '@/components/layout/GoogleAnalytics';
 import { StoreHydration } from '@/components/providers/StoreHydration';
 import { AuthSync } from '@/components/providers/AuthSync';
 import { CatalogProvider } from '@/components/providers/CatalogProvider';
-import { getFaqs, getGoogleLoginEnabled, getMenuSnapshot, getPricingMatrix, getTrialOffer } from '@/lib/data/catalog';
+import { getFaqs, getGoogleLoginEnabled, getMenuSnapshot, getPricingMatrix, getReferralsEnabled, getTrialOffer } from '@/lib/data/catalog';
+import { RefCapture } from '@/components/referral/RefCapture';
 import { AuthSidebar } from '@/components/auth/AuthSidebar';
 import { SignInModal } from '@/components/auth/SignInModal';
 import { GoogleOneTap } from '@/components/auth/GoogleOneTap';
@@ -21,7 +23,7 @@ import { phoneOtpMode } from '@/lib/auth/otp-mode';
 export const revalidate = 3600;
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
-  const [menu, pricing, trialOffer, faqs, googleSetting, otpMode] = await Promise.all([getMenuSnapshot(), getPricingMatrix(), getTrialOffer(), getFaqs(), getGoogleLoginEnabled(), phoneOtpMode()]);
+  const [menu, pricing, trialOffer, faqs, googleSetting, otpMode, referralsOn] = await Promise.all([getMenuSnapshot(), getPricingMatrix(), getTrialOffer(), getFaqs(), getGoogleLoginEnabled(), phoneOtpMode(), getReferralsEnabled()]);
   const phoneEnabled = otpMode === 'on';
   // Google is switched off in admin for phone-only sign-in, but stays if phone login is off (no lock-out).
   const googleEnabled = googleSetting || !phoneEnabled;
@@ -55,7 +57,9 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <StoreHydration />
       <AuthSync />
       {googleEnabled && <GoogleOneTap />}
-      <OfferBar />
+      <RefCapture />
+      <RouteMemory />
+      <OfferBar referralsOn={referralsOn} />
       <Navbar />
       <main className="flex-1 w-full">{children}</main>
       <Footer />

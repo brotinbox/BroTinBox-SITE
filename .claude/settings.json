@@ -8,7 +8,10 @@
       "ClaudeInChromeDomain(drive.google.com)",
       "ClaudeInChromeDomain(docs.google.com)",
       "ClaudeInChromeDomain(business.facebook.com)",
-      "ClaudeInChromeDomain(localhost:3001)"
+      "ClaudeInChromeDomain(localhost:3001)",
+      "ClaudeInChromeDomain(www.canva.com)",
+      "ClaudeInChromeDomain(www.brotinbox.com)",
+      "mcp__claude-in-chrome__browser_batch"
     ]
   }
 }

@@ -1,20 +1,17 @@
 'use client';
 
 import React from 'react';
-import { usePathname } from 'next/navigation';
+import { useChrome } from '@/lib/layout/chrome';
 import { BRAND } from '@/config/brand';
 
 import { useAppStore } from '@/store/useAppStore';
 import { cn } from '@/lib/utils';
 
 export function FloatingWhatsApp() {
-  const pathname = usePathname();
+  const chrome = useChrome();
   const { isNavDrawerOpen, isDetailsModalOpen } = useAppStore();
 
-  // Hide on admin routes, checkout, tomorrow trial page, weekly plan page, or monthly plan page
-  if (pathname === '/checkout' || pathname === '/tomorrow' || pathname === '/weekly' || pathname === '/monthly' || pathname.startsWith('/admin')) {
-    return null;
-  }
+  if (!chrome.whatsapp) return null;
 
   const encodedMsg = encodeURIComponent(BRAND.whatsappMessage);
   const whatsappUrl = `https://wa.me/918248606711?text=${encodedMsg}`;

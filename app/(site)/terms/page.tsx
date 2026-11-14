@@ -172,7 +172,7 @@ const sections: LegalSection[] = [
         <ul>
           <li>give false details, use another person&apos;s identity or payment method, or submit a false UPI reference;</li>
           <li>resell our meals or use the Service for commercial catering without our written consent;</li>
-          <li>misuse coupons or referral offers, for example by creating multiple accounts;</li>
+          <li>misuse coupons or referral offers (see the <Link href="/refer#terms">referral terms</Link>), for example by creating multiple accounts or referring yourself;</li>
           <li>harass, threaten or abuse our staff or delivery partners;</li>
           <li>copy, scrape, reverse engineer or disrupt the website, or try to access other people&apos;s data.</li>
         </ul>
@@ -286,7 +286,7 @@ const sections: LegalSection[] = [
           ...(hasFssai() ? [[`FSSAI ${LEGAL.fssai.licenseType || 'licence'}`, LEGAL.fssai.licenseNumber] as [string, string]] : []),
           ['Registered address', LEGAL.registeredAddress],
           ['Kitchen address', LEGAL.kitchenAddress],
-          ['Customer care', <span key="c"><a href={`mailto:${LEGAL.supportEmail}`}>{LEGAL.supportEmail}</a> · {LEGAL.supportPhone} (phone and WhatsApp)</span>],
+          ['Customer care', <span key="c"><a href={`mailto:${LEGAL.supportEmail}`}>{LEGAL.supportEmail}</a> (general) · <a href={`mailto:${LEGAL.orderEmail}`}>{LEGAL.orderEmail}</a> (orders) · {LEGAL.supportPhone} (phone and WhatsApp)</span>],
           ['Grievance Officer', <Link key="g" href="/grievance">See Grievance Redressal</Link>],
         ]} />
       </>

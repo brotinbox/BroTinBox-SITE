@@ -82,8 +82,15 @@ export default function ContactPage() {
               <div className="flex items-start gap-3">
                 <Mail className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-bold text-gray-900">Email Inquiries</p>
-                  <p className="text-gray-600 mt-0.5">{BRAND.supportEmail}</p>
+                  <p className="font-bold text-gray-900">Email</p>
+                  <p className="text-gray-600 mt-0.5">
+                    <a href={`mailto:${BRAND.supportEmail}`} className="hover:text-primary">{BRAND.supportEmail}</a>
+                    <span className="text-gray-400"> · general questions</span>
+                  </p>
+                  <p className="text-gray-600 mt-0.5">
+                    <a href={`mailto:${BRAND.orderEmail}`} className="hover:text-primary">{BRAND.orderEmail}</a>
+                    <span className="text-gray-400"> · orders, refunds, missing meals</span>
+                  </p>
                 </div>
               </div>
             </div>

@@ -50,7 +50,7 @@ export function StatCard({ label, value, hint, tone = 'default' }: {
   );
 }
 
-const BADGE: Record<string, string> = {
+export const BADGE: Record<string, string> = {
   // orders
   paid: 'bg-emerald-50 text-emerald-700 border-emerald-200',
   pending_payment: 'bg-amber-50 text-amber-800 border-amber-200',

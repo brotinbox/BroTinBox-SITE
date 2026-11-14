@@ -49,10 +49,11 @@ async function trialPhoneCheck(cart: Cart, phoneVerified: boolean): Promise<Fail
 
 /** Free-juice offers as the checkout shows them (no internal ids). */
 export type CheckoutOffers = {
-  slots: { key: string; offer: FreeOffer; day: number; dayChoice: boolean; juice: string; juiceName: string }[];
+  slots: { key: string; offer: FreeOffer; label?: string; day: number; dayChoice: boolean; juice: string; juiceName: string }[];
   juices: { slug: string; name: string; image: string }[];
   note?: string;
   referralOn: boolean;
+  partnerOn: boolean;
   referral?: { applied: boolean; message: string };
 };
 
@@ -85,8 +86,8 @@ export async function getQuote(input: Cart): Promise<QuoteResult> {
     const q = await quoteCart(user ? cart.data : { ...cart.data, addressId: undefined }, user?.id ?? null, { preview: !user || !cart.data.addressId });
     const o = q.offers;
     const offers: CheckoutOffers = {
-      slots: o.slots.map(({ key, offer, day, dayChoice, juice, juiceName }) => ({ key, offer, day, dayChoice, juice, juiceName })),
-      juices: o.juices, note: o.note, referralOn: o.referralOn, referral: o.referral,
+      slots: o.slots.map(({ key, offer, label, day, dayChoice, juice, juiceName }) => ({ key, offer, label, day, dayChoice, juice, juiceName })),
+      juices: o.juices, note: o.note, referralOn: o.referralOn, partnerOn: o.partnerOn, referral: o.referral,
     };
     return { ok: true, lines: q.lines, subtotal: q.subtotal, discount: q.discount, deliveryFee: q.deliveryFee, total: q.total, couponMessage: q.couponMessage, couponApplied: !!q.couponId, offers };
   } catch (e) {
@@ -245,4 +246,27 @@ export async function getTrialSeats(dates: string[]): Promise<TrialSeats | null>
     console.error('[Capacity] seats unavailable:', e);
     return null;
   }
+}
+
+export type OpenOrder = { id: string; orderNumber: string; type: string; total: number };
+
+/**
+ * The signed-in customer's newest unpaid order that can still be paid, so the
+ * cart bar / checkout can offer "Complete payment" instead of a fresh order.
+ */
+export async function getMyOpenOrder(): Promise<OpenOrder | null> {
+  const supabase = await getSupabaseServer();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+  const { data } = await supabase
+    .from('orders')
+    .select('id, order_number, type, total')
+    .eq('user_id', user.id)
+    .in('status', ['created', 'pending_payment'])
+    .eq('is_top_up', false)
+    .gt('expires_at', new Date().toISOString())
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  return data ? { id: data.id, orderNumber: data.order_number, type: data.type, total: Number(data.total) } : null;
 }

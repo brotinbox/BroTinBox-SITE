@@ -44,8 +44,9 @@ const sections: LegalSection[] = [
           ['Location', 'Your approximate area, and your precise location only if you allow your browser to share it, used to fill in your address and check whether we deliver there. You can type your address instead.'],
           ['Health and body (optional)', 'Fitness goal, diet type, gender, age, height, weight, target weight, activity level, food allergies and weight logs you choose to record.'],
           ['Orders and payments', 'Plans and meals ordered, delivery dates and slots, skips and pauses, meal credits, coupons, amounts, invoices, and the UPI transaction reference or payment-gateway reference for your payment. We do not receive or store card numbers, CVVs, UPI PINs or net-banking passwords.'],
+          ['Referrals', 'Your referral code, which account referred you (if you used a code), and the free-juice rewards each of you earned. We tell the person who referred you only that a reward was earned; we do not show them your orders, address or health data.'],
           ['Communications', 'Messages, photos and feedback you send us on WhatsApp, phone, email or our enquiry form, and our replies.'],
-          ['Technical', 'IP address, device and browser type, pages visited, error logs, and the date and time of account actions (for example a skip or address change). Security cookies keep you signed in, and analytics tools record how the website is used; see section 10.'],
+          ['Technical', 'IP address, device and browser type, pages visited, error logs, and the date and time of account actions (for example a skip or address change). Security cookies keep you signed in, and analytics tools record how the website is used; see section 11.'],
         ]} />
         <p>
           <strong>Health data.</strong> Body measurements, allergies and related information are treated as sensitive personal data under the
@@ -71,12 +72,38 @@ const sections: LegalSection[] = [
           ['Personalise meals and targets', 'Optional health and body data, used only with your consent. You can withdraw it at any time by deleting the values in your profile.'],
           ['Payments, invoices and refunds', 'Order and payment data. Contract performance and our obligations under tax and accounting laws (s.7(a), s.7(c)).'],
           ['Service messages', 'Order confirmations, payment reminders, delivery updates, cutoff reminders and support replies by WhatsApp, SMS, email or phone. If you enter your number to sign in or start an order but don\'t finish, we may contact you on WhatsApp about that order. This is not marketing.'],
+          ['Referral rewards', 'Your referral code and who referred whom, to give both people their free juice and to stop misuse such as duplicate accounts. Voluntarily provided when you share or enter a code (s.7(a)).'],
           ['Offers and newsletters', 'Only if you opt in. You can opt out any time by replying STOP or writing to us; this does not affect service messages.'],
           ['Safety, fraud and legal compliance', 'Technical data and logs, to prevent abuse, investigate incidents and comply with law, court orders and CERT-In directions (s.7(c), (d)).'],
           ['Improve the Service', 'Aggregated or de-identified order and usage data to plan menus, routes and kitchen capacity.'],
-          ['Understand how the website is used', 'Pages visited, device and browser type, approximate location, how you reached us and the actions you take on the site, to see what works and fix what does not. Google Analytics runs only with your consent, which you can withdraw at any time. Vercel Web Analytics sets no cookies and gives us aggregate visit counts. See section 10.'],
+          ['Understand how the website is used', 'Pages visited, device and browser type, approximate location, how you reached us and the actions you take on the site, to see what works and fix what does not. Google Analytics runs only with your consent, which you can withdraw at any time. Vercel Web Analytics sets no cookies and gives us aggregate visit counts. See section 11.'],
         ]} />
         <p>We do not sell, rent or trade your personal data. We do not use your health data for advertising, and we do not make automated decisions that have a legal or similarly significant effect on you.</p>
+      </>
+    ),
+  },
+  {
+    id: 'coaching',
+    title: 'Trainer partners and progress tracking',
+    body: (
+      <>
+        <p>
+          Our trainer partner programme is live: trainers we approve share a code, and we pay them commission on plans their clients take.
+          We also plan to add tools that let trainers track their clients&apos; progress, and let you log workouts and check-ins on our website or an
+          app you add to your phone&apos;s home screen. Those tracking features are not live yet; this section explains how they will handle your
+          data so you know in advance, and we will update this policy again before they launch.
+        </p>
+        <KeyValue rows={[
+          ['What you may record', 'Workout plans and logs, check-ins, body weight and measurements, progress photos, goals and notes, in addition to the profile and order data above.'],
+          ['Linking to a trainer', 'A trainer can see your data only after you accept their invitation or enter their code, and only the items shown to you on the consent screen (for example weight, measurements, check-ins, workouts and the meals you ordered from us). This is a separate consent from your account. You can unlink at any time and the trainer loses access immediately.'],
+          ['What trainers see', 'Only the clients linked to them. Trainers never see your payment details or full address. They must agree to our trainer terms, keep client data confidential and use it only to coach you.'],
+          ['Trainer partner codes (live now)', 'If you order with a trainer\'s partner code or link, we record that you are linked to that trainer for the period shown on our partner page, so we can pay them commission. The trainer sees only your first name and initial, the type of plan you took and what they earned. They do not see your phone number, address, orders or health data.'],
+          ['Progress photos', 'Stored privately, visible only to you and a trainer you have linked, and deleted when you delete them or close your account.'],
+          ['Trainer partner applications (live now)', 'When a trainer applies to our partner programme we collect their name, mobile number, email, gym name, area and pincode, an optional Google Maps link and Instagram handle, experience and approximate client count, to check the application. Approved partners add a UPI ID and account name so we can pay commission, and we keep records of commissions and payouts (including UPI references) for accounting and tax law. See our Partner Terms.'],
+        ]} />
+        <p>
+          Workout, body and progress data is health data and gets the same protection as the health data described in section 2. We do not use it for advertising and do not sell it.
+        </p>
       </>
     ),
   },
@@ -88,6 +115,7 @@ const sections: LegalSection[] = [
         <p>We share personal data only with the parties below, only as much as each needs, and under contracts or terms that require them to protect it. They act as our Data Processors.</p>
         <KeyValue rows={[
           ['Delivery staff and partners', 'Recipient name, mobile number, address, delivery instructions and slot, to deliver your meal.'],
+          ['Trainers you link to (when launched)', 'Only the progress and meal data you agree to share with a trainer or gym you have linked, as described in section 4. You can unlink at any time.'],
           ['Kitchen and support staff', 'Diet, allergies and meal preferences (to cook correctly), and order details (to help you). Staff access is limited by role.'],
           ['Hosting and infrastructure', 'Supabase (database, sign-in and file storage), Vercel (website hosting) and Upstash (abuse protection). They store or process data for us.'],
           ['Maps', 'Google (address lookup through Google Maps) and OpenStreetMap Nominatim (backup address lookup, which receives map coordinates only).'],
@@ -129,9 +157,9 @@ const sections: LegalSection[] = [
         <ul>
           <li><strong>Access:</strong> get a summary of the personal data we hold about you, what we do with it, and who we shared it with.</li>
           <li><strong>Correct and update:</strong> fix inaccurate or incomplete data. You can edit most of it yourself in <Link href="/profile">My profile</Link>.</li>
-          <li><strong>Erase:</strong> ask us to delete data no longer needed, subject to the legal retention periods in section 5.</li>
+          <li><strong>Erase:</strong> ask us to delete data no longer needed, subject to the legal retention periods in section 6.</li>
           <li><strong>Withdraw consent:</strong> as easily as you gave it. Withdrawal does not affect processing before it, and some features (for example personalised targets) may stop working.</li>
-          <li><strong>Grievance redressal:</strong> complain to our Grievance Officer (section 11), and then to the Data Protection Board of India if you are not satisfied.</li>
+          <li><strong>Grievance redressal:</strong> complain to our Grievance Officer (section 12), and then to the Data Protection Board of India if you are not satisfied.</li>
           <li><strong>Nominate:</strong> name a person to exercise these rights for you in the event of your death or incapacity.</li>
         </ul>
         <p>
@@ -255,6 +283,8 @@ export default function PrivacyPage() {
         'We collect what we need to cook and deliver your meals: name, contact details, address, diet and orders.',
         'Height, weight, age and allergies are optional and used only to personalise your targets and keep allergens out.',
         'We never sell your data. Riders see only what they need to deliver.',
+        'If you refer a friend, we record who referred whom only to give you both your free juice.',
+        'Trainer and progress-tracking tools are coming soon. A trainer will see your data only if you link to them, and you can unlink at any time.',
         'Google Analytics cookies run only if you accept them, and you can change your mind at any time. Vercel Web Analytics counts visits without cookies.',
         'You can access, correct or delete your data, or withdraw consent, by writing to our Grievance Officer.',
         'We keep order and invoice records for 8 years because tax law requires it.',

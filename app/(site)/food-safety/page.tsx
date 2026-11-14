@@ -136,7 +136,7 @@ const sections: LegalSection[] = [
       <>
         <p>
           If you think a meal was unsafe, for example spoiled food, a foreign object, an undeclared allergen, or illness after eating, seek medical help first if needed. Then contact
-          us at once on WhatsApp ({LEGAL.supportPhone}) or <a href={`mailto:${LEGAL.supportEmail}`}>{LEGAL.supportEmail}</a> with your order number and photos, and keep the meal and
+          us at once on WhatsApp ({LEGAL.supportPhone}) or <a href={`mailto:${LEGAL.orderEmail}`}>{LEGAL.orderEmail}</a> with your order number and photos, and keep the meal and
           packaging. We investigate every report with our kitchen, and remedies are described in our <Link href="/refund-policy#quality">Refund Policy</Link>.
         </p>
         <p>

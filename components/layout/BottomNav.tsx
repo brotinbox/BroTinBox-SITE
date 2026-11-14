@@ -11,6 +11,7 @@ import { UserAvatar } from '@/components/layout/UserAvatar';
 import { LiquidNavbar, NimbusIcons, type LiquidNavItem } from '@/components/ui/liquid-glass-navbar';
 import { User as UserIcon } from 'lucide-react';
 import { WhatsAppGlyph } from '@/components/ui/WhatsAppGlyph';
+import { useChrome } from '@/lib/layout/chrome';
 
 type TabId = 'home' | 'menu' | 'order' | 'pricing' | 'account';
 
@@ -123,6 +124,7 @@ function OrderOnWhatsApp() {
 
 export function BottomNav() {
   const pathname = usePathname();
+  const chrome = useChrome();
   const [mounted, setMounted] = useState(false);
   const { setNavDrawerOpen, isNavDrawerOpen, isDetailsModalOpen, isLoggedIn, setAuthDrawerOpen } = useAppStore();
   const [activeTabId, setActiveTabId] = useState<TabId>(() => getActiveTabId(pathname, isNavDrawerOpen));
@@ -137,10 +139,8 @@ export function BottomNav() {
 
   if (!mounted) return null;
 
-  // Hide on checkout, tomorrow trial modal, weekly plan modal, monthly plan page, and admin routes
-  if (pathname === '/checkout' || pathname === '/tomorrow' || pathname === '/weekly' || pathname === '/monthly' || pathname.startsWith('/admin')) {
-    return null;
-  }
+  // Focus screens (forms, order flows, checkout) have their own back button and bottom bar.
+  if (!chrome.bottomNav) return null;
 
   const whatsappUrl = `https://wa.me/${BRAND.whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent(ORDER_MESSAGE)}`;
   const accountActive = activeTabId === 'account';

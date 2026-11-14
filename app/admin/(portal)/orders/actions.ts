@@ -11,7 +11,7 @@ import { syncOrderFromCashfree } from '@/lib/payments/cashfree-checkout';
 import { adminHref } from '@/lib/admin/paths';
 import { CheckoutError, quoteCart, type Cart } from '@/lib/checkout/quote';
 import { createOrderFromQuote } from '@/lib/checkout/create-order';
-import { notifyOrderPlaced } from '@/lib/notifications/telegram';
+import { notifyOrderPaid, notifyOrderPlaced } from '@/lib/notifications/telegram';
 
 const idSchema = z.string().uuid();
 
@@ -27,6 +27,8 @@ export async function markOrderPaid(_prev: ActionResult | null, fd: FormData): P
     const { error } = await supabase.rpc('admin_mark_order_paid', { p_order: id.data, p_reference: reference, p_method: method });
     if (error) throw error;
     await invalidate(CACHE_KEYS.overview, CACHE_KEYS.revenue30, CACHE_KEYS.forecast7);
+    notifyOrderPaid(id.data, `MARKED BY STAFF · ${method.replace('_', ' ').toUpperCase()}`)
+      .catch((err) => console.error('[Order] Telegram notify error:', err));
     return ok('Payment confirmed. The subscription is active and meals are scheduled.');
   });
 }
@@ -199,14 +201,18 @@ export async function createManualOrder(_prev: ActionResult | null, fd: FormData
       });
       await db.from('orders').update({ metadata: { source: 'whatsapp', entered_by: staff.profile.id } }).eq('id', order.id);
       orderId = order.id;
-      notifyOrderPlaced(order.id).catch((err) => console.error('[Order] Telegram notify error:', err));
+      // Sent after any "mark paid" below, so the message shows the real PAID / NOT PAID state.
+      const notify = () => notifyOrderPlaced(order.id).catch((err) => console.error('[Order] Telegram notify error:', err));
 
       if (f.payment !== 'unpaid') {
         // Staff session (not service role): the RPC checks orders.mark_paid itself.
         const supabase = await getSupabaseServer();
         const { error } = await supabase.rpc('admin_mark_order_paid', { p_order: order.id, p_reference: reference, p_method: f.payment });
+        notify();
         if (error) return ok(`Order ${order.order_number} created, but it could not be marked paid (${error.message}). Mark it paid from the order page.`);
         await invalidate(CACHE_KEYS.overview, CACHE_KEYS.revenue30, CACHE_KEYS.forecast7);
+      } else {
+        notify();
       }
       return ok(`Order ${order.order_number} created.`);
     } catch (e) {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { usePathname } from 'next/navigation';
+import { useChrome } from '@/lib/layout/chrome';
 import { BellRing, Check, Loader2, MapPin, ShieldCheck, X } from 'lucide-react';
 import { useAppStore } from '@/store/useAppStore';
 import { BRAND } from '@/config/brand';
@@ -21,7 +21,6 @@ const SKIP_KEY = 'brotin-pincode-skipped';
  * Pages where the popup would get in the way: checkout / payment (the address
  * form there has the pincode) and legal / policy reading.
  */
-const QUIET_PATHS = ['/checkout', '/privacy', '/terms', '/refund-policy', '/delivery-policy', '/grievance', '/food-safety'];
 
 function readSkipped() {
   try {
@@ -37,7 +36,8 @@ function readSkipped() {
  * Mounted once in the site layout; the header picker reopens it.
  */
 export function PincodePrompt() {
-  const pathname = usePathname();
+  // Policy pages, account screens and forms never get the first-visit ask (lib/layout/chrome.ts).
+  const askHere = useChrome().pincodePrompt;
   const { zones, comingSoonZones, loading } = useDeliveryZones();
   const locationConfirmed = useAppStore((s) => s.locationConfirmed);
   const currentLocation = useAppStore((s) => s.currentLocation);
@@ -74,7 +74,7 @@ export function PincodePrompt() {
   // no saved address to take the pincode from).
   useEffect(() => {
     if (!hydrated || !authReady || locationConfirmed || isPincode(savedPincode) || readSkipped()) return;
-    if (QUIET_PATHS.some((p) => pathname?.startsWith(p))) return;
+    if (!askHere) return;
     // While the first-visit intro splash is up, wait for it to go before asking.
     let t: ReturnType<typeof setTimeout> | undefined;
     const ask = () => { t = setTimeout(() => setOpen(true), 600); };
@@ -85,7 +85,7 @@ export function PincodePrompt() {
       clearTimeout(t);
       window.removeEventListener(INTRO_DONE_EVENT, ask);
     };
-  }, [hydrated, authReady, locationConfirmed, savedPincode, pathname, setOpen]);
+  }, [hydrated, authReady, locationConfirmed, savedPincode, askHere, setOpen]);
 
   // Keep a saved pincode in step with the zones (e.g. a next-batch area that has since launched).
   useEffect(() => {

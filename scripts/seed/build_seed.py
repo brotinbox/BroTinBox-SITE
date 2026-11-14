@@ -57,6 +57,11 @@ CATEGORY = {
 SALADS = [f'SL{i}' for i in range(1, 7)]
 LEGUMES = [f'LG{i}' for i in range(1, 7)]
 CARBS = [f'CB{i}' for i in range(1, 6)]
+# Dinner main never repeats lunch's (migration 0040). Non-veg +3; veg changes base.
+DINNER_MAIN = {
+    'NVM1': 'NVM4', 'NVM2': 'NVM5', 'NVM3': 'NVM6', 'NVM4': 'NVM1', 'NVM5': 'NVM2', 'NVM6': 'NVM3',
+    'VM1': 'VM5', 'VM2': 'VM4', 'VM3': 'VM7', 'VM4': 'VM1', 'VM5': 'VM6', 'VM6': 'VM3', 'VM7': 'VM2',
+}
 
 json_items = {c: i for g in jdata('menu-30day.json')['catalog'].values() for c, i in g.items()}
 
@@ -135,7 +140,8 @@ def menu(name):
 rot_vals = []
 for sheet, diet in (('Menu_NonVeg.csv', 'non_veg'), ('Menu_Veg.csv', 'veg')):
     for d in menu(sheet):
-        dinner = dict(d, sl=SALADS[(SALADS.index(d['sl']) + 2) % 6],
+        main = 'NVM5' if diet == 'non_veg' and d['day'] == 30 else DINNER_MAIN[d['main']]
+        dinner = dict(d, main=main, sl=SALADS[(SALADS.index(d['sl']) + 2) % 6],
                       lg=LEGUMES[(LEGUMES.index(d['lg']) + 3) % 6],
                       cb=CARBS[(CARBS.index(d['cb']) + 3) % 5])
         for slot, x in (('lunch', d), ('dinner', dinner)):
@@ -145,7 +151,7 @@ for sheet, diet in (('Menu_NonVeg.csv', 'non_veg'), ('Menu_Veg.csv', 'veg')):
 
 sql += [
     "-- 30-day rotation (workbook › Menu NonVeg / Menu Veg). Lunch = the workbook's box.",
-    "-- Dinner (2-meal plans) = same main + protein side, with salad +2, legume +3, carb +3",
+    "-- Dinner (2-meal plans) = own main (DINNER_MAIN), same protein side, salad +2, legume +3, carb +3",
     "-- in catalog order (the rule the website uses today). Change it in admin once decided.",
     "insert into public.menu_rotation (day_number, diet, slot, name, main_id, protein_side_id, salad_id, legume_id, carb_id)",
     "select v.day, v.diet::public.diet_type, v.slot::public.meal_slot, v.name, m.id, ps.id, sl.id, lg.id, cb.id from (values",

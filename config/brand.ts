@@ -17,9 +17,13 @@ export const BRAND = {
   whatsappNumber: "+918248606711",
   whatsappMessage: "Hi BroTin Box! I want to know more about the meal subscription.",
   supportEmail: "support@brotinbox.com",
+  /** Order issues: missing/wrong meals, refunds, cancellations. */
+  orderEmail: "order@brotinbox.com",
   phone: "+91 82486 06711",
   gaMeasurementId: "G-FWBS6KKMH7",
   address: "17/2, Semmozhi Nagar, Kuniyamuthur, Coimbatore - 641008, Tamil Nadu",
+  /** Kitchen pin (Google Maps): start point for delivery routes. */
+  kitchenLocation: { lat: 10.9646002, lng: 76.9396012 },
   workingDays: "Monday to Saturday (6 days a week)",
   deliverySlots: {
     lunch: "11:30 AM - 1:30 PM",

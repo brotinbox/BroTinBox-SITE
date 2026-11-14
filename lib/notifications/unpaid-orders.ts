@@ -43,6 +43,14 @@ export async function alertUnpaidOrders(): Promise<{ checked: number; alerted: n
       .select('id');
     if (!claimed?.length) continue;
 
+    // Customer already paid a later order (or is mid-retry on a newer one): not
+    // worth an alert. Stays claimed, so it leaves the queue instead of being re-checked.
+    const { count: newer } = await supabase
+      .from('orders').select('id', { count: 'exact', head: true })
+      .eq('user_id', o.user_id).gt('created_at', o.created_at)
+      .in('status', ['paid', 'created', 'pending_payment']);
+    if ((newer ?? 0) > 0) continue;
+
     const { data: profile } = await supabase.from('profiles').select('full_name, phone, email').eq('id', o.user_id).maybeSingle();
     const addr = (o.address_snapshot ?? {}) as { recipient_name?: string; phone?: string; area?: string; pincode?: string };
     const name = addr.recipient_name || profile?.full_name || 'Customer';
@@ -52,7 +60,8 @@ export async function alertUnpaidOrders(): Promise<{ checked: number; alerted: n
 
     const waText = `Hi ${name.split(' ')[0]}! This is BroTin Box. Your order ${o.order_number} (${inr(o.total)}) is waiting for payment. Need any help finishing it?`;
     const lines = [
-      `⏰ <b>Unpaid ${mins} min</b> · ${escapeHtml(o.order_number)} · <b>${inr(o.total)}</b>`,
+      `❌ <b>NOT PAID · ${mins} min</b> · ${escapeHtml(o.order_number)} · <b>${inr(o.total)}</b>`,
+      '💳 Customer started checkout but hasn\'t paid. No deliveries are booked.',
       `🍱 ${escapeHtml(o.type)} plan${schedule[0]?.date ? ` · starts ${escapeHtml(schedule[0].date)}` : ''}${schedule.length > 1 ? ` · ${schedule.length} days` : ''}`,
       `👤 ${escapeHtml(name)}${phone ? ` · 📱 ${phone}` : ''}`,
       addr.area || addr.pincode ? `🏠 ${escapeHtml([addr.area, addr.pincode].filter(Boolean).join(' '))}` : null,

@@ -1,6 +1,7 @@
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight, type LucideIcon } from 'lucide-react';
+import { ChevronRight, type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { FocusHeader } from '@/components/layout/FocusHeader';
 
 /**
  * Instagram-style settings: the profile page is a list of rows, each opening
@@ -46,15 +47,11 @@ export function SettingsScreen({ title, description, back = '/profile', children
   title: string; description?: string; back?: string; children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-paper pb-28">
+    // Focus screen (lib/layout/chrome.ts): no navbar, dock or footer, so no dock padding either.
+    <div className="min-h-screen bg-paper pb-[max(2.5rem,env(safe-area-inset-bottom))]">
+      <FocusHeader title={title} back={back} backLabel="Back to profile" />
       <div className="max-w-xl mx-auto px-4 pt-4">
-        <div className="flex items-center gap-2 -ml-2">
-          <Link href={back} aria-label="Back to profile" className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-black/5">
-            <ChevronLeft className="w-5 h-5 text-ink" />
-          </Link>
-          <h1 className="font-heading font-black text-xl text-ink">{title}</h1>
-        </div>
-        {description && <p className="text-sm text-gray-600 mt-1 mb-1">{description}</p>}
+        {description && <p className="text-sm text-gray-600 mb-1">{description}</p>}
         <div className="mt-4 space-y-4">{children}</div>
       </div>
     </div>

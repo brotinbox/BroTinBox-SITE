@@ -215,3 +215,13 @@ export const getGoogleLoginEnabled = unstable_cache(
   ['feature-google-login'],
   { tags: ['settings'], revalidate: HOUR }
 );
+
+/** Admin › Settings › Features › "Referral rewards". Off if the setting can't be read. */
+export const getReferralsEnabled = unstable_cache(
+  async (): Promise<boolean> => {
+    const { data, error } = await getSupabasePublic().rpc('is_feature_enabled', { flag: 'referrals' });
+    return !error && data === true;
+  },
+  ['feature-referrals'],
+  { tags: ['settings'], revalidate: HOUR }
+);

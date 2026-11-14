@@ -23,7 +23,7 @@ const FEATURE_LABELS: Record<string, string> = {
   coupons: 'Coupon codes at checkout (switch not connected yet: active coupons always work)',
   reviews: 'Customer reviews (not shown on the website yet)',
   rider_app: 'Rider app (not built yet)',
-  referrals: 'Referral rewards (not built yet)',
+  referrals: 'Refer & earn: free juice for both (also shows the offer-bar slide and /refer page)',
   wallet: 'Wallet (not built yet)',
 };
 

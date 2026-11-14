@@ -14,7 +14,7 @@ import { rateLimit } from '@/lib/security/ratelimit';
 
 // /checkout itself is open (cart + price preview; the phone popup appears at Pay).
 // Payment pages still need a session.
-const CUSTOMER_PAGES = ['/dashboard', '/profile', '/orders', '/subscription', '/my-plan', '/progress', '/onboarding', '/checkout/pay', '/checkout/success'];
+const CUSTOMER_PAGES = ['/dashboard', '/profile', '/orders', '/subscription', '/my-plan', '/progress', '/onboarding', '/checkout/pay', '/checkout/success', '/partner', '/partners/apply'];
 
 function adminPrefix() {
   const p = (process.env.ADMIN_PATH || '').replace(/^\/+|\/+$/g, '');

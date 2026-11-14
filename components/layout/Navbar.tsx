@@ -13,11 +13,13 @@ import { signOutCustomer } from '@/lib/auth/customer';
 import { SIGN_OUT_CONFIRM, useConfirm } from '@/components/ui/ConfirmDialog';
 import { fssaiAdjective, hasFssai } from '@/config/legal';
 import { WhatsAppGlyph } from '@/components/ui/WhatsAppGlyph';
+import { useChrome } from '@/lib/layout/chrome';
 
 export function Navbar() {
   const router = useRouter();
   const confirm = useConfirm();
   const pathname = usePathname();
+  const chrome = useChrome();
   const [mounted, setMounted] = useState(false);
   const { isLoggedIn, authReady, user, isNavDrawerOpen, setNavDrawerOpen, setAuthDrawerOpen } = useAppStore();
   const [isMobileNavVisible, setIsMobileNavVisible] = useState(true);
@@ -128,6 +130,9 @@ export function Navbar() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [closeDrawer]);
+
+  // Focus/flow screens draw their own back bar (FocusHeader / FlowShell) instead.
+  if (!chrome.navbar) return null;
 
   const navLinks = [
     { label: 'Home', href: '/', desc: 'BroTin Box daily protein overview' },

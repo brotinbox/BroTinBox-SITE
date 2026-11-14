@@ -50,7 +50,7 @@ export function FreeJuiceCard({ offers, dates, onPick }: {
         <div key={s.key} className="space-y-2 border-t border-gray-100 pt-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <p className="text-xs font-bold text-gray-900">
-              {OFFER_TITLE[s.offer]}
+              {s.label ?? OFFER_TITLE[s.offer]}
               {!s.dayChoice && dates[s.day - 1] && dates.length > 1 && <span className="font-normal text-gray-500"> · {shortDate(dates[s.day - 1])}</span>}
             </p>
             {s.dayChoice && dates.length > 1 && (

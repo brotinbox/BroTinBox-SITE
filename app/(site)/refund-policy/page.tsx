@@ -83,7 +83,7 @@ const sections: LegalSection[] = [
         <p>
           If a meal is missing, wrong (including the wrong diet type, for example non-veg sent to a veg customer), spilled, damaged, spoiled, contains a foreign object, or contains
           an allergen you told us about, report it <strong>within 2 hours of delivery</strong>. Send your order number and a photo on{' '}
-          <a href={wa} target="_blank" rel="noopener noreferrer">WhatsApp ({LEGAL.supportPhone})</a> or email <a href={`mailto:${LEGAL.supportEmail}`}>{LEGAL.supportEmail}</a>.
+          <a href={wa} target="_blank" rel="noopener noreferrer">WhatsApp ({LEGAL.supportPhone})</a> or email <a href={`mailto:${LEGAL.orderEmail}`}>{LEGAL.orderEmail}</a>.
           Please keep the meal and packaging until we reply.
         </p>
         <p>Once confirmed, you choose one of:</p>
@@ -148,7 +148,7 @@ const sections: LegalSection[] = [
     body: (
       <p>
         To cancel or ask for a refund, contact us on <a href={wa} target="_blank" rel="noopener noreferrer">WhatsApp</a> or at{' '}
-        <a href={`mailto:${LEGAL.supportEmail}`}>{LEGAL.supportEmail}</a> with your order number. If you are not happy with how we handled it, escalate it to our Grievance Officer
+        <a href={`mailto:${LEGAL.orderEmail}`}>{LEGAL.orderEmail}</a> with your order number. If you are not happy with how we handled it, escalate it to our Grievance Officer
         on the <Link href="/grievance">Grievance Redressal</Link> page. Nothing in this policy limits your statutory rights as a consumer.
       </p>
     ),

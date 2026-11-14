@@ -35,6 +35,8 @@ export async function createOrderFromQuote(
       // Poster offers: placed on their delivery day when the order is paid (migration 0035).
       free_juices: q.freeJuices,
       ...(q.referrerId && { referral: { referrer_id: q.referrerId } }),
+      // Trainer partner code: links the customer to the trainer when paid (migration 0039).
+      ...(q.partnerId && { partner: { partner_id: q.partnerId } }),
       // Staff orders may go over the trial seat limit (migration 0037).
       ...(opts.ignoreCapacity && { capacity_override: true }),
     },

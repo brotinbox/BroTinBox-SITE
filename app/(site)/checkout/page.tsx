@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ChevronDown, ChevronLeft, Clock, Loader2, Lock, MapPin, Minus, Plus, ShieldCheck, Tag, Trash2 } from 'lucide-react';
 import { useAppStore, MAX_ADDON_QTY, type CartPlan } from '@/store/useAppStore';
-import { getCheckoutAddons, getQuote, type CheckoutAddon, type QuoteResult } from '@/lib/checkout/actions';
+import { getCheckoutAddons, getMyOpenOrder, getQuote, type CheckoutAddon, type OpenOrder, type QuoteResult } from '@/lib/checkout/actions';
 import type { Cart } from '@/lib/checkout/quote';
 import { SIGN_IN_PENDING, submitOrder, type NewAddressInput } from '@/lib/checkout/submit';
 import { clearDraft } from '@/lib/checkout/draft';
@@ -19,6 +19,7 @@ import { PincodeStatus } from '@/components/delivery/PincodeStatus';
 import { OrderTerms } from '@/components/legal/OrderTerms';
 import { cn } from '@/lib/utils';
 import { useSavedLocation } from '@/lib/location';
+import { storedReferral } from '@/lib/referral';
 import { SLOT_TIME } from '@/lib/meal-display';
 
 const inr = (n: number) => `₹${n.toLocaleString('en-IN', { maximumFractionDigits: 2 })}`;
@@ -51,6 +52,15 @@ export default function CheckoutPage() {
   }, [user.fullName, user.phone, saved.area, saved.pincode]);
   useEffect(() => { if (authReady && addresses.length === 0) setUseNew(true); }, [authReady, addresses.length]);
 
+  // An earlier order still waiting for payment: offer it before making a second one.
+  const [openOrder, setOpenOrder] = useState<OpenOrder | null>(null);
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    let cancelled = false;
+    getMyOpenOrder().then((o) => { if (!cancelled) setOpenOrder(o); }).catch(() => {});
+    return () => { cancelled = true; };
+  }, [isLoggedIn]);
+
   const enteringNew = useNew || !isLoggedIn || addresses.length === 0;
   const savedAddress = addresses.find((a) => a.id === selectedAddressId) ?? addresses.find((a) => a.isDefault) ?? addresses[0];
   const addressId = enteringNew ? undefined : savedAddress?.id;
@@ -71,6 +81,14 @@ export default function CheckoutPage() {
   const [showReferral, setShowReferral] = useState(false);
   const [referralInput, setReferralInput] = useState('');
   const [referral, setReferral] = useState<string | undefined>();
+  // A friend's code that arrived through a shared ?ref= link.
+  useEffect(() => {
+    const code = storedReferral();
+    if (!code) return;
+    setReferralInput(code);
+    setReferral(code);
+    setShowReferral(true);
+  }, []);
 
   // ----- server quote (debounced; works signed out from the pincode)
   const cart = useMemo((): (Omit<Cart, 'addressId'> & { addressId?: string }) | null => {
@@ -201,6 +219,16 @@ export default function CheckoutPage() {
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-5 space-y-3">
+        {openOrder && openOrder.id !== placedOrderId && (
+          <section className="rounded-2xl border border-amber-200 bg-amber-50 p-4 flex flex-wrap items-center gap-3">
+            <p className="flex-1 min-w-[200px] text-sm text-amber-900">
+              You have an unpaid order <b>{openOrder.orderNumber}</b> ({inr(openOrder.total)}). Pay that one, or carry on below for a new order.
+            </p>
+            <Link href={`/checkout/pay/${openOrder.id}`} className="shrink-0 rounded-xl bg-ink text-white px-4 py-2 text-xs font-bold">
+              Pay {openOrder.orderNumber}
+            </Link>
+          </section>
+        )}
         {/* ---------- Deliver to ---------- */}
         <section className="bg-white rounded-2xl border border-gray-200 p-4 space-y-3">
           <div className="flex items-start gap-3">
@@ -321,17 +349,17 @@ export default function CheckoutPage() {
             <button className="px-4 py-2 rounded-xl bg-gray-900 text-white text-xs font-bold">Apply</button>
           </form>
           {q?.couponMessage && <p className={cn('text-xs font-semibold', q.couponApplied ? 'text-emerald-700' : 'text-rose-700')}>{q.couponMessage}</p>}
-          {q?.offers.referralOn && cartPlan.type !== 'trial' && (
+          {(q?.offers.partnerOn || (q?.offers.referralOn && cartPlan.type !== 'trial')) && (
             showReferral ? (
               <form onSubmit={(e) => { e.preventDefault(); setReferral(referralInput.trim().toUpperCase() || undefined); }} className="flex gap-2 items-center pt-1">
                 <span className="w-4 shrink-0" />
-                <input value={referralInput} onChange={(e) => setReferralInput(e.target.value)} maxLength={20} placeholder="Friend's referral code" autoFocus
+                <input value={referralInput} onChange={(e) => setReferralInput(e.target.value)} maxLength={20} placeholder="Friend's or trainer's code" autoFocus={!referral}
                   className="flex-1 min-w-0 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm uppercase focus:bg-white focus:border-ink focus:outline-none" />
                 <button className="px-4 py-2 rounded-xl bg-gray-900 text-white text-xs font-bold">Apply</button>
               </form>
             ) : (
               <button type="button" onClick={() => setShowReferral(true)} className="pl-6 text-xs font-bold text-accent hover:underline underline-offset-2">
-                Have a referral code?
+                Have a referral or trainer code?
               </button>
             )
           )}

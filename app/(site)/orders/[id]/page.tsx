@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { requireCustomer } from '@/lib/auth/session';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { dateLabel, inr } from '@/lib/customer/data';
-import { AccountShell } from '@/components/account/AccountNav';
+import { FocusHeader } from '@/components/layout/FocusHeader';
 
 export const metadata = { title: 'Order', robots: { index: false } };
 export const dynamic = 'force-dynamic';
@@ -24,8 +24,10 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
   const a = (o.address_snapshot ?? {}) as Record<string, string>;
 
   return (
-    <AccountShell current="/orders" title={`Order ${o.order_number}`} subtitle={`Placed ${dateLabel(o.created_at.slice(0, 10))}${o.paid_at ? ` · paid ${dateLabel(o.paid_at.slice(0, 10))}` : ''}`}>
-      <div className="space-y-4">
+    <div className="min-h-screen bg-paper pb-[max(2.5rem,env(safe-area-inset-bottom))]">
+      <FocusHeader title={`Order ${o.order_number}`} back="/orders" backLabel="Back to orders" />
+      <div className="max-w-xl mx-auto px-4 pt-4 space-y-4">
+        <p className="text-sm text-gray-600">Placed {dateLabel(o.created_at.slice(0, 10))}{o.paid_at ? ` · paid ${dateLabel(o.paid_at.slice(0, 10))}` : ''}</p>
         <section className="rounded-2xl border border-gray-200 bg-white p-5">
           <ul className="space-y-1.5 text-sm">
             {(items ?? []).map((i) => (
@@ -49,6 +51,6 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
         )}
         <Link href="/my-plan" className="inline-block text-sm font-bold text-ink">See my meals →</Link>
       </div>
-    </AccountShell>
+    </div>
   );
 }

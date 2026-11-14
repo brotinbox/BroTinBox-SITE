@@ -138,8 +138,14 @@ export async function notifyOrderPlaced(orderId: string): Promise<boolean> {
       timeStyle: 'short',
     });
 
+    const isPaid = order.status === 'paid';
     const lines: string[] = [
-      `🍱 <b>NEW ORDER RECEIVED · ${escapeHtml(BRAND.name)}</b>`,
+      isPaid
+        ? `✅ <b>NEW ORDER · PAID · ${escapeHtml(BRAND.name)}</b>`
+        : `🕓 <b>NEW ORDER · NOT PAID YET · ${escapeHtml(BRAND.name)}</b>`,
+      isPaid
+        ? '💳 <b>Payment:</b> ✅ Paid'
+        : '💳 <b>Payment:</b> ❌ Not paid yet. A ✅ PAID message follows when it clears. Don\'t cook until then.',
       '',
       `🧾 <b>Order:</b> <code>#${escapeHtml(order.order_number)}</code>`,
       `💰 <b>Total:</b> <b>${inr(order.total)}</b>${Number(order.discount) > 0 ? ` <i>(Discount: -${inr(order.discount)})</i>` : ''}`,
@@ -205,7 +211,8 @@ export async function notifyPaymentReferenceSubmitted(orderId: string, reference
     });
 
     const lines: string[] = [
-      `💳 <b>UPI PAYMENT REFERENCE SUBMITTED</b>`,
+      `💳 <b>UPI REFERENCE SUBMITTED · NOT CONFIRMED</b>`,
+      '⏳ <b>Payment:</b> Not confirmed. Check the UTR in your bank app, then Mark paid in admin.',
       '',
       `🧾 <b>Order:</b> <code>#${escapeHtml(order.order_number)}</code>`,
       `💰 <b>Amount:</b> <b>${inr(order.total)}</b>`,
@@ -229,7 +236,7 @@ export async function notifyPaymentReferenceSubmitted(orderId: string, reference
 /**
  * Sends a Telegram notification when Cashfree confirms an online payment.
  */
-export async function notifyOrderPaid(orderId: string): Promise<boolean> {
+export async function notifyOrderPaid(orderId: string, source = 'CASHFREE'): Promise<boolean> {
   try {
     const supabase = getSupabaseService();
     const { data: order } = await supabase
@@ -239,16 +246,26 @@ export async function notifyOrderPaid(orderId: string): Promise<boolean> {
       .maybeSingle();
     if (!order) return false;
 
+    // Abandoned attempts the database closed when this one was paid (migration 0042).
+    const { data: superseded } = await supabase
+      .from('orders')
+      .select('order_number')
+      .eq('metadata->>superseded_by', order.order_number);
+
     const addr = (order.address_snapshot ?? {}) as { recipient_name?: string; phone?: string };
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://brotinbox.com';
     const adminPath = process.env.ADMIN_PATH || 'admin';
     const now = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' });
 
     const lines: string[] = [
-      `✅ <b>PAYMENT RECEIVED (CASHFREE)</b>`,
+      `✅ <b>PAID · PAYMENT RECEIVED (${escapeHtml(source)})</b>`,
+      '💳 <b>Payment:</b> ✅ Paid. Deliveries are booked.',
       '',
       `🧾 <b>Order:</b> <code>#${escapeHtml(order.order_number)}</code> · ${escapeHtml(order.type)}`,
       `💰 <b>Amount:</b> <b>${inr(order.total)}</b>`,
+      superseded?.length
+        ? `🧹 <b>Closed earlier unpaid attempt${superseded.length > 1 ? 's' : ''}:</b> ${superseded.map((s) => `#${escapeHtml(s.order_number)}`).join(', ')} (no money taken, ignore ${superseded.length > 1 ? 'them' : 'it'})`
+        : '',
       addr.recipient_name ? `👤 <b>Customer:</b> ${escapeHtml(addr.recipient_name)}` : '',
       addr.phone ? `📱 <b>Phone:</b> ${escapeHtml(addr.phone)}` : '',
       `🔗 <a href="${siteUrl}/${adminPath}/orders/${order.id}">Open in Admin</a>`,

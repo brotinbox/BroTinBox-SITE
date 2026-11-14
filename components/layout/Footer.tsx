@@ -1,6 +1,6 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
+import { useChrome } from '@/lib/layout/chrome';
 import PushpinTearFooter, { type FooterColumn, type IconLink, type TearField } from '@/components/ui/pushpin-tear-footer';
 import { BRAND } from '@/config/brand';
 import { LEGAL, fssaiAbbr, hasFssai } from '@/config/legal';
@@ -49,6 +49,7 @@ const COLUMNS: FooterColumn[] = [
       { label: 'FAQ', href: '/faq' },
       { label: 'Contact', href: '/contact' },
       { label: 'Nutrition Blog', href: '/blog' },
+      { label: 'For Trainers', href: '/partners' },
     ],
     cta: { label: 'talk.', href: BRAND.socials.whatsapp },
   },
@@ -59,15 +60,16 @@ const SIDE_LINKS: IconLink[] = [
   { icon: 'doc', label: 'terms', href: '/terms' },
 ];
 
-// Signed-in dashboard pages: app-like screens, no marketing footer.
-const ACCOUNT_PREFIXES = ['/dashboard', '/my-plan', '/subscription', '/orders', '/progress', '/profile', '/onboarding'];
-const isAccountPage = (path: string) => ACCOUNT_PREFIXES.some((p) => path === p || path.startsWith(`${p}/`));
-
 export function Footer() {
-  const pathname = usePathname() ?? '';
+  const chrome = useChrome();
+  if (!chrome.footer) return null; // account screens and focus screens: no marketing footer
+  return <FooterPoster />;
+}
+
+// Split out so screens without a footer don't load the delivery zones for its pincode check.
+function FooterPoster() {
   const { zones, comingSoonZones } = useDeliveryZones();
   const setCurrentLocation = useAppStore((s) => s.setCurrentLocation);
-  if (isAccountPage(pathname)) return null;
 
   // The design's newsletter pill becomes our pincode check; the answer replaces its label.
   const pincodeField: TearField = {

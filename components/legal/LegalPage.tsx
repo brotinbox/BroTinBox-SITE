@@ -9,6 +9,7 @@ export const LEGAL_PAGES = [
   { href: '/delivery-policy', label: 'Delivery Policy' },
   { href: '/food-safety', label: 'Food Safety & Allergens' },
   { href: '/grievance', label: 'Grievance Redressal' },
+  { href: '/partner-terms', label: 'Partner Terms' },
 ] as const;
 
 export type LegalSection = { id: string; title: string; body: ReactNode };

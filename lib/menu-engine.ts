@@ -370,8 +370,16 @@ export function getMenuForDate(dateInput: Date | string, diet: DietType = 'non-v
   const dinnerLegumeIdx = legumeIdx >= 0 ? (legumeIdx + 3) % LEGUMES.length : 0;
   const dinnerCarbIdx = carbIdx >= 0 ? (carbIdx + 3) % CARBS.length : 0;
 
+  // Dinner main never repeats lunch's (same map as migration 0040 / build_seed.py)
+  const DINNER_MAIN: Record<string, string> = {
+    NVM1: 'NVM4', NVM2: 'NVM5', NVM3: 'NVM6', NVM4: 'NVM1', NVM5: 'NVM2', NVM6: 'NVM3',
+    VM1: 'VM5', VM2: 'VM4', VM3: 'VM7', VM4: 'VM1', VM5: 'VM6', VM6: 'VM3', VM7: 'VM2',
+  };
+  const dinnerMainCode = diet === 'non-veg' && dayNumber30 === 30 ? 'NVM5' : DINNER_MAIN[dayBox.items.main.id];
+  const dinnerMain = (dinnerMainCode && CATALOG_30_DAYS.mains[dinnerMainCode]) || dayBox.items.main;
+
   let dinnerItems = {
-    main: dayBox.items.main as MenuItem,
+    main: dinnerMain as MenuItem,
     proteinSide: dayBox.items.proteinSide as MenuItem,
     salad: SALADS[dinnerSaladIdx],
     legume: LEGUMES[dinnerLegumeIdx],

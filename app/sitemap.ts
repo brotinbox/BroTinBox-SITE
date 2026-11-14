@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next';
 import { BRAND } from '@/config/brand';
 import { getPublishedPosts } from '@/lib/content/blog';
 
-const PAGES = ['', '/menu', '/plans', '/pricing', '/weekly', '/monthly', '/tomorrow', '/delivery-areas', '/blog', '/faq', '/about', '/contact', '/terms', '/privacy', '/refund-policy', '/delivery-policy', '/food-safety', '/grievance'];
+const PAGES = ['', '/menu', '/plans', '/pricing', '/weekly', '/monthly', '/tomorrow', '/delivery-areas', '/blog', '/faq', '/refer', '/partners', '/about', '/contact', '/terms', '/privacy', '/refund-policy', '/delivery-policy', '/food-safety', '/grievance', '/partner-terms'];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = BRAND.siteUrl.replace(/\/$/, '');

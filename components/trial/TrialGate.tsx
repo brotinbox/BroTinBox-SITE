@@ -6,6 +6,7 @@ import { myTrialStatus } from '@/lib/checkout/actions';
 import type { MyTrialStatus } from '@/lib/checkout/trial';
 import { DailyTrialStepModal } from '@/components/trial/DailyTrialStepModal';
 import { TrialStatusCard } from '@/components/trial/TrialStatusCard';
+import { FocusHeader } from '@/components/layout/FocusHeader';
 
 // Remembered per tab, so coming back to /tomorrow doesn't wait on the server again.
 const cache = new Map<string, MyTrialStatus | null>();
@@ -42,22 +43,26 @@ export function TrialGate() {
   // Still checking: hold the space with a quiet placeholder.
   if (!authReady || status === undefined) {
     return (
-      <div className="w-full max-w-2xl mx-auto px-4 py-6"><div className="rounded-2xl border border-gray-200 bg-white p-5 space-y-4" aria-busy="true" aria-label="Checking your trial">
+      <><FocusHeader title="Trial box" /><div className="w-full max-w-2xl mx-auto px-4 py-6"><div className="rounded-2xl border border-gray-200 bg-white p-5 space-y-4" aria-busy="true" aria-label="Checking your trial">
         <div className="h-3 w-32 rounded-full bg-gray-100 animate-pulse" />
         <div className="h-6 w-56 rounded-full bg-gray-100 animate-pulse" />
         <div className="grid grid-cols-2 gap-3 pt-2">
           <div className="h-28 rounded-2xl bg-gray-100 animate-pulse" />
           <div className="h-28 rounded-2xl bg-gray-100 animate-pulse" />
         </div>
-      </div></div>
+      </div></div></>
     );
   }
 
   if (status && status.state !== 'available' && !(status.state === 'pending' && rebook)) {
     return (
-      <div className="w-full max-w-2xl mx-auto px-4 py-6">
-        <TrialStatusCard status={status} onRebook={status.state === 'pending' ? () => setRebook(true) : undefined} />
-      </div>
+      <>
+        {/* Not the booking steps, so no FlowShell: give it the same back bar as other focus screens. */}
+        <FocusHeader title="Your trial box" />
+        <div className="w-full max-w-2xl mx-auto px-4 py-6">
+          <TrialStatusCard status={status} onRebook={status.state === 'pending' ? () => setRebook(true) : undefined} />
+        </div>
+      </>
     );
   }
   return <DailyTrialStepModal />;

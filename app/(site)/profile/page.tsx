@@ -7,6 +7,8 @@ import { ProfileProgress } from '@/components/account/ProfileProgress';
 import { SettingsGroup, SettingsRow } from '@/components/account/SettingsList';
 import { ageFromDob, profileCompletion } from '@/lib/customer/profile-completion';
 import { BRAND } from '@/config/brand';
+import { getReferralsEnabled } from '@/lib/data/catalog';
+import { ReferralShare } from '@/components/referral/ReferralShare';
 
 export const metadata = { title: 'My profile', robots: { index: false } };
 export const dynamic = 'force-dynamic';
@@ -18,7 +20,10 @@ const isPlaceholderEmail = (e: string | null) => !e || /@phone\.brotinbox\.inval
 export default async function ProfilePage() {
   const p = await requireCustomer('/profile');
   const supabase = await getSupabaseServer();
-  const { data: addresses } = await supabase.from('addresses').select('area, pincode, is_default').eq('user_id', p.id).order('is_default', { ascending: false });
+  const [{ data: addresses }, referralsOn] = await Promise.all([
+    supabase.from('addresses').select('area, pincode, is_default').eq('user_id', p.id).order('is_default', { ascending: false }),
+    getReferralsEnabled(),
+  ]);
   const done = profileCompletion(p, (addresses ?? []).length > 0);
 
   const email = isPlaceholderEmail(p.email) ? null : p.email;
@@ -41,6 +46,8 @@ export default async function ProfilePage() {
         </div>
 
         <ProfileProgress percent={done.percent} missing={done.missing} href="/profile/body" />
+
+        {referralsOn && p.referral_code && <ReferralShare code={p.referral_code} compact />}
 
         <SettingsGroup title="Account">
           <SettingsRow href="/profile/details" icon={User} label="Personal details"

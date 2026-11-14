@@ -40,12 +40,13 @@ export const LEGAL = {
   grievanceOfficer: {
     name: '',
     designation: 'Grievance Officer',
-    email: 'grievance@brotinbox.com',
+    email: BRAND.supportEmail,
     phone: BRAND.phone,
     hours: 'Monday to Saturday, 10:00 AM to 6:00 PM IST',
   },
 
   supportEmail: BRAND.supportEmail,
+  orderEmail: BRAND.orderEmail,
   supportPhone: BRAND.phone,
   whatsapp: BRAND.whatsappNumber,
 
@@ -53,7 +54,7 @@ export const LEGAL = {
   jurisdiction: 'Coimbatore, Tamil Nadu',
 
   /** Shown on every policy page. Update when a policy changes materially. */
-  effectiveDate: '7 November 2026',
+  effectiveDate: '13 November 2026',
 } as const;
 
 /** A basic FSSAI Registration is not a Licence, so wording must follow the certificate. */

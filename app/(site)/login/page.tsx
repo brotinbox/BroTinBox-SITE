@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import { ShieldCheck } from 'lucide-react';
 import { BRAND } from '@/config/brand';
+import { FocusHeader } from '@/components/layout/FocusHeader';
 import { LoginPagePanel } from '@/components/auth/LoginPagePanel';
 import { getSessionUser } from '@/lib/auth/session';
 import { getGoogleLoginEnabled } from '@/lib/data/catalog';
@@ -38,7 +39,9 @@ export default async function LoginPage({
   if (await getSessionUser()) redirect(destination);
 
   return (
-    <div className="min-h-[80vh] bg-paper flex flex-col justify-center py-12 px-4">
+    <div className="min-h-screen bg-paper flex flex-col">
+      <FocusHeader backLabel="Back" />
+      <div className="flex-1 flex flex-col justify-center py-8 px-4">
       <div className="mx-auto w-full max-w-[460px]">
         <Link href="/" className="flex justify-center mb-6">
           <Image src="/logo.png" alt={BRAND.name} width={180} height={60} className="h-14 w-auto object-contain" priority />
@@ -57,6 +60,7 @@ export default async function LoginPage({
           <ShieldCheck className="w-4 h-4 text-emerald-600" />
           <span>Secure sign-in • No passwords to remember</span>
         </div>
+      </div>
       </div>
     </div>
   );

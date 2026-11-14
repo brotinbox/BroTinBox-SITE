@@ -10,6 +10,7 @@ import { isCashfreeConfigured, cashfreeMode } from '@/lib/cashfree';
 import { syncOrderFromCashfree, type SyncState } from '@/lib/payments/cashfree-checkout';
 import { ReferenceForm } from './ReferenceForm';
 import { CashfreeButton } from './CashfreeButton';
+import { FocusHeader } from '@/components/layout/FocusHeader';
 
 export const metadata = { title: 'Payment', robots: { index: false } };
 export const dynamic = 'force-dynamic';
@@ -53,8 +54,9 @@ export default async function PayPage({ params, searchParams }: { params: Promis
   const waLink = `https://wa.me/${BRAND.whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent(`Hi ${BRAND.name}, I placed order ${order.order_number} (${inr(order.total)}). How do I pay?`)}`;
 
   return (
-    <div className="min-h-screen bg-paper py-8 px-4">
-      <div className="max-w-lg mx-auto space-y-4">
+    <div className="min-h-screen bg-paper pb-10">
+      <FocusHeader title="Payment" back="/orders" backLabel="Back to orders" />
+      <div className="max-w-lg mx-auto px-4 pt-6 space-y-4">
         <div className="text-center">
           <p className="text-xs font-bold uppercase tracking-wider text-gray-500">Order {order.order_number}</p>
           <h1 className="font-heading font-black text-3xl text-ink mt-1">{inr(order.total)}</h1>

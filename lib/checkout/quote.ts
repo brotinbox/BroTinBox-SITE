@@ -34,7 +34,7 @@ export const cartSchema = z.object({
   couponCode: z.string().trim().toUpperCase().max(30).optional(),
   /** Poster offers: the customer's juice (and day) for each free juice. */
   freeJuices: z.array(z.object({ key: z.string().max(60), juice: z.string().max(80), day: z.number().int().min(1).max(26) })).max(8).default([]),
-  /** A friend's referral code ("Have a referral code?"). */
+  /** A friend's referral code or a trainer partner's code ("Have a code?"). */
   referralCode: z.string().trim().toUpperCase().max(20).optional(),
   /** Ticked "WhatsApp me plan offers" at checkout (consent, not pricing). */
   whatsappOffers: z.boolean().optional(),
@@ -61,6 +61,8 @@ export type Quote = {
   /** Free juices (₹0), placed on the Nth delivery day when the order is paid. */
   freeJuices: { addon_id: string; day: number; offer: string; claim_id?: string }[];
   referrerId: string | null;
+  /** Trainer partner whose code was applied (linked when the order is paid). */
+  partnerId: string | null;
   offers: OfferResult;
 };
 
@@ -201,7 +203,7 @@ export async function quoteCart(cart: Cart, userId: string | null, opts: QuoteOp
   for (const f of offers.slots) {
     const when = dates[f.day - 1]?.date;
     const on = dates.length > 1 && when ? ` · ${new Date(`${when}T00:00:00`).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })}` : '';
-    lines.push({ item_type: 'addon', ref_id: f.addonId, name: `${f.juiceName} (${OFFER_LABEL[f.offer].toLowerCase()})${on}`, qty: 1, unit_price: 0, total: 0 });
+    lines.push({ item_type: 'addon', ref_id: f.addonId, name: `${f.juiceName} (${(f.label ?? OFFER_LABEL[f.offer]).toLowerCase()})${on}`, qty: 1, unit_price: 0, total: 0 });
   }
 
   const subtotal = round2(lines.reduce((s, l) => s + l.total, 0));
@@ -267,6 +269,7 @@ export async function quoteCart(cart: Cart, userId: string | null, opts: QuoteOp
     addons,
     freeJuices: offers.slots.map((f) => ({ addon_id: f.addonId, day: f.day, offer: f.offer, ...(f.claimId && { claim_id: f.claimId }) })),
     referrerId: offers.referrerId ?? null,
+    partnerId: offers.partnerId ?? null,
     offers,
   };
 }
