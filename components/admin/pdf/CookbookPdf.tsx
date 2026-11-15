@@ -2,7 +2,6 @@
 /** @jsx h */
 import 'server-only';
 import path from 'node:path';
-import { createRequire } from 'node:module';
 import type { ReactNode } from 'react';
 import { Document, Font, Image, Link, Page, Polygon, Rect, Circle, Svg, Text, View, renderToBuffer } from '@react-pdf/renderer';
 import type { Styles } from '@react-pdf/renderer';
@@ -18,6 +17,8 @@ type Style = Styles[string];
  * reconciler, so this file builds its JSX with the exact React that
  * react-pdf's reconciler resolves (classic JSX pragma above → h).
  */
+// Fetched at runtime (not imported) so webpack doesn't try to rewrite createRequire.
+const { createRequire } = process.getBuiltinModule('node:module');
 const pdfReact = createRequire(path.join(process.cwd(), 'node_modules/@react-pdf/reconciler/package.json'))('react') as typeof import('react');
 const h = pdfReact.createElement;
 
