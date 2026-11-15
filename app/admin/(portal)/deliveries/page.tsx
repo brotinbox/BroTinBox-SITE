@@ -82,9 +82,9 @@ export default async function DeliveriesPage({ searchParams }: { searchParams: P
         <ActionForm action={bulkUpdate} className="space-y-4">
           {canWrite && (
             <div className="sticky top-14 lg:top-0 z-10 bg-gray-50/95 backdrop-blur py-2 flex flex-wrap items-center gap-2 print:hidden">
-              <span className="text-xs font-bold text-gray-600">Selected:</span>
-              <Select name="status" options={STATUS_OPTIONS} className="w-48" />
-              <Select name="rider_id" className="w-48" options={[{ value: '', label: 'Rider: no change' }, ...(riders ?? []).map((r) => ({ value: r.id, label: r.full_name || r.email || 'Rider' }))]} />
+              <span className="text-xs font-bold text-gray-600 max-sm:w-full">Selected:</span>
+              <Select name="status" options={STATUS_OPTIONS} className="w-48 max-sm:w-auto max-sm:min-w-0 max-sm:flex-1" />
+              <Select name="rider_id" className="w-48 max-sm:w-auto max-sm:min-w-0 max-sm:flex-1" options={[{ value: '', label: 'Rider: no change' }, ...(riders ?? []).map((r) => ({ value: r.id, label: r.full_name || r.email || 'Rider' }))]} />
               <SubmitButton confirm={{ eyebrow: 'Bulk update', title: 'Apply to all selected deliveries?', message: 'The status and rider change for every ticked delivery.', confirmLabel: 'Apply' }}>Apply</SubmitButton>
             </div>
           )}
@@ -115,13 +115,13 @@ export default async function DeliveriesPage({ searchParams }: { searchParams: P
                     const nav = directionsUrl(r.pin ?? addressText(a));
                     const finished = r.status === 'delivered' || r.status === 'failed';
                     return (
-                      <li key={r.id} className={`px-4 py-3 flex gap-3 items-start ${r.status === 'delivered' ? 'bg-emerald-50/40' : ''}`}>
+                      <li key={r.id} className={`px-4 py-3 flex gap-3 items-start max-sm:flex-wrap ${r.status === 'delivered' ? 'bg-emerald-50/40' : ''}`}>
                         <div className="flex flex-col items-center gap-1.5 shrink-0">
                           <span className="w-7 h-7 rounded-full bg-gray-900 text-white text-xs font-bold flex items-center justify-center">{i + 1}</span>
                           {canWrite && list.length > 1 && <StopMover id={r.id} date={date} slot={s} first={i === 0} last={i === list.length - 1} />}
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-sm">{a.recipient_name} · <a href={`tel:${a.phone}`} className="text-primary">{a.phone}</a></p>
+                        <div className="flex-1 min-w-0 max-sm:basis-[calc(100%-2.5rem)]">
+                          <p className="font-semibold text-sm break-words">{a.recipient_name} · <a href={`tel:${a.phone}`} className="text-primary">{a.phone}</a></p>
                           <p className="text-xs text-gray-600">{addressText(a)}</p>
                           {a.instructions && <p className="text-xs text-gray-500 italic">“{a.instructions}”</p>}
                           <p className="text-xs mt-1">
@@ -143,7 +143,7 @@ export default async function DeliveriesPage({ searchParams }: { searchParams: P
                             {canWrite && !finished && <DeliveredButton id={r.id} />}
                           </div>
                         </div>
-                        <div className="shrink-0 flex flex-col items-end gap-1.5">
+                        <div className="shrink-0 flex flex-col items-end gap-1.5 max-sm:w-full max-sm:pl-10 max-sm:flex-row max-sm:items-center max-sm:justify-between max-sm:gap-3">
                           {canWrite ? <StatusPill key={r.status} id={r.id} status={r.status} /> : <StatusBadge value={r.status} />}
                           <p className="text-[11px] text-gray-500">{r.rider_id ? riderName.get(r.rider_id) ?? 'Rider' : 'No rider'}</p>
                           {canWrite && <input type="checkbox" name="ids" value={r.id} className="w-4 h-4 print:hidden" aria-label="Select delivery" />}

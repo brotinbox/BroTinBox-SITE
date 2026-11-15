@@ -58,6 +58,10 @@ const nextConfig = {
   experimental: {
     serverActions: { bodySizeLimit: '6mb' },
   },
+  // Cook book PDFs read their fonts and logo from disk at request time.
+  outputFileTracingIncludes: {
+    '/admin/cook-book/**': ['./assets/fonts/**/*', './assets/brand/**/*'],
+  },
   async redirects() {
     // The "Build Your Own Box" page was removed; send old links to the plans page.
     return [{ source: '/custom', destination: '/plans', permanent: true }];

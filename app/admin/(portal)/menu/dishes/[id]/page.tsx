@@ -34,7 +34,7 @@ export default async function DishEditPage({ params }: { params: Promise<{ id: s
   return (
     <>
       <PageHeader title={d.name} description={`${d.code} · ${d.category.replace('_', ' ')}`} actions={<ButtonLink href={adminHref('/menu/dishes')} variant="secondary">← All dishes</ButtonLink>} />
-      <div className="grid lg:grid-cols-3 gap-4">
+      <div className="grid max-md:grid-cols-[minmax(0,1fr)] lg:grid-cols-3 gap-4">
         <Card title="Details" className="lg:col-span-2">
           <ActionForm action={saveDish} className="space-y-4">
             <input type="hidden" name="id" value={d.id} />
@@ -99,7 +99,7 @@ export default async function DishEditPage({ params }: { params: Promise<{ id: s
       <Card
         title="Recipe"
         className="mt-4"
-        actions={<ButtonLink href={adminHref(`/cook-book/${d.id}`)} variant="secondary">Open in cook book</ButtonLink>}
+        actions={<><ButtonLink href={adminHref(`/cook-book/${d.id}`)} variant="secondary">Open in cook book</ButtonLink><a href={adminHref(`/cook-book/${d.id}/pdf?view=1`)} target="_blank" rel="noopener" className="inline-flex items-center px-3.5 py-2 rounded-xl text-xs font-bold bg-white border border-gray-200 text-gray-800 hover:bg-gray-50">Preview PDF</a></>}
       >
         {recipeRow?.updated_at && (
           <p className="text-[11px] text-gray-500 mb-4">Last edited {fmtDate(recipeRow.updated_at, true)}{editedBy ? ` by ${editedBy}` : ''}.</p>

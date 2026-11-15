@@ -1,3 +1,4 @@
+import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { requireStaff } from '@/lib/auth/session';
 import { getSupabaseServer } from '@/lib/supabase/server';
@@ -111,25 +112,31 @@ export default async function DayPlanPage({ searchParams }: { searchParams: Prom
             )}
           </div>
 
-          <Card title="Menu for the day" className="mb-6">
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
-              {combos.map(([diet, slot]) => {
-                const m = menuFor.get(`${diet}-${slot}`);
-                return (
-                  <div key={`${diet}-${slot}`}>
-                    <p className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">
-                      <span className="capitalize">{slot}</span> · {diet === 'veg' ? 'Veg' : 'Non-veg'}
-                    </p>
-                    {m && !m.is_closed ? (
-                      <ul className="text-gray-800 space-y-0.5">
-                        {[m.main_id, m.protein_side_id, m.legume_id, m.salad_id, m.carb_id].map((id) => id && <li key={id}>{name(id)}</li>)}
-                      </ul>
-                    ) : <p className="text-gray-400">No menu set</p>}
-                  </div>
-                );
-              })}
-            </div>
-          </Card>
+          <div className="grid max-md:grid-cols-[minmax(0,1fr)] lg:grid-cols-2 gap-4 mb-6">
+            {(['lunch', 'dinner'] as const).map((slot) => (
+              <Card key={slot} title={slot === 'lunch' ? 'Lunch menu · morning run' : 'Dinner menu · evening run'}>
+                <div className="grid sm:grid-cols-2 gap-3 text-sm">
+                  {combos.filter(([, s]) => s === slot).map(([diet]) => {
+                    const m = menuFor.get(`${diet}-${slot}`);
+                    return (
+                      <div key={diet} className={cn('rounded-xl border p-3',
+                        diet === 'veg' ? 'border-emerald-100 bg-emerald-50/50' : 'border-[#7B3F00]/15 bg-[#7B3F00]/[0.04]')}>
+                        <p className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-1 inline-flex items-center gap-1.5">
+                          <span aria-hidden className={cn('w-1.5 h-1.5 rounded-full', diet === 'veg' ? 'bg-emerald-600' : 'bg-[#7B3F00]')} />
+                          {diet === 'veg' ? 'Veg' : 'Non-veg'}
+                        </p>
+                        {m && !m.is_closed ? (
+                          <ul className="text-gray-800 space-y-0.5">
+                            {[m.main_id, m.protein_side_id, m.legume_id, m.salad_id, m.carb_id].map((id) => id && <li key={id}>{name(id)}</li>)}
+                          </ul>
+                        ) : <p className="text-gray-400">No menu set</p>}
+                      </div>
+                    );
+                  })}
+                </div>
+              </Card>
+            ))}
+          </div>
 
           {RUNS.map(({ slot, title }) => {
             const list = rows.filter((r) => r.slot === slot);

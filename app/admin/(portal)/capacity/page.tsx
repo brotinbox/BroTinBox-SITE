@@ -50,30 +50,30 @@ export default async function CapacityPage() {
 
       {error && <p className="mb-4 text-sm font-semibold text-rose-700">Could not load seats: {error.message}. Has migration 0037 been run?</p>}
 
-      <div className="grid lg:grid-cols-3 gap-4">
+      <div className="grid max-md:grid-cols-[minmax(0,1fr)] lg:grid-cols-3 gap-4">
         <Card title={`Next ${DAYS} days`} className="lg:col-span-2" padded={false}>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-[11px] font-bold uppercase tracking-wider text-gray-500 border-b border-gray-100">
-                  <th className="px-4 py-2.5">Day</th>
-                  <th className="px-4 py-2.5">Lunch</th>
-                  <th className="px-4 py-2.5">Dinner</th>
+                  <th className="px-4 py-2.5 max-sm:px-2.5">Day</th>
+                  <th className="px-4 py-2.5 max-sm:px-2.5">Lunch</th>
+                  <th className="px-4 py-2.5 max-sm:px-2.5">Dinner</th>
                 </tr>
               </thead>
               <tbody>
                 {days.map((day) => (
                   <tr key={day} className="border-b border-gray-50 last:border-0 align-top">
-                    <td className="px-4 py-3 whitespace-nowrap">
+                    <td className="px-4 py-3 whitespace-nowrap max-sm:px-2.5 max-sm:whitespace-normal">
                       <p className="font-bold text-gray-900">{dayLabel(day)}</p>
                       {day === today && <p className="text-[11px] text-gray-500">Today</p>}
                       {closed.has(day) && <p className="text-[11px] font-semibold text-rose-700">Closed · {closed.get(day)}</p>}
                     </td>
                     {SLOTS.map((slot) => {
                       const s = seat(day, slot);
-                      if (!s) return <td key={slot} className="px-4 py-3 text-gray-400">–</td>;
+                      if (!s) return <td key={slot} className="px-4 py-3 text-gray-400 max-sm:px-2.5">–</td>;
                       return (
-                        <td key={slot} className="px-4 py-3">
+                        <td key={slot} className="px-4 py-3 max-sm:px-2.5">
                           <SeatCell s={s} isChanged={changed.has(`${day}:${slot}`)} canWrite={canWrite} />
                         </td>
                       );
@@ -141,7 +141,7 @@ function SeatCell({ s, isChanged, canWrite }: { s: Seat; isChanged: boolean; can
   const btn = 'w-7 h-7 rounded-lg border border-gray-200 bg-white text-sm font-bold text-gray-700 hover:bg-gray-50 disabled:opacity-40';
   return (
     <div className="space-y-1.5">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 max-sm:flex-wrap max-sm:gap-1.5">
         <span className={cn('inline-flex items-baseline gap-0.5 rounded-lg border px-2 py-1 font-heading font-black tabular-nums', styles[tone])}>
           {s.booked}<span className="text-[11px] font-bold opacity-70">/{s.capacity}</span>
         </span>

@@ -42,7 +42,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
         actions={<StatusBadge value={o.status === 'created' ? 'pending_payment' : o.status} />}
       />
 
-      <div className="grid lg:grid-cols-3 gap-4">
+      <div className="grid max-md:grid-cols-[minmax(0,1fr)] lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2 space-y-4">
           <Card title="Items" padded={false}>
             <DataTable

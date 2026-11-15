@@ -70,7 +70,7 @@ Compare all of them on our [plans page](/plans). Subscription meals start from *
 
 # Where we deliver in Coimbatore
 
-Our kitchen is in **Kuniyamuthur**. We currently deliver to **Kuniyamuthur, Kovaipudhur and Sundarapuram**, and delivery is **free**, with no delivery fee. Ukkadam, RS Puram, Race Course, Gandhipuram, Ramanathapuram and Saibaba Colony are in our next delivery batch. Check your pincode on our [delivery areas page](/delivery-areas), or read our [area-by-area delivery guide](/blog/healthy-food-delivery-near-me-coimbatore).
+Our kitchen is in **Kuniyamuthur**. We currently deliver to **Kuniyamuthur, Kovaipudhur, Sundarapuram, Ukkadam, RS Puram, Race Course, Ramanathapuram and Saibaba Colony**, and delivery is **free**, with no delivery fee. Gandhipuram, Ganapathy, Singanallur, Peelamedu and Vadavalli are in our next delivery batch. Check your pincode on our [delivery areas page](/delivery-areas), or read our [area-by-area delivery guide](/blog/healthy-food-delivery-near-me-coimbatore).
 
 # Frequently asked questions
 

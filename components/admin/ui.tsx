@@ -22,12 +22,12 @@ export function Card({ title, actions, children, className, padded = true }: {
   return (
     <section className={cn('bg-white rounded-2xl border border-gray-200 shadow-sm', className)}>
       {(title || actions) && (
-        <div className="flex items-center justify-between gap-3 px-5 py-3.5 border-b border-gray-100">
+        <div className="flex items-center justify-between gap-3 px-5 py-3.5 border-b border-gray-100 max-sm:flex-wrap max-sm:px-4">
           {title && <h2 className="font-heading font-bold text-sm text-gray-900">{title}</h2>}
           {actions}
         </div>
       )}
-      <div className={padded ? 'p-5' : ''}>{children}</div>
+      <div className={padded ? 'p-5 max-sm:p-4' : ''}>{children}</div>
     </section>
   );
 }
@@ -112,21 +112,30 @@ export function DataTable<T>({ columns, rows, rowKey, empty }: {
   columns: Column<T>[]; rows: T[]; rowKey: (row: T) => string; empty?: ReactNode;
 }) {
   if (rows.length === 0) return <>{empty ?? <EmptyState title="Nothing here yet" />}</>;
+  // Below md each row becomes a stacked card: the first column is the card
+  // title, the rest are "label · value" lines. md+ is the plain table.
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead>
+      <table className="w-full text-sm max-md:block">
+        <thead className="max-md:hidden">
           <tr className="text-left text-[11px] uppercase tracking-wider text-gray-500 border-b border-gray-100">
             {columns.map((c) => (
               <th key={c.header} className={cn('px-4 py-2.5 font-bold whitespace-nowrap', c.className)}>{c.header}</th>
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-100">
+        <tbody className="divide-y divide-gray-100 max-md:block">
           {rows.map((r) => (
-            <tr key={rowKey(r)} className="hover:bg-gray-50/60">
-              {columns.map((c) => (
-                <td key={c.header} className={cn('px-4 py-3 align-top', c.className)}>{c.cell(r)}</td>
+            <tr key={rowKey(r)} className="hover:bg-gray-50/60 max-md:block max-md:px-4 max-md:py-3">
+              {columns.map((c, i) => (
+                <td key={c.header} className={cn('px-4 py-3 align-top', c.className,
+                  'max-md:flex max-md:gap-3 max-md:px-0 max-md:py-1 max-md:text-left max-md:whitespace-normal',
+                  i === 0 || !c.header
+                    ? 'max-md:pb-1.5'
+                    : 'max-md:before:content-[attr(data-label)] max-md:before:w-24 max-md:before:shrink-0 max-md:before:pt-0.5 max-md:before:text-[10px] max-md:before:font-bold max-md:before:uppercase max-md:before:tracking-wider max-md:before:text-gray-500')}
+                  data-label={c.header}>
+                  <div className="md:contents max-md:min-w-0 max-md:flex-1 max-md:break-words">{c.cell(r)}</div>
+                </td>
               ))}
             </tr>
           ))}
@@ -142,7 +151,7 @@ export function Pagination({ page, pageSize, total, hrefFor }: {
   const pages = Math.max(1, Math.ceil(total / pageSize));
   if (pages <= 1) return null;
   return (
-    <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100 text-xs text-gray-600">
+    <div className="flex items-center justify-between gap-2 px-4 py-3 border-t border-gray-100 text-xs text-gray-600 max-sm:flex-wrap">
       <span>Page {page} of {pages} · {total} total</span>
       <div className="flex gap-2">
         {page > 1 && <Link className="px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 font-bold" href={hrefFor(page - 1)}>Previous</Link>}

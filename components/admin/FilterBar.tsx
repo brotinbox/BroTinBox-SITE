@@ -25,7 +25,7 @@ export function FilterBar({ action, q, searchPlaceholder, tabs, current, param =
   return (
     <div className="flex flex-col md:flex-row md:items-center gap-3 mb-4">
       {tabs && (
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap gap-1.5 max-md:flex-nowrap max-md:overflow-x-auto max-md:-mx-4 max-md:px-4 max-md:pb-1 max-md:[scrollbar-width:none] max-md:[&>a]:shrink-0 max-md:[&>a]:whitespace-nowrap">
           {tabs.map((t) => (
             <Link
               key={t.value}
@@ -39,7 +39,7 @@ export function FilterBar({ action, q, searchPlaceholder, tabs, current, param =
         </div>
       )}
       {searchPlaceholder && (
-        <form action={action} method="get" className="md:ml-auto flex gap-2">
+        <form action={action} method="get" className="md:ml-auto flex gap-2 max-md:w-full">
           {current && <input type="hidden" name={param} value={current} />}
           {Object.entries(extra ?? {}).map(([k, v]) => v ? <input key={k} type="hidden" name={k} value={v} /> : null)}
           <input
@@ -47,7 +47,7 @@ export function FilterBar({ action, q, searchPlaceholder, tabs, current, param =
             defaultValue={q}
             maxLength={100}
             placeholder={searchPlaceholder}
-            className="w-64 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:border-primary"
+            className="w-64 max-md:w-auto max-md:min-w-0 max-md:flex-1 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:border-primary"
           />
           <button className="px-3 py-2 rounded-xl bg-gray-900 text-white text-xs font-bold">Search</button>
         </form>

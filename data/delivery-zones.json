@@ -25,12 +25,12 @@
     "pincode": "641001",
     "area": "Ukkadam",
     "isDeliverable": true,
-    "tier": "phase2",
+    "tier": "core",
     "deliveryFee": 0,
     "distanceKm": 6.5,
     "avgDeliveryMinutes": 20,
     "slots": ["7:00 AM - 9:00 AM", "7:00 PM - 9:00 PM"],
-    "description": "Next delivery batch (6.5 km) • Coming soon"
+    "description": "Ukkadam (6.5 km) • Daily insulated delivery • Free Delivery"
   },
   {
     "pincode": "641024",
@@ -47,34 +47,34 @@
     "pincode": "641002",
     "area": "RS Puram",
     "isDeliverable": true,
-    "tier": "phase2",
+    "tier": "core",
     "deliveryFee": 0,
     "distanceKm": 7.4,
     "avgDeliveryMinutes": 30,
     "slots": ["7:00 AM - 9:00 AM", "7:00 PM - 9:00 PM"],
-    "description": "Next delivery batch (7.4 km) • Coming soon"
+    "description": "RS Puram (7.4 km) • Daily insulated delivery • Free Delivery"
   },
   {
     "pincode": "641018",
     "area": "Race Course",
     "isDeliverable": true,
-    "tier": "phase2",
+    "tier": "core",
     "deliveryFee": 0,
     "distanceKm": 9.7,
     "avgDeliveryMinutes": 25,
     "slots": ["7:00 AM - 9:00 AM", "7:00 PM - 9:00 PM"],
-    "description": "Next delivery batch (9.7 km) • Coming soon"
+    "description": "Race Course (9.7 km) • Daily insulated delivery • Free Delivery"
   },
   {
     "pincode": "641045",
     "area": "Ramanathapuram",
     "isDeliverable": true,
-    "tier": "phase2",
+    "tier": "core",
     "deliveryFee": 0,
     "distanceKm": 10.0,
     "avgDeliveryMinutes": 30,
     "slots": ["7:00 AM - 9:00 AM", "7:00 PM - 9:00 PM"],
-    "description": "Next delivery batch (10.0 km) • Coming soon"
+    "description": "Ramanathapuram (10.0 km) • Daily insulated delivery • Free Delivery"
   },
   {
     "pincode": "641012",
@@ -91,12 +91,12 @@
     "pincode": "641011",
     "area": "Saibaba Colony",
     "isDeliverable": true,
-    "tier": "phase2",
+    "tier": "core",
     "deliveryFee": 0,
     "distanceKm": 10.1,
     "avgDeliveryMinutes": 35,
     "slots": ["7:00 AM - 9:00 AM", "7:00 PM - 9:00 PM"],
-    "description": "Next delivery batch (10.1 km) • Coming soon"
+    "description": "Saibaba Colony (10.1 km) • Daily insulated delivery • Free Delivery"
   },
   {
     "pincode": "641006",

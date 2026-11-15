@@ -60,7 +60,7 @@ export default async function OverviewPage() {
         <StatCard label="Awaiting payment" value={o.pending_payments ?? 0} hint={`${o.new_enquiries ?? 0} new enquiries · ${o.new_customers_7d ?? 0} new customers (7d)`} tone={(o.pending_payments ?? 0) > 0 ? 'warn' : 'default'} />
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-4 mb-6">
+      <div className="grid max-md:grid-cols-[minmax(0,1fr)] lg:grid-cols-3 gap-4 mb-6">
         {rev.length > 0 && (
           <Card title="Revenue, last 30 days" className="lg:col-span-2">
             <div className="flex items-end gap-1 h-40" role="img" aria-label="Daily revenue bar chart">
@@ -82,7 +82,7 @@ export default async function OverviewPage() {
           ) : (
             <ul className="space-y-2 text-sm">
               {fc.map((d) => (
-                <li key={d.day} className="flex items-center justify-between">
+                <li key={d.day} className="flex items-center justify-between max-sm:flex-wrap max-sm:gap-x-3">
                   <span className="text-gray-600">{fmtDate(d.day)}</span>
                   <span className="font-bold">
                     <span className={cn(cap.has(`${d.day}:lunch`) && d.lunch >= cap.get(`${d.day}:lunch`)! && 'text-rose-700')}>{d.lunch}{cap.has(`${d.day}:lunch`) && `/${cap.get(`${d.day}:lunch`)}`} lunch</span>
@@ -96,7 +96,7 @@ export default async function OverviewPage() {
         </Card>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-4">
+      <div className="grid max-md:grid-cols-[minmax(0,1fr)] lg:grid-cols-2 gap-4">
         {staff.can('orders.read') && (
           <Card title="Waiting for payment confirmation" padded={false}
             actions={<Link href={adminHref('/orders?status=pending_payment')} className="text-xs font-bold text-primary">View all</Link>}>

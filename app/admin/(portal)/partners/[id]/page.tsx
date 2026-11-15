@@ -57,7 +57,7 @@ export default async function PartnerDetailPage({ params }: { params: Promise<{ 
         <StatCard label="Paid so far" value={inr(summary.paid)} />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[1fr_340px]">
+      <div className="grid gap-4 max-md:grid-cols-[minmax(0,1fr)] lg:grid-cols-[1fr_340px]">
         <div className="space-y-4">
           <Card title="Commissions" padded={false}>
             <DataTable

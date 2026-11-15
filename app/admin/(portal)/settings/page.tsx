@@ -45,7 +45,7 @@ export default async function SettingsPage() {
   return (
     <>
       <PageHeader title="Settings" description={canWrite ? 'Changes apply to the website immediately.' : 'Only a super admin can change settings.'} />
-      <div className="grid lg:grid-cols-2 gap-4">
+      <div className="grid max-md:grid-cols-[minmax(0,1fr)] lg:grid-cols-2 gap-4">
         <Card title="Payments">
           <ActionForm action={savePayment} className="space-y-3">
             <fieldset disabled={!canWrite} className="space-y-3">

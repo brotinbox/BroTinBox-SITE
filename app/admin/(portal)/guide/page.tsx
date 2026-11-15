@@ -142,18 +142,26 @@ function Section({ id, title, children }: { id: string; title: string; children:
 }
 
 function Rows({ head, rows }: { head: string[]; rows: ReactNode[][] }) {
+  // Below sm each row stacks: first column as a heading, the rest labelled underneath.
   return (
-    <div className="overflow-x-auto -mx-5">
-      <table className="w-full text-sm">
-        <thead>
+    <div className="overflow-x-auto -mx-5 max-sm:-mx-4">
+      <table className="w-full text-sm max-sm:block">
+        <thead className="max-sm:hidden">
           <tr className="text-left text-[11px] uppercase tracking-wider text-gray-500 border-b border-gray-100">
             {head.map((h) => <th key={h} className="px-5 py-2 font-bold">{h}</th>)}
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-100">
+        <tbody className="divide-y divide-gray-100 max-sm:block">
           {rows.map((r, i) => (
-            <tr key={i} className="align-top">
-              {r.map((c, j) => <td key={j} className={j === 0 ? 'px-5 py-2.5 font-semibold text-gray-900 whitespace-nowrap' : 'px-5 py-2.5 text-gray-600'}>{c}</td>)}
+            <tr key={i} className="align-top max-sm:block max-sm:px-4 max-sm:py-3 max-sm:space-y-1.5">
+              {r.map((c, j) => (
+                <td key={j} data-label={head[j] ?? ''}
+                  className={j === 0
+                    ? 'px-5 py-2.5 font-semibold text-gray-900 whitespace-nowrap max-sm:block max-sm:p-0 max-sm:whitespace-normal'
+                    : 'px-5 py-2.5 text-gray-600 max-sm:block max-sm:p-0 max-sm:before:content-[attr(data-label)] max-sm:before:block max-sm:before:text-[10px] max-sm:before:font-bold max-sm:before:uppercase max-sm:before:tracking-wider max-sm:before:text-gray-400'}>
+                  {c}
+                </td>
+              ))}
             </tr>
           ))}
         </tbody>

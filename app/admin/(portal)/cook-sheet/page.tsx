@@ -112,7 +112,7 @@ export default async function CookSheetPage({ searchParams }: { searchParams: Pr
             <StatCard label="Make-up meals" value={rows.reduce((s, r) => s + r.make_up, 0)} hint={liteBoxes ? `${liteBoxes} Lite box${liteBoxes > 1 ? 'es' : ''} today` : 'from skips / pauses / credits'} />
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-4 mb-4">
+          <div className="grid max-md:grid-cols-[minmax(0,1fr)] lg:grid-cols-2 gap-4 mb-4">
             <Card title="Boxes by slot and diet" padded={false}>
               <DataTable
                 rows={rows}

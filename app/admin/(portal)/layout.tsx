@@ -23,7 +23,7 @@ export default async function PortalLayout({ children }: { children: React.React
         roleLabel={ROLE_LABELS[staff.role]}
         logoutAction={staffLogout}
       />
-      <main className="lg:pl-64">
+      <main className="lg:pl-64 max-md:overflow-x-clip">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">{children}</div>
       </main>
     </>

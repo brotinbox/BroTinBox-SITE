@@ -29,7 +29,7 @@ export default async function StaffPage() {
   return (
     <>
       <PageHeader title="Staff & roles" description="Who can use this console and what they can do." />
-      <div className="grid lg:grid-cols-3 gap-4">
+      <div className="grid max-md:grid-cols-[minmax(0,1fr)] lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2 space-y-4">
           <Card title="Staff" padded={false}>
             <DataTable
@@ -40,9 +40,9 @@ export default async function StaffPage() {
                 { header: 'Role', cell: (r) => <StatusBadge value={r.role} label={ROLE_LABELS[r.role as AppRole]} /> },
                 { header: 'Last sign-in', cell: (r) => <span className="text-xs">{fmtDate(r.last_seen_at, true)}</span> },
                 { header: 'Change', cell: (r) => r.id === me.profile.id ? <span className="text-xs text-gray-400">—</span> : (
-                  <ActionForm action={changeRole} className="flex gap-2 items-center">
+                  <ActionForm action={changeRole} className="flex gap-2 items-center max-md:flex-wrap">
                     <input type="hidden" name="user_id" value={r.id} />
-                    <Select name="role" defaultValue={r.role} options={[...ROLE_OPTIONS, { value: 'customer', label: 'Remove staff access' }]} className="w-44" />
+                    <Select name="role" defaultValue={r.role} options={[...ROLE_OPTIONS, { value: 'customer', label: 'Remove staff access' }]} className="w-44 max-md:w-auto max-md:min-w-0 max-md:flex-1" />
                     <SubmitButton variant="secondary" pendingText="…" confirm={{ eyebrow: 'Staff access', title: `Change access for ${r.full_name || r.email || 'this person'}?`, message: 'If you picked “Remove staff access” they lose the admin portal right away.', confirmLabel: 'Save', cancelLabel: 'Go back' }}>Save</SubmitButton>
                   </ActionForm>
                 ) },

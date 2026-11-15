@@ -38,7 +38,7 @@ export default async function WhatsAppFollowupsPage() {
         actions={<Link href={adminHref('/trials')} className="text-xs font-bold text-primary underline">See trials and who was messaged →</Link>}
       />
 
-      <div className="grid lg:grid-cols-3 gap-4 items-start">
+      <div className="grid max-md:grid-cols-[minmax(0,1fr)] lg:grid-cols-3 gap-4 items-start">
         <Card title="Sending">
           <ActionForm action={saveFollowupSending} className="space-y-4">
             <fieldset className="space-y-2">

@@ -1,4 +1,4 @@
-> **Quick answer:** BroTin Box delivers measured, high-protein meals in **Kuniyamuthur, Kovaipudhur and Sundarapuram**, Monday to Saturday, with a **lunch slot (11:30 AM–1:30 PM)** and a **dinner slot (7:00–9:00 PM)**. Delivery is **free**, with no delivery fee. Ukkadam, RS Puram, Race Course, Gandhipuram, Ramanathapuram and Saibaba Colony are in our **next delivery batch**. Order by **9:00 PM the night before**.
+> **Quick answer:** BroTin Box delivers measured, high-protein meals in **Kuniyamuthur, Kovaipudhur, Sundarapuram, Ukkadam, RS Puram, Race Course, Ramanathapuram and Saibaba Colony**, Monday to Saturday, with a **lunch slot (11:30 AM–1:30 PM)** and a **dinner slot (7:00–9:00 PM)**. Delivery is **free**, with no delivery fee. Gandhipuram, Ganapathy, Singanallur, Peelamedu and Vadavalli are in our **next delivery batch**. Order by **9:00 PM the night before**.
 
 Searching for "healthy food near me" in Coimbatore usually returns restaurants with a salad section. If what you actually want is a measured, high-protein meal delivered at a fixed time every day, the list is much shorter.
 
@@ -28,10 +28,6 @@ About 4 km by road from our kitchen. A popular area for families, walkers and re
 ## Sundarapuram (641024)
 About 5 km by road, along the Pollachi Main Road and SIDCO stretch.
 
-# Coming in our next delivery batch
-
-These areas are next on our list. We cannot take orders here yet, but you can ask us on [WhatsApp](https://wa.me/918248606711) to tell you as soon as your area opens.
-
 ## Ukkadam (641001)
 Covering the Ukkadam lake and bypass stretch.
 
@@ -41,12 +37,26 @@ Busy residential and commercial area, home to many gyms and clinics.
 ## Race Course (641018)
 Coimbatore's favourite walking track.
 
+## Ramanathapuram (641045)
+East of Race Course, along Trichy Road.
+
+## Saibaba Colony (641011)
+North of the city centre, around Bharathi Park and NSR Road.
+
+# Coming in our next delivery batch
+
+These areas are next on our list. We cannot take orders here yet, but you can ask us on [WhatsApp](https://wa.me/918248606711) to tell you as soon as your area opens.
+
 ## Gandhipuram (641012)
 The city centre, popular with working professionals.
 
-## Ramanathapuram (641045)
+## Ganapathy (641006)
 
-## Saibaba Colony (641011)
+## Singanallur (641005)
+
+## Peelamedu (641004)
+
+## Vadavalli (641041)
 
 # My area is not on the list
 

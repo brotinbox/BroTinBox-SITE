@@ -168,7 +168,7 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
         <StatCard label="Customer since" value={s.first_order_at ? fmtDate(s.first_order_at) : '—'} hint="first paid order" />
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-4">
+      <div className="grid max-md:grid-cols-[minmax(0,1fr)] lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2 space-y-4">
           {/* Subscriptions */}
           <Card title="Subscriptions" padded={false}>

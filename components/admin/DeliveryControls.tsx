@@ -107,7 +107,7 @@ export function LocationEditor({ id, hasPin }: { id: string; hasPin: boolean }) 
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Paste WhatsApp location / Google Maps link"
-        className="flex-1 min-w-[220px] rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-xs focus:outline-none focus:border-primary"
+        className="flex-1 min-w-[220px] max-md:min-w-0 max-md:basis-full rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-xs focus:outline-none focus:border-primary"
         onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
       />
       <button type="button" disabled={pending || text.trim().length < 3}

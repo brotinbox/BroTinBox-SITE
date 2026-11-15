@@ -16,7 +16,7 @@ export function BlogForm({ post, categories, canWrite }: {
     <div className="space-y-4">
       <ActionForm action={saveBlogPost} className="space-y-4">
         {post && <input type="hidden" name="id" value={post.id} />}
-        <fieldset disabled={!canWrite} className="grid lg:grid-cols-3 gap-4">
+        <fieldset disabled={!canWrite} className="grid max-md:grid-cols-[minmax(0,1fr)] lg:grid-cols-3 gap-4">
           <div className="lg:col-span-2 space-y-4">
             <Field label="Title"><Input name="title" defaultValue={post?.title ?? ''} required minLength={3} maxLength={200} /></Field>
             <Field label="URL slug" hint="Shown as /blog/<slug>. Lowercase letters, numbers and dashes.">

@@ -125,7 +125,7 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
                 </div>
               ) },
               { header: 'Follow-up', cell: (r) => (
-                <ActionForm action={updateLead} className="space-y-1.5 min-w-[200px]">
+                <ActionForm action={updateLead} className="space-y-1.5 md:min-w-[200px]">
                   <input type="hidden" name="phone" value={r.phone} />
                   <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-700">
                     <input type="checkbox" name="contacted" defaultChecked={!!r.contacted_at} />

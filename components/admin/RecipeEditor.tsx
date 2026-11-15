@@ -63,14 +63,14 @@ export function RecipeEditor({ menuItemId, recipe, action }: {
       <input type="hidden" name="recipe" value={json} />
 
       <section>
-        <div className="flex items-baseline justify-between mb-2">
+        <div className="flex items-baseline justify-between mb-2 max-sm:flex-col max-sm:gap-0.5">
           <h3 className="font-heading font-bold text-sm text-gray-900">Ingredients <span className="font-medium text-gray-500">(for ONE portion)</span></h3>
           <span className="text-[11px] text-gray-500">The cook book multiplies these by the day&apos;s count.</span>
         </div>
         <div className="space-y-2">
           {rows.map((r) => (
-            <div key={r.key} className="grid grid-cols-[1fr_5rem_6rem_auto] sm:grid-cols-[1.4fr_5rem_6rem_1fr_auto] gap-2 items-center">
-              <input className={field} placeholder="Ingredient, e.g. Chicken breast (raw)" value={r.name} maxLength={80}
+            <div key={r.key} className="grid grid-cols-[1fr_1fr_auto] sm:grid-cols-[1.4fr_5rem_6rem_1fr_auto] gap-2 items-center max-sm:pb-3 max-sm:border-b max-sm:border-gray-100 max-sm:last:border-0">
+              <input className={cn(field, 'max-sm:col-span-3')} placeholder="Ingredient, e.g. Chicken breast (raw)" value={r.name} maxLength={80}
                 onChange={(e) => setRow(r.key, { name: e.target.value })} aria-label="Ingredient" />
               <input className={cn(field, 'tabular-nums')} type="number" min={0} step="any" placeholder="Qty" value={r.qty}
                 disabled={r.unit === 'to taste'} onChange={(e) => setRow(r.key, { qty: e.target.value })} aria-label="Quantity per portion" />
@@ -78,7 +78,7 @@ export function RecipeEditor({ menuItemId, recipe, action }: {
                 {RECIPE_UNITS.map((u) => <option key={u} value={u}>{u}</option>)}
                 {!RECIPE_UNITS.includes(r.unit as never) && <option value={r.unit}>{r.unit}</option>}
               </select>
-              <input className={cn(field, 'hidden sm:block')} placeholder="Note (optional)" value={r.note} maxLength={120}
+              <input className={cn(field, 'max-sm:order-last max-sm:col-span-3')} placeholder="Note (optional)" value={r.note} maxLength={120}
                 onChange={(e) => setRow(r.key, { note: e.target.value })} aria-label="Note" />
               <button type="button" className={iconBtn} onClick={() => setRows((rs) => rs.filter((x) => x.key !== r.key))} aria-label="Remove ingredient">
                 <X className="w-4 h-4" />

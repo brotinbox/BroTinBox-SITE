@@ -1,3 +1,4 @@
+import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { requireStaff } from '@/lib/auth/session';
 import { getSupabaseServer } from '@/lib/supabase/server';
@@ -82,9 +83,13 @@ export default async function MenuCalendarPage({ searchParams }: { searchParams:
                     {SLOTS.flatMap((slot) => DIETS.map(([diet, label]) => {
                       const m = resolve(date, diet, slot)!;
                       return (
-                        <div key={`${slot}-${diet}`} className="rounded-xl border border-gray-100 bg-gray-50/60 p-3">
+                        <div key={`${slot}-${diet}`} className={cn('rounded-xl border p-3',
+                          diet === 'veg' ? 'border-emerald-100 bg-emerald-50/50' : 'border-[#7B3F00]/15 bg-[#7B3F00]/[0.04]')}>
                           <p className="text-[11px] font-bold uppercase tracking-wider text-gray-500 mb-1.5 flex justify-between">
-                            <span>{slot} · {label}</span>
+                            <span className="inline-flex items-center gap-1.5">
+                              <span aria-hidden className={cn('w-1.5 h-1.5 rounded-full', diet === 'veg' ? 'bg-emerald-600' : 'bg-[#7B3F00]')} />
+                              {slot} · {label}
+                            </span>
                             {m.override && <span className="text-amber-700">changed</span>}
                           </p>
                           <ul className="text-xs space-y-0.5">
@@ -109,7 +114,7 @@ export default async function MenuCalendarPage({ searchParams }: { searchParams:
       </div>
 
       {canWrite && (
-        <div className="grid lg:grid-cols-3 gap-4">
+        <div className="grid max-md:grid-cols-[minmax(0,1fr)] lg:grid-cols-3 gap-4">
           <Card title="Change a dish for one date" className="lg:col-span-2">
             <ActionForm action={saveOverride} className="space-y-3">
               <div className="grid sm:grid-cols-3 gap-3">
@@ -136,7 +141,7 @@ export default async function MenuCalendarPage({ searchParams }: { searchParams:
             <ul className="mt-4 space-y-2">
               {(closures.data ?? []).length === 0 && <EmptyState title="No upcoming closures" />}
               {(closures.data ?? []).map((c) => (
-                <li key={c.id} className="flex items-center justify-between text-sm">
+                <li key={c.id} className="flex items-center justify-between max-sm:gap-3 text-sm">
                   <span>{fmtDate(c.closed_date)} · {c.reason}</span>
                   <ActionForm action={removeClosure}>
                     <input type="hidden" name="id" value={c.id} />

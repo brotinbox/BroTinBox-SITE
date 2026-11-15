@@ -5,6 +5,8 @@
  *   npm run seed:blogs                upsert drafts → generate missing covers → publish
  *
  *   npm run seed:blogs:october        same steps for the October 2026 set only
+ *   npm run seed:blogs:search         the 30 search-intent posts, one a day 15 Nov → 14 Dec 2026
+ *                                     (scheduled; published without a cover if none is ready yet)
  *
  * Safe to re-run: posts are upserted by slug, covers already on R2 are kept, and
  * published_at is never changed once set, unless the post pins its own date in the
@@ -20,17 +22,18 @@ import { join } from 'node:path';
 import { createClient } from '@supabase/supabase-js';
 import { readingMinutes, renderMarkdown } from '../../lib/content/markdown';
 import { generateAndUploadCoverImage, uploadCoverBuffer } from '../modes/image-prompt';
-import { AUTHOR, NOVEMBER_2026_POSTS, OCTOBER_2026_POSTS, SEO_POSTS } from './blogs/manifest';
+import { AUTHOR, NOVEMBER_2026_POSTS, OCTOBER_2026_POSTS, SEARCH_INTENT_POSTS, SEO_POSTS } from './blogs/manifest';
 
 const DRY_RUN = process.argv.includes('--dry-run');
-const POSTS = process.argv.includes('--october') ? OCTOBER_2026_POSTS : process.argv.includes('--november') ? NOVEMBER_2026_POSTS : SEO_POSTS;
+const SEARCH = process.argv.includes('--search');
+const POSTS = SEARCH ? SEARCH_INTENT_POSTS : process.argv.includes('--october') ? OCTOBER_2026_POSTS : process.argv.includes('--november') ? NOVEMBER_2026_POSTS : SEO_POSTS;
 const DIR = join(process.cwd(), 'scripts/seed/blogs');
 const SCENE_SUFFIX = 'Natural documentary-style photography, realistic lighting, authentic South Indian setting, no watermarks, no text, no logos.';
 const SITE_PATHS = new Set(['/', '/menu', '/plans', '/pricing', '/weekly', '/monthly', '/tomorrow', '/delivery-areas', '/blog', '/faq', '/about', '/contact', '/food-safety', '/refund-policy']);
 
 // ─── 1. Validate ────────────────────────────────────────────────────────────
 const slugs = new Set(POSTS.map((p) => p.slug));
-const ALL_POSTS = [...SEO_POSTS, ...OCTOBER_2026_POSTS, ...NOVEMBER_2026_POSTS];
+const ALL_POSTS = [...SEO_POSTS, ...OCTOBER_2026_POSTS, ...NOVEMBER_2026_POSTS, ...SEARCH_INTENT_POSTS];
 const goesLiveAt = new Map(ALL_POSTS.map((p) => [p.slug, p.published_at ? new Date(p.published_at).getTime() : 0]));
 const linkableSlugs = new Set(ALL_POSTS.map((p) => p.slug));
 const problems: string[] = [];
@@ -78,7 +81,9 @@ const R2_PUBLIC = process.env.CLOUDFLARE_R2_PUBLIC_URL?.replace(/\/$/, '');
 // Covers come from scripts/seed/blogs/covers/ (e.g. Canva downloads). OpenAI is only used with --openai.
 const OPENAI_KEY = process.argv.includes('--openai') ? process.env.OPENAI_API_KEY || '' : '';
 // Scheduled sets only link backwards, so each post can go live on its own once it has a cover.
-const PARTIAL = process.argv.includes('--november');
+const PARTIAL = process.argv.includes('--november') || SEARCH;
+// The search set goes live on its schedule even before its Canva cover exists (the site renders text-only cards).
+const COVER_OPTIONAL = SEARCH;
 if (!SUPABASE_URL || !SERVICE_KEY) {
   console.error('❌ NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required.');
   process.exit(1);
@@ -139,7 +144,7 @@ async function main() {
   }
 
   if (missing.length && !OPENAI_KEY) {
-    console.warn(`⚠️  ${missing.length} posts have no cover (add scripts/seed/blogs/covers/<slug>.jpg, or pass --openai). They stay as drafts.`);
+    if (!COVER_OPTIONAL) console.warn(`⚠️  ${missing.length} posts have no cover (add scripts/seed/blogs/covers/<slug>.jpg, or pass --openai). They stay as drafts.`);
   } else {
     for (const p of missing) {
       console.log(`\n📸 ${p.slug}`);
@@ -155,7 +160,11 @@ async function main() {
   }
 
   // ─── 4. Publish together ──────────────────────────────────────────────────
-  const stillMissing = POSTS.filter((p) => !hasOwnCover(covers.get(p.slug))).map((p) => p.slug);
+  const stillMissing = COVER_OPTIONAL ? [] : POSTS.filter((p) => !hasOwnCover(covers.get(p.slug))).map((p) => p.slug);
+  if (COVER_OPTIONAL) {
+    const noCover = POSTS.filter((p) => !hasOwnCover(covers.get(p.slug))).map((p) => p.slug);
+    if (noCover.length) console.log(`ℹ️  ${noCover.length} posts go live without a cover for now (add covers/<slug>.jpg and re-run).`);
+  }
   if (stillMissing.length && !PARTIAL) {
     console.warn(`\n⏸  Not publishing: ${stillMissing.length} posts still need covers:\n   ${stillMissing.join('\n   ')}\n   Fix the cause and re-run; finished covers are kept.`);
     return;

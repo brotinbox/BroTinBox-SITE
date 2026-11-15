@@ -5,7 +5,7 @@ import { requireStaff } from '@/lib/auth/session';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { adminHref } from '@/lib/admin/paths';
 import { ButtonLink, Card, PageHeader, fmtDate } from '@/components/admin/ui';
-import { PrintButton } from '@/components/admin/PrintButton';
+import { PdfLinks } from '@/components/admin/PdfLinks';
 import { scaledQty, toRecipe } from '@/lib/recipes';
 
 export const metadata = { title: 'Recipe' };
@@ -42,7 +42,7 @@ export default async function RecipePage({ params, searchParams }: {
         actions={<>
           <ButtonLink href={adminHref('/cook-book')} variant="secondary">← Cook book</ButtonLink>
           {staff.can('menu.write') && <ButtonLink href={adminHref(`/menu/dishes/${d.id}`)} variant="secondary">Edit recipe</ButtonLink>}
-          <PrintButton />
+          <PdfLinks href={adminHref(`/cook-book/${d.id}/pdf${portions !== 1 ? `?portions=${portions}` : ''}`)} />
         </>}
       />
 
@@ -56,7 +56,7 @@ export default async function RecipePage({ params, searchParams }: {
       </form>
       <p className="hidden print:block mb-3 text-lg font-bold">For {portions} portions · ≈ {cookedKg.toFixed(2)} kg cooked</p>
 
-      <div className="grid lg:grid-cols-5 gap-4">
+      <div className="grid max-md:grid-cols-[minmax(0,1fr)] lg:grid-cols-5 gap-4">
         <div className="lg:col-span-2 space-y-4">
           <Card title={`Ingredients · ${portions} portion${portions === 1 ? '' : 's'}`}>
             {r.ingredients.length === 0 ? (

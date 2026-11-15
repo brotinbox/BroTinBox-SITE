@@ -182,7 +182,7 @@ export default async function TrialsPage({ searchParams }: { searchParams: Promi
                   return c ? <div className="text-xs"><StatusBadge value="converted" label={c.type} /><p className="text-gray-500 mt-1">{fmtDate(c.paidAt)}</p></div> : '—';
                 } }
                 : { header: tab === 'all' ? 'Status' : 'Follow-up', cell: (r) => (
-                  <div className="text-xs space-y-1.5 min-w-[170px]">
+                  <div className="text-xs space-y-1.5 md:min-w-[170px]">
                     {tab === 'all' && (
                       <div className="space-y-0.5">
                         <StatusBadge value={r.status === 'used' ? 'paid' : r.status === 'pending' ? 'pending_payment' : 'cancelled'} label={r.status === 'used' ? (converted.has(r.user_id) ? 'used · subscribed' : 'used') : r.status === 'pending' ? 'awaiting payment' : 'released'} />

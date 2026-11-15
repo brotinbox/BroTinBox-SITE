@@ -81,7 +81,7 @@ export default async function PartnersAdminPage({ searchParams }: { searchParams
             empty={<EmptyState title="No partners here" description={q ? 'Try another search.' : 'Applications from /partners appear here.'} />}
             columns={[
               { header: 'Trainer', cell: (r) => (
-                <div className="space-y-1 min-w-[180px]">
+                <div className="space-y-1 md:min-w-[180px]">
                   <Link href={adminHref(`/partners/${r.id}`)} className="font-bold text-sm text-primary underline">{r.full_name}</Link>
                   <p className="font-mono text-xs text-gray-600">{r.phone.replace(/^\+91/, '+91 ')}</p>
                   <div className="flex flex-wrap gap-1.5">
@@ -95,7 +95,7 @@ export default async function PartnersAdminPage({ searchParams }: { searchParams
                 </div>
               ) },
               { header: 'Gym', cell: (r) => (
-                <div className="text-xs space-y-0.5 max-w-[220px]">
+                <div className="text-xs space-y-0.5 md:max-w-[220px]">
                   <p className="font-semibold text-gray-800">{r.gym_name}</p>
                   <p className="text-gray-600">{r.gym_area} {r.gym_pincode}</p>
                   {r.gym_maps_url && <a href={r.gym_maps_url} target="_blank" rel="noopener noreferrer" className="text-primary underline">Map</a>}
@@ -116,7 +116,7 @@ export default async function PartnersAdminPage({ searchParams }: { searchParams
                 );
               } },
               { header: 'Decision', cell: (r) => (
-                <div className="space-y-2 min-w-[210px]">
+                <div className="space-y-2 md:min-w-[210px]">
                   {r.status !== 'approved' && r.status !== 'rejected' && (
                     <ActionForm action={approvePartner} className="flex gap-1.5 items-start flex-wrap">
                       <input type="hidden" name="id" value={r.id} />

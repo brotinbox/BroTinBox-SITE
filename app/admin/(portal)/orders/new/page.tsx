@@ -15,7 +15,7 @@ export default async function NewManualOrderPage() {
         description="For customers who order by chat or phone. Creates their account, address and plan; prices come from Plans & pricing, same as the website."
       />
 
-      <ActionForm action={createManualOrder} className="grid lg:grid-cols-3 gap-4 items-start">
+      <ActionForm action={createManualOrder} className="grid max-md:grid-cols-[minmax(0,1fr)] lg:grid-cols-3 gap-4 items-start">
         <div className="lg:col-span-2 space-y-4">
           <Card title="1 · Customer">
             <div className="grid sm:grid-cols-2 gap-3">

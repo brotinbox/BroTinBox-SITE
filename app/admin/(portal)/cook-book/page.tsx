@@ -5,6 +5,7 @@ import { getSupabaseServer } from '@/lib/supabase/server';
 import { adminHref } from '@/lib/admin/paths';
 import { Card, EmptyState, PageHeader } from '@/components/admin/ui';
 import { toRecipe } from '@/lib/recipes';
+import { PdfLinks } from '@/components/admin/PdfLinks';
 
 export const metadata = { title: 'Cook book' };
 
@@ -26,13 +27,14 @@ export default async function CookBookPage({ searchParams }: { searchParams: Pro
       <PageHeader
         title="Cook book"
         description={`How we cook every dish, so anyone in the kitchen gets the same box.${staff.can('menu.write') ? ' Edit a recipe from its dish page.' : ''}`}
-        actions={
-          <form method="get" className="flex gap-2">
+        actions={<>
+          <PdfLinks href={adminHref('/cook-book/pdf')} label="Download cook book" />
+          <form method="get" className="flex gap-2 max-sm:w-full">
             <input name="q" defaultValue={q} placeholder="Search dishes" aria-label="Search dishes"
-              className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm w-48" />
+              className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm w-48 max-sm:w-auto max-sm:min-w-0 max-sm:flex-1" />
             <button className="px-3 py-2 rounded-xl bg-gray-900 text-white text-xs font-bold">Search</button>
           </form>
-        }
+        </>}
       />
       {shown.length === 0 && <Card><EmptyState title="No dishes match" description="Try another name or code." /></Card>}
       <div className="space-y-6">
