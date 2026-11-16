@@ -1,4 +1,4 @@
-> **Quick answer:** Mackerel (kaanaangeluthi in Tamil, ayala in Malayalam) is an oily fish rich in protein and omega-3 fats, and usually much cheaper than premium fish. A 130 g grilled portion in our kitchen has about 305 kcal and 31.5 g of protein. Aim for around two servings of fish a week, and grill, steam or curry it rather than deep-frying.
+> **Quick answer:** Mackerel (kaanaangeluthi or kana keluthi in Tamil, ayala in Malayalam, bangda in Hindi and Marathi) is an oily fish rich in protein and omega-3 fats, and usually much cheaper than premium fish. A 130 g grilled portion in our kitchen has about 305 kcal and 31.5 g of protein. Aim for around two servings of fish a week, and grill, steam or curry it rather than deep-frying.
 
 When people think of "healthy fish", they often picture imported salmon. In Tamil Nadu, one of the best options has been sitting at the local fish stall all along, usually at a far friendlier price.
 

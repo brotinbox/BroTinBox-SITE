@@ -56,7 +56,8 @@ for (const p of POSTS) {
     if (href.startsWith('/blog/')) {
       if (!linkableSlugs.has(href.slice(6))) at(`links to unknown post ${href}`);
       // A link to a post that goes live later would 404 until then.
-      else if ((goesLiveAt.get(href.slice(6)) ?? 0) > (p.published_at ? new Date(p.published_at).getTime() : Date.now())) at(`links to ${href}, which goes live after this post`);
+      // Links to posts that are already live are fine whatever the order.
+      else if ((goesLiveAt.get(href.slice(6)) ?? 0) > Math.max(Date.now(), p.published_at ? new Date(p.published_at).getTime() : 0)) at(`links to ${href}, which goes live after this post`);
     } else if (href.startsWith('/')) {
       if (!SITE_PATHS.has(href)) at(`links to unknown page ${href}`);
     } else if (!href.startsWith('https://')) {

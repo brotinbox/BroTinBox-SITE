@@ -40,6 +40,20 @@ Notice how quickly chutney and podi add up. Three idlis are about 180 kcal. Add 
 - **Sambar rice (1 cup):** 200–260 kcal
 - **Full South Indian meals (unlimited, typical restaurant):** 800–1,200 kcal depending on refills
 
+## How many calories are in a South Indian meals plate?
+
+A typical restaurant "meals" plate lands around **900–1,200 kcal** before refills. A rough breakdown:
+
+- **Rice (2 cups):** about 400 kcal
+- **Sambar (1 cup):** 120–150 kcal
+- **Rasam (1 cup):** 40–60 kcal
+- **Poriyal and kootu:** 150–250 kcal, mostly from the oil and coconut
+- **Curd (small cup):** 50–70 kcal
+- **Appalam (fried):** 50–70 kcal
+- **Payasam (small cup):** 150–200 kcal
+
+Rice and payasam make up most of it. Taking one cup of rice, extra poriyal and skipping the payasam brings the plate down to about 550–700 kcal.
+
 # Non-veg and restaurant favourites
 
 - **Chicken biryani (1 restaurant plate):** 600–900 kcal

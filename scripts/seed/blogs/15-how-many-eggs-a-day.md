@@ -1,4 +1,4 @@
-> **Quick answer:** For most healthy adults, about one egg a day is not linked to a higher risk of heart disease, according to a large 2020 analysis in The BMJ. Many active people eat two or more as part of a balanced diet. If you have diabetes, heart disease or high LDL cholesterol, ask your doctor what amount is right for you.
+> **Quick answer:** Most healthy adults can eat **1–2 whole eggs a day**, and active people often eat 2–3. About one egg a day is not linked to a higher risk of heart disease, according to a large 2020 analysis in The BMJ. Many active people eat two or more as part of a balanced diet. If you have diabetes, heart disease or high LDL cholesterol, ask your doctor what amount is right for you.
 
 For years, eggs were treated as a cholesterol bomb. Gym culture then went the other way, with people eating a dozen egg whites a day and throwing away the yolks. Neither extreme makes much sense.
 
@@ -75,6 +75,12 @@ Not in any way that matters much. Shell colour depends mainly on the breed of he
 
 **Is it safe to eat 2 eggs every day?**
 For many healthy adults, yes, as part of a balanced diet. If you have diabetes, heart disease or high LDL, talk to your doctor first.
+
+**How many egg whites can I eat a day?**
+Egg whites contain no cholesterol and very little fat, so there is no strict limit for healthy adults. Many gym-goers eat 4–6 a day alongside 1–2 whole eggs. Each white adds roughly 17 kcal and 3.5 g protein.
+
+**How many egg yolks per day is okay?**
+For most healthy adults, 1–2 yolks a day fits a balanced diet. If your LDL cholesterol is high or you have diabetes, ask your doctor and keep an eye on your lipid profile.
 
 **Do eggs help with weight loss?**
 They can. Eggs are filling and high in protein for their calories, which helps you control hunger. They only help if your total calories stay in check.

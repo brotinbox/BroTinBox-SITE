@@ -7,6 +7,7 @@
  *   npm run gsc -- delete <sitemapUrl>    remove a sitemap entry
  *   npm run gsc -- inspect <url>          URL Inspection (index status)
  *   npm run gsc -- queries [days]         top search queries (default 28 days)
+ *   npm run gsc -- striking [days]        pages at positions 8–40 + their queries (default 90 days)
  *
  * Needs GSC_CLIENT_ID / GSC_CLIENT_SECRET (Google Cloud "Desktop app" OAuth
  * client) in .env.local. The token is stored outside the repo at
@@ -151,8 +152,40 @@ async function main() {
       if (!r.rows?.length) console.log('No data yet.');
       return;
     }
+    case 'striking': {
+      // Pages ranking just off page 1 (avg position 8–40) with impressions:
+      // the cheapest wins come from fixing these pages' titles, meta and content.
+      const days = Number(arg) || 90;
+      const end = new Date(Date.now() - 2 * 864e5);
+      const start = new Date(end.getTime() - days * 864e5);
+      const iso = (d: Date) => d.toISOString().slice(0, 10);
+      const r = await api('POST', `${SC}/${enc(PROPERTY)}/searchAnalytics/query`, {
+        startDate: iso(start),
+        endDate: iso(end),
+        dimensions: ['page', 'query'],
+        rowLimit: 5000,
+      });
+      type Row = { query: string; clicks: number; impressions: number; position: number };
+      const byPage = new Map<string, Row[]>();
+      for (const row of r.rows ?? []) {
+        const [page, query] = row.keys;
+        if (row.position < 8 || row.position > 40) continue;
+        if (!byPage.has(page)) byPage.set(page, []);
+        byPage.get(page)!.push({ query, clicks: row.clicks, impressions: row.impressions, position: row.position });
+      }
+      const pages = [...byPage.entries()]
+        .map(([page, rows]) => ({ page, rows: rows.sort((a, b) => b.impressions - a.impressions), impr: rows.reduce((s, x) => s + x.impressions, 0) }))
+        .sort((a, b) => b.impr - a.impr);
+      if (!pages.length) return console.log(`No queries at positions 8–40 in the last ${days} days.`);
+      for (const p of pages) {
+        console.log(`\n${p.page}  (${p.impr} impr at pos 8–40)`);
+        for (const q of p.rows.slice(0, 8))
+          console.log(`   pos ${q.position.toFixed(1).padStart(5)}  ${String(q.impressions).padStart(5)} impr  ${String(q.clicks).padStart(3)} clicks  ${q.query}`);
+      }
+      return;
+    }
     default:
-      die('Commands: login | sitemaps | submit [url] | delete <url> | inspect <url> | queries [days]');
+      die('Commands: login | sitemaps | submit [url] | delete <url> | inspect <url> | queries [days] | striking [days]');
   }
 }
 
