@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { requireStaff } from '@/lib/auth/session';
 import { getSupabaseServer } from '@/lib/supabase/server';
-import { getNextOperatingDay } from '@/lib/menu/next-operating-day';
+import { getCurrentKitchenDay } from '@/lib/menu/next-operating-day';
 import { adminHref } from '@/lib/admin/paths';
 import { Card, DataTable, EmptyState, PageHeader, StatCard, fmtDate } from '@/components/admin/ui';
 import { DatePicker, isIsoDate } from '@/components/admin/DatePicker';
@@ -22,8 +22,7 @@ export default async function CookSheetPage({ searchParams }: { searchParams: Pr
 
   let date = sp.date;
   if (!isIsoDate(date)) {
-    const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
-    date = await getNextOperatingDay(today);
+    date = await getCurrentKitchenDay();
   }
 
   const combos = [

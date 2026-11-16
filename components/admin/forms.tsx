@@ -74,10 +74,10 @@ export function Textarea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement
   return <textarea {...props} className={cn(fieldBase, 'min-h-24', props.className)} />;
 }
 
-export function Select({ options, ...props }: React.SelectHTMLAttributes<HTMLSelectElement> & { options: { value: string; label: string }[] }) {
+export function Select({ options, ...props }: React.SelectHTMLAttributes<HTMLSelectElement> & { options: { value: string; label: string; disabled?: boolean }[] }) {
   return (
     <select {...props} className={cn(fieldBase, props.className)}>
-      {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+      {options.map((o) => <option key={o.value} value={o.value} disabled={o.disabled}>{o.label}</option>)}
     </select>
   );
 }

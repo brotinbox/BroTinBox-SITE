@@ -6,7 +6,9 @@ import { getSupabaseServer } from '@/lib/supabase/server';
 import { adminHref } from '@/lib/admin/paths';
 import { Card, DataTable, PageHeader, StatusBadge, fmtDate, inr } from '@/components/admin/ui';
 import { ActionForm, Field, Input, Select, SubmitButton } from '@/components/admin/forms';
-import { cancelOrder, markOrderPaid, recheckCashfree } from '../actions';
+import { cancelOrder, markOrderPaid, moveOrderToToday, recheckCashfree } from '../actions';
+import { getSlotSeats } from '@/lib/capacity';
+import { fmtClock, nowIst, tatkalSettings } from '@/lib/admin/tatkal';
 import { trialClaims, type TrialClaim } from '@/lib/admin/trials';
 
 export const metadata = { title: 'Order' };
@@ -32,6 +34,41 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
     ? ((await trialClaims().select('*').eq('order_id', o.id).maybeSingle()).data as TrialClaim | null)
     : null;
   const unpaid = ['created', 'pending_payment'].includes(o.status);
+
+  // Tatkal: a paid order whose first upcoming meal is after today can be moved to today.
+  const ist = nowIst();
+  let tatkal: null | {
+    from: string;
+    slots: { slot: 'lunch' | 'dinner'; until: string; open: boolean; seatsLeft: number; capacity: number }[];
+    enabled: boolean; kitchenOpen: boolean; hasToday: boolean;
+  } = null;
+  if (o.status === 'paid' && staff.can('orders.write')) {
+    const { data: dels } = await supabase.from('deliveries').select('delivery_date, slot, status')
+      .eq('order_id', o.id).gte('delivery_date', ist.date).in('status', ['scheduled', 'locked', 'preparing', 'packed', 'out_for_delivery', 'delivered']);
+    const rows = (dels ?? []) as { delivery_date: string; slot: 'lunch' | 'dinner'; status: string }[];
+    const future = rows.filter((r) => r.delivery_date > ist.date && ['scheduled', 'locked'].includes(r.status));
+    if (future.length) {
+      const from = future.map((r) => r.delivery_date).sort()[0];
+      const [{ data: cfg }, { data: openToday }, seats] = await Promise.all([
+        supabase.from('site_settings').select('value').eq('key', 'tatkal').maybeSingle(),
+        supabase.rpc('is_operating_day', { d: ist.date }),
+        getSlotSeats(ist.date, ist.date).catch(() => []),
+      ]);
+      const t = tatkalSettings(cfg?.value);
+      const slots = [...new Set(future.filter((r) => r.delivery_date === from).map((r) => r.slot))].sort().map((slot) => {
+        const until = slot === 'lunch' ? t.lunch_until : t.dinner_until;
+        const seat = seats.find((x) => x.slot === slot);
+        return { slot, until, open: ist.time <= until, seatsLeft: seat?.seats_left ?? 0, capacity: seat?.capacity ?? 0 };
+      });
+      tatkal = { from, slots, enabled: t.enabled, kitchenOpen: !!openToday, hasToday: rows.some((r) => r.delivery_date === ist.date) };
+    }
+  }
+  const tatkalBlock = tatkal && (!tatkal.enabled ? 'Tatkal is switched off in Settings.'
+    : !tatkal.kitchenOpen ? 'The kitchen is closed today.'
+    : tatkal.hasToday ? 'This order already has a meal today.'
+    : tatkal.slots.find((x) => !x.open) ? `Closed for today: ${tatkal.slots.filter((x) => !x.open).map((x) => `${x.slot} ended at ${fmtClock(x.until)}`).join(', ')}.`
+    : tatkal.slots.find((x) => x.seatsLeft <= 0) ? `No seat left today for ${tatkal.slots.filter((x) => x.seatsLeft <= 0).map((x) => x.slot).join(' and ')}. Raise today’s capacity on the Capacity page if the kitchen can take one more.`
+    : null);
   const addr = o.address_snapshot as Record<string, string> | null;
 
   return (
@@ -145,6 +182,32 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                 <ActionForm action={recheckCashfree} className="mt-3">
                   <input type="hidden" name="order_id" value={o.id} />
                   <SubmitButton pendingText="Checking…">Re-check with Cashfree</SubmitButton>
+                </ActionForm>
+              )}
+            </Card>
+          )}
+
+          {tatkal && (
+            <Card title="Tatkal: deliver today">
+              <p className="text-sm text-gray-700">
+                First meal is on <b>{fmtDate(tatkal.from)}</b>. Move it to <b>today</b> if the kitchen has a seat and there is still time.
+              </p>
+              <ul className="mt-2 space-y-1 text-xs text-gray-600">
+                {tatkal.slots.map((x) => (
+                  <li key={x.slot} className="flex justify-between gap-2">
+                    <span className="capitalize">{x.slot} · until {fmtClock(x.until)}</span>
+                    <span className={x.open && x.seatsLeft > 0 ? 'text-emerald-700 font-semibold' : 'text-rose-700 font-semibold'}>
+                      {!x.open ? 'window closed' : `${x.seatsLeft} of ${x.capacity} seats left`}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              {tatkalBlock ? (
+                <p className="mt-3 text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1.5">{tatkalBlock}</p>
+              ) : (
+                <ActionForm action={moveOrderToToday} className="mt-3">
+                  <input type="hidden" name="order_id" value={o.id} />
+                  <SubmitButton pendingText="Moving…" confirm={{ eyebrow: 'Tatkal', title: 'Deliver this order today?', message: `The ${tatkal.slots.map((x) => x.slot).join(' and ')} meal${tatkal.slots.length > 1 ? 's' : ''} on ${fmtDate(tatkal.from)} move${tatkal.slots.length > 1 ? '' : 's'} to today and lock${tatkal.slots.length > 1 ? '' : 's'} with today’s menu. Tell the kitchen now.`, confirmLabel: 'Yes, deliver today', cancelLabel: 'Not now' }}>Move to today</SubmitButton>
                 </ActionForm>
               )}
             </Card>

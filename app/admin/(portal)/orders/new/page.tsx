@@ -2,11 +2,35 @@ import { requireStaff } from '@/lib/auth/session';
 import { Card, PageHeader } from '@/components/admin/ui';
 import { ActionForm, Checkbox, Field, Input, Select, SubmitButton } from '@/components/admin/forms';
 import { createManualOrder } from '../actions';
+import { getSupabaseServer } from '@/lib/supabase/server';
+import { fmtClock, nowIst, tatkalSettings } from '@/lib/admin/tatkal';
+import { getSlotSeats } from '@/lib/capacity';
 
 export const metadata = { title: 'New WhatsApp order' };
 
 export default async function NewManualOrderPage() {
   const staff = await requireStaff('orders.write');
+  const supabase = await getSupabaseServer();
+  const { data: cfg } = await supabase.from('site_settings').select('value').eq('key', 'tatkal').maybeSingle();
+  const tatkal = tatkalSettings(cfg?.value);
+  const ist = nowIst();
+  const [{ data: kitchenOpen }, seats] = await Promise.all([
+    supabase.rpc('is_operating_day', { d: ist.date }),
+    getSlotSeats(ist.date, ist.date).catch(() => []),
+  ]);
+  const today = (['lunch', 'dinner'] as const).map((slot) => {
+    const until = slot === 'lunch' ? tatkal.lunch_until : tatkal.dinner_until;
+    const seatsLeft = seats.find((x) => x.slot === slot)?.seats_left ?? 0;
+    const why = !kitchenOpen ? 'kitchen closed' : ist.time > until ? `closed at ${fmtClock(until)}` : seatsLeft <= 0 ? 'no seat left' : null;
+    return { slot, until, seatsLeft, why };
+  });
+  const [lunch, dinner] = today;
+  const tatkalOptions = [
+    { value: '', label: 'No, book from the next open day' },
+    { value: 'lunch', label: `Today's lunch · ${lunch.why ?? `${lunch.seatsLeft} seats left, until ${fmtClock(lunch.until)}`}`, disabled: !!lunch.why },
+    { value: 'dinner', label: `Today's dinner · ${dinner.why ?? `${dinner.seatsLeft} seats left, until ${fmtClock(dinner.until)}`}`, disabled: !!dinner.why },
+    { value: 'both', label: `Today's lunch + dinner${lunch.why || dinner.why ? ' · not available' : ''}`, disabled: !!(lunch.why || dinner.why) },
+  ];
 
   return (
     <>
@@ -74,6 +98,13 @@ export default async function NewManualOrderPage() {
                 <Input name="start" type="date" />
               </Field>
             </div>
+            {tatkal.enabled && (
+              <div className="mt-4 rounded-xl border border-orange-200 bg-orange-50 p-3 space-y-2">
+                <Field label="Tatkal: deliver today?" hint="Picking a slot here replaces Meals and Start date above. Needs the payment marked as received below.">
+                  <Select name="tatkal" defaultValue="" options={tatkalOptions} />
+                </Field>
+              </div>
+            )}
             {staff.can('orders.refund') ? (
               <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 space-y-2">
                 <Checkbox name="extra_trial" label="Allow an extra trial (trial plan only)" />

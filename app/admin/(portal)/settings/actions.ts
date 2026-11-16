@@ -58,6 +58,24 @@ export async function saveOrdering(_p: ActionResult | null, fd: FormData): Promi
   }, { tags: ['settings'] });
 }
 
+export async function saveTatkal(_p: ActionResult | null, fd: FormData): Promise<ActionResult> {
+  const time = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
+  const lunch = time.safeParse(fd.get('lunch_until'));
+  const dinner = time.safeParse(fd.get('dinner_until'));
+  if (!lunch.success || !dinner.success) return fail('Times must look like 10:00.');
+  return staffAction('settings.write', async (staff) => {
+    // Upsert: the row comes from migration 0045, but don't fail if it hasn't run.
+    const supabase = await getSupabaseServer();
+    const { error } = await supabase.from('site_settings').upsert({
+      key: 'tatkal',
+      value: { enabled: fd.get('enabled') === 'on', lunch_until: lunch.data, dinner_until: dinner.data },
+      updated_by: staff.profile.id,
+    });
+    if (error) throw error;
+    return ok('Tatkal settings saved.');
+  }, { tags: ['settings'] });
+}
+
 export async function saveAnnouncement(_p: ActionResult | null, fd: FormData): Promise<ActionResult> {
   const href = cleanText(fd.get('href'), 200);
   if (href && !/^(https:\/\/|\/)/.test(href)) return fail('Link must start with https:// or /');

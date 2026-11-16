@@ -12,6 +12,8 @@ import { adminHref } from '@/lib/admin/paths';
 import { CheckoutError, quoteCart, type Cart } from '@/lib/checkout/quote';
 import { createOrderFromQuote } from '@/lib/checkout/create-order';
 import { notifyOrderPaid, notifyOrderPlaced } from '@/lib/notifications/telegram';
+import { getSlotSeats } from '@/lib/capacity';
+import { fmtClock, nowIst, tatkalSettings } from '@/lib/admin/tatkal';
 
 const idSchema = z.string().uuid();
 
@@ -89,6 +91,7 @@ const manualOrderSchema = z.object({
   reference: z.string().max(60),
   extra_trial: z.string(),
   extra_trial_reason: z.string().max(200),
+  tatkal: z.enum(['', 'lunch', 'dinner', 'both']),
 });
 
 /** Same person on WhatsApp = same 10-digit number; reuse their account if it exists. */
@@ -134,8 +137,28 @@ async function planDates(start: string, count: number): Promise<string[]> {
   return dates;
 }
 
+/** Same checks as admin_tatkal_move_to_today, before an order is created. Returns why it can't be done, or null. */
+async function tatkalPrecheck(slots: ('lunch' | 'dinner')[]): Promise<string | null> {
+  const db = getSupabaseService();
+  const { date, time } = nowIst();
+  const [{ data: cfg }, { data: open }, seats] = await Promise.all([
+    db.from('site_settings').select('value').eq('key', 'tatkal').maybeSingle(),
+    db.rpc('is_operating_day', { d: date }),
+    getSlotSeats(date, date),
+  ]);
+  const t = tatkalSettings(cfg?.value);
+  if (!t.enabled) return 'Tatkal is switched off in Settings.';
+  if (!open) return 'The kitchen is closed today.';
+  for (const sl of slots) {
+    const until = sl === 'lunch' ? t.lunch_until : t.dinner_until;
+    if (time > until) return `Tatkal for ${sl} closed at ${fmtClock(until)} today. Pick another slot, or “No” to book from the next day.`;
+    if ((seats.find((x) => x.slot === sl)?.seats_left ?? 0) <= 0) return `No ${sl} seat left today. Raise today’s capacity on the Capacity page if the kitchen can take one more.`;
+  }
+  return null;
+}
+
 export async function createManualOrder(_prev: ActionResult | null, fd: FormData): Promise<ActionResult> {
-  const v = manualOrderSchema.safeParse(Object.fromEntries(['name', 'phone', 'delivery_phone', 'alt_phone', 'alt_label', 'email','flat', 'street', 'landmark', 'area', 'pincode', 'type', 'diet', 'meals', 'start', 'payment', 'reference', 'extra_trial', 'extra_trial_reason']
+  const v = manualOrderSchema.safeParse(Object.fromEntries(['name', 'phone', 'delivery_phone', 'alt_phone', 'alt_label', 'email','flat', 'street', 'landmark', 'area', 'pincode', 'type', 'diet', 'meals', 'start', 'payment', 'reference', 'extra_trial', 'extra_trial_reason', 'tatkal']
     .map((k) => [k, String(fd.get(k) ?? '')])));
   if (!v.success) return fail('Check the form: name, 10-digit WhatsApp number, flat, street, area, 6-digit pincode and plan are needed. Delivery / alternate numbers must be 10 digits if given.');
   const f = v.data;
@@ -144,6 +167,15 @@ export async function createManualOrder(_prev: ActionResult | null, fd: FormData
   const extraTrial = f.type === 'trial' && f.extra_trial === 'on';
   const extraTrialReason = cleanText(f.extra_trial_reason, 200);
   if (extraTrial && extraTrialReason.length < 4) return fail('Write why this customer is getting an extra trial.');
+  const tatkal = f.tatkal !== '';
+  if (tatkal) {
+    if (f.payment === 'unpaid') return fail('Tatkal (deliver today) needs the payment received first. Choose UPI, cash or bank transfer.');
+    // The slot picked for today decides the meals; the start date is ignored.
+    f.meals = f.tatkal as 'lunch' | 'dinner' | 'both';
+    f.start = '';
+    const blocked = await tatkalPrecheck(f.meals === 'both' ? ['lunch', 'dinner'] : [f.meals]);
+    if (blocked) return fail(blocked);
+  }
 
   let orderId: string | null = null;
   const result = await staffAction('orders.write', async (staff) => {
@@ -211,6 +243,11 @@ export async function createManualOrder(_prev: ActionResult | null, fd: FormData
         notify();
         if (error) return ok(`Order ${order.order_number} created, but it could not be marked paid (${error.message}). Mark it paid from the order page.`);
         await invalidate(CACHE_KEYS.overview, CACHE_KEYS.revenue30, CACHE_KEYS.forecast7);
+        // If the move fails (e.g. last seat just went), the order page's tatkal card shows why.
+        if (tatkal) {
+          const { error: tErr } = await supabase.rpc('admin_tatkal_move_to_today', { p_order: order.id });
+          if (tErr) console.error('[Order] tatkal move failed:', tErr.message);
+        }
       } else {
         notify();
       }
@@ -225,4 +262,19 @@ export async function createManualOrder(_prev: ActionResult | null, fd: FormData
 
   if (orderId) redirect(adminHref(`/orders/${orderId}`));
   return result;
+}
+
+/** Tatkal: move a paid order's first upcoming day to today (checks time window + seats in the database). */
+export async function moveOrderToToday(_prev: ActionResult | null, fd: FormData): Promise<ActionResult> {
+  const id = idSchema.safeParse(fd.get('order_id'));
+  if (!id.success) return fail('Invalid order.');
+  return staffAction('orders.write', async () => {
+    // Staff session: the RPC checks orders.write itself.
+    const supabase = await getSupabaseServer();
+    const { data, error } = await supabase.rpc('admin_tatkal_move_to_today', { p_order: id.data });
+    if (error) throw error;
+    await invalidate(CACHE_KEYS.overview, CACHE_KEYS.forecast7);
+    const n = Number(data ?? 0);
+    return ok(`Moved to today: ${n} meal${n === 1 ? '' : 's'} locked with today’s menu. Add the stop to today’s route on the Deliveries page.`);
+  });
 }

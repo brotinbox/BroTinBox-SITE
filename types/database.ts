@@ -2390,6 +2390,10 @@ export type Database = {
         Args: { p_order: string; p_reason: string }
         Returns: undefined
       }
+      admin_tatkal_move_to_today: {
+        Args: { p_order: string }
+        Returns: number
+      }
       admin_reset_trial: {
         Args: { p_claim: string; p_reason: string }
         Returns: undefined
