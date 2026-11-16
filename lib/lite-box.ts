@@ -6,7 +6,7 @@ import type { BoxMeal, MenuItem } from '@/lib/menu-engine';
  * the kitchen cook sheet.
  *
  *   Main   up to 100 g cooked (150 g chicken → 100 g; 100 g paneer stays 100 g)
- *   Salad  100 g (regular: 150 g)
+ *   Salad  100 g (same as regular since Nov 2026: the box can't hold 150 g)
  *   Carb   1 roti / 1 dosa instead of 2, or ~30 g dry oats instead of 50 g
  *   Veg boxes keep their protein side (the curd cup, full size) so veg Lite
  *   isn't too low on protein: 4 items. Non-veg Lite has no eggs: 3 items.

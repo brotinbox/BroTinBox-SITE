@@ -29,11 +29,11 @@
     ],
     "price": 319,
     "totals": {
-      "calories": 977,
-      "protein": 81.4,
-      "carbs": 101.9,
-      "fat": 28,
-      "weightG": 570
+      "calories": 929,
+      "protein": 79.9,
+      "carbs": 92.2,
+      "fat": 27.5,
+      "weightG": 520
     },
     "items": [
       {
@@ -69,11 +69,11 @@
       {
         "type": "salad",
         "name": "Sweet Corn Salad",
-        "grams": 150,
-        "calories": 145,
-        "protein": 4.5,
-        "carbs": 29,
-        "fat": 1.5,
+        "grams": 100,
+        "calories": 97,
+        "protein": 3.0,
+        "carbs": 19.3,
+        "fat": 1.0,
         "image": "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80"
       },
       {
@@ -88,18 +88,18 @@
       }
     ],
     "benefits": [
-      "81.4g complete protein for sustained muscle recovery",
-      "Calibrated macros: 977 kcal with measured complex carbs and healthy fats",
+      "79.9g complete protein for sustained muscle recovery",
+      "Calibrated macros: 929 kcal with measured complex carbs and healthy fats",
       "Zero added preservatives, cooked fresh each morning in Coimbatore"
     ],
     "eggFreeVersion": {
       "description": "Replaces 2 boiled eggs with an extra portion of tender Black Chana Bowl (+80g)",
       "extraLegumeName": "Extra Boiled black chana",
       "price": 319,
-      "calories": 947,
-      "protein": 75.4,
-      "carbs": 116.9,
-      "fat": 20
+      "calories": 899,
+      "protein": 73.9,
+      "carbs": 107.2,
+      "fat": 19.5
     },
     "suggestedSides": [
       "side-grilled-chicken",
@@ -141,11 +141,11 @@
     ],
     "price": 289,
     "totals": {
-      "calories": 638,
-      "protein": 43.8,
-      "carbs": 85.7,
-      "fat": 14.6,
-      "weightG": 610
+      "calories": 616,
+      "protein": 43.0,
+      "carbs": 82.0,
+      "fat": 14.3,
+      "weightG": 560
     },
     "items": [
       {
@@ -181,11 +181,11 @@
       {
         "type": "salad",
         "name": "Rainbow Salad",
-        "grams": 150,
-        "calories": 65,
-        "protein": 2.5,
-        "carbs": 11,
-        "fat": 1,
+        "grams": 100,
+        "calories": 43,
+        "protein": 1.7,
+        "carbs": 7.3,
+        "fat": 0.7,
         "image": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=600&q=80"
       },
       {
@@ -200,8 +200,8 @@
       }
     ],
     "benefits": [
-      "43.8g complete protein for sustained muscle recovery",
-      "Calibrated macros: 638 kcal with measured complex carbs and healthy fats",
+      "43g complete protein for sustained muscle recovery",
+      "Calibrated macros: 616 kcal with measured complex carbs and healthy fats",
       "Zero added preservatives, cooked fresh each morning in Coimbatore"
     ],
     "suggestedSides": [
@@ -243,11 +243,11 @@
     ],
     "price": 319,
     "totals": {
-      "calories": 838,
-      "protein": 76.8,
-      "carbs": 79,
-      "fat": 23.5,
-      "weightG": 570
+      "calories": 820,
+      "protein": 76.1,
+      "carbs": 75.8,
+      "fat": 23.2,
+      "weightG": 520
     },
     "items": [
       {
@@ -283,11 +283,11 @@
       {
         "type": "salad",
         "name": "Crunchy Cabbage Salad",
-        "grams": 150,
-        "calories": 55,
-        "protein": 2,
-        "carbs": 9.5,
-        "fat": 1,
+        "grams": 100,
+        "calories": 37,
+        "protein": 1.3,
+        "carbs": 6.3,
+        "fat": 0.7,
         "image": "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80"
       },
       {
@@ -302,18 +302,18 @@
       }
     ],
     "benefits": [
-      "76.8g complete protein for sustained muscle recovery",
-      "Calibrated macros: 838 kcal with measured complex carbs and healthy fats",
+      "76.1g complete protein for sustained muscle recovery",
+      "Calibrated macros: 820 kcal with measured complex carbs and healthy fats",
       "Zero added preservatives, cooked fresh each morning in Coimbatore"
     ],
     "eggFreeVersion": {
       "description": "Replaces 2 boiled eggs with an extra portion of tender Green Gram Sprouts (+80g)",
       "extraLegumeName": "Extra Sprouted green gram (pachai payaru)",
       "price": 319,
-      "calories": 808,
-      "protein": 70.8,
-      "carbs": 94,
-      "fat": 15.5
+      "calories": 790,
+      "protein": 70.1,
+      "carbs": 90.8,
+      "fat": 15.2
     },
     "suggestedSides": [
       "side-grilled-chicken",
@@ -355,11 +355,11 @@
     ],
     "price": 319,
     "totals": {
-      "calories": 839,
-      "protein": 75.9,
-      "carbs": 52.9,
-      "fat": 34.6,
-      "weightG": 570
+      "calories": 826,
+      "protein": 75.4,
+      "carbs": 50.4,
+      "fat": 34.5,
+      "weightG": 520
     },
     "items": [
       {
@@ -395,11 +395,11 @@
       {
         "type": "salad",
         "name": "Fresh Cucumber Salad",
-        "grams": 150,
-        "calories": 40,
-        "protein": 1.5,
-        "carbs": 7.5,
-        "fat": 0.4,
+        "grams": 100,
+        "calories": 27,
+        "protein": 1.0,
+        "carbs": 5.0,
+        "fat": 0.3,
         "image": "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80"
       },
       {
@@ -414,18 +414,18 @@
       }
     ],
     "benefits": [
-      "75.9g complete protein for sustained muscle recovery",
-      "Calibrated macros: 839 kcal with measured complex carbs and healthy fats",
+      "75.4g complete protein for sustained muscle recovery",
+      "Calibrated macros: 826 kcal with measured complex carbs and healthy fats",
       "Zero added preservatives, cooked fresh each morning in Coimbatore"
     ],
     "eggFreeVersion": {
       "description": "Replaces 2 boiled eggs with an extra portion of tender Warm Peanut Bites (+80g)",
       "extraLegumeName": "Extra Boiled peanut",
       "price": 319,
-      "calories": 809,
-      "protein": 69.9,
-      "carbs": 67.9,
-      "fat": 26.6
+      "calories": 796,
+      "protein": 69.4,
+      "carbs": 65.4,
+      "fat": 26.5
     },
     "suggestedSides": [
       "side-chicken-post-workout",
@@ -467,11 +467,11 @@
     ],
     "price": 319,
     "totals": {
-      "calories": 898,
-      "protein": 81.2,
-      "carbs": 70,
-      "fat": 31.8,
-      "weightG": 630
+      "calories": 856,
+      "protein": 80.0,
+      "carbs": 65.8,
+      "fat": 29.6,
+      "weightG": 580
     },
     "items": [
       {
@@ -507,11 +507,11 @@
       {
         "type": "salad",
         "name": "Creamy Slaw",
-        "grams": 150,
-        "calories": 125,
-        "protein": 3.5,
-        "carbs": 12.5,
-        "fat": 6.5,
+        "grams": 100,
+        "calories": 83,
+        "protein": 2.3,
+        "carbs": 8.3,
+        "fat": 4.3,
         "image": "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80"
       },
       {
@@ -526,18 +526,18 @@
       }
     ],
     "benefits": [
-      "81.2g complete protein for sustained muscle recovery",
-      "Calibrated macros: 898 kcal with measured complex carbs and healthy fats",
+      "80g complete protein for sustained muscle recovery",
+      "Calibrated macros: 856 kcal with measured complex carbs and healthy fats",
       "Zero added preservatives, cooked fresh each morning in Coimbatore"
     ],
     "eggFreeVersion": {
       "description": "Replaces 2 boiled eggs with an extra portion of tender Rajma Bowl (+80g)",
       "extraLegumeName": "Extra Boiled kidney beans (rajma)",
       "price": 319,
-      "calories": 868,
-      "protein": 75.2,
-      "carbs": 85,
-      "fat": 23.8
+      "calories": 826,
+      "protein": 74.0,
+      "carbs": 80.8,
+      "fat": 21.6
     },
     "suggestedSides": [
       "side-paneer-post-workout",
@@ -579,11 +579,11 @@
     ],
     "price": 319,
     "totals": {
-      "calories": 808,
-      "protein": 58.6,
-      "carbs": 75.8,
-      "fat": 30.9,
-      "weightG": 550
+      "calories": 781,
+      "protein": 57.2,
+      "carbs": 72.5,
+      "fat": 30.1,
+      "weightG": 500
     },
     "items": [
       {
@@ -619,11 +619,11 @@
       {
         "type": "salad",
         "name": "Green Broccoli Salad",
-        "grams": 150,
-        "calories": 80,
-        "protein": 4.2,
-        "carbs": 10,
-        "fat": 2.5,
+        "grams": 100,
+        "calories": 53,
+        "protein": 2.8,
+        "carbs": 6.7,
+        "fat": 1.7,
         "image": "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80"
       },
       {
@@ -638,18 +638,18 @@
       }
     ],
     "benefits": [
-      "58.6g complete protein for sustained muscle recovery",
-      "Calibrated macros: 808 kcal with measured complex carbs and healthy fats",
+      "57.2g complete protein for sustained muscle recovery",
+      "Calibrated macros: 781 kcal with measured complex carbs and healthy fats",
       "Zero added preservatives, cooked fresh each morning in Coimbatore"
     ],
     "eggFreeVersion": {
       "description": "Replaces 2 boiled eggs with an extra portion of tender Green Pea Bowl (+80g)",
       "extraLegumeName": "Extra Boiled green peas",
       "price": 319,
-      "calories": 778,
-      "protein": 52.6,
-      "carbs": 90.8,
-      "fat": 22.9
+      "calories": 751,
+      "protein": 51.2,
+      "carbs": 87.5,
+      "fat": 22.1
     },
     "suggestedSides": [
       "side-grilled-paneer",

@@ -53,11 +53,11 @@ Here is our Monday box, exactly as it is listed on our menu:
 - **Green mint grilled chicken**, 150 g cooked
 - **2 boiled eggs** with yolk
 - **Boiled black chana**, 100 g
-- **Corn salad**, 150 g
+- **Corn salad**, 100 g
 - **Chapati**, 2 pieces
-- **Total: 977 kcal, 81.4 g protein, 101.9 g carbs, 28 g fat**
+- **Total: 929 kcal, 79.9 g protein, 92.2 g carbs, 27.5 g fat**
 
-Our vegetarian Tuesday box (smashed veggie soya chunks, mint curd, sprouted horse gram, mixed salad and veg masala oats) delivers **43.8 g protein in 638 kcal**. Every day of the week has its own box, so you are not eating the same meal six days in a row. See the full rotation on our [menu page](/menu).
+Our vegetarian Tuesday box (smashed veggie soya chunks, mint curd, sprouted horse gram, mixed salad and veg masala oats) delivers **43 g protein in 616 kcal**. Every day of the week has its own box, so you are not eating the same meal six days in a row. See the full rotation on our [menu page](/menu).
 
 # Which plan fits you?
 
