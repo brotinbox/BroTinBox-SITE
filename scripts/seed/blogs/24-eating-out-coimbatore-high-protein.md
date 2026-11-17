@@ -104,6 +104,8 @@ Delivery apps make it easy to add things you did not plan on. Decide what you wa
 
 It happens. Do not skip your next meal or punish yourself at the gym. Go back to your normal plan at the next meal, and keep your protein up. One restaurant meal will not undo weeks of work. If your progress really has slowed, our [plateau guide](/blog/weight-loss-plateau-why-scale-stopped) can help you work out why.
 
+Want healthy food without deciding at every meal? See all five options in our guide on [where to get healthy meals in Coimbatore](/blog/where-to-get-healthy-meals-coimbatore).
+
 # Frequently asked questions
 
 **How many times a week can I eat out and still lose weight?**

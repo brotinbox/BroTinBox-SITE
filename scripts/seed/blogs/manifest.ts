@@ -826,4 +826,17 @@ export const SEARCH_INTENT_POSTS: SeoPost[] = [
     image_prompt: 'A balanced high-protein Indian meal of grilled fish, rice, chapatis, dal, vegetables and a glass of milk on a dining table',
     published_at: at('2026-12-14'),
   },
+  {
+    file: '60-where-to-get-healthy-meals-coimbatore.md',
+    slug: 'where-to-get-healthy-meals-coimbatore',
+    title: 'Where to Get Healthy Meals in Coimbatore: 5 Real Options',
+    seo_title: 'Where to Get Healthy Meals in Coimbatore (2026 Guide)',
+    seo_description: 'Where to get healthy meals in Coimbatore: meal delivery with macros, salad kitchens, smart mess and restaurant picks, or home cooking. Pick what fits you.',
+    excerpt: 'Healthy food is all over Coimbatore, but getting it every day at a fixed time is the hard part. Five real options, what each is good for, and how to choose.',
+    category: 'kitchen-secrets',
+    tags: ['healthy meals coimbatore', 'healthy food coimbatore', 'meal delivery', 'coimbatore'],
+    macros_highlight: '25–50 g protein per healthy meal',
+    image_prompt: 'An open home-style South Indian meal box with grilled chicken, measured rice, chapati and fresh salad on a table in a bright Coimbatore apartment',
+    published_at: at('2026-11-17'),
+  },
 ];

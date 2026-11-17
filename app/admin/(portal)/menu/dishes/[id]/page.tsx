@@ -8,23 +8,32 @@ import { ButtonLink, Card, PageHeader, fmtDate } from '@/components/admin/ui';
 import { ActionForm, Checkbox, Field, Input, SubmitButton, Textarea } from '@/components/admin/forms';
 import { RecipeEditor } from '@/components/admin/RecipeEditor';
 import { toRecipe } from '@/lib/recipes';
+import { todayIST } from '@/lib/menu/rotation';
 import { restoreRecipeVersion, saveDish, saveRecipe } from '../../actions';
 
 export const metadata = { title: 'Edit dish' };
 
-export default async function DishEditPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function DishEditPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ created?: string }> }) {
   const staff = await requireStaff('menu.read');
   const { id } = await params;
+  const justCreated = (await searchParams).created === '1';
   if (!z.string().uuid().safeParse(id).success) notFound();
 
   const supabase = await getSupabaseServer();
-  const [{ data: d }, { data: c }, { data: recipeRow }, { data: versions }] = await Promise.all([
+  const usedIn = `main_id.eq.${id},protein_side_id.eq.${id},salad_id.eq.${id},legume_id.eq.${id},carb_id.eq.${id}`;
+  const [{ data: d }, { data: c }, { data: recipeRow }, { data: versions }, { data: rotUse }, { data: ovrUse }, swapRes, { data: allItems }] = await Promise.all([
     supabase.from('menu_items').select('*').eq('id', id).maybeSingle(),
     supabase.from('menu_item_costs').select('*').eq('menu_item_id', id).maybeSingle(),
     supabase.from('dish_recipes').select('*, profiles!dish_recipes_updated_by_fkey(full_name)').eq('menu_item_id', id).maybeSingle(),
     supabase.from('dish_recipe_versions').select('id, created_at, profiles!dish_recipe_versions_edited_by_fkey(full_name)')
       .eq('menu_item_id', id).order('created_at', { ascending: false }).limit(8),
+    supabase.from('menu_rotation').select('day_number, diet, slot').or(usedIn).order('day_number'),
+    supabase.from('menu_overrides').select('menu_date, diet, slot').or(usedIn).gte('menu_date', todayIST()).order('menu_date').limit(20),
+    supabase.from('menu_swaps').select('effective_from, old_item_id, new_item_id').or(`old_item_id.eq.${id},new_item_id.eq.${id}`).order('effective_from'),
+    supabase.from('menu_items').select('id, name'),
   ]);
+  const swapUse = swapRes.error ? [] : swapRes.data ?? [];
+  const nameOf = new Map((allItems ?? []).map((i) => [i.id, i.name]));
   if (!d) notFound();
   const canWrite = staff.can('menu.write');
   // Before migration 0038 runs, fall back to the workbook note.
@@ -34,6 +43,11 @@ export default async function DishEditPage({ params }: { params: Promise<{ id: s
   return (
     <>
       <PageHeader title={d.name} description={`${d.code} · ${d.category.replace('_', ' ')}`} actions={<ButtonLink href={adminHref('/menu/dishes')} variant="secondary">← All dishes</ButtonLink>} />
+      {justCreated && (
+        <p role="status" className="mb-4 text-sm font-semibold rounded-xl px-4 py-3 bg-emerald-50 text-emerald-800">
+          Dish added. It is not on any date yet: on the menu calendar, use “Replace a dish from a date” to rotate it in, or “Change a dish for one date” to try it once.
+        </p>
+      )}
       <div className="grid max-md:grid-cols-[minmax(0,1fr)] lg:grid-cols-3 gap-4">
         <Card title="Details" className="lg:col-span-2">
           <ActionForm action={saveDish} className="space-y-4">
@@ -68,6 +82,23 @@ export default async function DishEditPage({ params }: { params: Promise<{ id: s
           </ActionForm>
         </Card>
         <div className="space-y-4">
+          <Card title="Where it's served">
+            {(rotUse?.length ?? 0) === 0
+              ? <p className="text-sm text-gray-600">Not in the 30-day menu.</p>
+              : <p className="text-sm text-gray-700">30-day menu, {rotUse!.length} meal{rotUse!.length === 1 ? '' : 's'}: {rotUse!.map((r) => `day ${r.day_number} ${r.slot} (${r.diet === 'veg' ? 'veg' : 'non-veg'})`).join(', ')}.</p>}
+            {swapUse.map((sw, i) => (
+              <p key={i} className="mt-2 text-sm text-sky-800">
+                {sw.new_item_id === id
+                  ? <>From {fmtDate(sw.effective_from)} it replaces {nameOf.get(sw.old_item_id) ?? 'another dish'}.</>
+                  : <>From {fmtDate(sw.effective_from)} it is replaced by {nameOf.get(sw.new_item_id) ?? 'another dish'}.</>}
+              </p>
+            ))}
+            {(ovrUse?.length ?? 0) > 0 && (
+              <p className="mt-2 text-sm text-gray-700">Date changes: {ovrUse!.map((o) => `${fmtDate(o.menu_date)} ${o.slot} (${o.diet === 'veg' ? 'veg' : 'non-veg'})`).join(', ')}.</p>
+            )}
+            <p className="mt-2 text-xs text-gray-500">Edits here change every meal listed. Swap it out of those meals before hiding it, or the website shows a gap there.</p>
+            <div className="mt-3"><ButtonLink href={adminHref('/menu')} variant="secondary">Open menu calendar</ButtonLink></div>
+          </Card>
           <Card title="Photo">
             {d.image_url
               ? <Image src={d.image_url} alt={d.name} width={400} height={300} className="w-full rounded-xl object-cover" unoptimized={d.image_url.startsWith('/')} />

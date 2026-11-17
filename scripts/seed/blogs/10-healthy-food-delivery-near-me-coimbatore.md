@@ -2,6 +2,8 @@
 
 Searching for "healthy food near me" in Coimbatore usually returns restaurants with a salad section. If what you actually want is a measured, high-protein meal delivered at a fixed time every day, the list is much shorter.
 
+(For every healthy option in the city, including eating out and cooking, see our guide on [where to get healthy meals in Coimbatore](/blog/where-to-get-healthy-meals-coimbatore).)
+
 Here is everything you need to know about where we deliver today, when your box arrives, and which areas are coming next.
 
 # How delivery works

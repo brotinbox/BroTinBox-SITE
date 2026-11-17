@@ -5,6 +5,9 @@ import { adminHref } from '@/lib/admin/paths';
 import { Card, DataTable, EmptyState, PageHeader, Pagination, StatusBadge, fmtDate } from '@/components/admin/ui';
 import { FilterBar, likePattern } from '@/components/admin/FilterBar';
 import { activeTrialsFor } from '@/lib/admin/trials';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { getSupabaseService } from '@/lib/supabase/admin';
+import { HEARD_FROM } from '@/lib/heard-from';
 
 export const metadata = { title: 'Customers' };
 const PAGE = 25;
@@ -32,12 +35,33 @@ export default async function CustomersPage({ searchParams }: { searchParams: Pr
   if (filter === 'blocked') query = query.eq('is_blocked', true);
   const { data, count } = await query;
   // crm data via service role; requireStaff('customers.read') has run.
-  const trials = await activeTrialsFor((data ?? []).map((r) => r.id));
+  const [trials, heardRes] = await Promise.all([
+    activeTrialsFor((data ?? []).map((r) => r.id)),
+    (getSupabaseService() as unknown as SupabaseClient).schema('crm').from('heard_from').select('source').limit(5000),
+  ]);
+  // "How did you find us?" answers from checkout (optional), most common first.
+  const heardCounts = new Map<string, number>();
+  for (const h of heardRes.data ?? []) heardCounts.set(h.source, (heardCounts.get(h.source) ?? 0) + 1);
+  const heardTotal = heardRes.data?.length ?? 0;
+  const heardRows = HEARD_FROM.map((o) => ({ ...o, n: heardCounts.get(o.value) ?? 0 })).filter((o) => o.n > 0).sort((a, b) => b.n - a.n);
 
   const base = adminHref('/customers');
   return (
     <>
       <PageHeader title="Customers" description="Everyone who has signed up. Open a customer to see their plan, meals, payments and history." />
+      {heardTotal > 0 && (
+        <Card title={`How customers found us · ${heardTotal} answered`} className="mb-4">
+          <div className="flex flex-wrap gap-2">
+            {heardRows.map((o) => (
+              <span key={o.value} className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-xs">
+                <span aria-hidden>{o.emoji}</span>
+                <span className="font-semibold text-gray-800">{o.label}</span>
+                <span className="text-gray-500">{o.n} · {Math.round((o.n / heardTotal) * 100)}%</span>
+              </span>
+            ))}
+          </div>
+        </Card>
+      )}
       <FilterBar
         action={base}
         q={q}

@@ -9,6 +9,9 @@ import { ActionForm, Field, Input, Select, SubmitButton, Textarea } from '@/comp
 import { getTrialEligibility, type TrialEligibility } from '@/lib/checkout/trial';
 import { customersById, trialBoxDates, trialClaims, type TrialClaim } from '@/lib/admin/trials';
 import { resetTrial } from '../../trials/actions';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { getSupabaseService } from '@/lib/supabase/admin';
+import { heardFromLabel } from '@/lib/heard-from';
 import {
   addNote, setBlocked, setTags, staffAddCredit, staffCancelSubscription, staffPause, staffResume, staffSkipDelivery,
 } from '../actions';
@@ -136,6 +139,9 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
     supabase.from('progress_logs').select('log_date, weight_kg').eq('user_id', id).order('log_date', { ascending: false }).limit(8),
   ]);
   const trial = await loadCustomerTrial(id);
+  // Optional checkout answer (crm, service role; requireStaff has run).
+  const { data: heard } = await (getSupabaseService() as unknown as SupabaseClient).schema('crm')
+    .from('heard_from').select('source, detail').eq('user_id', id).maybeSingle();
 
   const p = profileRes.data;
   if (!p) notFound();
@@ -147,7 +153,7 @@ export default async function CustomerPage({ params }: { params: Promise<{ id: s
     <>
       <PageHeader
         title={p.full_name || p.email || 'Customer'}
-        description={`${/@phone\.brotinbox\.invalid$/.test(p.email ?? '') ? 'Phone sign-in' : (p.email ?? '')}${p.phone ? ` · ${p.phone}` : ''} · joined ${fmtDate(p.created_at)}`}
+        description={`${/@phone\.brotinbox\.invalid$/.test(p.email ?? '') ? 'Phone sign-in' : (p.email ?? '')}${p.phone ? ` · ${p.phone}` : ''} · joined ${fmtDate(p.created_at)}${heard ? ` · found us via ${heardFromLabel(heard.source)}${heard.detail ? ` (${heard.detail})` : ''}` : ''}`}
         actions={
           <>
             {p.role !== 'customer' && <StatusBadge value={p.role} />}

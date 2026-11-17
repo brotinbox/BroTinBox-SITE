@@ -52,7 +52,7 @@ export function BlogForm({ post, categories, canWrite }: {
             </Field>
             <Field label="SEO title" hint="Up to 70 characters"><Input name="seo_title" defaultValue={post?.seo_title ?? ''} maxLength={70} /></Field>
             <Field label="SEO description" hint="Up to 170 characters"><Textarea name="seo_description" defaultValue={post?.seo_description ?? ''} maxLength={170} className="min-h-16" /></Field>
-            <Checkbox name="is_featured" label="Feature at the top of the blog" defaultChecked={post?.is_featured ?? false} />
+            <Checkbox name="is_featured" label="Featured (tag only; the newest post always leads the blog)" defaultChecked={post?.is_featured ?? false} />
           </div>
         </fieldset>
         {canWrite && <SubmitButton>{post ? 'Save post' : 'Create post'}</SubmitButton>}

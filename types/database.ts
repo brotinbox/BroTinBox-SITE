@@ -1306,6 +1306,45 @@ export type Database = {
           },
         ]
       }
+      menu_swaps: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          diet: Database["public"]["Enums"]["diet_type"] | null
+          effective_from: string
+          id: string
+          kitchen_id: string
+          new_item_id: string
+          note: string | null
+          old_item_id: string
+          slot: Database["public"]["Enums"]["meal_slot"] | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          diet?: Database["public"]["Enums"]["diet_type"] | null
+          effective_from: string
+          id?: string
+          kitchen_id?: string
+          new_item_id: string
+          note?: string | null
+          old_item_id: string
+          slot?: Database["public"]["Enums"]["meal_slot"] | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          diet?: Database["public"]["Enums"]["diet_type"] | null
+          effective_from?: string
+          id?: string
+          kitchen_id?: string
+          new_item_id?: string
+          note?: string | null
+          old_item_id?: string
+          slot?: Database["public"]["Enums"]["meal_slot"] | null
+        }
+        Relationships: []
+      }
       menu_rotation: {
         Row: {
           carb_id: string
@@ -1994,6 +2033,7 @@ export type Database = {
           area: string | null
           avatar_url: string | null
           comment: string
+          consent_given: boolean
           created_at: string
           goal: string | null
           id: string
@@ -2002,6 +2042,7 @@ export type Database = {
           moderated_by: string | null
           name: string
           rating: number
+          source: string
           status: Database["public"]["Enums"]["review_status"]
           updated_at: string
           user_id: string | null
@@ -2010,6 +2051,7 @@ export type Database = {
           area?: string | null
           avatar_url?: string | null
           comment: string
+          consent_given?: boolean
           created_at?: string
           goal?: string | null
           id?: string
@@ -2018,6 +2060,7 @@ export type Database = {
           moderated_by?: string | null
           name: string
           rating: number
+          source?: string
           status?: Database["public"]["Enums"]["review_status"]
           updated_at?: string
           user_id?: string | null
@@ -2026,6 +2069,7 @@ export type Database = {
           area?: string | null
           avatar_url?: string | null
           comment?: string
+          consent_given?: boolean
           created_at?: string
           goal?: string | null
           id?: string
@@ -2034,6 +2078,7 @@ export type Database = {
           moderated_by?: string | null
           name?: string
           rating?: number
+          source?: string
           status?: Database["public"]["Enums"]["review_status"]
           updated_at?: string
           user_id?: string | null

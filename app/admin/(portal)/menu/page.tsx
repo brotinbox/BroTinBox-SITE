@@ -6,7 +6,8 @@ import { adminHref } from '@/lib/admin/paths';
 import { addDays, rotationDayNumber, todayIST, weekdayLabel } from '@/lib/menu/rotation';
 import { ButtonLink, Card, EmptyState, PageHeader, fmtDate } from '@/components/admin/ui';
 import { ActionForm, Field, Input, Select, SubmitButton } from '@/components/admin/forms';
-import { addClosure, removeClosure, removeOverride, saveOverride } from './actions';
+import { addClosure, addSwap, removeClosure, removeOverride, removeSwap, saveOverride } from './actions';
+import { sortSwaps, swapDish } from '@/lib/menu/swaps';
 
 export const metadata = { title: 'Menu calendar' };
 
@@ -24,12 +25,15 @@ export default async function MenuCalendarPage({ searchParams }: { searchParams:
   const end = days[days.length - 1];
 
   const supabase = await getSupabaseServer();
-  const [rotation, overrides, closures, items] = await Promise.all([
+  const [rotation, overrides, closures, items, swapRows] = await Promise.all([
     supabase.from('menu_rotation').select('day_number, diet, slot, main_id, protein_side_id, salad_id, legume_id, carb_id'),
     supabase.from('menu_overrides').select('*').gte('menu_date', start).lte('menu_date', end),
     supabase.from('kitchen_closures').select('*').gte('closed_date', todayIST()).order('closed_date'),
     supabase.from('menu_items').select('id, code, name, category, is_veg, is_active').order('code'),
+    supabase.from('menu_swaps').select('*').order('effective_from').order('created_at'),
   ]);
+  // Before migration 0048 runs the table is missing: treat as no swaps.
+  const swaps = swapRows.error ? [] : sortSwaps(swapRows.data ?? []);
 
   const itemName = new Map((items.data ?? []).map((i) => [i.id, i.name]));
   const rot = new Map((rotation.data ?? []).map((r) => [`${r.day_number}|${r.diet}|${r.slot}`, r]));
@@ -44,8 +48,10 @@ export default async function MenuCalendarPage({ searchParams }: { searchParams:
     return {
       n, override: o,
       parts: PARTS.map(([key]) => {
-        const id = (o?.[key] as string | null) ?? (r?.[key] as string | undefined);
-        return { key, id, name: id ? itemName.get(id) : undefined, changed: !!o?.[key] };
+        const base = r?.[key] as string | undefined;
+        const swapped = swapDish(base, swaps, date, diet, slot);
+        const id = (o?.[key] as string | null) ?? swapped;
+        return { key, id, name: id ? itemName.get(id) : undefined, changed: !!o?.[key], swapped: !o?.[key] && swapped !== (base ?? null) };
       }),
     };
   };
@@ -54,6 +60,11 @@ export default async function MenuCalendarPage({ searchParams }: { searchParams:
     { value: '', label: 'Keep rotation dish' },
     ...(items.data ?? []).filter((i) => i.category === CAT_FOR[key] && i.is_active).map((i) => ({ value: i.id, label: `${i.code} · ${i.name}` })),
   ];
+
+  const CAT_LABEL: Record<string, string> = { main: 'Main', protein_side: 'Protein side', legume: 'Legume', salad: 'Salad', carb: 'Carb' };
+  const dishOptions = (activeOnly: boolean) => (items.data ?? [])
+    .filter((i) => !activeOnly || i.is_active)
+    .map((i) => ({ value: i.id, label: `${CAT_LABEL[i.category] ?? i.category} · ${i.code} · ${i.name}${i.is_veg ? '' : ' (non-veg)'}` }));
 
   const base = adminHref('/menu');
   return (
@@ -94,7 +105,9 @@ export default async function MenuCalendarPage({ searchParams }: { searchParams:
                           </p>
                           <ul className="text-xs space-y-0.5">
                             {m.parts.map((p) => (
-                              <li key={p.key} className={p.changed ? 'text-amber-800 font-semibold' : 'text-gray-800'}>{p.name ?? '—'}</li>
+                              <li key={p.key} className={p.changed ? 'text-amber-800 font-semibold' : p.swapped ? 'text-sky-800 font-semibold' : 'text-gray-800'}>
+                                {p.name ?? '—'}{p.swapped && <span className="font-normal text-sky-700"> · swapped</span>}
+                              </li>
                             ))}
                           </ul>
                           {m.override && canWrite && (
@@ -112,6 +125,46 @@ export default async function MenuCalendarPage({ searchParams }: { searchParams:
           );
         })}
       </div>
+
+      {canWrite && (
+        <Card title="Replace a dish from a date" className="mb-4">
+          <p className="text-xs text-gray-500 mb-3">
+            From the start date on, the new dish is served wherever the 30-day menu has the old one. The 30-day menu itself is not changed,
+            so removing the swap brings the old dish back. One-date changes still win, and meals already locked for tomorrow keep the old dish.
+          </p>
+          <ActionForm action={addSwap} className="space-y-3" resetOnSuccess>
+            <div className="grid sm:grid-cols-2 gap-3">
+              <Field label="Take out"><Select name="old_item_id" required options={[{ value: '', label: 'Pick a dish…' }, ...dishOptions(false)]} /></Field>
+              <Field label="Bring in" hint="Same group as the old dish"><Select name="new_item_id" required options={[{ value: '', label: 'Pick a dish…' }, ...dishOptions(true)]} /></Field>
+            </div>
+            <div className="grid sm:grid-cols-3 gap-3">
+              <Field label="Starting"><Input type="date" name="effective_from" required min={todayIST()} defaultValue={addDays(todayIST(), 2)} /></Field>
+              <Field label="Which boxes"><Select name="diet" options={[{ value: '', label: 'Veg and non-veg' }, { value: 'non_veg', label: 'Non-veg only' }, { value: 'veg', label: 'Veg only' }]} /></Field>
+              <Field label="Which meals"><Select name="slot" options={[{ value: '', label: 'Lunch and dinner' }, { value: 'lunch', label: 'Lunch only' }, { value: 'dinner', label: 'Dinner only' }]} /></Field>
+            </div>
+            <Field label="Note (internal)"><Input name="note" maxLength={300} placeholder="e.g. customers asked for more sprouts" /></Field>
+            <SubmitButton>Save swap</SubmitButton>
+          </ActionForm>
+          {swaps.length > 0 && (
+            <ul className="mt-5 divide-y divide-gray-100 border-t border-gray-100">
+              {swaps.map((sw) => (
+                <li key={sw.id} className="flex items-center justify-between gap-3 py-2 text-sm">
+                  <span>
+                    From <b>{fmtDate(sw.effective_from)}</b>: {itemName.get(sw.old_item_id) ?? '?'} → <b>{itemName.get(sw.new_item_id) ?? '?'}</b>
+                    <span className="text-xs text-gray-500">
+                      {' '}· {sw.diet ? (sw.diet === 'veg' ? 'veg' : 'non-veg') : 'both diets'} · {sw.slot ?? 'lunch and dinner'}{sw.note ? ` · ${sw.note}` : ''}
+                    </span>
+                  </span>
+                  <ActionForm action={removeSwap}>
+                    <input type="hidden" name="id" value={sw.id} />
+                    <SubmitButton variant="secondary" pendingText="…" confirm={{ eyebrow: 'Remove swap', tone: 'danger', title: 'Remove this swap?', message: 'Meals not yet locked go back to the 30-day menu’s dish.', confirmLabel: 'Remove', cancelLabel: 'Keep it' }}>Remove</SubmitButton>
+                  </ActionForm>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Card>
+      )}
 
       {canWrite && (
         <div className="grid max-md:grid-cols-[minmax(0,1fr)] lg:grid-cols-3 gap-4">
@@ -154,7 +207,7 @@ export default async function MenuCalendarPage({ searchParams }: { searchParams:
         </div>
       )}
       <p className="mt-6 text-xs text-gray-500">
-        To change the 30-day rotation itself, edit the menu workbook and re-run <code>scripts/seed/build_seed.py</code>, or ask a developer.{' '}
+        To bring a new dish in for good, use “Replace a dish from a date” above.{' '}
         <Link href={adminHref('/menu/dishes')} className="text-primary font-bold">Dish details and photos →</Link>
       </p>
     </>

@@ -5,6 +5,7 @@
  *   npm run seed:blogs                upsert drafts → generate missing covers → publish
  *
  *   npm run seed:blogs:october        same steps for the October 2026 set only
+ *   npm run seed:blogs:search -- --only <slug>   just that one post of the set
  *   npm run seed:blogs:search         the 30 search-intent posts, one a day 15 Nov → 14 Dec 2026
  *                                     (scheduled; published without a cover if none is ready yet)
  *
@@ -26,7 +27,14 @@ import { AUTHOR, NOVEMBER_2026_POSTS, OCTOBER_2026_POSTS, SEARCH_INTENT_POSTS, S
 
 const DRY_RUN = process.argv.includes('--dry-run');
 const SEARCH = process.argv.includes('--search');
-const POSTS = SEARCH ? SEARCH_INTENT_POSTS : process.argv.includes('--october') ? OCTOBER_2026_POSTS : process.argv.includes('--november') ? NOVEMBER_2026_POSTS : SEO_POSTS;
+const SET = SEARCH ? SEARCH_INTENT_POSTS : process.argv.includes('--october') ? OCTOBER_2026_POSTS : process.argv.includes('--november') ? NOVEMBER_2026_POSTS : SEO_POSTS;
+// --only <slug> limits the run to one post of the chosen set (no re-upload of the rest).
+const ONLY = process.argv.includes('--only') ? process.argv[process.argv.indexOf('--only') + 1] : null;
+const POSTS = ONLY ? SET.filter((p) => p.slug === ONLY) : SET;
+if (ONLY && !POSTS.length) {
+  console.error(`❌ --only ${ONLY}: no such slug in this set.`);
+  process.exit(1);
+}
 const DIR = join(process.cwd(), 'scripts/seed/blogs');
 const SCENE_SUFFIX = 'Natural documentary-style photography, realistic lighting, authentic South Indian setting, no watermarks, no text, no logos.';
 const SITE_PATHS = new Set(['/', '/menu', '/plans', '/pricing', '/weekly', '/monthly', '/tomorrow', '/delivery-areas', '/blog', '/faq', '/about', '/contact', '/food-safety', '/refund-policy']);

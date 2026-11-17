@@ -3,6 +3,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/types/database';
 import { rotationDayNumber } from '@/lib/menu/rotation';
 import { getMenuSnapshot } from '@/lib/data/catalog';
+import { sortSwaps, swapDish, type MenuSwap } from '@/lib/menu/swaps';
 
 export type MenuDish = { id: string; code: string; name: string; category: string; calories: number; protein: number; carbs: number; fat: number; grams: number; image_url: string | null; allergens: string[] };
 export type ResolvedMenu = { dishes: MenuDish[]; calories: number; protein: number; overridden: boolean };
@@ -27,18 +28,21 @@ async function loadMenuData(supabase: SupabaseClient<Database>, from: string, to
       rotation: snap.rotation as RotationRow[],
       overrides: snap.overrides.filter((o) => o.menu_date >= from && o.menu_date <= to) as OverrideRow[],
       items: snap.items as unknown as MenuDish[],
+      swaps: snap.swaps as MenuSwap[],
     };
   }
-  const [rot, ovr, items] = await Promise.all([
+  const [rot, ovr, items, swaps] = await Promise.all([
     supabase.from('menu_rotation').select('day_number, diet, slot, main_id, protein_side_id, legume_id, salad_id, carb_id'),
     supabase.from('menu_overrides').select('menu_date, diet, slot, main_id, protein_side_id, legume_id, salad_id, carb_id')
       .gte('menu_date', from).lte('menu_date', to),
     supabase.from('menu_items').select('id, code, name, category, calories, protein, carbs, fat, grams, image_url, allergens'),
+    supabase.from('menu_swaps').select('effective_from, old_item_id, new_item_id, diet, slot, created_at').lte('effective_from', to),
   ]);
   return {
     rotation: (rot.data ?? []) as RotationRow[],
     overrides: (ovr.data ?? []) as OverrideRow[],
     items: (items.data ?? []) as unknown as MenuDish[],
+    swaps: swaps.error ? [] : (swaps.data ?? []) as MenuSwap[],
   };
 }
 
@@ -57,6 +61,7 @@ export async function resolveMenus(
   const data = await loadMenuData(supabase, dates[0], dates[dates.length - 1]);
   const rotation = new Map(data.rotation.map((r) => [`${r.day_number}|${r.diet}|${r.slot}`, r]));
   const overrides = new Map(data.overrides.map((o) => [`${o.menu_date}|${o.diet}|${o.slot}`, o]));
+  const swaps = sortSwaps(data.swaps);
   const catalog = new Map(data.items.map((i) => [i.id, { ...i, calories: Number(i.calories), protein: Number(i.protein), carbs: Number(i.carbs), fat: Number(i.fat), grams: Number(i.grams) } as MenuDish]));
 
   for (const k of keys) {
@@ -67,7 +72,7 @@ export async function resolveMenus(
     const r = rotation.get(`${n}|${k.diet}|${k.slot}`);
     const o = overrides.get(key);
     const dishes = PARTS
-      .map((p) => catalog.get(((o?.[p] as string | null) ?? (r?.[p] as string | undefined)) ?? ''))
+      .map((p) => catalog.get(((o?.[p] as string | null) ?? swapDish(r?.[p], swaps, k.date, k.diet, k.slot)) ?? ''))
       .filter((d): d is MenuDish => !!d)
       .sort((a, b) => ORDER.indexOf(a.category) - ORDER.indexOf(b.category));
     out.set(key, {

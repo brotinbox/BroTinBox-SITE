@@ -25,6 +25,8 @@ export type MenuSnapshot = {
   rotation: { day_number: number; diet: string; slot: string; main_id: string; protein_side_id: string; salad_id: string; legume_id: string; carb_id: string }[];
   overrides: { menu_date: string; diet: string; slot: string; main_id: string | null; protein_side_id: string | null; salad_id: string | null; legume_id: string | null; carb_id: string | null }[];
   closures: { closed_date: string; reason: string }[];
+  /** Rotation swaps, oldest first (lib/menu/swaps.ts). */
+  swaps: { effective_from: string; old_item_id: string; new_item_id: string; diet: string | null; slot: string | null; created_at: string }[];
   version: string;
 };
 
@@ -32,11 +34,13 @@ export const getMenuSnapshot = unstable_cache(
   async (): Promise<MenuSnapshot | null> => {
     const db = getSupabasePublic();
     const since = new Date(Date.now() - 2 * 864e5).toISOString().slice(0, 10);
-    const [items, rotation, overrides, closures] = await Promise.all([
+    const [items, rotation, overrides, closures, swaps] = await Promise.all([
       db.from('menu_items').select('id, code, name, category, grams, calories, protein, carbs, fat, fiber, allergens, description, image_url'),
       db.from('menu_rotation').select('day_number, diet, slot, main_id, protein_side_id, salad_id, legume_id, carb_id'),
       db.from('menu_overrides').select('menu_date, diet, slot, main_id, protein_side_id, salad_id, legume_id, carb_id').gte('menu_date', since),
       db.from('kitchen_closures').select('closed_date, reason').gte('closed_date', since),
+      db.from('menu_swaps').select('effective_from, old_item_id, new_item_id, diet, slot, created_at')
+        .order('effective_from').order('created_at'),
     ]);
     if (items.error || rotation.error || !items.data?.length || !rotation.data?.length) return null;
     return {
@@ -44,6 +48,8 @@ export const getMenuSnapshot = unstable_cache(
       rotation: rotation.data,
       overrides: overrides.data ?? [],
       closures: closures.data ?? [],
+      // Before migration 0048 runs the table is missing: treat as no swaps.
+      swaps: swaps.error ? [] : swaps.data ?? [],
       version: new Date().toISOString(),
     };
   },

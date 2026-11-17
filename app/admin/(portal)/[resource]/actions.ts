@@ -83,6 +83,11 @@ export async function saveResource(_p: ActionResult | null, fd: FormData): Promi
       throw e;
     }
 
+    // Same rule as the database (migration 0047), with a clearer message.
+    if (res.key === 'reviews' && row.status === 'approved' && !row.consent_given) {
+      return fail('Tick "Customer agreed to show this" before approving. Only show reviews the customer said yes to.');
+    }
+
     // Empty values: on create, let DB defaults apply; on edit, clear text,
     // dates and nullable numbers, but leave other numbers unchanged.
     for (const f of res.fields) {

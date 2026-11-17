@@ -1,5 +1,6 @@
 import overridesData from '@/data/overrides.json';
 import menu30DayData from '@/data/menu-30day.json';
+import { swapDish, type MenuSwap } from '@/lib/menu/swaps';
 
 export type DietType = 'non-veg' | 'veg';
 export type Allergen = 'Peanut' | 'Gluten' | 'Dairy' | 'Egg' | 'Soy' | 'Fish';
@@ -74,6 +75,7 @@ export type LiveMenuData = {
   rotation: Map<string, Required<PartCodes>>;   // `${day}|${diet}|${slot}`
   overrides: Map<string, PartCodes>;            // `${date}|${diet}|${slot}`
   closures: Map<string, string>;                // date → reason
+  swaps?: MenuSwap[];                           // by code, oldest first (lib/menu/swaps.ts)
 };
 
 let liveMenu: LiveMenuData | null = null;
@@ -304,7 +306,8 @@ export function getMenuForDate(dateInput: Date | string, diet: DietType = 'non-v
     const build = (slot: SlotKey) => {
       const base = live.rotation.get(`${dayNumber30}|${dbDiet}|${slot}`);
       const ovr = live.overrides.get(`${dateStr}|${dbDiet}|${slot}`);
-      const pick = (k: keyof PartCodes) => live.items.get((ovr?.[k] ?? base?.[k]) as string);
+      const pick = (k: keyof PartCodes) =>
+        live.items.get((ovr?.[k] ?? swapDish(base?.[k], live.swaps ?? [], dateStr, dbDiet, slot)) as string);
       const items = { main: pick('main'), proteinSide: pick('proteinSide'), salad: pick('salad'), legume: pick('legume'), carb: pick('carb') };
       if (!items.main || !items.proteinSide || !items.salad || !items.legume || !items.carb) return null;
       const itemArray = [items.main, items.proteinSide, items.salad, items.legume, items.carb];

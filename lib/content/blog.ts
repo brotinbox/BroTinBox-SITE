@@ -10,7 +10,7 @@ export const getPublishedPosts = unstable_cache(
       .select('id, slug, title, excerpt, cover_image_url, author_name, author_role, read_minutes, macros_highlight, published_at, is_featured, tags, blog_categories(name, slug)')
       .eq('status', 'published')
       .lte('published_at', new Date().toISOString())
-      .order('is_featured', { ascending: false })
+      // Newest first: the hero card on /blog is always the latest post.
       .order('published_at', { ascending: false })
       .limit(100);
     return data ?? [];

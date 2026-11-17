@@ -2,6 +2,10 @@ import type { MetadataRoute } from 'next';
 import { BRAND } from '@/config/brand';
 import { getPublishedPosts } from '@/lib/content/blog';
 
+// Rebuild every 5 minutes (same as the blog cache). Without this the sitemap was frozen
+// at deploy time, so newly published posts never reached Search Console.
+export const revalidate = 300;
+
 const PAGES = ['', '/menu', '/plans', '/pricing', '/weekly', '/monthly', '/tomorrow', '/delivery-areas', '/blog', '/faq', '/refer', '/partners', '/about', '/contact', '/terms', '/privacy', '/refund-policy', '/delivery-policy', '/food-safety', '/grievance', '/partner-terms'];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

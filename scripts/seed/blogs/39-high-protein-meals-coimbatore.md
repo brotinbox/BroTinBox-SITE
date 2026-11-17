@@ -2,6 +2,8 @@
 
 If you train in Coimbatore, you already know the problem. Lunch options are mostly rice-heavy meals, biryani or parotta. They taste great, but they are low in protein and high in oil. Hitting 100+ g of protein a day while eating out is hard.
 
+(Looking for healthy food in general, not just high protein? Read [where to get healthy meals in Coimbatore](/blog/where-to-get-healthy-meals-coimbatore).)
+
 Here is how to get high-protein meals in the city, whether you cook, eat out or order in.
 
 # What counts as a "high-protein meal"?

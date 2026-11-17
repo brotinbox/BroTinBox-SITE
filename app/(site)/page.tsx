@@ -7,9 +7,11 @@ import { AddASideSection } from '@/components/home/AddASideSection';
 import { DrinksStrip } from '@/components/home/DrinksStrip';
 import { HowItWorksSteps } from '@/components/home/HowItWorksSteps';
 import { PlansTeaser } from '@/components/home/PlansTeaser';
+import { CustomerReviews } from '@/components/home/CustomerReviews';
+import { getReviews } from '@/lib/api/reviews';
 
 export default async function HomePage() {
-  const [sides, addons] = await Promise.all([getSides(), getDrinks()]);
+  const [sides, addons, reviews] = await Promise.all([getSides(), getDrinks(), getReviews().catch(() => [])]);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -30,6 +32,9 @@ export default async function HomePage() {
 
       {/* 6. How it works in 3 steps */}
       <HowItWorksSteps />
+
+      {/* 7. Real customer reviews (hidden until one is approved) */}
+      <CustomerReviews reviews={reviews} />
 
       {/* 8. Plans teaser with weekly/monthly toggle */}
       <PlansTeaser />

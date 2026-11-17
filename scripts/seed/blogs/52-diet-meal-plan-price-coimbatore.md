@@ -73,6 +73,8 @@ A typical lunch out in Coimbatore:
 
 A measured ₹269 box with known protein and calories usually costs about the same as, or less than, a protein-heavy restaurant meal.
 
+For a wider look at every option, read [where to get healthy meals in Coimbatore](/blog/where-to-get-healthy-meals-coimbatore).
+
 # Which plan should you choose?
 
 - **Just curious?** Start with a [trial box for tomorrow](/tomorrow).

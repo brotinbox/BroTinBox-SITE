@@ -46,6 +46,8 @@ Never sign up for a month of food you have not tasted. A one-day trial removes t
 - **Unclear delivery areas or fees.** You should know before checkout whether your area is covered and what delivery costs.
 - **Long lock-in periods with no pause option.**
 
+Not sure a subscription is right for you at all? Our guide on [where to get healthy meals in Coimbatore](/blog/where-to-get-healthy-meals-coimbatore) compares it with salad kitchens, restaurants and home cooking.
+
 # What a measured BroTin Box actually looks like
 
 Here is our Monday box, exactly as it is listed on our menu:

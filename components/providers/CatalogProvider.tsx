@@ -20,6 +20,7 @@ export type CatalogMenu = {
   rotation: { day_number: number; diet: string; slot: string; main_id: string; protein_side_id: string; salad_id: string; legume_id: string; carb_id: string }[];
   overrides: { menu_date: string; diet: string; slot: string; main_id: string | null; protein_side_id: string | null; salad_id: string | null; legume_id: string | null; carb_id: string | null }[];
   closures: { closed_date: string; reason: string }[];
+  swaps?: { effective_from: string; old_item_id: string; new_item_id: string; diet: string | null; slot: string | null; created_at: string }[];
   version: string;
 };
 export type Faq = { id: string; question: string; answer: string };
@@ -45,6 +46,9 @@ function toLiveMenu(m: CatalogMenu): LiveMenuData {
       main: c(o.main_id), proteinSide: c(o.protein_side_id), salad: c(o.salad_id), legume: c(o.legume_id), carb: c(o.carb_id),
     }])),
     closures: new Map(m.closures.map((x) => [x.closed_date, x.reason])),
+    // Swaps by dish code, oldest first (the server already sorted them).
+    swaps: (m.swaps ?? []).map((x) => ({ ...x, old_item_id: c(x.old_item_id) ?? '', new_item_id: c(x.new_item_id) ?? '' }))
+      .filter((x) => x.old_item_id && x.new_item_id),
   };
 }
 

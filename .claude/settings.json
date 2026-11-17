@@ -11,7 +11,8 @@
       "ClaudeInChromeDomain(localhost:3001)",
       "ClaudeInChromeDomain(www.canva.com)",
       "ClaudeInChromeDomain(www.brotinbox.com)",
-      "mcp__claude-in-chrome__browser_batch"
+      "mcp__claude-in-chrome__browser_batch",
+      "ClaudeInChromeDomain(search.google.com)"
     ]
   }
 }

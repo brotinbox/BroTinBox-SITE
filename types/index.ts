@@ -310,6 +310,8 @@ export interface Review {
   comment: string;
   goal: string;
   mealsDeliveredCount: number;
+  /** Where we got it: website, call, whatsapp, in_person, google, instagram. */
+  source?: string;
 }
 
 export interface AdminCookSheetItem {

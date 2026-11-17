@@ -12,6 +12,8 @@ import { clearDraft } from '@/lib/checkout/draft';
 import { OrderErrorNotice } from '@/components/checkout/OrderErrorNotice';
 import { AddonRail } from '@/components/checkout/AddonRail';
 import { FreeJuiceCard } from '@/components/checkout/FreeJuiceCard';
+import { HeardFromCard, type HeardFromAnswer } from '@/components/checkout/HeardFromCard';
+import { hasAnsweredHeardFrom, saveHeardFrom } from '@/lib/checkout/heard-from-actions';
 import { PlanDetails } from '@/components/checkout/PlanDetails';
 import { PlanPicks } from '@/components/checkout/PlanPicks';
 import { forgetTrialStatus } from '@/components/trial/TrialGate';
@@ -128,6 +130,16 @@ export default function CheckoutPage() {
   const [leaving, setLeaving] = useState(false);
   const [billOpen, setBillOpen] = useState(true);
 
+  // Optional "How did you find us?": asked once per customer, saved when the order is placed.
+  const [heardFrom, setHeardFrom] = useState<HeardFromAnswer>({ source: null, detail: '' });
+  const [heardFromDone, setHeardFromDone] = useState(false);
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    let cancelled = false;
+    hasAnsweredHeardFrom().then((d) => { if (!cancelled) setHeardFromDone(d); }).catch(() => {});
+    return () => { cancelled = true; };
+  }, [isLoggedIn]);
+
   const q = quote?.ok ? quote : null;
   const days = cartPlan?.days.length ?? 0;
   const addonsEstimate = cartAddons.reduce((s, a) => s + a.price * a.qty * Math.max(days, 1), 0);
@@ -155,7 +167,13 @@ export default function CheckoutPage() {
           setUseNew(false);
         },
         placedOrderId: placedOrderId ?? undefined,
-        onPlaced: (id) => setPlaced({ id, key }),
+        onPlaced: (id) => {
+          setPlaced({ id, key });
+          if (heardFrom.source && !heardFromDone) {
+            setHeardFromDone(true);
+            saveHeardFrom({ source: heardFrom.source, detail: heardFrom.detail.trim() || undefined, orderId: id }).catch(() => {});
+          }
+        },
         onLeaving: () => { setLeaving(true); clearCart(); clearDraft('trial'); clearDraft('weekly'); forgetTrialStatus(); },
       }
     );
@@ -367,6 +385,9 @@ export default function CheckoutPage() {
             <p className={cn('pl-6 text-xs font-semibold', q.offers.referral.applied ? 'text-emerald-700' : 'text-rose-700')}>{q.offers.referral.message}</p>
           )}
         </section>
+
+        {/* ---------- How did you find us? (optional) ---------- */}
+        {!heardFromDone && <HeardFromCard value={heardFrom} onChange={setHeardFrom} />}
 
         {/* ---------- Bill ---------- */}
         <section className="bg-white rounded-2xl border border-gray-200 p-4">

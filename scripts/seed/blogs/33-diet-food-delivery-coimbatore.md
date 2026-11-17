@@ -68,6 +68,8 @@ A delivered diet meal makes sense when:
 - You keep "starting Monday" and stopping by Wednesday
 - You want to learn what a correct portion looks like before cooking it yourself
 
+Still comparing? Our guide on [where to get healthy meals in Coimbatore](/blog/where-to-get-healthy-meals-coimbatore) covers all five options, from salad kitchens to cooking at home.
+
 # How to order
 
 1. Choose your box and diet on the [menu](/menu).
