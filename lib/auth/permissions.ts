@@ -16,7 +16,7 @@ export const ROLE_LABELS: Record<AppRole, string> = {
 };
 
 export function isSuperAdminPermission(p: string) {
-  return p.split('.')[0] === 'staff' || ['settings.write', 'pricing.write', 'orders.refund', 'roles.manage'].includes(p);
+  return ['staff', 'finance'].includes(p.split('.')[0]) || ['settings.write', 'pricing.write', 'orders.refund', 'roles.manage'].includes(p);
 }
 
 export function can(role: AppRole, rolePermissions: string[], p: string): boolean {

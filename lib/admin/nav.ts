@@ -30,6 +30,12 @@ export const ADMIN_NAV: AdminNavGroup[] = [
     ],
   },
   {
+    label: 'Money',
+    items: [
+      { href: '/finance', label: 'Revenue & profit', icon: 'TrendingUp', permission: 'finance.read' },
+    ],
+  },
+  {
     label: 'Menu & catalog',
     items: [
       { href: '/menu', label: 'Menu calendar', icon: 'CalendarDays', permission: 'menu.read' },

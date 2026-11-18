@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { BRAND } from '@/config/brand';
-import { Analytics } from '@vercel/analytics/next';
 import { INTRO_BOOT_SCRIPT } from '@/components/brand/intro';
 import { ConfirmProvider } from '@/components/ui/ConfirmDialog';
 
@@ -78,7 +77,6 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen flex flex-col bg-background text-gray-900 antialiased selection:bg-accent/20 selection:text-primary">
         <ConfirmProvider>{children}</ConfirmProvider>
-        <Analytics />
       </body>
     </html>
   );

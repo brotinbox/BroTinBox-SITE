@@ -19,6 +19,7 @@ const SECTIONS = [
   ['customer', 'When a customer does something'],
   ['change', 'How to change things'],
   ['pages', 'Page by page'],
+  ['money', 'Revenue & profit'],
   ['roles', 'Who can do what'],
   ['faq', 'Common questions'],
 ] as const;
@@ -35,7 +36,7 @@ const FLOW: [string, string][] = [
 
 const CLOCK: [string, string, string][] = [
   ['Until 9:00 PM', 'Customers can skip, pause or customise the next day’s meals.', 'Day plan shows those meals as “not locked”.'],
-  ['9:00 PM', 'Automatic lock for the next cooking day. The day’s menu is frozen onto each box.', 'Cook sheet and Deliveries are now final.'],
+  ['9:00 PM', 'Automatic lock for the next cooking day. The day’s menu, and its food cost, are frozen onto each box.', 'Cook sheet and Deliveries are now final.'],
   ['12:05 AM', 'Housekeeping: pauses that ended resume, finished plans become “completed”, abandoned checkouts expire.', 'Nothing to do; see Activity log.'],
   ['Every 15 min', 'Orders unpaid for 30 minutes are cancelled; scheduled blog posts go live.', '—'],
   ['Sundays & closures', 'No cooking, no deliveries. Meals are never scheduled on these days.', 'Add holidays in Menu calendar.'],
@@ -97,6 +98,8 @@ const CHANGES: [string, string, string][] = [
   ['Cutoff time or longest pause', 'Settings → Ordering. Note: the automatic lock itself always runs at 9 PM.', '/settings'],
   ['A customer’s plan', 'Customers → open the customer: pause, resume, skip/undo a meal, add meals, cancel, notes, tags, block.', '/customers'],
   ['Who can use the console', 'Staff & roles (super admin only).', '/staff'],
+  ['A dish’s cost (market price changed)', 'Revenue & profit → Dish & add-on costs. Change one dish, or a whole group by %. Boxes locked from tonight use it; “Re-cost boxes” applies it to past days too.', '/finance?tab=costs'],
+  ['Packaging cost, Cashfree fee %, food-cost target', 'Revenue & profit → Settings.', '/finance?tab=settings'],
   ['FAQ, blog, reviews', 'Content section in the sidebar. Changes show on the website within a minute.', '/faqs'],
 ];
 
@@ -111,15 +114,39 @@ const PAGES: [string, string, string, string][] = [
   ['/enquiries', 'Enquiries', 'Leads from the website form. Move them new → contacted → converted or lost.', 'Daily follow-up.'],
   ['/menu', 'Menu calendar', 'The 30-day rotation, one-off dish changes and closures.', 'Weekly menu review.'],
   ['/plans', 'Plans & pricing', 'Plans shown on the website and their prices per meal (with history).', 'Price changes and offers.'],
+  ['/finance', 'Revenue & profit', 'Revenue, cost, profit and margin with charts; bills you enter; dish and add-on costs. Super admin only.', 'Weekly money check; entering market bills.'],
   ['/activity', 'Activity log', 'Every change by customers, staff and the automatic jobs, newest first.', '“Who did this, and when?”'],
 ];
 
 const ROLES: [string, string][] = [
-  ['Super admin', 'Everything, including staff, settings, prices and refunds.'],
-  ['Admin', 'Everything except staff, settings, prices and refunds.'],
+  ['Super admin', 'Everything, including staff, settings, prices, refunds and Revenue & profit.'],
+  ['Admin', 'Everything except staff, settings, prices, refunds and Revenue & profit.'],
   ['Kitchen', 'Overview, Day plan, Cook sheet, Deliveries (can update status), Menu (view), Orders (view).'],
   ['Support', 'Customers (notes), Subscriptions (pause/skip on their behalf), Orders (view), Enquiries, Reviews.'],
   ['Rider', 'Only their assigned deliveries: out for delivery, delivered or failed.'],
+];
+
+const MONEY_TERMS: [string, string][] = [
+  ['Earned revenue', 'The value of meals served that day. A plan’s price is spread evenly over its meals (make-up meals included), so a ₹3,408 weekly plan of 12 meals earns ₹284 each time a box goes out. Failed boxes earn nothing. Add-on top-ups count on the day they are paid.'],
+  ['Cash in', 'Money received that day (Cashfree or marked paid). Use it to match your bank account.'],
+  ['Recipe cost', 'What the boxes cooked should cost: each dish’s cost + gas from Dish costs, using the same Lite / egg-free / double-main / skip-legume rules as the cook sheet, plus packaging per box and add-on costs. Frozen at the 9 PM lock.'],
+  ['Bills', 'What you actually bought, typed in under Bills & adjustments. Food bills (veg, meat, dairy, grocery, packaging, gas) are compared with the recipe cost.'],
+  ['Running costs', 'Petrol, ads, rent, equipment, paid helpers, licences: entered as bills, added to both cost views.'],
+  ['Automatic costs', 'Cashfree fee (Settings %) on every Cashfree payment, and trainer commission. Don’t enter these as bills.'],
+  ['Profit / margin', 'Revenue minus cost. Margin is the share of revenue you keep. Mum’s cooking and your delivery time are not counted as costs. No GST.'],
+  ['Food cost %', 'Recipe cost ÷ revenue. Green at or below the target in Settings (30–35 % is normal for kitchens).'],
+  ['Prepaid, not served', 'Money already received for meals still to deliver (all time). It is owed food, not profit yet.'],
+  ['Break-even', 'Meals a day needed so the margin on each meal covers running costs, fees and commission.'],
+  ['Bills vs recipes', 'Food bills minus recipe cost. Above zero means you spent more than the recipes need: prices went up, waste, or you stocked up for next week.'],
+];
+
+const MONEY_ROUTINE: [string, string][] = [
+  ['After every market trip', 'Bills & adjustments → add the amount, type and shop. Takes 20 seconds on your phone.'],
+  ['Refund sent by UPI', 'Add it as “Refund to a customer”. It lowers revenue. (Cashfree refunds are counted on their own.)'],
+  ['Money received outside the website', 'Add it as “Money received outside the website” so revenue is complete.'],
+  ['Price of chicken / veg changed', 'Dish & add-on costs → change that dish, or the whole group by %. If it should count for the last few days too, use “Re-cost boxes” for those dates.'],
+  ['Every Monday', 'Open Revenue & profit, range 7 days. Check profit, food cost % and “Bills vs recipe cost”. A red week means the recipe costs are out of date or there was waste.'],
+  ['Start of the month', 'Range “Last month” with Cash in for your bank, Earned for real profit.'],
 ];
 
 const FAQ: [string, ReactNode][] = [
@@ -130,6 +157,9 @@ const FAQ: [string, ReactNode][] = [
   ['A customer missed the cutoff and wants to skip.', 'A locked meal can’t be skipped, even by staff. If you want to be kind, deliver it anyway or add a make-up meal from the customer page (Add meals).'],
   ['A delivery failed. How do I give the meal back?', 'Customer page → Add meals (1, same slot). It goes at the end of their plan.'],
   ['Do I refund in the console?', 'Not yet. Cancel the plan here (it removes future meals), then refund from Cashfree or by UPI.'],
+  ['Why is profit different from my bank balance?', 'Earned revenue counts meals when they are served, but the money arrived when the plan was paid. Switch the toggle to “Cash in” to match the bank. Bills you haven’t entered yet are also missing.'],
+  ['I changed a dish cost but last week’s profit didn’t change.', 'On purpose: each box keeps the cost from the night it was locked, so history stays true. Use “Re-cost boxes” on Dish & add-on costs if the new price should apply to past days.'],
+  ['I typed a bill wrong.', 'Bills & adjustments → Delete it and add it again.'],
   ['I changed something but the website still shows the old one.', 'Most changes show within a minute. Price rows apply from their start time.'],
 ];
 
@@ -233,6 +263,17 @@ export default async function GuidePage() {
 
         <Section id="pages" title="Page by page">
           <Rows head={['Page', 'What it shows and does', 'Use it for']} rows={PAGES.map(([href, label, d, use]) => [page(href, label), d, use])} />
+        </Section>
+
+        <Section id="money" title="Revenue & profit (super admin)">
+          <p className="text-sm text-gray-600 mb-4">
+            {page('/finance', 'Revenue & profit')} shows money in, money out and what is left. Pick a date range, then two switches:
+            <strong> Earned / Cash in</strong> (when revenue counts) and <strong>Recipe cost / Bills</strong> (which cost to use). The wave chart is revenue (black) against cost (orange); hover a day to see its profit.
+          </p>
+          <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">What the numbers mean</h3>
+          <Rows head={['Term', 'Meaning']} rows={MONEY_TERMS} />
+          <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 mt-6 mb-2">Keeping it accurate</h3>
+          <Rows head={['When', 'Do this']} rows={MONEY_ROUTINE} />
         </Section>
 
         <Section id="roles" title="Who can do what">

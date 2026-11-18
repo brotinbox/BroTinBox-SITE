@@ -6,6 +6,7 @@ import { Footer } from '@/components/layout/Footer';
 import { FloatingWhatsApp } from '@/components/layout/FloatingWhatsApp';
 import { RouteMemory } from '@/components/layout/FocusHeader';
 import { GoogleAnalytics } from '@/components/layout/GoogleAnalytics';
+import { Analytics } from '@vercel/analytics/next';
 import { StoreHydration } from '@/components/providers/StoreHydration';
 import { AuthSync } from '@/components/providers/AuthSync';
 import { CatalogProvider } from '@/components/providers/CatalogProvider';
@@ -53,7 +54,9 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
       />
+      {/* Vercel + Google analytics live here, not in the root layout, so the hidden admin portal is never tracked. */}
       <GoogleAnalytics />
+      <Analytics />
       <StoreHydration />
       <AuthSync />
       {googleEnabled && <GoogleOneTap />}
