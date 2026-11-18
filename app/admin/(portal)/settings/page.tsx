@@ -98,6 +98,11 @@ export default async function SettingsPage() {
             </p>
             {canWrite && <SubmitButton>Save Cashfree mode</SubmitButton>}
           </ActionForm>
+          {canWrite && (
+            <Link href={adminHref('/settings/cashfree-test')} className="mt-3 inline-block text-sm font-semibold underline">
+              Run a ₹1 test payment →
+            </Link>
+          )}
         </Card>
 
         <Card title="Ordering">

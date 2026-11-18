@@ -135,6 +135,26 @@ export const getOrder = (orderId: string) => request<CfOrder>(`/orders/${encodeU
 export const getOrderPayments = (orderId: string) =>
   request<CfPayment[]>(`/orders/${encodeURIComponent(orderId)}/payments`);
 
+export type CfRefund = {
+  cf_refund_id: string | number;
+  refund_id: string;
+  order_id: string;
+  refund_amount: number;
+  refund_status: 'SUCCESS' | 'PENDING' | 'CANCELLED' | 'ONHOLD' | string;
+  status_description?: string | null;
+  created_at?: string | null;
+  processed_at?: string | null;
+};
+
+export const createRefund = (input: { orderId: string; refundId: string; amount: number; note?: string }) =>
+  request<CfRefund>(`/orders/${encodeURIComponent(input.orderId)}/refunds`, {
+    method: 'POST',
+    body: { refund_amount: input.amount, refund_id: input.refundId, ...(input.note && { refund_note: input.note }) },
+  });
+
+export const getOrderRefunds = (orderId: string) =>
+  request<CfRefund[]>(`/orders/${encodeURIComponent(orderId)}/refunds`);
+
 /**
  * Webhook signature: base64(HMAC-SHA256(timestamp + rawBody, secret key)).
  * Must be computed on the body exactly as received, before JSON parsing.
