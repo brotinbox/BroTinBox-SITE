@@ -15,6 +15,7 @@ import { getDrinks, getSides } from '@/lib/data/catalog';
 import { isCashfreeConfigured } from '@/lib/cashfree';
 import type { FreeOffer } from '@/lib/checkout/offers';
 import { FEW_SEATS, getSlotSeats } from '@/lib/capacity';
+import { getSameDayOffer, todayIst, type SameDayOffer } from '@/lib/same-day';
 
 type Fail = { ok: false; error: string; code?: CheckoutErrorCode };
 
@@ -25,6 +26,10 @@ function checkoutFail(e: unknown, fallback: string): Fail {
   if ((e as { message?: string } | null)?.message === 'TRIAL_USED') {
     return { ok: false, error: "You've already booked your trial box.", code: 'TRIAL_USED' };
   }
+  // Same-day spare gone or the cutoff passed between the price check and the order.
+  const msg = (e as { message?: string } | null)?.message;
+  if (msg === 'SAME_DAY_FULL') return { ok: false, error: "Today's boxes just sold out. Please pick tomorrow.", code: 'SAME_DAY' };
+  if (msg === 'SAME_DAY_CLOSED') return { ok: false, error: 'Same-day ordering for that time just closed. Please pick tomorrow.', code: 'SAME_DAY' };
   // Someone took the last seat between the price check and the order.
   if ((e as { message?: string } | null)?.message === 'SLOT_FULL') {
     return { ok: false, error: 'That time just got fully booked. Please pick another time or day.', code: 'SLOT_FULL' };
@@ -122,6 +127,12 @@ export async function placeOrder(input: Cart): Promise<PlaceOrderResult> {
   if (phoneFail) return phoneFail;
 
   try {
+    // Retrying a same-day box: release this customer's own unpaid single-box
+    // attempts first, so their earlier hold doesn't use up the last spare.
+    if (cart.data.type === 'single' && cart.data.days[0]?.date === todayIst()) {
+      await getSupabaseService().from('orders').update({ status: 'cancelled' })
+        .eq('user_id', me.userId).eq('type', 'single').in('status', ['created', 'pending_payment']);
+    }
     const q = await quoteCart(cart.data, me.userId);
     const db = getSupabaseService();
     // A new coupon order replaces the customer's unpaid ones with the same
@@ -244,6 +255,19 @@ export async function getTrialSeats(dates: string[]): Promise<TrialSeats | null>
     return out;
   } catch (e) {
     console.error('[Capacity] seats unavailable:', e);
+    return null;
+  }
+}
+
+/**
+ * Today's same-day single boxes: which slots are still open, until when, and
+ * how many spares are left per diet (capped). null = unavailable (no "Today" chip).
+ */
+export async function getSameDayToday(): Promise<SameDayOffer | null> {
+  try {
+    return await getSameDayOffer();
+  } catch (e) {
+    console.error('[SameDay] status unavailable:', e);
     return null;
   }
 }

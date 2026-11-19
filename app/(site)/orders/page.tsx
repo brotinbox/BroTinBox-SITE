@@ -19,14 +19,16 @@ const STATUS: Record<string, { text: string; cls: string }> = {
   refunded: { text: 'Refunded', cls: 'bg-sky-50 text-sky-800 border-sky-200' },
   partially_refunded: { text: 'Part refunded', cls: 'bg-sky-50 text-sky-800 border-sky-200' },
 };
-const TYPE: Record<string, string> = { trial: 'Trial box', weekly: 'Weekly plan', monthly: 'Monthly plan', custom: 'Custom plan' };
+const TYPE: Record<string, string> = { trial: 'Trial box', single: 'Single box', weekly: 'Weekly plan', monthly: 'Monthly plan', custom: 'Custom plan' };
 
 export default async function OrdersPage() {
-  await requireCustomer('/orders');
+  const me = await requireCustomer('/orders');
   const supabase = await getSupabaseServer();
+  // Filter on user_id: staff RLS would otherwise list every customer's orders here.
   const { data: orders } = await supabase
     .from('orders')
     .select('id, order_number, type, status, total, created_at')
+    .eq('user_id', me.id)
     .order('created_at', { ascending: false });
 
   return (
@@ -45,11 +47,11 @@ export default async function OrdersPage() {
           {orders.map((o) => {
             const unpaid = o.status === 'created' || o.status === 'pending_payment';
             const st = STATUS[o.status] ?? { text: o.status, cls: STATUS.cancelled.cls };
-            const Icon = o.type === 'trial' ? Gift : Repeat;
+            const Icon = o.type === 'trial' || o.type === 'single' ? Gift : Repeat;
             return (
               <li key={o.id}>
                 <Link href={unpaid ? `/checkout/pay/${o.id}` : `/orders/${o.id}`} className={cn('flex items-center gap-3 px-4 py-3.5 hover:bg-gray-50', unpaid && 'bg-amber-50/40')}>
-                  <span className={cn('w-10 h-10 rounded-xl flex items-center justify-center shrink-0', o.type === 'trial' ? 'bg-orange-50 text-orange-600' : 'bg-sand text-ink')}>
+                  <span className={cn('w-10 h-10 rounded-xl flex items-center justify-center shrink-0', o.type === 'trial' || o.type === 'single' ? 'bg-orange-50 text-orange-600' : 'bg-sand text-ink')}>
                     <Icon className="w-4 h-4" />
                   </span>
                   <span className="flex-1 min-w-0">

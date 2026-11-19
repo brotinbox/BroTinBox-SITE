@@ -40,7 +40,7 @@ export default async function DayPlanPage({ searchParams }: { searchParams: Prom
   const [{ data: deliveryData }, offCount, pending, { data: itemData }, ...menus] = await Promise.all([
     supabase
       .from('deliveries')
-      .select('id, slot, status, diet, is_egg_free, skip_legume, double_main, is_make_up, box_size, address_snapshot, delivery_addons(qty, addons(name)), delivery_zones(area)')
+      .select('id, slot, status, diet, is_egg_free, skip_legume, double_main, is_make_up, box_size, metadata, address_snapshot, delivery_addons(qty, addons(name)), delivery_zones(area)')
       .eq('delivery_date', date)
       .in('status', ACTIVE),
     supabase.from('deliveries').select('id', { count: 'exact', head: true }).eq('delivery_date', date).in('status', ['skipped', 'paused']),
@@ -163,6 +163,7 @@ export default async function DayPlanPage({ searchParams }: { searchParams: Prom
                                   <p className="font-semibold text-sm">
                                     {a.recipient_name || 'Customer'} · <a href={`tel:${a.phone}`} className="text-primary">{a.phone}</a>
                                     <span className="ml-2 text-xs font-bold">{r.diet === 'veg' ? 'VEG' : 'NON-VEG'}{r.box_size === 'lite' && <span className="text-accent"> · LITE</span>}</span>
+                                    {(r.metadata?.same_day || r.metadata?.tatkal) && <span className="ml-2 rounded-full bg-orange-100 px-2 py-0.5 text-[11px] font-bold text-orange-800">⚡ Same-day</span>}
                                   </p>
                                   <p className="text-xs text-gray-600">{a.flat}, {a.street}{a.landmark ? `, ${a.landmark}` : ''}, {a.area} {a.pincode}</p>
                                   <p className="text-xs mt-1 text-gray-900">{boxFor(r).join(' · ') || 'Menu not set'}</p>

@@ -3,7 +3,7 @@ import { ChevronRight, PauseCircle, PlayCircle, Wallet, XCircle } from 'lucide-r
 import { requireCustomer } from '@/lib/auth/session';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { cancelPlan, pausePlan, resumePlan } from '@/lib/customer/actions';
-import { dateLabel, getMySubscriptions } from '@/lib/customer/data';
+import { dateLabel, getMySubscriptions, isPlan } from '@/lib/customer/data';
 import { AccountShell } from '@/components/account/AccountNav';
 import { Btn, CustomerForm } from '@/components/account/forms';
 import { cn } from '@/lib/utils';
@@ -30,23 +30,26 @@ const rowCls = 'list-none cursor-pointer flex items-center gap-3 px-4 py-3.5 hov
 const dateInput = 'w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm focus:border-ink focus:outline-none';
 
 export default async function SubscriptionPage() {
-  await requireCustomer('/subscription');
+  const me = await requireCustomer('/subscription');
   const supabase = await getSupabaseServer();
-  const [subs, earliest, maxPause] = await Promise.all([
-    getMySubscriptions(),
+  const [allSubs, earliest, maxPause] = await Promise.all([
+    getMySubscriptions(me.id),
     supabase.rpc('earliest_bookable_date', {}),
     supabase.from('site_settings').select('value').eq('key', 'max_pause_days').maybeSingle(),
   ]);
   const minDate = (earliest.data as string) ?? '';
   const pauseDays = Number(maxPause.data?.value ?? 30);
   const today = todayIST();
+  // Plans only: trial/single boxes are one-off purchases and live under Orders.
+  const subs = allSubs.filter(isPlan);
   // A plan whose last day has passed is history, even before the nightly job marks it completed.
   const ended = (s: Sub) => !!s.end_date && s.end_date < today;
   const active = subs.filter((s) => (s.status === 'active' || s.status === 'paused') && !ended(s));
   // Several unpaid checkouts for the same thing: show only the newest.
   const unpaid = subs.filter((s) => s.status === 'pending_payment').slice(0, 1);
   const current = [...active, ...unpaid];
-  const past = subs.filter((s) => !current.includes(s) && s.status !== 'pending_payment');
+  // 'expired' = a checkout that was never paid, so it never became a plan (Orders shows it as cancelled).
+  const past = subs.filter((s) => !current.includes(s) && s.status !== 'pending_payment' && s.status !== 'expired');
 
   return (
     <AccountShell current="/subscription" title="My plan">

@@ -24,11 +24,11 @@ export default async function PayPage({ params, searchParams }: { params: Promis
 
   const supabase = await getSupabaseServer();
   const [{ data: order }, { data: items }, { data: setting }] = await Promise.all([
-    supabase.from('orders').select('id, order_number, status, total, subtotal, discount, delivery_fee, metadata, created_at, expires_at, type').eq('id', id).maybeSingle(),
+    supabase.from('orders').select('id, order_number, status, total, subtotal, discount, delivery_fee, metadata, created_at, expires_at, type').eq('id', id).eq('user_id', me.id).maybeSingle(),
     supabase.from('order_items').select('id, name, qty, unit_price, total, item_type').eq('order_id', id),
     supabase.from('site_settings').select('value').eq('key', 'payment').maybeSingle(),
   ]);
-  if (!order) notFound(); // RLS: customers only see their own orders
+  if (!order) notFound(); // own orders only (staff RLS could read anyone's)
 
   const pay = (setting?.value ?? {}) as { mode?: string; upi_id?: string; payee_name?: string; qr_image_url?: string | null; instructions?: string };
   // Cashfree when switched on in Settings AND the keys are set; otherwise manual UPI.

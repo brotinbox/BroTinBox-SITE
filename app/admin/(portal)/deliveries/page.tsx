@@ -13,6 +13,7 @@ import { BRAND } from '@/config/brand';
 import { directionsUrl, distanceKm, routeUrls } from '@/lib/deliveries/geo';
 import { RUN_EXCLUDED, withRoute } from '@/lib/deliveries/route';
 import { bulkUpdate } from './actions';
+import { OPEN_DELIVERY_STATUSES } from '@/lib/notifications/open-deliveries';
 
 export const metadata = { title: 'Deliveries' };
 
@@ -38,14 +39,19 @@ export default async function DeliveriesPage({ searchParams }: { searchParams: P
 
   let query = supabase
     .from('deliveries')
-    .select('id, slot, status, diet, is_egg_free, skip_legume, double_main, is_make_up, box_size, address_id, address_snapshot, rider_id, stop_no, delivery_addons(qty, addons(name)), delivery_zones(area, tier)' as '*')
+    .select('id, slot, status, diet, is_egg_free, skip_legume, double_main, is_make_up, box_size, metadata, address_id, address_snapshot, rider_id, stop_no, delivery_addons(qty, addons(name)), delivery_zones(area, tier)' as '*')
     .eq('delivery_date', date)
     .not('status', 'in', RUN_EXCLUDED);
   if (slot) query = query.eq('slot', slot);
-  const [{ data }, scheduled] = await Promise.all([
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+  const [{ data }, scheduled, stale] = await Promise.all([
     query,
     supabase.from('deliveries').select('id', { count: 'exact', head: true }).eq('delivery_date', date).eq('status', 'scheduled'),
+    // Past meals never marked delivered / failed: they keep the plan "active" forever.
+    supabase.from('deliveries').select('delivery_date', { count: 'exact' }).lt('delivery_date', today)
+      .in('status', [...OPEN_DELIVERY_STATUSES]).order('delivery_date').limit(1),
   ]);
+  const staleFirst = stale.data?.[0]?.delivery_date;
 
   const canWrite = staff.can('deliveries.write');
   const { data: riders } = canWrite
@@ -69,6 +75,12 @@ export default async function DeliveriesPage({ searchParams }: { searchParams: P
       />
       <FilterBar action={adminHref('/deliveries')} param="slot" current={slot} extra={{ date }}
         tabs={[{ value: '', label: 'All slots' }, { value: 'lunch', label: 'Lunch' }, { value: 'dinner', label: 'Dinner' }]} />
+
+      {(stale.count ?? 0) > 0 && staleFirst && (
+        <a href={`${adminHref('/deliveries')}?date=${staleFirst}`} className="mb-3 block text-xs font-semibold text-rose-800 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+          {stale.count} past meal{stale.count === 1 ? ' is' : 's are'} not closed (oldest {fmtDate(staleFirst)}). Mark {stale.count === 1 ? 'it' : 'them'} delivered or failed, or the plan stays active. Open →
+        </a>
+      )}
 
       {(scheduled.count ?? 0) > 0 && (
         <p className="mb-4 text-xs font-semibold text-amber-800 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
@@ -126,6 +138,7 @@ export default async function DeliveriesPage({ searchParams }: { searchParams: P
                           {a.instructions && <p className="text-xs text-gray-500 italic">“{a.instructions}”</p>}
                           <p className="text-xs mt-1">
                             {area && <span className="inline-block mr-1 rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-semibold text-gray-700">{area}</span>}
+                            {(r.metadata?.same_day || r.metadata?.tatkal) && <span className="inline-block mr-1 rounded-full bg-orange-100 px-2 py-0.5 text-[11px] font-bold text-orange-800">⚡ Same-day</span>}
                             {r.diet === 'veg' ? 'Veg' : 'Non-veg'}
                             {r.box_size === 'lite' && <b className="text-accent"> · LITE</b>}{r.is_egg_free && ' · egg-free'}{r.skip_legume && ' · no legume'}{r.double_main && ' · double main'}{r.is_make_up && ' · make-up'}
                             {(r.delivery_addons ?? []).length > 0 && ` · + ${(r.delivery_addons as any[]).map((x) => `${x.qty}× ${x.addons?.name}`).join(', ')}`}

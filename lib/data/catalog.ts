@@ -81,13 +81,13 @@ export const getPricingMatrix = unstable_cache(
         liteDiscount = Number(r.second_meal_discount);
         continue;
       }
-      m[r.plan_type as 'trial' | 'weekly' | 'monthly'][diet] = Number(r.price_per_meal);
+      m[r.plan_type as 'trial' | 'single' | 'weekly' | 'monthly'][diet] = Number(r.price_per_meal);
       m.secondMealDiscount = Number(r.second_meal_discount);
     }
     // Lite is offered only when every plan type and diet has a live Lite price.
     const complete = (['trial', 'weekly', 'monthly'] as const).every((t) => lite[t]?.veg && lite[t]?.['non-veg']);
     m.lite = complete
-      ? { trial: lite.trial as never, weekly: lite.weekly as never, monthly: lite.monthly as never, secondMealDiscount: liteDiscount }
+      ? { trial: lite.trial as never, ...(lite.single?.veg && lite.single['non-veg'] && { single: lite.single as never }), weekly: lite.weekly as never, monthly: lite.monthly as never, secondMealDiscount: liteDiscount }
       : null;
     return m;
   },
@@ -115,7 +115,7 @@ export const getTrialOffer = unstable_cache(
 export const getPlanTiers = unstable_cache(
   async (): Promise<PlanTier[]> => {
     const [{ data: plans }, pricing, menu, offer] = await Promise.all([
-      getSupabasePublic().from('plans').select('*').eq('is_active', true).neq('type', 'trial').order('sort_order'),
+      getSupabasePublic().from('plans').select('*').eq('is_active', true).in('type', ['weekly', 'monthly']).order('sort_order'),
       getPricingMatrix(),
       getMenuSnapshot(),
       getTrialOffer(),

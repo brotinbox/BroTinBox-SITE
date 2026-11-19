@@ -403,7 +403,9 @@ async function Bills({ range, href, canWrite }: { range: Range; href: Href; canW
                   {r.category === 'other_income' ? '+' : r.category === 'refund' ? '−' : ''}{inr(r.amount)}
                 </span>
               ), className: 'text-right' },
-              ...(canWrite ? [{ header: '', cell: (r: (typeof entries)[number]) => (
+              ...(canWrite ? [{ header: '', cell: (r: (typeof entries)[number]) => r.stock_purchase_id ? (
+                <Link href={adminHref('/stock/bills')} className="text-xs font-bold text-primary hover:underline whitespace-nowrap">Kitchen bill →</Link>
+              ) : (
                 <ActionForm action={deleteEntry}>
                   <input type="hidden" name="id" value={r.id} />
                   <SubmitButton variant="secondary" pendingText="…" confirm={{ title: 'Delete this entry?', message: `${categoryLabel(r.category)} · ${inr(r.amount)} on ${fmtDate(r.entry_date)}`, confirmLabel: 'Delete' }}>Delete</SubmitButton>

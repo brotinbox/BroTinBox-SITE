@@ -29,7 +29,7 @@ const shortDate = (iso: string) =>
   new Date(`${iso}T00:00:00`).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
 
 /** Where to change the plan itself. */
-const PLAN_EDIT_HREF: Record<CartPlan['type'], string> = { trial: '/tomorrow', weekly: '/weekly', monthly: '/monthly' };
+const PLAN_EDIT_HREF: Record<CartPlan['type'], string> = { trial: '/tomorrow', single: '/single', weekly: '/weekly', monthly: '/monthly' };
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -174,7 +174,7 @@ export default function CheckoutPage() {
             saveHeardFrom({ source: heardFrom.source, detail: heardFrom.detail.trim() || undefined, orderId: id }).catch(() => {});
           }
         },
-        onLeaving: () => { setLeaving(true); clearCart(); clearDraft('trial'); clearDraft('weekly'); forgetTrialStatus(); },
+        onLeaving: () => { setLeaving(true); clearCart(); clearDraft('trial'); clearDraft('single'); clearDraft('weekly'); forgetTrialStatus(); },
       }
     );
     if (err) {
@@ -420,10 +420,10 @@ export default function CheckoutPage() {
           )}
         </section>
 
-        {cartPlan.type === 'trial' && (
+        {(cartPlan.type === 'trial' || cartPlan.type === 'single') && (
           <label className="flex items-start gap-2 text-xs text-gray-700 cursor-pointer px-1">
             <input type="checkbox" checked={offersOptIn} onChange={(e) => setOffersOptIn(e.target.checked)} className="mt-0.5 accent-ink" />
-            <span>WhatsApp me plan offers after my trial. A few messages at most, stop anytime.</span>
+            <span>WhatsApp me plan offers{cartPlan.type === 'trial' ? ' after my trial' : ''}. A few messages at most, stop anytime.</span>
           </label>
         )}
         {cartAddons.length > 0 && (

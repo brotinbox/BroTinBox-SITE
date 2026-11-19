@@ -32,6 +32,8 @@ export async function createOrderFromQuote(
       diet_variation: prefs.dietVariation ?? null,
       addons: q.addons,
       box_size: q.boxSize,
+      // Today's box from the kitchen's spares (migration 0052): booked and locked for today when paid.
+      ...(q.sameDay && { same_day: true }),
       // Poster offers: placed on their delivery day when the order is paid (migration 0035).
       free_juices: q.freeJuices,
       ...(q.referrerId && { referral: { referrer_id: q.referrerId } }),
@@ -48,7 +50,8 @@ export async function createOrderFromQuote(
     p_coupon: q.couponId as string,
     p_pricing: { lines: q.lines, schedule: q.schedule, quoted_at: new Date().toISOString() },
     p_items: q.lines,
-    ...(opts.expiresIn && { p_expires_in: opts.expiresIn }),
+    // A same-day order holds its spare for 40 minutes, so it must be paid by then.
+    ...((opts.expiresIn || q.sameDay) && { p_expires_in: q.sameDay ? '40 minutes' : opts.expiresIn }),
     // Staff-approved extra trial: the database records the reason and who allowed it.
     ...(opts.trialOverride && { p_trial_override: opts.trialOverride.reason, p_override_by: opts.trialOverride.by }),
   });

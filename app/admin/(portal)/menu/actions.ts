@@ -13,6 +13,24 @@ const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 const optId = z.string().uuid().or(z.literal('')).transform((v) => v || null);
 const MENU_TAGS = ['menu'];
 
+/**
+ * Boxes locked at 9 PM carry a frozen copy of the menu (dashboard, Day plan,
+ * food cost read it; the cook sheet reads the live menu). A change after the
+ * lock re-freezes those boxes so everyone sees the dish actually cooked.
+ */
+async function refreshLocked(
+  supabase: Awaited<ReturnType<typeof getSupabaseServer>>,
+  date: string, diet: 'veg' | 'non_veg', slot: 'lunch' | 'dinner',
+): Promise<string> {
+  const { data, error } = await supabase.rpc('refresh_locked_menu', { p_date: date, p_diet: diet, p_slot: slot });
+  if (error) {
+    console.error('[menu] refresh_locked_menu failed', error);
+    return ' Boxes already locked for that slot could not be updated: re-save after migration 0055 runs.';
+  }
+  const n = Number(data ?? 0);
+  return n ? ` ${n} box${n === 1 ? '' : 'es'} already locked for that slot now show the new dishes.` : '';
+}
+
 export async function saveOverride(_p: ActionResult | null, fd: FormData): Promise<ActionResult> {
   const parsed = z.object({
     menu_date: isoDate,
@@ -32,7 +50,8 @@ export async function saveOverride(_p: ActionResult | null, fd: FormData): Promi
       { onConflict: 'kitchen_id,menu_date,diet,slot' }
     );
     if (error) throw error;
-    return ok('Menu changed for that date. The website updates within a minute.');
+    const refrozen = await refreshLocked(supabase, v.menu_date, v.diet, v.slot);
+    return ok(`Menu changed for that date. The website updates within a minute.${refrozen}`);
   }, { tags: MENU_TAGS });
 }
 
@@ -41,9 +60,11 @@ export async function removeOverride(_p: ActionResult | null, fd: FormData): Pro
   if (!id.success) return fail('Invalid change.');
   return staffAction('menu.write', async () => {
     const supabase = await getSupabaseServer();
-    const { error } = await supabase.from('menu_overrides').delete().eq('id', id.data);
+    const { data: gone, error } = await supabase.from('menu_overrides').delete().eq('id', id.data)
+      .select('menu_date, diet, slot').maybeSingle();
     if (error) throw error;
-    return ok('Back to the regular rotation for that date.');
+    const refrozen = gone ? await refreshLocked(supabase, gone.menu_date, gone.diet, gone.slot) : '';
+    return ok(`Back to the regular rotation for that date.${refrozen}`);
   }, { tags: MENU_TAGS });
 }
 
@@ -298,5 +319,21 @@ export async function restoreRecipeVersion(_p: ActionResult | null, fd: FormData
     const { error } = await supabase.from('dish_recipes').upsert({ menu_item_id: v.menu_item_id, ...r });
     if (error) throw error;
     return ok('Older version restored.');
+  });
+}
+
+/** "Checked with mum": the recipe matches how the kitchen really cooks it (kitchen stock trusts it). */
+export async function setRecipeVerified(_p: ActionResult | null, fd: FormData): Promise<ActionResult> {
+  const id = z.string().uuid().safeParse(fd.get('menu_item_id'));
+  if (!id.success) return fail('Invalid dish.');
+  const on = fd.get('on') === '1';
+  return staffAction('menu.write', async (staff) => {
+    const supabase = await getSupabaseServer();
+    const { data, error } = await supabase.from('dish_recipes')
+      .update(on ? { verified_at: new Date().toISOString(), verified_by: staff.profile.id } : { verified_at: null, verified_by: null })
+      .eq('menu_item_id', id.data).select('menu_item_id');
+    if (error) throw error;
+    if (!data?.length) return fail('Save the recipe first.');
+    return ok(on ? 'Marked as checked with mum.' : 'Check removed.');
   });
 }

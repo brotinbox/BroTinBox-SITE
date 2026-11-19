@@ -12,6 +12,7 @@ import {
   Repeat,
   Sunrise,
   Utensils,
+  Zap,
 } from 'lucide-react';
 import { BRAND } from '@/config/brand';
 import { cn } from '@/lib/utils';
@@ -20,6 +21,7 @@ import { AccountButton } from '@/components/layout/AccountButton';
 
 const PLAN_TILES = [
   { href: '/tomorrow', icon: Sunrise, title: 'Daily Trial Box', desc: 'One box, delivered tomorrow. The easiest way to try us.' },
+  { href: '/single', icon: Zap, title: 'Single Box · Same Day', desc: 'Any day, as often as you like. Order by 9:30 AM for lunch today.' },
   { href: '/weekly', icon: Repeat, title: 'Weekly Plan', desc: 'A week of measured meals, planned around your goal.' },
   { href: '/monthly', icon: CalendarRange, title: 'Monthly Plan', desc: 'Our best value. A full month of protein, sorted.' },
   { href: '/menu', icon: Utensils, title: "This Week's Menu", desc: 'Every box with photos, macros and ingredients.' },

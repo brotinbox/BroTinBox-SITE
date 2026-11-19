@@ -18,6 +18,14 @@ export const ADMIN_NAV: AdminNavGroup[] = [
     ],
   },
   {
+    label: 'Kitchen stock',
+    items: [
+      { href: '/stock', label: 'Buy list', icon: 'ShoppingCart', permission: 'stock.read' },
+      { href: '/stock/levels', label: 'Stock & count', icon: 'Package', permission: 'stock.read' },
+      { href: '/stock/bills', label: 'Kitchen bills', icon: 'ReceiptText', permission: 'stock.read' },
+    ],
+  },
+  {
     label: 'Sales',
     items: [
       { href: '/orders', label: 'Orders & payments', icon: 'Receipt', permission: 'orders.read' },

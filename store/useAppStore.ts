@@ -66,7 +66,7 @@ const initialDayConfigs: Record<DayOfWeek, DayBoxConfig> = {
 
 /** The box plan in the cart (one at a time). The server re-prices everything. */
 export type CartPlan = {
-  type: 'trial' | 'weekly' | 'monthly';
+  type: 'trial' | 'single' | 'weekly' | 'monthly';
   /** "Weekly plan · Non-veg" */
   title: string;
   mealsPerDay: 1 | 2;

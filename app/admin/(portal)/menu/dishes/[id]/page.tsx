@@ -8,8 +8,9 @@ import { ButtonLink, Card, PageHeader, fmtDate } from '@/components/admin/ui';
 import { ActionForm, Checkbox, Field, Input, SubmitButton, Textarea } from '@/components/admin/forms';
 import { RecipeEditor } from '@/components/admin/RecipeEditor';
 import { toRecipe } from '@/lib/recipes';
+import { stockDb } from '@/lib/stock/server';
 import { todayIST } from '@/lib/menu/rotation';
-import { restoreRecipeVersion, saveDish, saveRecipe } from '../../actions';
+import { restoreRecipeVersion, saveDish, saveRecipe, setRecipeVerified } from '../../actions';
 
 export const metadata = { title: 'Edit dish' };
 
@@ -20,6 +21,7 @@ export default async function DishEditPage({ params, searchParams }: { params: P
   if (!z.string().uuid().safeParse(id).success) notFound();
 
   const supabase = await getSupabaseServer();
+  const stockNamesP = stockDb().from('ingredients').select('name').eq('is_active', true).order('name');
   const usedIn = `main_id.eq.${id},protein_side_id.eq.${id},salad_id.eq.${id},legume_id.eq.${id},carb_id.eq.${id}`;
   const [{ data: d }, { data: c }, { data: recipeRow }, { data: versions }, { data: rotUse }, { data: ovrUse }, swapRes, { data: allItems }] = await Promise.all([
     supabase.from('menu_items').select('*').eq('id', id).maybeSingle(),
@@ -32,6 +34,9 @@ export default async function DishEditPage({ params, searchParams }: { params: P
     supabase.from('menu_swaps').select('effective_from, old_item_id, new_item_id').or(`old_item_id.eq.${id},new_item_id.eq.${id}`).order('effective_from'),
     supabase.from('menu_items').select('id, name'),
   ]);
+  // Stock item names (migration 0053) as suggestions; missing table → none.
+  const { data: stockNames } = await stockNamesP;
+  const verifiedAt = (recipeRow as { verified_at?: string | null } | null)?.verified_at ?? null;
   const swapUse = swapRes.error ? [] : swapRes.data ?? [];
   const nameOf = new Map((allItems ?? []).map((i) => [i.id, i.name]));
   if (!d) notFound();
@@ -135,8 +140,24 @@ export default async function DishEditPage({ params, searchParams }: { params: P
         {recipeRow?.updated_at && (
           <p className="text-[11px] text-gray-500 mb-4">Last edited {fmtDate(recipeRow.updated_at, true)}{editedBy ? ` by ${editedBy}` : ''}.</p>
         )}
+        {recipeRow && (
+          <div className={`mb-4 flex items-center justify-between gap-3 flex-wrap rounded-xl px-4 py-3 border ${verifiedAt ? 'bg-emerald-50 border-emerald-200' : 'bg-amber-50 border-amber-200'}`}>
+            <p className={`text-sm ${verifiedAt ? 'text-emerald-900' : 'text-amber-900'}`}>
+              {verifiedAt
+                ? <><b>✓ Checked with mum</b> on {fmtDate(verifiedAt)}. The buy list trusts these quantities.</>
+                : <><b>Not checked with mum yet.</b> Weigh it while she cooks, fix the recipe, then tick it.</>}
+            </p>
+            {canWrite && (
+              <ActionForm action={setRecipeVerified}>
+                <input type="hidden" name="menu_item_id" value={d.id} />
+                <input type="hidden" name="on" value={verifiedAt ? '0' : '1'} />
+                <SubmitButton variant="secondary" pendingText="…">{verifiedAt ? 'Undo' : 'Checked with mum ✓'}</SubmitButton>
+              </ActionForm>
+            )}
+          </div>
+        )}
         {canWrite ? (
-          <RecipeEditor menuItemId={d.id} recipe={recipe} action={saveRecipe} />
+          <RecipeEditor menuItemId={d.id} recipe={recipe} action={saveRecipe} nameSuggestions={(stockNames ?? []).map((s) => s.name as string)} />
         ) : (
           <p className="text-sm text-gray-600">Open the cook book to see the recipe. Only admins can change it.</p>
         )}

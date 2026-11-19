@@ -835,6 +835,8 @@ export type Database = {
           tips: string | null
           updated_at: string
           updated_by: string | null
+          verified_at: string | null
+          verified_by: string | null
         }
         Insert: {
           cook_minutes?: number | null
@@ -848,6 +850,8 @@ export type Database = {
           tips?: string | null
           updated_at?: string
           updated_by?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Update: {
           cook_minutes?: number | null
@@ -861,6 +865,8 @@ export type Database = {
           tips?: string | null
           updated_at?: string
           updated_by?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Relationships: [
           {
@@ -2147,6 +2153,39 @@ export type Database = {
           },
         ]
       }
+      same_day_spares: {
+        Row: {
+          diet: Database["public"]["Enums"]["diet_type"]
+          id: string
+          kitchen_id: string
+          slot: Database["public"]["Enums"]["meal_slot"]
+          spare_date: string | null
+          spares: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          diet: Database["public"]["Enums"]["diet_type"]
+          id?: string
+          kitchen_id?: string
+          slot: Database["public"]["Enums"]["meal_slot"]
+          spare_date?: string | null
+          spares: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          diet?: Database["public"]["Enums"]["diet_type"]
+          id?: string
+          kitchen_id?: string
+          slot?: Database["public"]["Enums"]["meal_slot"]
+          spare_date?: string | null
+          spares?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       slot_capacity: {
         Row: {
           capacity: number
@@ -2766,6 +2805,37 @@ export type Database = {
         }
         Returns: undefined
       }
+      refresh_locked_menu: {
+        Args: {
+          p_date: string
+          p_diet: Database["public"]["Enums"]["diet_type"]
+          p_slot: Database["public"]["Enums"]["meal_slot"]
+        }
+        Returns: number
+      }
+      same_day_status: {
+        Args: { p_date?: string; p_kitchen?: string }
+        Returns: {
+          day: string
+          diet: Database["public"]["Enums"]["diet_type"]
+          held: number
+          is_open: boolean
+          slot: Database["public"]["Enums"]["meal_slot"]
+          spares: number
+          spares_left: number
+          until_time: string
+          used: number
+        }[]
+      }
+      set_same_day_spares: {
+        Args: {
+          p_date: string | null
+          p_diet: Database["public"]["Enums"]["diet_type"]
+          p_slot: Database["public"]["Enums"]["meal_slot"]
+          p_spares: number | null
+        }
+        Returns: undefined
+      }
       set_slot_capacity: {
         Args: {
           p_capacity: number | null
@@ -2893,7 +2963,7 @@ export type Database = {
         | "failed"
         | "user_dropped"
         | "cancelled"
-      plan_type: "trial" | "weekly" | "monthly" | "custom"
+      plan_type: "trial" | "weekly" | "monthly" | "custom" | "single"
       refund_status: "pending" | "success" | "failed" | "cancelled"
       review_status: "pending" | "approved" | "rejected"
       subscription_status:
@@ -3086,7 +3156,7 @@ export const Constants = {
         "user_dropped",
         "cancelled",
       ],
-      plan_type: ["trial", "weekly", "monthly", "custom"],
+      plan_type: ["trial", "weekly", "monthly", "custom", "single"],
       refund_status: ["pending", "success", "failed", "cancelled"],
       review_status: ["pending", "approved", "rejected"],
       subscription_status: [

@@ -126,7 +126,7 @@ export const RESOURCES: ResourceDef[] = [
     fields: [
       { name: 'name', label: 'Name', type: 'text', required: true, maxLength: 80 },
       { name: 'slug', label: 'URL slug', type: 'text', required: true, maxLength: 60 },
-      { name: 'type', label: 'Type', type: 'select', required: true, options: ['trial', 'weekly', 'monthly'].map(yesNo) },
+      { name: 'type', label: 'Type', type: 'select', required: true, options: ['trial', 'single', 'weekly', 'monthly'].map(yesNo) },
       { name: 'meals_per_day', label: 'Meals per day', type: 'select', required: true, options: [{ value: '1', label: '1' }, { value: '2', label: '2' }] },
       { name: 'operating_days', label: 'Delivery days in plan', type: 'number', required: true, min: 1, max: 60, step: 1 },
       { name: 'tagline', label: 'Tagline', type: 'text', maxLength: 160 },
@@ -148,7 +148,7 @@ export const RESOURCES: ResourceDef[] = [
     order: { column: 'effective_from', ascending: false },
     listColumns: ['plan_type', 'diet', 'box_size', 'price_per_meal', 'second_meal_discount', 'effective_from'],
     fields: [
-      { name: 'plan_type', label: 'Plan type', type: 'select', required: true, options: ['trial', 'weekly', 'monthly'].map(yesNo) },
+      { name: 'plan_type', label: 'Plan type', type: 'select', required: true, options: ['trial', 'single', 'weekly', 'monthly'].map(yesNo) },
       { name: 'diet', label: 'Diet', type: 'select', required: true, options: [{ value: 'non_veg', label: 'Non-veg' }, { value: 'veg', label: 'Veg' }] },
       { name: 'box_size', label: 'Box', type: 'select', required: true, options: [{ value: 'regular', label: 'Full box' }, { value: 'lite', label: 'Lite box' }] },
       { name: 'price_per_meal', label: 'Price per box (₹)', type: 'number', required: true, min: 1, max: 5000, step: 1 },

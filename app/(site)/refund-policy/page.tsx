@@ -35,11 +35,12 @@ const sections: LegalSection[] = [
   },
   {
     id: 'trial',
-    title: 'Trial box',
+    title: 'Trial box and single box',
     body: (
       <ul>
         <li>Cancel before the cutoff: <strong>full refund</strong>.</li>
         <li>After the cutoff the box is being prepared, so it cannot be cancelled. Quality problems are still covered by section 6.</li>
+        <li>A single box ordered for the same day is prepared as soon as it is paid, so it cannot be cancelled. If your payment reaches us after that day&apos;s same-day time has closed, we deliver your box on the next delivery day instead (or refund it in full if you ask us before that day&apos;s cutoff).</li>
       </ul>
     ),
   },

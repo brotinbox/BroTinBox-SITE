@@ -16,7 +16,7 @@ export const addonCostsTable = () => db().from('addon_costs');
 export const dishCostHistoryTable = () => db().from('dish_cost_history');
 
 export type FinanceSettings = { packaging_per_box: number; gateway_fee_pct: number; target_food_cost_pct: number; updated_at: string | null };
-export type Entry = { id: string; entry_date: string; category: string; amount: number; vendor: string | null; note: string | null; created_at: string };
+export type Entry = { id: string; entry_date: string; category: string; amount: number; vendor: string | null; note: string | null; created_at: string; stock_purchase_id?: string | null };
 
 export const FIRST_DAY = '2026-10-01';
 
@@ -97,10 +97,14 @@ export async function getFinanceSettings(): Promise<FinanceSettings> {
 }
 
 export async function listEntries(from: string, to: string): Promise<Entry[]> {
-  const { data } = await entriesTable().select('id, entry_date, category, amount, vendor, note, created_at')
+  const run = (cols: string) => entriesTable().select(cols)
     .gte('entry_date', from).lte('entry_date', to)
     .order('entry_date', { ascending: false }).order('created_at', { ascending: false }).limit(500);
-  return ((data ?? []) as Entry[]).map((e) => ({ ...e, amount: Number(e.amount) }));
+  const base = 'id, entry_date, category, amount, vendor, note, created_at';
+  // stock_purchase_id comes with migration 0053 (kitchen bills); older databases don't have it.
+  let { data, error } = await run(`${base}, stock_purchase_id`);
+  if (error) ({ data } = await run(base));
+  return ((data ?? []) as unknown as Entry[]).map((e) => ({ ...e, amount: Number(e.amount), stock_purchase_id: e.stock_purchase_id ?? null }));
 }
 
 export type DishCost = { id: string; code: string; name: string; category: string; is_veg: boolean; grams: number; cost: number | null; gas: number | null; updated_at: string | null };

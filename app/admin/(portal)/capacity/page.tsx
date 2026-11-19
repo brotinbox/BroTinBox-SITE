@@ -3,13 +3,17 @@ import { getSupabaseServer } from '@/lib/supabase/server';
 import { Card, PageHeader } from '@/components/admin/ui';
 import { ActionForm, Field, Input, Select, SubmitButton } from '@/components/admin/forms';
 import { cn } from '@/lib/utils';
-import { setCapacity } from './actions';
+import { setCapacity, setSpares } from './actions';
 
 export const metadata = { title: 'Capacity' };
 
 type Slot = 'lunch' | 'dinner';
 type Seat = { day: string; slot: Slot; capacity: number; booked: number; held: number; seats_left: number };
+type Diet = 'veg' | 'non_veg';
+type Spare = { day: string; slot: Slot; diet: Diet; until_time: string; is_open: boolean; spares: number; used: number; held: number; spares_left: number };
 const SLOTS: Slot[] = ['lunch', 'dinner'];
+const DIETS: Diet[] = ['non_veg', 'veg'];
+const dietLabel = (d: Diet) => (d === 'veg' ? 'Veg' : 'Non-veg');
 const DAYS = 14;
 
 function addDays(iso: string, n: number) {
@@ -27,11 +31,16 @@ export default async function CapacityPage() {
 
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
   const to = addDays(today, DAYS);
-  const [{ data: seatData, error }, { data: rules }, { data: closures }] = await Promise.all([
+  const [{ data: seatData, error }, { data: rules }, { data: closures }, { data: spareToday, error: spareErr }, { data: spareRules }] = await Promise.all([
     supabase.rpc('slot_availability', { p_from: today, p_to: to }),
     supabase.from('slot_capacity').select('slot, capacity_date, capacity'),
     supabase.from('kitchen_closures').select('closed_date, reason').gte('closed_date', today).lte('closed_date', to),
+    supabase.rpc('same_day_status', {}),
+    supabase.from('same_day_spares').select('slot, diet, spare_date, spares').order('spare_date'),
   ]);
+  const spareRows = (spareToday ?? []) as Spare[];
+  const spareDefault = (slot: Slot, diet: Diet) => spareRules?.find((r) => r.slot === slot && r.diet === diet && !r.spare_date)?.spares ?? 0;
+  const spareChanges = (spareRules ?? []).filter((r) => r.spare_date && r.spare_date >= today);
   const seats = (seatData ?? []) as Seat[];
   const defaults = Object.fromEntries(SLOTS.map((s) => [s, rules?.find((r) => r.slot === s && !r.capacity_date)?.capacity ?? 10])) as Record<Slot, number>;
   const changed = new Set((rules ?? []).filter((r) => r.capacity_date).map((r) => `${r.capacity_date}:${r.slot}`));
@@ -45,7 +54,7 @@ export default async function CapacityPage() {
     <>
       <PageHeader
         title="Capacity"
-        description="How many boxes the kitchen cooks per lunch and dinner. Only the trial box stops when a slot is full; weekly and monthly plans can always book and may push a slot over."
+        description="How many boxes the kitchen cooks per lunch and dinner. Only one-off boxes (trial, future-day single box) stop when a slot is full; weekly and monthly plans can always book and may push a slot over. Same-day single boxes come from the spares on the right."
       />
 
       {error && <p className="mb-4 text-sm font-semibold text-rose-700">Could not load seats: {error.message}. Has migration 0037 been run?</p>}
@@ -106,6 +115,82 @@ export default async function CapacityPage() {
               <p className="text-[11px] text-gray-500">Used for every day that has no change of its own.</p>
             </div>
           </Card>
+
+          <Card title="Same-day spares · today">
+            {spareErr ? (
+              <p className="text-sm text-rose-700">Could not load spares: {spareErr.message}. Has migration 0052 been run?</p>
+            ) : (
+              <div className="space-y-2">
+                {SLOTS.map((slot) => {
+                  const list = spareRows.filter((r) => r.slot === slot);
+                  return (
+                    <div key={slot} className="rounded-xl border border-gray-100 p-2.5">
+                      <p className="text-xs font-bold text-gray-900 capitalize">
+                        {slot} <span className="font-normal normal-case text-gray-500">· orders until {list[0]?.until_time} · {list.some((r) => r.is_open) ? 'open now' : 'closed now'}</span>
+                      </p>
+                      <div className="mt-1 grid grid-cols-2 gap-2">
+                        {DIETS.map((diet) => {
+                          const r = list.find((x) => x.diet === diet);
+                          if (!r) return null;
+                          return (
+                            <p key={diet} className={cn('text-xs rounded-lg px-2 py-1 border', r.spares_left > 0 ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-rose-50 border-rose-200 text-rose-700')}>
+                              <b>{dietLabel(diet)}</b>: {r.used} sold of {r.spares}{r.held > 0 ? ` · ${r.held} paying` : ''} · <b>{r.spares_left} left</b>
+                            </p>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+                <p className="text-[11px] text-gray-500">Spares = extra boxes cooked on top of the 9 PM cook sheet, sold as same-day single boxes. Staff tatkal moves use them too. Cutoff times are in Settings.</p>
+              </div>
+            )}
+          </Card>
+
+          <Card title="Spares every day">
+            <div className="space-y-3">
+              {SLOTS.map((slot) => DIETS.map((diet) => (
+                <ActionForm key={`${slot}-${diet}`} action={setSpares} className="flex items-end gap-2">
+                  <input type="hidden" name="slot" value={slot} />
+                  <input type="hidden" name="diet" value={diet} />
+                  <fieldset disabled={!canWrite} className="flex-1">
+                    <Field label={`${slot === 'lunch' ? 'Lunch' : 'Dinner'} · ${dietLabel(diet)}`}>
+                      <Input type="number" name="spares" min={0} max={100} defaultValue={spareDefault(slot, diet)} required />
+                    </Field>
+                  </fieldset>
+                  {canWrite && <SubmitButton>Save</SubmitButton>}
+                </ActionForm>
+              )))}
+              <p className="text-[11px] text-gray-500">0 turns same-day off for that run and diet. Change these before 9 PM so the cook sheet shows the right number to prep.</p>
+            </div>
+          </Card>
+
+          {canWrite && (
+            <Card title="Spares for one day">
+              <ActionForm action={setSpares} className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Date"><Input type="date" name="date" min={today} required /></Field>
+                  <Field label="Slot">
+                    <Select name="slot" options={[{ value: 'lunch', label: 'Lunch' }, { value: 'dinner', label: 'Dinner' }]} />
+                  </Field>
+                  <Field label="Diet">
+                    <Select name="diet" options={[{ value: 'non_veg', label: 'Non-veg' }, { value: 'veg', label: 'Veg' }]} />
+                  </Field>
+                  <Field label="Spare boxes" hint="Blank = every-day number.">
+                    <Input type="number" name="spares" min={0} max={100} />
+                  </Field>
+                </div>
+                <SubmitButton>Save</SubmitButton>
+              </ActionForm>
+              {spareChanges.length > 0 && (
+                <ul className="mt-3 space-y-1 text-xs text-gray-700">
+                  {spareChanges.map((r) => (
+                    <li key={`${r.spare_date}-${r.slot}-${r.diet}`}>{dayLabel(r.spare_date!)} · {r.slot} · {dietLabel(r.diet as Diet)}: <b>{r.spares}</b></li>
+                  ))}
+                </ul>
+              )}
+            </Card>
+          )}
 
           {canWrite && (
             <Card title="Change one day">

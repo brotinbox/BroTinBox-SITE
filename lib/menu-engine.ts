@@ -144,6 +144,11 @@ export const PRICING = {
     'non-veg': 309,
     'veg': 279,
   },
+  /** One-off box, any number of times (same-day when ordered before the cutoff). */
+  single: {
+    'non-veg': 309,
+    'veg': 279,
+  },
   weekly: {
     'non-veg': 289,
     'veg': 259,
@@ -159,6 +164,8 @@ export const PRICING = {
 
 export type LitePrices = {
   trial: { 'non-veg': number; veg: number };
+  /** Missing until migration 0052: falls back to the Lite trial price. */
+  single?: { 'non-veg': number; veg: number };
   weekly: { 'non-veg': number; veg: number };
   monthly: { 'non-veg': number; veg: number };
   secondMealDiscount: number;

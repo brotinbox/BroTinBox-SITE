@@ -24,7 +24,9 @@ import { MONTHLY_MIN_DAYS, MONTHLY_PLAN_DAYS, type PRICING } from '@/lib/menu-en
  */
 
 export type PricingMatrix = typeof PRICING;
-export type PlanKind = 'trial' | 'weekly' | 'monthly';
+export type PlanKind = 'trial' | 'single' | 'weekly' | 'monthly';
+/** Weekly / monthly: the plans with a per-meal discount. */
+export type MultiDayPlan = Exclude<PlanKind, 'trial' | 'single'>;
 export type PricedDiet = 'veg' | 'non-veg';
 export type MealsPerDay = 1 | 2;
 export type RegularTrial = PricingMatrix['trial'];
@@ -38,15 +40,16 @@ export type BoxSize = 'regular' | 'lite';
 export function pricingFor(p: PricingMatrix, size: BoxSize): PricingMatrix {
   if (size === 'regular') return p;
   if (!p.lite) throw new Error('Lite prices are not live');
-  return { ...p, trial: p.lite.trial, weekly: p.lite.weekly, monthly: p.lite.monthly, secondMealDiscount: p.lite.secondMealDiscount };
+  return { ...p, trial: p.lite.trial, single: p.lite.single ?? p.lite.trial, weekly: p.lite.weekly, monthly: p.lite.monthly, secondMealDiscount: p.lite.secondMealDiscount };
 }
 
 /** Delivery days in a full plan. */
-export const PLAN_DAYS = { trial: 1, weekly: 6, monthly: MONTHLY_PLAN_DAYS } as const;
+export const PLAN_DAYS = { trial: 1, single: 1, weekly: 6, monthly: MONTHLY_PLAN_DAYS } as const;
 /** Fewest days a plan may keep after skips and still get the plan rate. */
-export const MIN_PLAN_DAYS: Record<PlanKind, number> = { trial: 1, weekly: 3, monthly: MONTHLY_MIN_DAYS };
+export const MIN_PLAN_DAYS: Record<PlanKind, number> = { trial: 1, single: 1, weekly: 3, monthly: MONTHLY_MIN_DAYS };
 export const MAX_SKIPS: Record<PlanKind, number> = {
   trial: 0,
+  single: 0,
   weekly: PLAN_DAYS.weekly - MIN_PLAN_DAYS.weekly,
   monthly: PLAN_DAYS.monthly - MIN_PLAN_DAYS.monthly,
 };
@@ -69,7 +72,7 @@ export function planTotal(p: PricingMatrix, plan: PlanKind, days: { diet: Priced
 }
 
 /** Total for a full, unskipped plan in a single diet. */
-export function fullPlanTotal(p: PricingMatrix, plan: Exclude<PlanKind, 'trial'>, diet: PricedDiet, mealsPerDay: MealsPerDay): number {
+export function fullPlanTotal(p: PricingMatrix, plan: MultiDayPlan, diet: PricedDiet, mealsPerDay: MealsPerDay): number {
   return dayPrice(p, plan, diet, mealsPerDay) * PLAN_DAYS[plan];
 }
 
@@ -86,20 +89,20 @@ export function trialEquivalent(p: PricingMatrix, regularTrial: RegularTrial, da
 
 /** Rupees saved on these days vs buying each as a regular-price trial box. Never negative. */
 export function savingsVsTrial(
-  p: PricingMatrix, regularTrial: RegularTrial, plan: Exclude<PlanKind, 'trial'>,
+  p: PricingMatrix, regularTrial: RegularTrial, plan: MultiDayPlan,
   days: { diet: PricedDiet }[], mealsPerDay: MealsPerDay,
 ): number {
   return Math.max(0, trialEquivalent(p, regularTrial, days, mealsPerDay) - planTotal(p, plan, days, mealsPerDay));
 }
 
 /** Whole-number percent a plan's per-meal price is below the regular trial price (1 meal/day, one diet). */
-export function discountPercent(p: PricingMatrix, regularTrial: RegularTrial, plan: Exclude<PlanKind, 'trial'>, diet: PricedDiet): number {
+export function discountPercent(p: PricingMatrix, regularTrial: RegularTrial, plan: MultiDayPlan, diet: PricedDiet): number {
   const was = regularTrial[diet];
   return was > 0 ? Math.max(0, Math.round(((was - mealPrice(p, plan, diet)) / was) * 100)) : 0;
 }
 
 /** The smaller of the two diets' discounts: a claim that is true for every customer ("Save 10%"). */
-export function guaranteedDiscountPercent(p: PricingMatrix, regularTrial: RegularTrial, plan: Exclude<PlanKind, 'trial'>): number {
+export function guaranteedDiscountPercent(p: PricingMatrix, regularTrial: RegularTrial, plan: MultiDayPlan): number {
   return Math.min(discountPercent(p, regularTrial, plan, 'veg'), discountPercent(p, regularTrial, plan, 'non-veg'));
 }
 

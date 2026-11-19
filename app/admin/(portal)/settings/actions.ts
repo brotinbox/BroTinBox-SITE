@@ -76,6 +76,27 @@ export async function saveTatkal(_p: ActionResult | null, fd: FormData): Promise
   }, { tags: ['settings'] });
 }
 
+export async function saveSameDay(_p: ActionResult | null, fd: FormData): Promise<ActionResult> {
+  const time = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
+  const lunch = time.safeParse(fd.get('lunch_until'));
+  const dinner = time.safeParse(fd.get('dinner_until'));
+  const grace = z.coerce.number().int().min(0).max(120).safeParse(fd.get('grace_minutes'));
+  if (!lunch.success || !dinner.success) return fail('Times must look like 09:30.');
+  if (!grace.success) return fail('Grace must be 0–120 minutes.');
+  return staffAction('settings.write', async (staff) => {
+    // Upsert: the row comes from migration 0052, but don't fail if it hasn't run.
+    const supabase = await getSupabaseServer();
+    const { error } = await supabase.from('site_settings').upsert({
+      key: 'same_day',
+      value: { enabled: fd.get('enabled') === 'on', lunch_until: lunch.data, dinner_until: dinner.data, grace_minutes: grace.data },
+      is_public: false,
+      updated_by: staff.profile.id,
+    }, { onConflict: 'key' });
+    if (error) throw error;
+    return ok('Same-day settings saved.');
+  }, { tags: ['settings'] });
+}
+
 export async function saveAnnouncement(_p: ActionResult | null, fd: FormData): Promise<ActionResult> {
   const href = cleanText(fd.get('href'), 200);
   if (href && !/^(https:\/\/|\/)/.test(href)) return fail('Link must start with https:// or /');

@@ -7,8 +7,9 @@ import { Card, PageHeader } from '@/components/admin/ui';
 import { ActionForm, Checkbox, Field, Input, Select, SubmitButton, Textarea } from '@/components/admin/forms';
 import { cashfreeKeys } from '@/lib/cashfree';
 import { tatkalSettings } from '@/lib/admin/tatkal';
+import { sameDaySettings } from '@/lib/same-day';
 import { getAlertSettings, getCashfreeSettings, getPhoneOtpSettings, whatsappSenderConfigured } from '@/lib/settings/runtime';
-import { saveAlerts, saveAnnouncement, saveCashfreeMode, saveFeatures, saveOrdering, saveTatkal, savePayment, savePhoneOtp, sendTestAlert, sendTestOtp } from './actions';
+import { saveAlerts, saveAnnouncement, saveCashfreeMode, saveFeatures, saveOrdering, saveSameDay, saveTatkal, savePayment, savePhoneOtp, sendTestAlert, sendTestOtp } from './actions';
 
 export const metadata = { title: 'Settings' };
 
@@ -38,6 +39,7 @@ export default async function SettingsPage() {
   const announcement = s.announcement ?? {};
   const features = s.features ?? {};
   const tatkal = tatkalSettings(s.tatkal);
+  const sameDay = sameDaySettings(s.same_day);
   const [otp, alerts, cf] = await Promise.all([getPhoneOtpSettings({ fresh: true }), getAlertSettings({ fresh: true }), getCashfreeSettings({ fresh: true })]);
   const cfKeys = { production: !!cashfreeKeys('production'), sandbox: !!cashfreeKeys('sandbox') };
   const cfReady = cfKeys[cf.mode];
@@ -134,6 +136,27 @@ export default async function SettingsPage() {
               <p className="text-xs text-gray-600">Only works when the slot still has a seat today (Capacity page). Customers never see this.</p>
             </fieldset>
             {canWrite && <SubmitButton>Save tatkal settings</SubmitButton>}
+          </ActionForm>
+        </Card>
+
+        <Card title="Same-day single box (customers)">
+          <ActionForm action={saveSameDay} className="space-y-3">
+            <fieldset disabled={!canWrite} className="space-y-3">
+              <Checkbox name="enabled" label="Customers can order a single box for today" defaultChecked={sameDay.enabled} />
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Lunch: order by (IST)" hint="Lunch goes out 11:30 AM–1:30 PM.">
+                  <Input type="time" name="lunch_until" defaultValue={sameDay.lunch_until} required />
+                </Field>
+                <Field label="Dinner: order by (IST)" hint="Dinner goes out 7–9 PM.">
+                  <Input type="time" name="dinner_until" defaultValue={sameDay.dinner_until} required />
+                </Field>
+              </div>
+              <Field label="Payment grace (minutes)" hint="A payment that lands this long after the cutoff still gets today's box. Later than that, it's booked for the next day and flagged.">
+                <Input type="number" name="grace_minutes" min={0} max={120} defaultValue={sameDay.grace_minutes} required />
+              </Field>
+              <p className="text-xs text-gray-600">How many boxes can be sold today is set per run and diet on the Capacity page (spares).</p>
+            </fieldset>
+            {canWrite && <SubmitButton>Save same-day settings</SubmitButton>}
           </ActionForm>
         </Card>
 

@@ -17,11 +17,12 @@ export function OrderErrorNotice({ error, className = '' }: { error: string; cla
       <div role="alert" className={`rounded-2xl border border-orange-200 bg-orange-50 p-3 sm:p-4 ${className}`}>
         <p className="text-sm font-bold text-ink">{message}</p>
         <p className="mt-0.5 text-xs text-gray-700">
-          Trial boxes are one per person. Our Weekly and Monthly plans cost less per meal, so you get a better deal from here.
+          Trial boxes are one per person. Order a single box any day, or save per meal with a weekly or monthly plan.
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
           <Link href="/weekly" className="px-4 py-2.5 rounded-xl bg-ink text-white text-sm font-bold">Weekly plan</Link>
           <Link href="/monthly" className="px-4 py-2.5 rounded-xl border border-ink/20 bg-white text-sm font-bold text-ink">Monthly plan</Link>
+          <Link href="/single" className="px-4 py-2.5 rounded-xl border border-ink/20 bg-white text-sm font-bold text-ink">Just one box</Link>
         </div>
       </div>
     );
@@ -33,6 +34,19 @@ export function OrderErrorNotice({ error, className = '' }: { error: string; cla
         <p className="text-sm font-bold text-ink">{message}</p>
         <p className="mt-0.5 text-xs text-gray-700">It takes a few seconds. We&apos;ll send a code to your WhatsApp.</p>
         <Link href="/profile/details" className="mt-3 inline-block px-4 py-2.5 rounded-xl bg-ink text-white text-sm font-bold">Verify my number</Link>
+      </div>
+    );
+  }
+
+  if (code === 'SAME_DAY') {
+    return (
+      <div role="alert" className={`rounded-2xl border border-orange-200 bg-orange-50 p-3 sm:p-4 ${className}`}>
+        <p className="text-sm font-bold text-ink">{message}</p>
+        <p className="mt-0.5 text-xs text-gray-700">We cook a few extra boxes each run for same-day orders. Tomorrow&apos;s boxes are open now.</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Link href="/single" className="px-4 py-2.5 rounded-xl bg-ink text-white text-sm font-bold">Pick another day</Link>
+          <Link href="/weekly" className="px-4 py-2.5 rounded-xl border border-ink/20 bg-white text-sm font-bold text-ink">See weekly plan</Link>
+        </div>
       </div>
     );
   }

@@ -12,10 +12,10 @@ export const dynamic = 'force-dynamic';
 export default async function OrderPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   if (!z.string().uuid().safeParse(id).success) notFound();
-  await requireCustomer(`/orders/${id}`);
+  const me = await requireCustomer(`/orders/${id}`);
   const supabase = await getSupabaseServer();
   const [{ data: o }, { data: items }, { data: payments }] = await Promise.all([
-    supabase.from('orders').select('id, order_number, type, status, total, subtotal, discount, delivery_fee, created_at, paid_at, address_snapshot').eq('id', id).maybeSingle(),
+    supabase.from('orders').select('id, order_number, type, status, total, subtotal, discount, delivery_fee, created_at, paid_at, address_snapshot').eq('id', id).eq('user_id', me.id).maybeSingle(),
     supabase.from('order_items').select('id, name, qty, total').eq('order_id', id),
     supabase.from('payments').select('id, method, status, amount, created_at').eq('order_id', id).eq('status', 'success'),
   ]);

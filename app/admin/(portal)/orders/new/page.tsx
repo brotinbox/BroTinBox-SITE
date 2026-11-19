@@ -77,6 +77,7 @@ export default async function NewManualOrderPage() {
               <Field label="Plan">
                 <Select name="type" defaultValue="trial" options={[
                   { value: 'trial', label: 'Trial (1 day)' },
+                  { value: 'single', label: 'Single box (1 day, any number of times)' },
                   { value: 'weekly', label: 'Weekly (6 days)' },
                   { value: 'monthly', label: 'Monthly (26 days)' },
                 ]} />

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, Gift, Clock } from 'lucide-react';
+import { ArrowRight, Gift, Clock, Zap } from 'lucide-react';
 import type { MyTrialStatus } from '@/lib/checkout/trial';
 import { usePricing, useRegularTrialPrice } from '@/components/providers/CatalogProvider';
 import { guaranteedDiscountPercent } from '@/lib/pricing';
@@ -47,6 +47,11 @@ export function TrialStatusCard({ status, onRebook, className = '' }: {
 
   const weeklySave = guaranteedDiscountPercent(pricing, regular, 'weekly');
   const monthlySave = guaranteedDiscountPercent(pricing, regular, 'monthly');
+  // Cheapest single box on offer (Lite veg when Lite is live), for the "from ₹…" line.
+  const singlePrices = [pricing.single?.veg ?? regular.veg, pricing.lite?.single?.veg ?? pricing.lite?.trial?.veg].filter(
+    (n): n is number => typeof n === 'number' && n > 0
+  );
+  const singleFrom = singlePrices.length ? Math.min(...singlePrices) : null;
   const coming = status.ownAccount && !status.delivered && !!status.boxDate && status.boxDate >= todayIST();
 
   const heading = coming
@@ -68,16 +73,26 @@ export function TrialStatusCard({ status, onRebook, className = '' }: {
       <p className="flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-wider text-accent-bright"><Gift className="w-3.5 h-3.5" /> {coming ? 'Your trial box' : 'Your next step'}</p>
       <h2 className="font-heading font-black text-xl sm:text-2xl mt-1">{heading}</h2>
       <p className="text-xs text-white/70 mt-1">{sub}</p>
-      <div className="grid grid-cols-2 gap-3 mt-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
+        <Link href="/single" className="group col-span-2 sm:col-span-1 rounded-2xl bg-white text-gray-900 p-3.5 flex flex-col gap-1">
+          <span className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
+            <span className="font-heading font-black text-base whitespace-nowrap">Single box</span>
+            <span className="inline-flex items-center gap-0.5 whitespace-nowrap text-[10px] font-bold bg-accent-soft text-ink px-2 py-0.5 rounded-full"><Zap className="w-3 h-3" /> Same day</span>
+          </span>
+          <span className="text-[11px] text-gray-600">
+            Just one box, no plan{singleFrom ? ` · from ₹${singleFrom}` : ''}. Order again any time.
+          </span>
+          <span className="mt-1 inline-flex items-center gap-1 text-xs font-bold text-ink">Order one <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" /></span>
+        </Link>
         <Link href="/weekly" className="group rounded-2xl bg-white text-gray-900 p-3.5 flex flex-col gap-1">
           <span className="font-heading font-black text-base">Weekly</span>
           <span className="text-[11px] text-gray-600">{weeklySave > 0 ? `Save ${weeklySave}% per meal` : '6 days of meals'}</span>
           <span className="mt-1 inline-flex items-center gap-1 text-xs font-bold text-ink">Choose <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" /></span>
         </Link>
         <Link href="/monthly" className="group rounded-2xl bg-white text-gray-900 p-3.5 flex flex-col gap-1">
-          <span className="flex items-center justify-between gap-1">
-            <span className="font-heading font-black text-base">Monthly</span>
-            <span className="text-[10px] font-bold bg-accent-soft text-ink px-2 py-0.5 rounded-full">Best value</span>
+          <span className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
+            <span className="font-heading font-black text-base whitespace-nowrap">Monthly</span>
+            <span className="whitespace-nowrap text-[10px] font-bold bg-accent-soft text-ink px-2 py-0.5 rounded-full">Best value</span>
           </span>
           <span className="text-[11px] text-gray-600">{monthlySave > 0 ? `Save ${monthlySave}% per meal` : 'Lowest price per meal'}</span>
           <span className="mt-1 inline-flex items-center gap-1 text-xs font-bold text-ink">Choose <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" /></span>

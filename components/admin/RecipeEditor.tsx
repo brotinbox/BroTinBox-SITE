@@ -21,10 +21,12 @@ const k = () => nextKey++;
  * Edit a dish's recipe: ingredients (per ONE portion), numbered steps, times
  * and tips. The whole recipe is sent as one JSON field.
  */
-export function RecipeEditor({ menuItemId, recipe, action }: {
+export function RecipeEditor({ menuItemId, recipe, action, nameSuggestions = [] }: {
   menuItemId: string;
   recipe: Recipe;
   action: (prev: ActionResult | null, fd: FormData) => Promise<ActionResult>;
+  /** Stock item names, so new ingredients are typed the same way (kitchen stock links them by name). */
+  nameSuggestions?: string[];
 }) {
   const [state, formAction] = useActionState(action, null);
   const [rows, setRows] = useState<Row[]>(() =>
@@ -35,6 +37,16 @@ export function RecipeEditor({ menuItemId, recipe, action }: {
   const [equipment, setEquipment] = useState(recipe.equipment ?? '');
   const [tips, setTips] = useState(recipe.tips ?? '');
   const [notes, setNotes] = useState(recipe.notes ?? '');
+  const [batch, setBatch] = useState('');
+  const batchN = Number(batch);
+  // Weighed a whole batch? Divide every quantity by the number of boxes it made.
+  const divideBatch = () => {
+    if (!(batchN > 1)) return;
+    setRows((rs) => rs.map((r) => (r.qty.trim() === '' || Number.isNaN(Number(r.qty))
+      ? r
+      : { ...r, qty: String(Math.round((Number(r.qty) / batchN) * 100) / 100) })));
+    setBatch('');
+  };
 
   const json = useMemo(() => {
     const n = (v: string) => (v.trim() === '' || Number.isNaN(Number(v)) ? null : Number(v));
@@ -70,7 +82,7 @@ export function RecipeEditor({ menuItemId, recipe, action }: {
         <div className="space-y-2">
           {rows.map((r) => (
             <div key={r.key} className="grid grid-cols-[1fr_1fr_auto] sm:grid-cols-[1.4fr_5rem_6rem_1fr_auto] gap-2 items-center max-sm:pb-3 max-sm:border-b max-sm:border-gray-100 max-sm:last:border-0">
-              <input className={cn(field, 'max-sm:col-span-3')} placeholder="Ingredient, e.g. Chicken breast (raw)" value={r.name} maxLength={80}
+              <input className={cn(field, 'max-sm:col-span-3')} placeholder="Ingredient, e.g. Chicken breast (raw)" value={r.name} maxLength={80} list="recipe-ingredient-names"
                 onChange={(e) => setRow(r.key, { name: e.target.value })} aria-label="Ingredient" />
               <input className={cn(field, 'tabular-nums')} type="number" min={0} step="any" placeholder="Qty" value={r.qty}
                 disabled={r.unit === 'to taste'} onChange={(e) => setRow(r.key, { qty: e.target.value })} aria-label="Quantity per portion" />
@@ -90,6 +102,19 @@ export function RecipeEditor({ menuItemId, recipe, action }: {
           className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline">
           <Plus className="w-3.5 h-3.5" /> Add ingredient
         </button>
+        {nameSuggestions.length > 0 && (
+          <datalist id="recipe-ingredient-names">{nameSuggestions.map((n) => <option key={n} value={n} />)}</datalist>
+        )}
+        <div className="mt-3 rounded-xl border border-dashed border-gray-300 bg-gray-50 p-3">
+          <p className="text-xs font-semibold text-gray-800">Weighed a whole batch?</p>
+          <p className="text-[11px] text-gray-500 mb-2">Type the amounts used for the whole pot above, then how many boxes it made, and divide. Every quantity becomes per ONE portion.</p>
+          <div className="flex items-center gap-2">
+            <input className={cn(field, 'w-28 tabular-nums')} type="number" min={2} step={1} placeholder="Boxes" value={batch}
+              onChange={(e) => setBatch(e.target.value)} aria-label="Boxes the batch made" />
+            <button type="button" onClick={divideBatch} disabled={!(batchN > 1)}
+              className="px-3 py-2 rounded-xl text-xs font-bold bg-gray-900 text-white disabled:opacity-40">Divide by {batchN > 1 ? batchN : 'N'}</button>
+          </div>
+        </div>
       </section>
 
       <section>

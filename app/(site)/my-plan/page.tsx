@@ -12,7 +12,7 @@ export const dynamic = 'force-dynamic';
 export default async function MyMealsPage() {
   const profile = await requireCustomer('/my-plan');
   const [meals, trial] = await Promise.all([
-    getUpcomingMeals(80),
+    getUpcomingMeals(profile.id, 80),
     getMyTrialStatus(profile.id).catch((): MyTrialStatus => ({ state: 'available' })),
   ]);
   const trialUsed = trial.state === 'used';

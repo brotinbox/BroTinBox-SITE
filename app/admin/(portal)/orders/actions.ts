@@ -69,7 +69,7 @@ export async function recheckCashfree(_prev: ActionResult | null, fd: FormData):
 // account, address and order are created exactly as a website checkout would.
 // ---------------------------------------------------------------------------
 
-const PLAN_DAYS = { trial: 1, weekly: 6, monthly: 26 } as const;
+const PLAN_DAYS = { trial: 1, single: 1, weekly: 6, monthly: 26 } as const;
 
 const manualOrderSchema = z.object({
   name: z.string().trim().min(2).max(80),
@@ -83,7 +83,7 @@ const manualOrderSchema = z.object({
   landmark: z.string().max(120),
   area: z.string().trim().min(2).max(80),
   pincode: z.string().regex(/^\d{6}$/),
-  type: z.enum(['trial', 'weekly', 'monthly']),
+  type: z.enum(['trial', 'single', 'weekly', 'monthly']),
   diet: z.enum(['veg', 'non_veg']),
   meals: z.enum(['lunch', 'dinner', 'both']),
   start: z.union([z.literal(''), z.string().regex(/^\d{4}-\d{2}-\d{2}$/)]),

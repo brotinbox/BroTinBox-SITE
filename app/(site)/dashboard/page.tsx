@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { ChevronRight, Clock, Gift, MessageCircle, Smartphone, Target, Wallet } from 'lucide-react';
 import { requireCustomer } from '@/lib/auth/session';
 import { phoneOtpMode } from '@/lib/auth/otp-mode';
-import { dateLabel, dayWord, getMyPendingOrders, getMySubscriptions, getUpcomingMeals, inr, type UpcomingMeal } from '@/lib/customer/data';
+import { dateLabel, dayWord, getMyPendingOrders, getMySubscriptions, getUpcomingMeals, inr, isPlan, type UpcomingMeal } from '@/lib/customer/data';
 import { todayIST } from '@/lib/menu/rotation';
 import { AccountShell } from '@/components/account/AccountNav';
 import { Btn, CustomerForm } from '@/components/account/forms';
@@ -47,7 +47,7 @@ export default async function DashboardPage() {
   const profile = await requireCustomer('/dashboard');
 
   const [meals, subs, pending, pricing, trialOffer, trial, otpMode, referrals] = await Promise.all([
-    getUpcomingMeals(12), getMySubscriptions(), getMyPendingOrders(), getPricingMatrix(), getTrialOffer(),
+    getUpcomingMeals(profile.id, 12), getMySubscriptions(profile.id), getMyPendingOrders(profile.id), getPricingMatrix(), getTrialOffer(),
     getMyTrialStatus(profile.id).catch((): MyTrialStatus => ({ state: 'available' })),
     phoneOtpMode(),
     referralsOn().catch(() => false),
@@ -57,7 +57,8 @@ export default async function DashboardPage() {
     : '';
   const today = todayIST();
   // A plan past its last day is over, even before the nightly job marks it completed.
-  const live = subs.filter((s) => (s.status === 'active' || s.status === 'paused') && !(s.end_date && s.end_date < today));
+  // Trial/single boxes aren't plans: their meal shows as the next-box card instead.
+  const live = subs.filter((s) => isPlan(s) && (s.status === 'active' || s.status === 'paused') && !(s.end_date && s.end_date < today));
   const upcoming = meals.filter((m) => m.status !== 'skipped' && m.status !== 'paused');
   const next = upcoming[0];
   const later = upcoming.slice(1, 4);

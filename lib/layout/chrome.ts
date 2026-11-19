@@ -35,7 +35,7 @@ const under = (path: string, prefix: string) => path === prefix || path.startsWi
 /** A page below the prefix, not the prefix itself (/profile/details but not /profile). */
 const below = (path: string, prefix: string) => path.startsWith(`${prefix}/`);
 
-const FLOW_UNDER = ['/tomorrow', '/weekly', '/monthly', '/box'];
+const FLOW_UNDER = ['/tomorrow', '/single', '/weekly', '/monthly', '/box'];
 const FOCUS_UNDER = ['/checkout', '/build-plan', '/login', '/onboarding', '/partners/apply'];
 const FOCUS_BELOW = ['/profile', '/orders'];
 const APP_UNDER = ['/dashboard', '/my-plan', '/subscription', '/orders', '/progress', '/profile', '/partner', '/refer'];

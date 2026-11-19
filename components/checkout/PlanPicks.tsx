@@ -16,7 +16,8 @@ export function PlanPicks() {
   const monthlySave = guaranteedDiscountPercent(pricing, regular, 'monthly');
 
   const plain = [
-    { href: '/tomorrow', title: 'Try one day', note: 'A single box, delivered tomorrow' },
+    { href: '/tomorrow', title: 'Try one day', note: 'Trial box, one per person' },
+    { href: '/single', title: 'Single box', note: 'Any day, even today if you order early' },
     { href: '/weekly', title: 'Weekly plan', note: `${PLAN_DAYS.weekly} days, lower price per meal` },
   ];
   const perks = [

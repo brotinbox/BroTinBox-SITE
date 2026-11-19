@@ -6,6 +6,7 @@ import { MIN_PLAN_DAYS, secondMealPrice } from '@/lib/pricing';
 import { assertTrialAvailable, getTrialEligibility, trialUsedMessage } from '@/lib/checkout/trial';
 import { OFFER_LABEL, resolveOffers, type OfferResult } from '@/lib/checkout/offers';
 import { fullSlots, slotFullMessage } from '@/lib/capacity';
+import { sameDayProblem, todayIst } from '@/lib/same-day';
 
 /**
  * Server-side pricing. The browser sends WHAT the customer chose; the server
@@ -17,7 +18,8 @@ const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 export const MAX_ADDON_QTY = 5;
 
 export const cartSchema = z.object({
-  type: z.enum(['trial', 'weekly', 'monthly']),
+  /** single = one-off box, any number of times; for today it comes from the kitchen's same-day spares. */
+  type: z.enum(['trial', 'single', 'weekly', 'monthly']),
   mealsPerDay: z.union([z.literal(1), z.literal(2)]),
   /** Full box (5 parts) or Lite box (3 smaller parts, own prices). */
   boxSize: z.enum(['regular', 'lite']).default('regular'),
@@ -56,6 +58,8 @@ export type Quote = {
   slots: ('lunch' | 'dinner')[];
   schedule: { date: string; diet: 'veg' | 'non_veg' }[];
   boxSize: 'regular' | 'lite';
+  /** A single box for today (same-day spares, migration 0052). */
+  sameDay: boolean;
   /** Stored on the subscription; the database attaches them to each delivery. */
   addons: { addon_id: string; qty: number; slot: 'lunch' | 'dinner' }[];
   /** Free juices (₹0), placed on the Nth delivery day when the order is paid. */
@@ -66,7 +70,7 @@ export type Quote = {
   offers: OfferResult;
 };
 
-export type CheckoutErrorCode = 'TRIAL_USED' | 'VERIFY_PHONE' | 'SLOT_FULL';
+export type CheckoutErrorCode = 'TRIAL_USED' | 'VERIFY_PHONE' | 'SLOT_FULL' | 'SAME_DAY';
 
 export class CheckoutError extends Error {
   constructor(message: string, public code?: CheckoutErrorCode) {
@@ -129,26 +133,35 @@ export async function quoteCart(cart: Cart, userId: string | null, opts: QuoteOp
 
   // Dates: unique, operating days, not before the cutoff, not too far ahead
   const dates = [...new Map(cart.days.map((d) => [d.date, d])).values()].sort((a, b) => a.date.localeCompare(b.date));
-  const expected = cart.type === 'trial' ? 1 : null;
-  if (expected && dates.length !== expected) throw new CheckoutError('A trial is for one day.');
+  const oneDay = cart.type === 'trial' || cart.type === 'single';
+  if (oneDay && dates.length !== 1) throw new CheckoutError(cart.type === 'trial' ? 'A trial is for one day.' : 'A single box is for one day.');
   // Weekly/monthly per-meal prices only apply to full-length plans.
   const minDays = MIN_PLAN_DAYS[cart.type];
-  if (cart.type !== 'trial' && dates.length < minDays) {
+  if (!oneDay && dates.length < minDays) {
     throw new CheckoutError(`A ${cart.type} plan needs at least ${minDays} delivery days. You picked ${dates.length}.`);
+  }
+  // Same-day: a single box for today, while the slot is open and a spare is left.
+  const want: ('lunch' | 'dinner')[] = cart.mealsPerDay === 2 ? ['lunch', 'dinner'] : [cart.slot];
+  const sameDay = cart.type === 'single' && dates[0].date === todayIst();
+  if (sameDay) {
+    const diets = [...new Set(dates.map((d) => d.diet))];
+    for (const diet of diets) {
+      const problem = await sameDayProblem(dates[0].date, want, diet);
+      if (problem) throw new CheckoutError(problem, 'SAME_DAY');
+    }
   }
   const { data: earliest } = await db.rpc('earliest_bookable_date', {});
   const maxDate = new Date(Date.now() + 60 * 864e5).toISOString().slice(0, 10);
   for (const d of dates) {
-    if (earliest && d.date < (earliest as string)) throw new CheckoutError(`The earliest day you can book is ${earliest}. Please pick again.`);
+    if (!sameDay && earliest && d.date < (earliest as string)) throw new CheckoutError(`The earliest day you can book is ${earliest}. Please pick again.`);
     if (d.date > maxDate) throw new CheckoutError('Pick dates within the next 60 days.');
     const { data: open } = await db.rpc('is_operating_day', { d: d.date });
     if (!open) throw new CheckoutError(`The kitchen is closed on ${d.date}. Please pick another day.`);
   }
 
-  // Seats: only the trial box is limited (staff orders skip it). The database
-  // checks again when the order is created (migration 0037).
-  if (cart.type === 'trial' && opts.source !== 'admin') {
-    const want: ('lunch' | 'dinner')[] = cart.mealsPerDay === 2 ? ['lunch', 'dinner'] : [cart.slot];
+  // Seats: only one-off boxes (trial, future-day single) are limited; staff
+  // orders skip it. The database checks again when the order is created (0037/0052).
+  if (oneDay && !sameDay && opts.source !== 'admin') {
     const full = await fullSlots(dates[0].date, want);
     if (full.length) throw new CheckoutError(slotFullMessage(dates[0].date, full), 'SLOT_FULL');
   }
@@ -170,7 +183,8 @@ export async function quoteCart(cart: Cart, userId: string | null, opts: QuoteOp
     if (!n) continue;
     const p = price(diet);
     const label = `${cart.boxSize === 'lite' ? 'Lite ' : ''}${diet === 'veg' ? 'veg box' : 'non-veg box'}`.replace(/^./, (c) => c.toUpperCase());
-    lines.push({ item_type: 'meal', ref_id: null, name: `${label} (${cart.type})`, qty: n, unit_price: p.meal, total: round2(p.meal * n) });
+    const kind = cart.type === 'single' ? (sameDay ? 'today' : 'single box') : cart.type;
+    lines.push({ item_type: 'meal', ref_id: null, name: `${label} (${kind})`, qty: n, unit_price: p.meal, total: round2(p.meal * n) });
     if (cart.mealsPerDay === 2) {
       lines.push({ item_type: 'meal', ref_id: null, name: `${label}, 2nd meal of the day`, qty: n, unit_price: secondMealPrice(p.meal, p.second), total: round2(secondMealPrice(p.meal, p.second) * n) });
     }
@@ -266,6 +280,7 @@ export async function quoteCart(cart: Cart, userId: string | null, opts: QuoteOp
     slots: cart.mealsPerDay === 2 ? ['lunch', 'dinner'] : [cart.slot],
     schedule: dates,
     boxSize: cart.boxSize,
+    sameDay,
     addons,
     freeJuices: offers.slots.map((f) => ({ addon_id: f.addonId, day: f.day, offer: f.offer, ...(f.claimId && { claim_id: f.claimId }) })),
     referrerId: offers.referrerId ?? null,

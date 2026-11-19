@@ -8,7 +8,7 @@ import { useAppStore } from '@/store/useAppStore';
 import { getMyOpenOrder, type OpenOrder } from '@/lib/checkout/actions';
 import { cn } from '@/lib/utils';
 
-const PLAN_NAME: Record<string, string> = { trial: 'Trial box', weekly: 'Weekly plan', monthly: 'Monthly plan', custom: 'Meal plan' };
+const PLAN_NAME: Record<string, string> = { trial: 'Trial box', single: 'Single box', weekly: 'Weekly plan', monthly: 'Monthly plan', custom: 'Meal plan' };
 
 /**
  * Swiggy-style sticky bar. A saved cart (kept in the browser, so it survives

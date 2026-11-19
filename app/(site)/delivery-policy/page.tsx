@@ -33,6 +33,7 @@ const sections: LegalSection[] = [
           ['Lunch slot', BRAND.deliverySlots.lunch],
           ['Evening slot', BRAND.deliverySlots.dinner],
           ['First delivery', `The earliest date shown at checkout, usually the next delivery day if you order and pay before ${cutoff} IST.`],
+          ['Same-day single box', 'Order by 9:30 AM for lunch or 5 PM for dinner the same day, while that day\'s same-day boxes last. The times shown at checkout apply.'],
           ['Delivery charge', 'Shown at checkout before you pay. Most plans include free delivery.'],
         ]} />
         <p>

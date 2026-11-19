@@ -20,14 +20,21 @@ export type UpcomingMeal = {
   addons: string[];
 };
 
-/** The signed-in customer's meals from today on, with dishes resolved. RLS limits rows to the owner. */
-export async function getUpcomingMeals(limit = 60): Promise<UpcomingMeal[]> {
+/*
+ * Every "my …" read filters on user_id explicitly. RLS alone is not enough: staff
+ * policies let admins read every customer's rows, so an admin's own dashboard would
+ * otherwise show other people's plans, orders and meals.
+ */
+
+/** The customer's meals from today on, with dishes resolved. */
+export async function getUpcomingMeals(userId: string, limit = 60): Promise<UpcomingMeal[]> {
   const supabase = await getSupabaseServer();
   // Meals and the booking cutoff are independent, so fetch them together.
   const [{ data }, { data: cutoffs }] = await Promise.all([
     supabase
       .from('deliveries')
       .select('id, subscription_id, delivery_date, slot, status, diet, is_egg_free, skip_legume, is_make_up, box_size, menu_snapshot, delivery_addons(qty, addons(name))')
+      .eq('user_id', userId)
       .gte('delivery_date', todayIST())
       .neq('status', 'cancelled')
       .order('delivery_date')
@@ -58,24 +65,30 @@ export async function getUpcomingMeals(limit = 60): Promise<UpcomingMeal[]> {
   }));
 }
 
-export async function getMySubscriptions() {
+export async function getMySubscriptions(userId: string) {
   const supabase = await getSupabaseServer();
   const { data } = await supabase
     .from('subscriptions')
     .select('id, type, diet, meals_per_day, slots, status, start_date, end_date, meals_total, meals_delivered, meals_skipped, meal_credits_issued, paused_from, paused_until, created_at, plans(name), preferences')
+    .eq('user_id', userId)
     .order('created_at', { ascending: false });
   return data ?? [];
 }
 
-export async function getMyPendingOrders() {
+export async function getMyPendingOrders(userId: string) {
   const supabase = await getSupabaseServer();
   const { data } = await supabase
     .from('orders')
     .select('id, order_number, total, status, metadata, created_at')
+    .eq('user_id', userId)
     .in('status', ['created', 'pending_payment'])
     .order('created_at', { ascending: false });
   return data ?? [];
 }
+
+/** Trial and single boxes are stored as one-meal subscriptions so they reuse the delivery engine,
+ *  but to the customer they are one-off boxes (shown in Orders + the next-box card), not plans. */
+export const isPlan = (s: { type: string }) => s.type !== 'trial' && s.type !== 'single';
 
 export const dateLabel = (d: string) =>
   new Date(`${d}T12:00:00Z`).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });

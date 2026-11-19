@@ -70,7 +70,7 @@ export async function notifyOrderPlaced(orderId: string): Promise<boolean> {
     // 1. Fetch order details
     const { data: order, error: orderErr } = await supabase
       .from('orders')
-      .select('id, order_number, user_id, type, status, total, subtotal, discount, delivery_fee, address_snapshot, pricing_snapshot, created_at')
+      .select('id, order_number, user_id, type, status, total, subtotal, discount, delivery_fee, address_snapshot, pricing_snapshot, created_at, subscriptions(preferences, slots)')
       .eq('id', orderId)
       .maybeSingle();
 
@@ -139,7 +139,10 @@ export async function notifyOrderPlaced(orderId: string): Promise<boolean> {
     });
 
     const isPaid = order.status === 'paid';
+    const sub = (order as { subscriptions?: { preferences?: { same_day?: boolean } | null; slots?: string[] | null } | null }).subscriptions;
+    const sameDay = !!sub?.preferences?.same_day;
     const lines: string[] = [
+      sameDay ? `⚡ <b>SAME-DAY ${escapeHtml((sub?.slots ?? []).join(' + ').toUpperCase())} TODAY</b> · from the spare boxes` : '',
       isPaid
         ? `✅ <b>NEW ORDER · PAID · ${escapeHtml(BRAND.name)}</b>`
         : `🕓 <b>NEW ORDER · NOT PAID YET · ${escapeHtml(BRAND.name)}</b>`,
@@ -241,10 +244,15 @@ export async function notifyOrderPaid(orderId: string, source = 'CASHFREE'): Pro
     const supabase = getSupabaseService();
     const { data: order } = await supabase
       .from('orders')
-      .select('id, order_number, total, type, address_snapshot')
+      .select('id, order_number, total, type, address_snapshot, metadata')
       .eq('id', orderId)
       .maybeSingle();
     if (!order) return false;
+    // Same-day single box: booked for today, or too late and moved to the next day (migration 0052).
+    const { data: sameDayRows } = await supabase.from('deliveries').select('slot, delivery_date, metadata')
+      .eq('order_id', orderId).or('metadata->>same_day.eq.true,metadata->>same_day_late.eq.true');
+    const late = (sameDayRows ?? []).find((d) => (d.metadata as { same_day_late?: boolean } | null)?.same_day_late);
+    const today = (sameDayRows ?? []).filter((d) => (d.metadata as { same_day?: boolean } | null)?.same_day);
 
     // Abandoned attempts the database closed when this one was paid (migration 0042).
     const { data: superseded } = await supabase
@@ -258,6 +266,8 @@ export async function notifyOrderPaid(orderId: string, source = 'CASHFREE'): Pro
     const now = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' });
 
     const lines: string[] = [
+      today.length ? `⚡ <b>SAME-DAY: cook + deliver ${escapeHtml(today.map((d) => d.slot).join(' + ').toUpperCase())} TODAY</b>. Add the stop to today's route.` : '',
+      late ? `⚠️ <b>Same-day payment came too late</b>: booked for ${escapeHtml(late.delivery_date)} instead. Call the customer.` : '',
       `✅ <b>PAID · PAYMENT RECEIVED (${escapeHtml(source)})</b>`,
       '💳 <b>Payment:</b> ✅ Paid. Deliveries are booked.',
       '',

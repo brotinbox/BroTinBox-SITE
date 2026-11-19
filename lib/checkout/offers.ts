@@ -100,7 +100,7 @@ const juiceCount = (n: number) => `${n} free juice${n === 1 ? '' : 's'}`;
 
 export async function resolveOffers(
   userId: string | null,
-  cart: { type: 'trial' | 'weekly' | 'monthly'; freeJuices: FreeJuiceChoice[]; referralCode?: string },
+  cart: { type: 'trial' | 'single' | 'weekly' | 'monthly'; freeJuices: FreeJuiceChoice[]; referralCode?: string },
   dayCount: number,
 ): Promise<OfferResult> {
   const db = getSupabaseService();
@@ -139,7 +139,8 @@ export async function resolveOffers(
   }
   const used = (o: FreeOffer) => claims.some((c) => c.offer === o);
   const firstPlan = history.length === 0;
-  const isTrial = cart.type === 'trial';
+  // One-off boxes (trial, single) never carry plan perks; a code waits for the first plan.
+  const isTrial = cart.type === 'trial' || cart.type === 'single';
   const ownPhone = (phone: string | null | undefined) => !!digits(phone) && digits(phone) === digits(myPhone);
 
   // ----- Codes: a trainer partner's code (migration 0039) or a friend's code.
@@ -152,7 +153,7 @@ export async function resolveOffers(
   let codeJuices = 0;
   const codePerkOpen = !isTrial && firstPlan && !used('referral_friend');
   const linked = link?.active ? link.partnerId : null;
-  const memberJuices = cart.type === 'trial' ? 0 : program.memberJuices[cart.type];
+  const memberJuices = isTrial ? 0 : program.memberJuices[cart.type as 'weekly' | 'monthly'];
 
   if (code && partner && partnerOn) {
     if (partner.status !== 'approved') referral = { applied: false, message: "That trainer code isn't active right now." };

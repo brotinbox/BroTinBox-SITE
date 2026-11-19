@@ -39,6 +39,9 @@ export async function deleteEntry(_p: ActionResult | null, fd: FormData): Promis
   const id = uuid.safeParse(fd.get('id'));
   if (!id.success) return fail('Invalid entry.');
   return staffAction(PERM, async () => {
+    // Kitchen bills (stock) are deleted from Kitchen bills, so stock stays right.
+    const { data: cur } = await entriesTable().select('*').eq('id', id.data).maybeSingle();
+    if ((cur as { stock_purchase_id?: string | null } | null)?.stock_purchase_id) return fail('This came from a kitchen bill. Delete it on Kitchen bills so the stock is corrected too.');
     const { error } = await entriesTable().delete().eq('id', id.data);
     if (error) throw error;
     return ok('Entry deleted.');
