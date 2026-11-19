@@ -23,7 +23,7 @@ $$;
 
 -- Fix the label on boxes whose frozen dishes don't match it (19 Nov lunch).
 with fixed as (
-  select d.id, 'Day ' || (d.menu_snapshot->>'day_number') || ': ' || x->>'name' || ' Box' as label
+  select d.id, 'Day ' || (d.menu_snapshot->>'day_number') || ': ' || (x->>'name') || ' Box' as label
     from public.deliveries d
     cross join lateral jsonb_array_elements(d.menu_snapshot->'items') x
    where d.delivery_date >= '2026-11-16'
