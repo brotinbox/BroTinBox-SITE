@@ -1,4 +1,4 @@
-> **Quick answer:** For diet food delivery in Coimbatore, BroTin Box delivers **measured, high-protein meal boxes** with calories, protein, carbs and fat printed on every box. We deliver **Monday to Saturday**, lunch (**11:30 AM–1:30 PM**) and dinner (**7:00–9:00 PM**), with **free delivery** in **Kuniyamuthur, Kovaipudhur, Sundarapuram, Ukkadam, RS Puram, Race Course, Ramanathapuram and Saibaba Colony**. Order by 9:00 PM the night before.
+> **Quick answer:** For diet food delivery in Coimbatore, BroTin Box delivers **measured, high-protein meal boxes** with calories, protein, carbs and fat printed on every box. We deliver **Monday to Saturday**, lunch (**11:30 AM–1:30 PM**) and dinner (**7:00–9:00 PM**), with **free delivery** in **Kuniyamuthur, Kovaipudhur, Sundarapuram, Ukkadam, RS Puram, Race Course, Ramanathapuram, Saibaba Colony, Gandhipuram, Lakshmi Mills and Nava India**. Order by 9:00 PM the night before.
 
 Most people who search "diet food shop near me" or "diet food delivery Coimbatore" are not looking for a salad. They want something simpler: **one less meal to think about**, one that fits their weight loss or gym goal, and that actually tastes like food.
 
@@ -55,8 +55,11 @@ Free delivery to:
 - **Race Course** (641018)
 - **Ramanathapuram** (641045)
 - **Saibaba Colony** (641011)
+- **Gandhipuram** (641012)
+- **Lakshmi Mills** (641037)
+- **Nava India** (641028, 641004)
 
-Gandhipuram, Ganapathy, Singanallur, Peelamedu and Vadavalli are in our next batch. Check your pincode on the [delivery areas page](/delivery-areas), or message us on [WhatsApp](https://wa.me/918248606711) to get notified when your area opens.
+Ganapathy, Singanallur, Peelamedu and Vadavalli are in our next batch. Check your pincode on the [delivery areas page](/delivery-areas), or message us on [WhatsApp](https://wa.me/918248606711) to get notified when your area opens.
 
 # Diet food delivery vs cooking at home
 

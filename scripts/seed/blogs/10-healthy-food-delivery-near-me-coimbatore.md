@@ -1,4 +1,4 @@
-> **Quick answer:** BroTin Box delivers measured, high-protein meals in **Kuniyamuthur, Kovaipudhur, Sundarapuram, Ukkadam, RS Puram, Race Course, Ramanathapuram and Saibaba Colony**, Monday to Saturday, with a **lunch slot (11:30 AM–1:30 PM)** and a **dinner slot (7:00–9:00 PM)**. Delivery is **free**, with no delivery fee. Gandhipuram, Ganapathy, Singanallur, Peelamedu and Vadavalli are in our **next delivery batch**. Order by **9:00 PM the night before**.
+> **Quick answer:** BroTin Box delivers measured, high-protein meals in **Kuniyamuthur, Kovaipudhur, Sundarapuram, Ukkadam, RS Puram, Race Course, Ramanathapuram, Saibaba Colony, Gandhipuram, Lakshmi Mills and Nava India**, Monday to Saturday, with a **lunch slot (11:30 AM–1:30 PM)** and a **dinner slot (7:00–9:00 PM)**. Delivery is **free**, with no delivery fee. Ganapathy, Singanallur, Peelamedu and Vadavalli are in our **next delivery batch**. Order by **9:00 PM the night before**.
 
 Searching for "healthy food near me" in Coimbatore usually returns restaurants with a salad section. If what you actually want is a measured, high-protein meal delivered at a fixed time every day, the list is much shorter.
 
@@ -45,12 +45,18 @@ East of Race Course, along Trichy Road.
 ## Saibaba Colony (641011)
 North of the city centre, around Bharathi Park and NSR Road.
 
+## Gandhipuram (641012)
+The city centre, popular with working professionals.
+
+## Lakshmi Mills (641037)
+Along Avinashi Road, around the Lakshmi Mills junction and Pappanaickenpalayam.
+
+## Nava India (641028, 641004)
+Further up Avinashi Road, around Nava India and the Hindusthan College side.
+
 # Coming in our next delivery batch
 
 These areas are next on our list. We cannot take orders here yet, but you can ask us on [WhatsApp](https://wa.me/918248606711) to tell you as soon as your area opens.
-
-## Gandhipuram (641012)
-The city centre, popular with working professionals.
 
 ## Ganapathy (641006)
 

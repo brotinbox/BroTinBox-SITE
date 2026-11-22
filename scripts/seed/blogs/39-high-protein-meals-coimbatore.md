@@ -1,4 +1,4 @@
-> **Quick answer:** For high-protein meals in Coimbatore, BroTin Box delivers **measured protein boxes** cooked fresh in Kuniyamuthur, with **calories, protein, carbs and fat printed on every box**. Delivery is **free**, Monday to Saturday, for lunch (11:30 AM–1:30 PM) and dinner (7:00–9:00 PM) in Kuniyamuthur, Kovaipudhur, Sundarapuram, Ukkadam, RS Puram, Race Course, Ramanathapuram and Saibaba Colony.
+> **Quick answer:** For high-protein meals in Coimbatore, BroTin Box delivers **measured protein boxes** cooked fresh in Kuniyamuthur, with **calories, protein, carbs and fat printed on every box**. Delivery is **free**, Monday to Saturday, for lunch (11:30 AM–1:30 PM) and dinner (7:00–9:00 PM) in Kuniyamuthur, Kovaipudhur, Sundarapuram, Ukkadam, RS Puram, Race Course, Ramanathapuram, Saibaba Colony, Gandhipuram, Lakshmi Mills and Nava India.
 
 If you train in Coimbatore, you already know the problem. Lunch options are mostly rice-heavy meals, biryani or parotta. They taste great, but they are low in protein and high in oil. Hitting 100+ g of protein a day while eating out is hard.
 
@@ -79,8 +79,9 @@ Free delivery in:
 - Kuniyamuthur, Kovaipudhur, Sundarapuram
 - Ukkadam, RS Puram, Race Course
 - Ramanathapuram, Saibaba Colony
+- Gandhipuram, Lakshmi Mills, Nava India
 
-Gandhipuram, Ganapathy, Singanallur, Peelamedu and Vadavalli are coming in our next batch. Check your pincode on the [delivery areas page](/delivery-areas), or ask us on [WhatsApp](https://wa.me/918248606711).
+Ganapathy, Singanallur, Peelamedu and Vadavalli are coming in our next batch. Check your pincode on the [delivery areas page](/delivery-areas), or ask us on [WhatsApp](https://wa.me/918248606711).
 
 # Frequently asked questions
 

@@ -165,6 +165,20 @@ export const PLACE_PILLARS: PlacePillar[] = [
     searchIntentNote: 'Entrepreneurs and retail store owners who skip breakfast due to morning commute'
   },
   {
+    id: 'lakshmi-mills',
+    name: 'Lakshmi Mills',
+    type: 'local',
+    description: 'Avinashi Road junction with offices, showrooms and the PN Palayam residential pocket',
+    searchIntentNote: 'Office workers along Avinashi Road wanting a measured lunch without leaving the desk'
+  },
+  {
+    id: 'nava-india',
+    name: 'Nava India',
+    type: 'local',
+    description: 'Avinashi Road stretch around Hindusthan College with students, hostels and IT offices',
+    searchIntentNote: 'College students and young professionals wanting cheap high-protein meals near campus'
+  },
+  {
     id: 'saibaba-colony',
     name: 'Saibaba Colony',
     type: 'local',

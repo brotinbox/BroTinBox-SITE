@@ -54,7 +54,7 @@ export async function generateAndUploadCoverImage(
       
       const payload: Record<string, any> = {
         model: modelToUse,
-        prompt: `${prompt}. ${promptSuffix}`,
+        prompt: promptSuffix ? `${prompt}. ${promptSuffix}` : prompt,
         n: 1,
         size: isGptImage ? '1536x1024' : '1024x1024',
         quality: isGptImage ? imageQuality : 'standard',

@@ -95,4 +95,4 @@ Focus on soya, paneer, curd, milk, dal, chana and peanuts. 80–100 g of protein
 
 ---
 
-Living near Kuniyamuthur, Kovaipudhur, Sundarapuram, Ukkadam, RS Puram, Race Course, Ramanathapuram or Saibaba Colony? Our Lite box gives a measured, high-protein meal from ₹159 on the monthly veg plan, with free delivery. [See prices](/pricing).
+Living near Kuniyamuthur, Kovaipudhur, Sundarapuram, Ukkadam, RS Puram, Race Course, Ramanathapuram, Saibaba Colony, Gandhipuram, Lakshmi Mills or Nava India? Our Lite box gives a measured, high-protein meal from ₹159 on the monthly veg plan, with free delivery. [See prices](/pricing).

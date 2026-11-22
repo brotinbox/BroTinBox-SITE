@@ -6,6 +6,8 @@
  *
  *   npm run seed:blogs:october        same steps for the October 2026 set only
  *   npm run seed:blogs:search -- --only <slug>   just that one post of the set
+ *   npm run seed:blogs:batch2 -- --openai --only <slug> --redo-cover   regenerate one cover (new R2 key)
+ *   npm run seed:blogs:batch2 -- --openai   batch 2 (topics-batch-2.md), 3 a day from 30 Nov 2026
  *   npm run seed:blogs:search         the 30 search-intent posts, one a day 15 Nov → 14 Dec 2026
  *                                     (scheduled; published without a cover if none is ready yet)
  *
@@ -23,25 +25,32 @@ import { join } from 'node:path';
 import { createClient } from '@supabase/supabase-js';
 import { readingMinutes, renderMarkdown } from '../../lib/content/markdown';
 import { generateAndUploadCoverImage, uploadCoverBuffer } from '../modes/image-prompt';
-import { AUTHOR, NOVEMBER_2026_POSTS, OCTOBER_2026_POSTS, SEARCH_INTENT_POSTS, SEO_POSTS } from './blogs/manifest';
+import { buildCoverPrompt, pickCoverStyle } from '../modes/cover-styles';
+import { AUTHOR, BATCH_2_POSTS, NOVEMBER_2026_POSTS, OCTOBER_2026_POSTS, SEARCH_INTENT_POSTS, SEO_POSTS } from './blogs/manifest';
 
 const DRY_RUN = process.argv.includes('--dry-run');
 const SEARCH = process.argv.includes('--search');
-const SET = SEARCH ? SEARCH_INTENT_POSTS : process.argv.includes('--october') ? OCTOBER_2026_POSTS : process.argv.includes('--november') ? NOVEMBER_2026_POSTS : SEO_POSTS;
+const BATCH2 = process.argv.includes('--batch2');
+const SET = BATCH2 ? BATCH_2_POSTS : SEARCH ? SEARCH_INTENT_POSTS : process.argv.includes('--october') ? OCTOBER_2026_POSTS : process.argv.includes('--november') ? NOVEMBER_2026_POSTS : SEO_POSTS;
 // --only <slug> limits the run to one post of the chosen set (no re-upload of the rest).
 const ONLY = process.argv.includes('--only') ? process.argv[process.argv.indexOf('--only') + 1] : null;
 const POSTS = ONLY ? SET.filter((p) => p.slug === ONLY) : SET;
+// --redo-cover (with --only) regenerates that post's cover under a new file name, since covers are cached for a year.
+const REDO_COVER = process.argv.includes('--redo-cover');
+if (REDO_COVER && !ONLY) {
+  console.error('❌ --redo-cover needs --only <slug>.');
+  process.exit(1);
+}
 if (ONLY && !POSTS.length) {
   console.error(`❌ --only ${ONLY}: no such slug in this set.`);
   process.exit(1);
 }
 const DIR = join(process.cwd(), 'scripts/seed/blogs');
-const SCENE_SUFFIX = 'Natural documentary-style photography, realistic lighting, authentic South Indian setting, no watermarks, no text, no logos.';
 const SITE_PATHS = new Set(['/', '/menu', '/plans', '/pricing', '/weekly', '/monthly', '/tomorrow', '/delivery-areas', '/blog', '/faq', '/about', '/contact', '/food-safety', '/refund-policy']);
 
 // ─── 1. Validate ────────────────────────────────────────────────────────────
 const slugs = new Set(POSTS.map((p) => p.slug));
-const ALL_POSTS = [...SEO_POSTS, ...OCTOBER_2026_POSTS, ...NOVEMBER_2026_POSTS, ...SEARCH_INTENT_POSTS];
+const ALL_POSTS = [...SEO_POSTS, ...OCTOBER_2026_POSTS, ...NOVEMBER_2026_POSTS, ...SEARCH_INTENT_POSTS, ...BATCH_2_POSTS];
 const goesLiveAt = new Map(ALL_POSTS.map((p) => [p.slug, p.published_at ? new Date(p.published_at).getTime() : 0]));
 const linkableSlugs = new Set(ALL_POSTS.map((p) => p.slug));
 const problems: string[] = [];
@@ -81,7 +90,12 @@ if (problems.length) {
   process.exit(1);
 }
 console.log(`✅ ${POSTS.length} posts validated (${[...bodies.values()].reduce((n, b) => n + b.split(/\s+/).length, 0)} words).`);
-if (DRY_RUN) process.exit(0);
+// Cover style rotates by position in the whole set, so --only gives the same style as a full run.
+const coverStyle = (p: (typeof SET)[number]) => pickCoverStyle(p, SET.indexOf(p));
+if (DRY_RUN) {
+  if (process.argv.includes('--openai')) POSTS.forEach((p) => console.log(`   ${coverStyle(p).padEnd(10)} ${p.slug}${p.cover_text ? `  "${p.cover_text}"` : ''}`));
+  process.exit(0);
+}
 
 // ─── 2. Upsert drafts ───────────────────────────────────────────────────────
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -90,9 +104,9 @@ const R2_PUBLIC = process.env.CLOUDFLARE_R2_PUBLIC_URL?.replace(/\/$/, '');
 // Covers come from scripts/seed/blogs/covers/ (e.g. Canva downloads). OpenAI is only used with --openai.
 const OPENAI_KEY = process.argv.includes('--openai') ? process.env.OPENAI_API_KEY || '' : '';
 // Scheduled sets only link backwards, so each post can go live on its own once it has a cover.
-const PARTIAL = process.argv.includes('--november') || SEARCH;
+const PARTIAL = process.argv.includes('--november') || SEARCH || BATCH2;
 // The search set goes live on its schedule even before its Canva cover exists (the site renders text-only cards).
-const COVER_OPTIONAL = SEARCH;
+const COVER_OPTIONAL = SEARCH || BATCH2;
 if (!SUPABASE_URL || !SERVICE_KEY) {
   console.error('❌ NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required.');
   process.exit(1);
@@ -137,7 +151,7 @@ async function main() {
 
   // ─── 3. Covers ────────────────────────────────────────────────────────────
   const covers = new Map(POSTS.map((p) => [p.slug, current.get(p.slug)?.cover_image_url ?? null]));
-  const missing = POSTS.filter((p) => !hasOwnCover(covers.get(p.slug)));
+  const missing = POSTS.filter((p) => REDO_COVER || !hasOwnCover(covers.get(p.slug)));
 
   // A photo saved as scripts/seed/blogs/covers/<slug>.jpg|.png|.webp is used instead of generating one.
   for (const p of [...missing]) {
@@ -156,8 +170,9 @@ async function main() {
     if (!COVER_OPTIONAL) console.warn(`⚠️  ${missing.length} posts have no cover (add scripts/seed/blogs/covers/<slug>.jpg, or pass --openai). They stay as drafts.`);
   } else {
     for (const p of missing) {
-      console.log(`\n📸 ${p.slug}`);
-      const url = await generateAndUploadCoverImage(p.image_prompt, p.slug, OPENAI_KEY, p.scene ? SCENE_SUFFIX : undefined);
+      const style = coverStyle(p);
+      console.log(`\n📸 ${p.slug} (${style})`);
+      const url = await generateAndUploadCoverImage(buildCoverPrompt(p, style), REDO_COVER ? `${p.slug}-${Date.now().toString(36)}` : p.slug, OPENAI_KEY, '');
       if (!hasOwnCover(url)) {
         console.warn(`⚠️  No generated cover for ${p.slug} (got fallback). Leaving it as a draft.`);
         continue;

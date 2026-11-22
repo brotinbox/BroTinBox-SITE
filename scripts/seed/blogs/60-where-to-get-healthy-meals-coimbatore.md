@@ -91,8 +91,9 @@ Free delivery, Monday to Saturday, in:
 - **Kuniyamuthur, Kovaipudhur, Sundarapuram**
 - **Ukkadam, RS Puram, Race Course**
 - **Ramanathapuram, Saibaba Colony**
+- **Gandhipuram, Lakshmi Mills, Nava India**
 
-Gandhipuram, Ganapathy, Singanallur, Peelamedu and Vadavalli are in our **next delivery batch**. Order by **9:00 PM the night before**. Check your pincode on the [delivery areas page](/delivery-areas), or see our full [delivery guide](/blog/healthy-food-delivery-near-me-coimbatore).
+Ganapathy, Singanallur, Peelamedu and Vadavalli are in our **next delivery batch**. Order by **9:00 PM the night before**. Check your pincode on the [delivery areas page](/delivery-areas), or see our full [delivery guide](/blog/healthy-food-delivery-near-me-coimbatore).
 
 # Frequently asked questions
 
@@ -100,7 +101,7 @@ Gandhipuram, Ganapathy, Singanallur, Peelamedu and Vadavalli are in our **next d
 You can order a measured meal subscription such as BroTin Box, try salad and bowl kitchens, choose grilled dishes at restaurants, eat smart at a mess, or cook at home. For daily healthy food without planning, a subscription with printed macros is the simplest.
 
 **Is there healthy food delivery in Coimbatore?**
-Yes. BroTin Box delivers fresh, measured meals free of charge in Kuniyamuthur, Kovaipudhur, Sundarapuram, Ukkadam, RS Puram, Race Course, Ramanathapuram and Saibaba Colony, for lunch and dinner, Monday to Saturday.
+Yes. BroTin Box delivers fresh, measured meals free of charge in Kuniyamuthur, Kovaipudhur, Sundarapuram, Ukkadam, RS Puram, Race Course, Ramanathapuram, Saibaba Colony, Gandhipuram, Lakshmi Mills and Nava India, for lunch and dinner, Monday to Saturday.
 
 **Where can I get healthy food for weight loss in Coimbatore?**
 Look for meals with a known calorie count, 25–50 g of protein and a measured carb portion. BroTin Box prints calories and macros on every box. Pair it with a sensible [calorie deficit](/blog/calorie-deficit-how-to-calculate).

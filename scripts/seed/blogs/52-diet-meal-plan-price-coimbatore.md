@@ -46,7 +46,7 @@ Prices can change. Always check the live [pricing page](/pricing) before you ord
 - **Macros printed on every box:** calories, protein, carbs, fat
 - **A rotating menu**, so you do not eat the same thing every day. See the [menu](/menu).
 - **Lunch (11:30 AM–1:30 PM) or dinner (7:00–9:00 PM)** delivery, Monday to Saturday
-- **Free delivery** to Kuniyamuthur, Kovaipudhur, Sundarapuram, Ukkadam, RS Puram, Race Course, Ramanathapuram and Saibaba Colony
+- **Free delivery** to Kuniyamuthur, Kovaipudhur, Sundarapuram, Ukkadam, RS Puram, Race Course, Ramanathapuram, Saibaba Colony, Gandhipuram, Lakshmi Mills and Nava India
 
 # How it compares
 
@@ -95,7 +95,7 @@ Yes, you can skip or pause days before the 9:00 PM cutoff the night before. Your
 No. Delivery is free in every area we serve.
 
 **Do you deliver to Gandhipuram or Peelamedu?**
-Not yet. Gandhipuram, Ganapathy, Singanallur, Peelamedu and Vadavalli are in our next batch. Check the [delivery areas page](/delivery-areas) or message us on [WhatsApp](https://wa.me/918248606711).
+We deliver to Gandhipuram, Lakshmi Mills and Nava India. Ganapathy, Singanallur, Peelamedu and Vadavalli are in our next batch. Check the [delivery areas page](/delivery-areas) or message us on [WhatsApp](https://wa.me/918248606711).
 
 ---
 
