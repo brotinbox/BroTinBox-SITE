@@ -108,13 +108,15 @@ export async function quoteCart(cart: Cart, userId: string | null, opts: QuoteOp
   }
   if (!address) throw new CheckoutError('Choose a delivery address.');
   // The zone must serve the address's own pincode (zone_id alone is not trusted).
+  // A pincode can have two areas (641004: Nava India core, Peelamedu next batch);
+  // order('tier') puts core first because the enum is declared ('core', 'phase2').
   let zoneQuery = db.from('delivery_zones').select('id, area, tier, delivery_fee, is_active')
-    .eq('pincode', address.pincode).eq('is_active', true);
+    .eq('pincode', address.pincode).eq('is_active', true).order('tier');
   if (address.zone_id) zoneQuery = zoneQuery.eq('id', address.zone_id);
   let { data: zone } = await zoneQuery.limit(1).maybeSingle();
-  if (!zone && address.zone_id) {
+  if ((!zone || zone.tier !== 'core') && address.zone_id) {
     ({ data: zone } = await db.from('delivery_zones').select('id, area, tier, delivery_fee, is_active')
-      .eq('pincode', address.pincode).eq('is_active', true).limit(1).maybeSingle());
+      .eq('pincode', address.pincode).eq('is_active', true).order('tier').limit(1).maybeSingle());
   }
   if (!zone) throw new CheckoutError(`We don't deliver to ${address.pincode} yet.`);
   // Phase 2 areas are listed as "next batch" and don't take orders yet.

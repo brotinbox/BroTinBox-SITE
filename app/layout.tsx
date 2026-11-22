@@ -18,6 +18,7 @@ export const metadata: Metadata = {
     'calorie counted meals',
     'healthy food delivery RS Puram',
     'diet food Peelamedu',
+    'healthy food delivery Gandhipuram',
     'gym diet Coimbatore',
     'high protein lunch box',
   ],

@@ -3,6 +3,7 @@ import { getDrinks, getSides } from '@/lib/data/catalog';
 import { HomeHero } from '@/components/home/HomeHero';
 import { IntroSplash } from '@/components/brand/IntroSplash';
 import { WeeklyCalendarStrip } from '@/components/home/WeeklyCalendarStrip';
+import { LiteBoxStrip } from '@/components/home/LiteBoxStrip';
 import { AddASideSection } from '@/components/home/AddASideSection';
 import { DrinksStrip } from '@/components/home/DrinksStrip';
 import { HowItWorksSteps } from '@/components/home/HowItWorksSteps';
@@ -23,6 +24,7 @@ export default async function HomePage() {
 
       {/* 2. Six Dedicated Protein Boxes (Mon-Sat rotating signature boxes) */}
       <WeeklyCalendarStrip />
+      <LiteBoxStrip />
 
       {/* 3. "Add a side" section (6 high-protein sides) */}
       <AddASideSection sides={sides} />

@@ -56,10 +56,20 @@ export default async function MenuCalendarPage({ searchParams }: { searchParams:
     };
   };
 
-  const optionsFor = (key: string) => [
-    { value: '', label: 'Keep rotation dish' },
-    ...(items.data ?? []).filter((i) => i.category === CAT_FOR[key] && i.is_active).map((i) => ({ value: i.id, label: `${i.code} · ${i.name}` })),
+  /** The dish the rotation (after swaps) serves for this part, ignoring one-date changes. */
+  const rotationBase = (date: string, diet: string, slot: string, key: string) => {
+    const n = rotationDayNumber(date);
+    const r = n === null ? undefined : rot.get(`${n}|${diet}|${slot}`);
+    return swapDish(r?.[key as keyof typeof r] as string | undefined, swaps, date, diet, slot);
+  };
+
+  const optionsFor = (key: string, diet?: string, keepLabel = 'Keep rotation dish') => [
+    { value: '', label: keepLabel },
+    ...(items.data ?? [])
+      .filter((i) => i.category === CAT_FOR[key] && i.is_active && (diet !== 'veg' || i.is_veg))
+      .map((i) => ({ value: i.id, label: `${i.code} · ${i.name}` })),
   ];
+  const today = todayIST();
 
   const CAT_LABEL: Record<string, string> = { main: 'Main', protein_side: 'Protein side', legume: 'Legume', salad: 'Salad', carb: 'Carb' };
   const dishOptions = (activeOnly: boolean) => (items.data ?? [])
@@ -110,6 +120,31 @@ export default async function MenuCalendarPage({ searchParams }: { searchParams:
                               </li>
                             ))}
                           </ul>
+                          {canWrite && date >= today && (
+                            <details className="mt-2 group">
+                              <summary className="list-none cursor-pointer inline-flex items-center rounded-lg border border-gray-200 bg-white px-2.5 py-1 text-xs font-bold text-gray-700 hover:border-primary hover:text-primary [&::-webkit-details-marker]:hidden">
+                                <span className="group-open:hidden">Edit</span><span className="hidden group-open:inline">Close</span>
+                              </summary>
+                              <ActionForm action={saveOverride} className="mt-2 space-y-2">
+                                <input type="hidden" name="menu_date" value={date} />
+                                <input type="hidden" name="diet" value={diet} />
+                                <input type="hidden" name="slot" value={slot} />
+                                {m.parts.map((p, i) => {
+                                  const [key, partLabel] = PARTS[i];
+                                  const baseName = itemName.get(rotationBase(date, diet, slot, key) ?? '') ?? '—';
+                                  return (
+                                    <label key={key} className="block">
+                                      <span className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-0.5">{partLabel}</span>
+                                      <Select name={key} defaultValue={(m.override?.[key] as string | null) ?? ''}
+                                        className="!py-1.5 !text-xs" options={optionsFor(key, diet, `Keep · ${baseName}`)} />
+                                    </label>
+                                  );
+                                })}
+                                <Input name="reason" maxLength={300} placeholder="Reason (internal)" defaultValue={m.override?.reason ?? ''} className="!py-1.5 !text-xs" />
+                                <SubmitButton pendingText="Saving…">Save</SubmitButton>
+                              </ActionForm>
+                            </details>
+                          )}
                           {m.override && canWrite && (
                             <ActionForm action={removeOverride} className="mt-2">
                               <input type="hidden" name="id" value={m.override.id} />

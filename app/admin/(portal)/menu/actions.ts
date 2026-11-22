@@ -41,7 +41,16 @@ export async function saveOverride(_p: ActionResult | null, fd: FormData): Promi
   if (!parsed.success) return fail('Check the date, diet and slot.');
   const v = parsed.data;
   if (![v.main_id, v.protein_side_id, v.salad_id, v.legume_id, v.carb_id].some(Boolean)) {
-    return fail('Pick at least one dish to change.');
+    // Every part set back to "Keep": drop that date's change, if there is one.
+    return staffAction('menu.write', async () => {
+      const supabase = await getSupabaseServer();
+      const { data: gone, error } = await supabase.from('menu_overrides').delete()
+        .eq('menu_date', v.menu_date).eq('diet', v.diet).eq('slot', v.slot).select('id');
+      if (error) throw error;
+      if (!gone?.length) return fail('Pick at least one dish to change.');
+      const refrozen = await refreshLocked(supabase, v.menu_date, v.diet, v.slot);
+      return ok(`Back to the regular rotation for that date.${refrozen}`);
+    }, { tags: MENU_TAGS });
   }
   return staffAction('menu.write', async (staff) => {
     const supabase = await getSupabaseServer();

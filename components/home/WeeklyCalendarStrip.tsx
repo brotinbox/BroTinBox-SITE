@@ -14,7 +14,7 @@ interface WeeklyCalendarStripProps {
   schedule?: ScheduleItem[];
 }
 
-function getWeeklyOperatingDays(): Array<{
+export function getWeeklyOperatingDays(): Array<{
   date: Date;
   dateStr: string;
   dayOfWeek: 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat';

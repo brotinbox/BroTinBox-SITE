@@ -287,13 +287,13 @@ export const GUIDE_TOPICS: GuideTopic[] = [
       head: ['To', 'Use'],
       rows: [
         ['See the menu', 'The 30-day rotation with any one-off changes, per diet and slot.'],
-        ['Change one day’s dish', 'Change a dish for one date, ideally before 9 PM. A change after the lock (even on the day) also updates the boxes already locked for that slot, so the cook sheet, customer dashboard, Day plan and food cost all show the new dish. Kitchen stock taken at 9 PM is not redone: fix it on the Sunday count. Undo change removes it.'],
+        ['Change one day’s dish', 'Tap Edit on that lunch or dinner box in the calendar: each part shows “Keep · current dish” or a pick list, then Save. Setting every part back to Keep undoes the change. Or use Change a dish for one date, ideally before 9 PM. A change after the lock (even on the day) also updates the boxes already locked for that slot, so the cook sheet, customer dashboard, Day plan and food cost all show the new dish. Kitchen stock taken at 9 PM is not redone: fix it on the Sunday count. Undo change removes it.'],
         ['Replace a dish for good', 'Replace a dish from a date (swap). Every rotation day with the old dish uses the new one from that date.'],
         ['Holiday / closure', 'Holidays & closures → Add closure. No meals get booked that day.'],
       ],
     },
     href: '/menu',
-    keywords: 'menu change dish swap replace holiday closure leave festival rotation tomorrow dish',
+    keywords: 'menu change dish swap replace holiday closure leave festival rotation tomorrow dish edit inline box calendar',
   },
   {
     id: 'dishes', section: 'kitchen', title: 'Dishes',

@@ -2,6 +2,7 @@
 
 import { useEffect, type ReactNode } from 'react';
 import Image from 'next/image';
+import { BoxPhoto, hasBoxPhoto } from '@/components/ui/BoxPhoto';
 import { Check, ChevronLeft } from 'lucide-react';
 import type { BoxMeal } from '@/lib/menu-engine';
 import { boxView, type BoxSize } from '@/lib/lite-box';
@@ -191,7 +192,12 @@ export function BoxContents({ box, size = 'regular', photo = true }: { box: BoxM
   const img = box.items.main.image;
   return (
     <div className="space-y-3">
-      {photo && img && (
+      {photo && size === 'lite' && hasBoxPhoto(box) && (
+        <div className="relative aspect-[16/10] sm:aspect-[2/1] w-full overflow-hidden rounded-xl bg-gray-100">
+          <BoxPhoto box={box} size="lite" />
+        </div>
+      )}
+      {photo && img && !(size === 'lite' && hasBoxPhoto(box)) && (
         <div className="relative aspect-[16/10] sm:aspect-[2/1] w-full overflow-hidden rounded-xl bg-gray-100">
           <Image key={img} src={img} alt={box.items.main.name} fill sizes="(max-width: 672px) 100vw, 640px" className="object-cover" />
           {size === 'lite' && (

@@ -83,6 +83,7 @@ export function DailyTrialStepModal() {
     const qDate = q.get('date');
     if (qDiet === 'veg' || qDiet === 'non-veg') setDiet(qDiet);
     if (qDate && bookableDays.some((b) => b.dateStr === qDate)) setDateStr(qDate);
+    if (q.get('size') === 'lite') setBoxSize('lite'); // from the home page Lite cards
     if (qDiet || qDate) {
       setStep(1);
       window.history.replaceState(null, '', window.location.pathname); // a refresh keeps the draft, not the link

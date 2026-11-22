@@ -180,7 +180,7 @@ export async function createManualOrder(_prev: ActionResult | null, fd: FormData
   let orderId: string | null = null;
   const result = await staffAction('orders.write', async (staff) => {
     const db = getSupabaseService();
-    const { data: zone } = await db.from('delivery_zones').select('id').eq('pincode', f.pincode).eq('is_active', true).limit(1).maybeSingle();
+    const { data: zone } = await db.from('delivery_zones').select('id').eq('pincode', f.pincode).eq('is_active', true).order('tier').limit(1).maybeSingle();
     if (!zone) return fail(`We don't deliver to ${f.pincode} yet. Add it under Delivery zones first.`);
 
     try {

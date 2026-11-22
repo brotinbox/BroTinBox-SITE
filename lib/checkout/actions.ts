@@ -184,7 +184,7 @@ export async function saveAddress(input: z.input<typeof addressSchema>): Promise
   const v = addressSchema.safeParse(input);
   if (!v.success) return { ok: false, error: 'Check the address: name, 10-digit mobile, flat, street, area and 6-digit pincode are needed.' };
 
-  const { data: zone } = await supabase.from('delivery_zones').select('id').eq('pincode', v.data.pincode).eq('is_active', true).limit(1).maybeSingle();
+  const { data: zone } = await supabase.from('delivery_zones').select('id').eq('pincode', v.data.pincode).eq('is_active', true).order('tier').limit(1).maybeSingle();
   const { count } = await supabase.from('addresses').select('id', { count: 'exact', head: true }).eq('user_id', user.id);
   const makeDefault = v.data.makeDefault || !count;
   if (makeDefault) await supabase.from('addresses').update({ is_default: false }).eq('user_id', user.id);
