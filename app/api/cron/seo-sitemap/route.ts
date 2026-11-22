@@ -4,6 +4,7 @@ import { timingSafeEqual } from 'crypto';
 import { BRAND } from '@/config/brand';
 import { getSupabasePublic } from '@/lib/supabase/server';
 import { searchConsoleConfigured, submitSitemap } from '@/lib/seo/search-console';
+import { submitIndexNow } from '@/lib/seo/indexnow';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -13,7 +14,7 @@ export const dynamic = 'force-dynamic';
  * "Authorization: Bearer <CRON_SECRET>", just after scheduled blog posts go live at 09:00.
  *
  * 1. Expires the blog cache so the new post, /blog and /sitemap.xml show up at once.
- * 2. If a post went live in the last 26 hours, resubmits the sitemap to Search Console.
+ * 2. If a post went live in the last 26 hours, pings IndexNow (Bing) and resubmits the sitemap to Search Console.
  */
 function authorized(request: NextRequest): boolean {
   const secret = process.env.CRON_SECRET;
@@ -46,18 +47,24 @@ export async function POST(request: NextRequest) {
 
   const slugs = (fresh ?? []).map((p) => p.slug);
   if (!slugs.length) return NextResponse.json({ newPosts: 0, submitted: false });
-  if (!searchConsoleConfigured()) return NextResponse.json({ newPosts: slugs, submitted: false, reason: 'GSC_SERVICE_ACCOUNT_* not set' });
 
   const base = BRAND.siteUrl.replace(/\/$/, '');
+  // Bing (and through it ChatGPT search / Copilot) hears about new posts the same day.
+  const indexNow = await submitIndexNow(base, [...slugs.map((s) => `${base}/blog/${s}`), `${base}/blog`]).catch((e) => {
+    console.error('[cron] IndexNow failed', e);
+    return { ok: false, status: 0 };
+  });
+  if (!searchConsoleConfigured()) return NextResponse.json({ newPosts: slugs, submitted: false, indexNow, reason: 'GSC_SERVICE_ACCOUNT_* not set' });
+
   const sitemapUrl = `${base}/sitemap.xml`;
   try {
     // Regenerate the sitemap before Google is told to fetch it.
     const xml = await fetch(sitemapUrl, { cache: 'no-store' }).then((r) => r.text());
     const missing = slugs.filter((s) => !xml.includes(`/blog/${s}<`));
     await submitSitemap(sitemapUrl);
-    return NextResponse.json({ newPosts: slugs, submitted: true, missingFromSitemap: missing });
+    return NextResponse.json({ newPosts: slugs, submitted: true, indexNow, missingFromSitemap: missing });
   } catch (e) {
     console.error('[cron] seo-sitemap submit failed', e);
-    return NextResponse.json({ newPosts: slugs, submitted: false, error: e instanceof Error ? e.message : 'failed' }, { status: 500 });
+    return NextResponse.json({ newPosts: slugs, submitted: false, indexNow, error: e instanceof Error ? e.message : 'failed' }, { status: 500 });
   }
 }

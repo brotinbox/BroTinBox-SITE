@@ -13,7 +13,8 @@
     "seed:blogs:november": "node --import tsx scripts/seed/publish-seo-blogs.ts --november",
     "seed:blogs:search": "node --import tsx scripts/seed/publish-seo-blogs.ts --search",
     "seed:blogs:batch2": "node --import tsx scripts/seed/publish-seo-blogs.ts --batch2",
-    "gsc": "node --import tsx scripts/gsc.ts"
+    "gsc": "node --import tsx scripts/gsc.ts",
+    "indexnow": "node --import tsx scripts/indexnow.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1135.0",
