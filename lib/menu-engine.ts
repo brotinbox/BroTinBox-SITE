@@ -673,3 +673,44 @@ export function getMonthlyOperatingDays(baseDate?: Date) {
 
   return days;
 }
+
+// ---------------------------------------------------------------------------
+// Calorie and protein ranges for plan cards (/pricing). Read from the menu that
+// is actually loaded (live DB data when present, bundled JSON otherwise) over
+// one full 30-day rotation, so marketing copy can't drift from the menu again.
+// ---------------------------------------------------------------------------
+export type MacroRange = { min: number; max: number };
+export function getBoxMacroRange(diet: DietType): {
+  boxCalories: MacroRange;
+  boxProtein: MacroRange;
+  dayCalories: MacroRange;
+  dayProtein: MacroRange;
+} {
+  const box = { cal: [] as number[], pro: [] as number[] };
+  const day = { cal: [] as number[], pro: [] as number[] };
+  // Fixed window (30 operating days from launch = one full rotation) so the
+  // cached server HTML and the browser always compute the same numbers.
+  let cursor = parseDate(LAUNCH_DATE);
+  for (let seen = 0, guard = 0; seen < 30 && guard < 60; guard++, cursor = addDays(cursor, 1)) {
+    if (cursor.getUTCDay() === 0) continue;
+    seen++;
+    const m = getMenuForDate(cursor, diet);
+    if (m.isClosed) continue;
+    for (const slot of [m.lunch, m.dinner]) {
+      box.cal.push(slot.totals.calories);
+      box.pro.push(slot.totals.protein);
+    }
+    day.cal.push(m.lunch.totals.calories + m.dinner.totals.calories);
+    day.pro.push(m.lunch.totals.protein + m.dinner.totals.protein);
+  }
+  const range = (xs: number[], step: number): MacroRange =>
+    xs.length
+      ? { min: Math.floor(Math.min(...xs) / step) * step, max: Math.ceil(Math.max(...xs) / step) * step }
+      : { min: 0, max: 0 };
+  return {
+    boxCalories: range(box.cal, 10),
+    boxProtein: range(box.pro, 1),
+    dayCalories: range(day.cal, 10),
+    dayProtein: range(day.pro, 1),
+  };
+}

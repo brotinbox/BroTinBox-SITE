@@ -2,12 +2,12 @@
   {
     "id": "faq-1",
     "question": "How are your calories and protein measured?",
-    "answer": "Every recipe is developed with exact raw ingredient weighing in our central kitchen. We weigh portions with commercial digital scales during plating. The numbers on our labels are precise dietary approximations (within ±5-8% natural variance) and are being submitted for accredited NABL lab nutritional analysis."
+    "answer": "Every recipe is built from weighed raw ingredients, and every portion is weighed on digital kitchen scales during plating. The calories and protein we show are calculated from those weighed recipes, not lab-tested, so allow for natural variation of about 10 to 20%."
   },
   {
     "id": "faq-2",
     "question": "What are your delivery slots and cutoff timings in Coimbatore?",
-    "answer": "We deliver Monday through Saturday (6 days a week, Sunday kitchen deep clean). Morning is delivered between 7:00 AM – 9:00 AM, and Dinner between 7:00 PM – 9:00 PM. To ensure zero food wastage and farm-fresh procurement, meal swaps or pauses must be submitted by 9:00 PM the previous evening."
+    "answer": "We deliver Monday to Saturday (the kitchen is closed on Sunday). Lunch arrives between 11:30 AM and 1:30 PM, and dinner between 7:00 PM and 9:00 PM. Swaps, skips and pauses must be in by 9:00 PM the evening before."
   },
   {
     "id": "faq-3",
@@ -16,13 +16,13 @@
   },
   {
     "id": "faq-4",
-    "question": "Are the containers microwave-safe and eco-friendly?",
-    "answer": "Yes. Our food trays are 100% food-grade, BPA-free, and microwave safe. We also offer a premium returnable stainless steel insulated tiffin box tier for long-term monthly subscribers who prefer zero plastic."
+    "question": "Are the containers safe to reheat in?",
+    "answer": "Every meal is sealed in a food-grade, BPA-free tray. To reheat, move the food to a microwave-safe dish unless the pack says it is microwave-safe."
   },
   {
     "id": "faq-5",
     "question": "What if I have food allergies or dislikes?",
-    "answer": "When you complete our onboarding quiz or use the Meal Builder, you can select your allergies (e.g., Dairy, Nuts, Gluten, Eggs, Soy). Our smart menu engine automatically excludes any dish containing your allergens and highlights free-from choices."
+    "answer": "Every dish lists its allergens on the menu. If you have an allergy or a food you avoid, message us on WhatsApp before your plan starts. We will tell you which days are affected and swap them where we can. Our kitchen handles common allergens such as peanuts, tree nuts, dairy, gluten, eggs, soy and fish, so we cannot promise an allergen-free box."
   },
   {
     "id": "faq-6",

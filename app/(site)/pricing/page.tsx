@@ -1,7 +1,7 @@
 'use client';
 
-import { usePricing, useRegularTrialPrice, useTrialOffer } from '@/components/providers/CatalogProvider';
-import React, { useState } from 'react';
+import { useMenuVersion, usePricing, useRegularTrialPrice, useTrialOffer } from '@/components/providers/CatalogProvider';
+import React, { useMemo, useState } from 'react';
 import Link from 'next/link';
 import {
   Gift,
@@ -10,7 +10,10 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { cn, formatCurrency } from '@/lib/utils';
-import { DietType } from '@/lib/menu-engine';
+import { DietType, getBoxMacroRange, type MacroRange } from '@/lib/menu-engine';
+
+const fmtRange = (r: MacroRange, unit: string) =>
+  r.min === r.max ? `~${r.min.toLocaleString('en-IN')}${unit}` : `${r.min.toLocaleString('en-IN')} - ${r.max.toLocaleString('en-IN')}${unit}`;
 import { PLAN_DAYS, fullPlanTotal, guaranteedDiscountPercent, perMealAverage, savingsVsTrial } from '@/lib/pricing';
 
 export default function PricingPage() {
@@ -23,6 +26,9 @@ export default function PricingPage() {
   // Every figure below is derived from the database price table through
   // lib/pricing.ts, so this page always agrees with the plan pages and checkout.
   const isNV = diet === 'non-veg';
+  // Calories and protein come from the loaded menu, not hard-coded copy.
+  const menuVersion = useMenuVersion();
+  const macros = useMemo(() => getBoxMacroRange(diet), [diet, menuVersion]);
   const trialPrice = PRICING.trial[diet];
   const cycle = billingCycle;
   const days = PLAN_DAYS[cycle];
@@ -182,14 +188,14 @@ export default function PricingPage() {
               {/* Target Macros */}
               <div className="mt-4 grid grid-cols-2 gap-2 text-center text-xs">
                 <div className="bg-emerald-50 rounded-xl p-2.5 border border-emerald-100">
-                  <p className="text-[10px] text-emerald-700 font-bold uppercase tracking-wider">Daily Protein</p>
+                  <p className="text-[10px] text-emerald-700 font-bold uppercase tracking-wider">Protein / Box</p>
                   <p className="font-heading font-extrabold text-emerald-900 mt-0.5">
-                    {isNV ? '75g - 80g' : '42g - 48g'}
+                    {fmtRange(macros.boxProtein, 'g')}
                   </p>
                 </div>
                 <div className="bg-orange-50 rounded-xl p-2.5 border border-orange-100">
-                  <p className="text-[10px] text-orange-700 font-bold uppercase tracking-wider">Daily Calories</p>
-                  <p className="font-heading font-extrabold text-orange-900 mt-0.5">685 - 725 kcal</p>
+                  <p className="text-[10px] text-orange-700 font-bold uppercase tracking-wider">Calories / Box</p>
+                  <p className="font-heading font-extrabold text-orange-900 mt-0.5">{fmtRange(macros.boxCalories, ' kcal')}</p>
                 </div>
               </div>
 
@@ -283,12 +289,12 @@ export default function PricingPage() {
                 <div className="bg-emerald-50 rounded-xl p-2.5 border border-emerald-100">
                   <p className="text-[10px] text-emerald-700 font-bold uppercase tracking-wider">Daily Protein</p>
                   <p className="font-heading font-extrabold text-emerald-900 mt-0.5">
-                    {isNV ? '150g - 160g' : '85g - 96g'}
+                    {fmtRange(macros.dayProtein, 'g')}
                   </p>
                 </div>
                 <div className="bg-orange-50 rounded-xl p-2.5 border border-orange-100">
                   <p className="text-[10px] text-orange-700 font-bold uppercase tracking-wider">Daily Calories</p>
-                  <p className="font-heading font-extrabold text-orange-900 mt-0.5">1370 - 1450 kcal</p>
+                  <p className="font-heading font-extrabold text-orange-900 mt-0.5">{fmtRange(macros.dayCalories, ' kcal')}</p>
                 </div>
               </div>
 
@@ -297,7 +303,7 @@ export default function PricingPage() {
                 <div className="flex items-start gap-2.5">
                   <Check className="w-4 h-4 text-accent shrink-0 mt-0.5 stroke-[2.5]" />
                   <span>
-                    <strong>2 boxes/day:</strong> Morning (7:00–9:00 AM) &amp; Dinner (7:00–9:00 PM)
+                    <strong>2 boxes/day:</strong> Lunch (11:30 AM–1:30 PM) &amp; Dinner (7:00–9:00 PM)
                   </span>
                 </div>
                 <div className="flex items-start gap-2.5">
@@ -312,7 +318,7 @@ export default function PricingPage() {
                 </div>
                 <div className="flex items-start gap-2.5">
                   <Check className="w-4 h-4 text-accent shrink-0 mt-0.5 stroke-[2.5]" />
-                  <span>Dedicated WhatsApp dietitian consultation included</span>
+                  <span>WhatsApp support for swaps, pauses and questions</span>
                 </div>
                 <PosterOffer cycle={billingCycle} />
               </div>
@@ -379,12 +385,12 @@ export default function PricingPage() {
                 <div className="bg-emerald-50 rounded-xl p-2.5 border border-emerald-100">
                   <p className="text-[10px] text-emerald-700 font-bold uppercase tracking-wider">Protein / Box</p>
                   <p className="font-heading font-extrabold text-emerald-900 mt-0.5">
-                    {isNV ? '~80g Protein' : '~45g Protein'}
+                    {fmtRange(macros.boxProtein, 'g')}
                   </p>
                 </div>
                 <div className="bg-orange-50 rounded-xl p-2.5 border border-orange-100">
                   <p className="text-[10px] text-orange-700 font-bold uppercase tracking-wider">Calories</p>
-                  <p className="font-heading font-extrabold text-orange-900 mt-0.5">685 - 725 kcal</p>
+                  <p className="font-heading font-extrabold text-orange-900 mt-0.5">{fmtRange(macros.boxCalories, ' kcal')}</p>
                 </div>
               </div>
 

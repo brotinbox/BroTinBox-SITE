@@ -10,6 +10,15 @@ import { HowItWorksSteps } from '@/components/home/HowItWorksSteps';
 import { PlansTeaser } from '@/components/home/PlansTeaser';
 import { CustomerReviews } from '@/components/home/CustomerReviews';
 import { getReviews } from '@/lib/api/reviews';
+import { pageMetadata } from '@/lib/seo/page-metadata';
+
+export const metadata = pageMetadata({
+  title: 'BroTin Box | High-Protein Meal Delivery in Coimbatore',
+  description:
+    'Weighed, high-protein lunch and dinner boxes delivered fresh across Coimbatore, Monday to Saturday. Calories and protein shown for every dish. Try a single box first.',
+  path: '/',
+  absoluteTitle: true,
+});
 
 export default async function HomePage() {
   const [sides, addons, reviews] = await Promise.all([getSides(), getDrinks(), getReviews().catch(() => [])]);

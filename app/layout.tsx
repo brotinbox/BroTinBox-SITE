@@ -26,7 +26,8 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_IN',
-    url: BRAND.siteUrl,
+    // No url here: it would make every page without its own openGraph claim
+    // og:url = homepage. Pages set it through lib/seo/page-metadata.ts.
     title: `${BRAND.name} - Every Gram Counted`,
     description: BRAND.tagline,
     siteName: BRAND.name,

@@ -6,7 +6,7 @@ import { getPublishedPosts } from '@/lib/content/blog';
 // at deploy time, so newly published posts never reached Search Console.
 export const revalidate = 300;
 
-const PAGES = ['', '/menu', '/plans', '/pricing', '/weekly', '/monthly', '/tomorrow', '/single', '/delivery-areas', '/blog', '/faq', '/refer', '/partners', '/about', '/contact', '/terms', '/privacy', '/refund-policy', '/delivery-policy', '/food-safety', '/grievance', '/partner-terms'];
+const PAGES = ['', '/menu', '/pricing', '/weekly', '/monthly', '/tomorrow', '/single', '/delivery-areas', '/blog', '/faq', '/refer', '/partners', '/about', '/contact', '/terms', '/privacy', '/refund-policy', '/delivery-policy', '/food-safety', '/grievance', '/partner-terms'];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = BRAND.siteUrl.replace(/\/$/, '');
