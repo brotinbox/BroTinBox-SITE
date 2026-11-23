@@ -10,7 +10,7 @@ If you are comparing diet meal plans in Coimbatore, the price per month is usual
 - **Weekly (6 days):** ₹289 non-veg, ₹259 veg
 - **26-Day Monthly Plan:** ₹269 non-veg, ₹249 veg
 
-**Lite box** (about 450 kcal, for lighter appetites and weight loss)
+**Lite box** (about 350–600 kcal, for lighter appetites and weight loss)
 
 - **Trial (one day):** ₹199 non-veg, ₹179 veg
 - **Weekly (6 days):** ₹189 non-veg, ₹169 veg

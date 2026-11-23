@@ -19,7 +19,7 @@ If you want to understand the numbers behind this, our [calorie deficit guide](/
 
 - **Fixed daily menu:** one box per day per diet, cooked fresh the same morning in our Kuniyamuthur kitchen.
 - **Macros printed on every box:** calories, protein, carbs and fat.
-- **Two sizes:** a **Full box** (a big, high-protein meal; the exact numbers for each day are on the [menu](/menu)) and a **Lite box** (about 450 kcal, for lighter eaters and weight loss).
+- **Two sizes:** a **Full box** (a big, high-protein meal; the exact numbers for each day are on the [menu](/menu)) and a **Lite box** (about 350–600 kcal, for lighter eaters and weight loss).
 - **Veg and non-veg options.**
 - **Lunch and dinner slots**, Monday to Saturday. The kitchen is closed on Sunday.
 - **Free delivery** in every area we serve.

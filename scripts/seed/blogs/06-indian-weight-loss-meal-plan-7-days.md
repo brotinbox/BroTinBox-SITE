@@ -77,7 +77,7 @@ A few tips if you use our boxes for weight loss:
 - If your daily target is on the lower side, save part of the carb portion (chapati or oats) for later.
 - Our vegetarian Tuesday box (**638 kcal, 43.8 g protein**) is the lightest box in the week.
 
-Browse every box and its macros on our [menu](/menu), or compare plans on the [plans page](/plans).
+Browse every box and its macros on our [menu](/menu), or compare plans on the [pricing page](/pricing).
 
 # Frequently asked questions
 

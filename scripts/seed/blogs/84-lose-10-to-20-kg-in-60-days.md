@@ -99,4 +99,4 @@ Walking helps a lot, but diet does most of the work. Combine both.
 
 ---
 
-Big goals need simple daily wins. A [BroTin Box Lite box](/menu) is about 450 kcal with the protein printed on the box, delivered free in Coimbatore. [Order for tomorrow](/tomorrow).
+Big goals need simple daily wins. A [BroTin Box Lite box](/menu) is about 350–600 kcal with the protein printed on the box, delivered free in Coimbatore. [Order for tomorrow](/tomorrow).

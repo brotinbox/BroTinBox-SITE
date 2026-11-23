@@ -97,4 +97,4 @@ Continue if you have more to lose, or spend 2–4 weeks at maintenance to settle
 
 ---
 
-A measured deficit is easier when someone else measures it. A [BroTin Box Lite box](/menu) is about 450 kcal with the protein printed on the box, from ₹179 a meal on a monthly plan, delivered free in Coimbatore. [Order for tomorrow](/tomorrow).
+A measured deficit is easier when someone else measures it. A [BroTin Box Lite box](/menu) is about 350–600 kcal with the protein printed on the box, from ₹179 a meal on a monthly plan, delivered free in Coimbatore. [Order for tomorrow](/tomorrow).

@@ -112,4 +112,4 @@ Just continue. Ninety days of "mostly on track" beats a perfect week followed by
 
 ---
 
-Make 90 days easier with measured meals. A [BroTin Box Lite box](/menu) is about 450 kcal with the protein printed on the box, from ₹179 a meal on a monthly plan, delivered free in Coimbatore. [Order for tomorrow](/tomorrow).
+Make 90 days easier with measured meals. A [BroTin Box Lite box](/menu) is about 350–600 kcal with the protein printed on the box, from ₹179 a meal on a monthly plan, delivered free in Coimbatore. [Order for tomorrow](/tomorrow).

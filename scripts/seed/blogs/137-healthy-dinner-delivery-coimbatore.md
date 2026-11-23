@@ -1,4 +1,4 @@
-> **Quick answer:** For healthy dinner delivery in Coimbatore, BroTin Box delivers **measured, high-protein dinner boxes** between **7:00 and 9:00 PM**, Monday to Saturday, with **calories, protein, carbs and fat printed on every box**. On the **26-Day Monthly Plan**, the **Lite box** (about 450 kcal) costs **₹179 non-veg or ₹159 veg**, and the **Full box** costs **₹269 or ₹249**. Delivery is **free** in 11 areas. Order by 9:00 PM the night before.
+> **Quick answer:** For healthy dinner delivery in Coimbatore, BroTin Box delivers **measured, high-protein dinner boxes** between **7:00 and 9:00 PM**, Monday to Saturday, with **calories, protein, carbs and fat printed on every box**. On the **26-Day Monthly Plan**, the **Lite box** (about 350–600 kcal) costs **₹179 non-veg or ₹159 veg**, and the **Full box** costs **₹269 or ₹249**. Delivery is **free** in 11 areas. Order by 9:00 PM the night before.
 
 Dinner is when good intentions often fall apart. You are tired, nothing is cooked, and the easiest option is parotta, biryani or a fast food order. Here is how to get a healthy dinner delivered instead.
 
@@ -25,7 +25,7 @@ Read [eating late at night and weight loss](/blog/eating-late-at-night-weight-lo
 
 **Prices (per meal)**
 
-**Lite box** (about 450 kcal, great for dinner and weight loss)
+**Lite box** (about 350–600 kcal, great for dinner and weight loss)
 
 - Monthly (26 days): ₹179 non-veg, ₹159 veg
 - Weekly (6 days): ₹189 non-veg, ₹169 veg

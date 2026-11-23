@@ -97,4 +97,4 @@ For weight loss and general fitness, yes. For building a lot of muscle, a gym ma
 
 ---
 
-The easiest part to fix is food. A [BroTin Box Lite box](/menu) is about 450 kcal with the protein printed on the box, delivered free in Coimbatore. [Order for tomorrow](/tomorrow).
+The easiest part to fix is food. A [BroTin Box Lite box](/menu) is about 350–600 kcal with the protein printed on the box, delivered free in Coimbatore. [Order for tomorrow](/tomorrow).

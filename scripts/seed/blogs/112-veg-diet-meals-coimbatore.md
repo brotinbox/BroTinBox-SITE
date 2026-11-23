@@ -1,4 +1,4 @@
-> **Quick answer:** For veg diet meals in Coimbatore, BroTin Box delivers **measured vegetarian protein boxes** built around **paneer, tofu, soya, mushroom and legumes**, with **calories, protein, carbs and fat printed on every box**. Veg prices on the **26-Day Monthly Plan** are **₹249 a meal (Full box)** and **₹159 (Lite box, about 450 kcal)**. Delivery is **free**, Monday to Saturday, for lunch (11:30 AM–1:30 PM) and dinner (7:00–9:00 PM), in 11 areas.
+> **Quick answer:** For veg diet meals in Coimbatore, BroTin Box delivers **measured vegetarian protein boxes** built around **paneer, tofu, soya, mushroom and legumes**, with **calories, protein, carbs and fat printed on every box**. Veg prices on the **26-Day Monthly Plan** are **₹249 a meal (Full box)** and **₹159 (Lite box, about 350–600 kcal)**. Delivery is **free**, Monday to Saturday, for lunch (11:30 AM–1:30 PM) and dinner (7:00–9:00 PM), in 11 areas.
 
 Vegetarians in Coimbatore have plenty of tasty food, but most of it is rice-heavy and low in protein. Here is how to get measured veg diet meals, whether you order in or cook at home.
 
@@ -35,7 +35,7 @@ with legume sides like **black chana, rajma, green gram sprouts and kollu**, sal
 - Weekly (6 days): ₹259
 - 26-Day Monthly Plan: ₹249
 
-**Lite box** (about 450 kcal, for weight loss)
+**Lite box** (about 350–600 kcal, for weight loss)
 
 - Trial (one day): ₹179
 - Weekly (6 days): ₹169

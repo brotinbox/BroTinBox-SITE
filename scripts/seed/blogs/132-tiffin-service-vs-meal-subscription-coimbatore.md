@@ -30,7 +30,7 @@ At BroTin Box:
 - **High-protein mains:** grilled chicken, mackerel, eggs, paneer, tofu, soya, mushroom
 - **Legume sides, salads, curd and measured carbs**
 - **Calories, protein, carbs and fat printed on every box**
-- **Lite box** (about 450 kcal) for weight loss, **Full box** for training
+- **Lite box** (about 350–600 kcal) for weight loss, **Full box** for training
 - **Free delivery** for lunch (11:30 AM–1:30 PM) or dinner (7:00–9:00 PM), Monday to Saturday
 - **Pause or skip** before 9:00 PM the night before
 

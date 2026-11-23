@@ -68,7 +68,7 @@ Our vegetarian Tuesday box (smashed veggie soya chunks, mint curd, sprouted hors
 - **Gym-goers and anyone with high protein needs**: the 12-Meal Weekly Plan covers both lunch and dinner, which puts you at roughly **85–126 g protein per day** from our boxes alone.
 - **Building a long-term habit**: the 26-Day Monthly Plan has the lowest price per meal.
 
-Compare all of them on our [plans page](/plans). Subscription meals start from **₹249 per meal**.
+Compare all of them on our [pricing page](/pricing). Subscription meals start from **₹249 per meal**.
 
 # Where we deliver in Coimbatore
 

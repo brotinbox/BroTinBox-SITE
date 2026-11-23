@@ -97,4 +97,4 @@ Yes, with paneer, cheese, tofu, nuts and low-carb vegetables, but it is harder a
 
 ---
 
-Prefer a balanced, high-protein approach? A [BroTin Box Lite box](/menu) is about 450 kcal with the protein printed on the box, delivered free in Coimbatore. [Order for tomorrow](/tomorrow).
+Prefer a balanced, high-protein approach? A [BroTin Box Lite box](/menu) is about 350–600 kcal with the protein printed on the box, delivered free in Coimbatore. [Order for tomorrow](/tomorrow).

@@ -83,7 +83,7 @@ Check the numbers in [calories in South Indian food](/blog/calories-in-south-ind
 Eating out every day makes it hard to know your real numbers. BroTin Box cooks protein meals fresh every morning in Kuniyamuthur:
 
 - **Full box:** a large, high-protein meal for training days
-- **Lite box:** about 450 kcal, for lighter appetites and weight loss
+- **Lite box:** about 350–600 kcal, for lighter appetites and weight loss
 - **Veg and non-veg** menus: grilled chicken, mackerel, eggs, paneer, tofu, soya, chana and kollu
 - **Calories, protein, carbs and fat printed on every box**
 - **Free delivery** for lunch (11:30 AM–1:30 PM) and dinner (7:00–9:00 PM), Monday to Saturday

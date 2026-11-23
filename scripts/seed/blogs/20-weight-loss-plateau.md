@@ -105,4 +105,4 @@ If the scale makes you anxious, weigh less often, and use your waist measurement
 
 ---
 
-If measuring is what keeps slipping, let us do it. Our meals are built from weighed portions, with the calories and macros listed. [See the plans](/plans), or [try a box for tomorrow](/tomorrow).
+If measuring is what keeps slipping, let us do it. Our meals are built from weighed portions, with the calories and macros listed. [See the plans](/pricing), or [try a box for tomorrow](/tomorrow).

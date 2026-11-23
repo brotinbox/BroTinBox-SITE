@@ -90,4 +90,4 @@ Cover your leaf with your hand, smile, and say you have eaten well. Praising the
 
 ---
 
-Busy season ahead? [See our plans](/plans) and keep your everyday meals measured, so the weddings are the only meals you need to think about.
+Busy season ahead? [See our plans](/pricing) and keep your everyday meals measured, so the weddings are the only meals you need to think about.

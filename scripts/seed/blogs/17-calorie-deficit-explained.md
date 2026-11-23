@@ -99,4 +99,4 @@ Beginners and people with more weight to lose often can, if they lift weights an
 
 ---
 
-Counting is much easier when your meal already has numbers on it. Our boxes list calories and macros and are built from weighed portions. [See the menu](/menu), or [compare plans](/plans).
+Counting is much easier when your meal already has numbers on it. Our boxes list calories and macros and are built from weighed portions. [See the menu](/menu), or [compare plans](/pricing).

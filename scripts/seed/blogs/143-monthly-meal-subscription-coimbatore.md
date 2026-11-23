@@ -13,7 +13,7 @@ Our kitchen is closed on **Sundays**. A month of Monday-to-Saturday deliveries i
 - Non-veg: 26 × ₹269 = **₹6,994**
 - Veg: 26 × ₹249 = **₹6,474**
 
-**Lite box** (about 450 kcal, for weight loss)
+**Lite box** (about 350–600 kcal, for weight loss)
 
 - Non-veg: 26 × ₹179 = **₹4,654**
 - Veg: 26 × ₹159 = **₹4,134**
@@ -95,4 +95,4 @@ Yes, in every area we serve.
 
 ---
 
-Start with one day, then go monthly once you like it. [Order a box for tomorrow](/tomorrow), or see the [plans](/plans).
+Start with one day, then go monthly once you like it. [Order a box for tomorrow](/tomorrow), or see the [plans](/pricing).

@@ -111,4 +111,4 @@ Some of it, when you eat more carbs again. That is normal and not fat gain.
 
 ---
 
-A measured deficit is easier with measured food. A [BroTin Box Lite box](/menu) is about 450 kcal with the protein printed on the box, delivered free in Coimbatore. [Try one tomorrow](/tomorrow).
+A measured deficit is easier with measured food. A [BroTin Box Lite box](/menu) is about 350–600 kcal with the protein printed on the box, delivered free in Coimbatore. [Try one tomorrow](/tomorrow).

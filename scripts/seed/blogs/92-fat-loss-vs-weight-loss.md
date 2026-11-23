@@ -95,4 +95,4 @@ Mostly water and glycogen. Fat loss is slower and steadier.
 
 ---
 
-High protein in every meal is the easiest way to protect muscle. A [BroTin Box Lite box](/menu) is about 450 kcal with the protein printed on the box, delivered free in Coimbatore. [Order for tomorrow](/tomorrow).
+High protein in every meal is the easiest way to protect muscle. A [BroTin Box Lite box](/menu) is about 350–600 kcal with the protein printed on the box, delivered free in Coimbatore. [Order for tomorrow](/tomorrow).

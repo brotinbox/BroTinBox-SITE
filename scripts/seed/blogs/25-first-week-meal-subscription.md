@@ -16,7 +16,7 @@ We deliver **Monday to Saturday**, in two slots: lunch at **11:30 AM–1:30 PM**
 
 ## Know your numbers
 
-Depending on the day, our non-veg boxes contain about 770–977 kcal and 58–81 g of protein, and our veg boxes about 625–897 kcal and 29–48 g of protein. Compare that with your own target using our [calorie deficit guide](/blog/calorie-deficit-how-to-calculate) and [protein guide](/blog/how-much-protein-per-day). Then decide whether one box a day or two is the right fit by looking at [our plans](/plans).
+Depending on the day, our non-veg boxes contain about 770–977 kcal and 58–81 g of protein, and our veg boxes about 625–897 kcal and 29–48 g of protein. Compare that with your own target using our [calorie deficit guide](/blog/calorie-deficit-how-to-calculate) and [protein guide](/blog/how-much-protein-per-day). Then decide whether one box a day or two is the right fit by looking at [our plans](/pricing).
 
 ## Check the allergens
 
@@ -94,4 +94,4 @@ Yes. Plenty of people simply want a reliable, measured meal without having to co
 
 ---
 
-The easiest first step is one box. [Order a trial box for tomorrow](/tomorrow), or [compare our plans](/plans).
+The easiest first step is one box. [Order a trial box for tomorrow](/tomorrow), or [compare our plans](/pricing).

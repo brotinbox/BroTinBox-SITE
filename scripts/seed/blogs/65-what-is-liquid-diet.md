@@ -90,4 +90,4 @@ Clear soups fit a clear liquid diet. Thick soups fit a full liquid diet.
 
 ---
 
-Prefer real food in measured portions? A [BroTin Box Lite box](/menu) is about 450 kcal with the protein printed on the box, delivered free in Coimbatore. [Order for tomorrow](/tomorrow).
+Prefer real food in measured portions? A [BroTin Box Lite box](/menu) is about 350–600 kcal with the protein printed on the box, delivered free in Coimbatore. [Order for tomorrow](/tomorrow).

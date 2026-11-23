@@ -1,4 +1,4 @@
-> **Quick answer:** For **balanced, calorie- and protein-measured meals in Coimbatore**, BroTin Box delivers boxes built like a balanced plate: **a protein main, a legume side, salad, a curd side and a measured carb**, with **calories, protein, carbs and fat printed on every box**. The **Lite box** is about **450 kcal** (₹159–₹179 a meal monthly) and the **Full box** is a larger high-protein meal (₹249–₹269). Delivery is **free**, Monday to Saturday, lunch or dinner. If you cook, use the **balanced Indian plate**: half vegetables, a quarter protein, a quarter rice or chapati, plus curd.
+> **Quick answer:** For **balanced, calorie- and protein-measured meals in Coimbatore**, BroTin Box delivers boxes built like a balanced plate: **a protein main, a legume side, salad, a curd side and a measured carb**, with **calories, protein, carbs and fat printed on every box**. The **Lite box** is about **350–600 kcal** (₹159–₹179 a meal monthly) and the **Full box** is a larger high-protein meal (₹249–₹269). Delivery is **free**, Monday to Saturday, lunch or dinner. If you cook, use the **balanced Indian plate**: half vegetables, a quarter protein, a quarter rice or chapati, plus curd.
 
 "Balanced diet food" usually means food that is not just healthy-sounding, but has the **right mix of protein, carbs, fats and fibre** in a **sensible calorie range**. Here is how to get that in Coimbatore, delivered or home-cooked.
 
@@ -34,7 +34,7 @@ Every BroTin Box follows the same balanced structure:
 
 **Prices (26-Day Monthly Plan)**
 
-- **Lite box** (about 450 kcal): ₹179 non-veg, ₹159 veg
+- **Lite box** (about 350–600 kcal): ₹179 non-veg, ₹159 veg
 - **Full box** (large, high-protein): ₹269 non-veg, ₹249 veg
 - **Second meal on the same day:** ₹10 off
 

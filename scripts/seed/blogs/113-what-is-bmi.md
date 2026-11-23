@@ -93,4 +93,4 @@ If it is from muscle, often yes. If it is from belly fat, risk is higher even if
 
 ---
 
-Bringing your BMI and waist down starts with your plate. A [BroTin Box Lite box](/menu) is about 450 kcal with the protein printed on the box, delivered free in Coimbatore. [Order for tomorrow](/tomorrow).
+Bringing your BMI and waist down starts with your plate. A [BroTin Box Lite box](/menu) is about 350–600 kcal with the protein printed on the box, delivered free in Coimbatore. [Order for tomorrow](/tomorrow).

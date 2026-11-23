@@ -91,4 +91,4 @@ Yes, in a measured portion of about 1 cup cooked per meal.
 
 ---
 
-Measured portions make it simple. A [BroTin Box Lite box](/menu) is about 450 kcal with the protein printed on the box, veg or non-veg, delivered free in Coimbatore. [Order for tomorrow](/tomorrow).
+Measured portions make it simple. A [BroTin Box Lite box](/menu) is about 350–600 kcal with the protein printed on the box, veg or non-veg, delivered free in Coimbatore. [Order for tomorrow](/tomorrow).

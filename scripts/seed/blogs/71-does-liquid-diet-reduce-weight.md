@@ -94,4 +94,4 @@ Only under a doctor's supervision, with a nutritionally complete formula.
 
 ---
 
-Want measured meals that make a deficit easy without drinking your food? A [BroTin Box Lite box](/menu) is about 450 kcal with the protein printed on the box, delivered free in Coimbatore. [Order for tomorrow](/tomorrow).
+Want measured meals that make a deficit easy without drinking your food? A [BroTin Box Lite box](/menu) is about 350–600 kcal with the protein printed on the box, delivered free in Coimbatore. [Order for tomorrow](/tomorrow).

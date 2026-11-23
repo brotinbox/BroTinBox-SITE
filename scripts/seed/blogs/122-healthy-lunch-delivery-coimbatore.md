@@ -31,7 +31,7 @@ See our ideas for [high-protein office lunches](/blog/high-protein-office-lunch-
 - Weekly (6 days): ₹289 non-veg, ₹259 veg
 - Trial (one day): ₹309 non-veg, ₹279 veg
 
-**Lite box** (about 450 kcal, for weight loss)
+**Lite box** (about 350–600 kcal, for weight loss)
 
 - Monthly (26 days): ₹179 non-veg, ₹159 veg
 - Weekly (6 days): ₹189 non-veg, ₹169 veg

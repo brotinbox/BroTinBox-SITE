@@ -24,7 +24,7 @@ This is what we do at BroTin Box:
 
 - **One fixed menu per day**, rotating through chicken, fish, eggs, soya, paneer and legumes
 - **Full box:** a large, high-protein meal for gym-goers and active people
-- **Lite box:** about 450 kcal, for lighter appetites and weight loss
+- **Lite box:** about 350–600 kcal, for lighter appetites and weight loss
 - **Veg and non-veg** options
 - **Exact macros** on every box, so you can track without weighing anything
 

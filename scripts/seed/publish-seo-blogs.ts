@@ -46,7 +46,7 @@ if (ONLY && !POSTS.length) {
   process.exit(1);
 }
 const DIR = join(process.cwd(), 'scripts/seed/blogs');
-const SITE_PATHS = new Set(['/', '/menu', '/plans', '/pricing', '/weekly', '/monthly', '/tomorrow', '/delivery-areas', '/blog', '/faq', '/about', '/contact', '/food-safety', '/refund-policy']);
+const SITE_PATHS = new Set(['/', '/menu', '/pricing', '/weekly', '/monthly', '/tomorrow', '/delivery-areas', '/blog', '/faq', '/about', '/contact', '/food-safety', '/refund-policy']);
 
 // ─── 1. Validate ────────────────────────────────────────────────────────────
 const slugs = new Set(POSTS.map((p) => p.slug));

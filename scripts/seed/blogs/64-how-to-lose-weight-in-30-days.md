@@ -96,4 +96,4 @@ Keep going at the same pace, or take a week at maintenance and then continue.
 
 ---
 
-Measured portions make a calorie deficit easy. A [BroTin Box Lite box](/menu) is about 450 kcal with protein printed on the box, delivered free in Coimbatore. [Try one tomorrow](/tomorrow).
+Measured portions make a calorie deficit easy. A [BroTin Box Lite box](/menu) is about 350–600 kcal with protein printed on the box, delivered free in Coimbatore. [Try one tomorrow](/tomorrow).

@@ -84,4 +84,4 @@ No. The fruit-only and banana days can raise blood sugar, and it is not designed
 
 ---
 
-Want results that last longer than a week? A [BroTin Box Lite box](/menu) is about 450 kcal with the protein printed on the box, delivered free in Coimbatore. [Order for tomorrow](/tomorrow).
+Want results that last longer than a week? A [BroTin Box Lite box](/menu) is about 350–600 kcal with the protein printed on the box, delivered free in Coimbatore. [Order for tomorrow](/tomorrow).

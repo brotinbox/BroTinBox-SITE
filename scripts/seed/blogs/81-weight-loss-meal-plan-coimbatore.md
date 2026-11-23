@@ -1,4 +1,4 @@
-> **Quick answer:** A weight loss meal plan in Coimbatore can be as simple as **one measured, high-protein meal a day** plus a light breakfast and dinner you control. BroTin Box's **Lite box** (about **450 kcal**) costs **₹179 a meal** non-veg or **₹159** veg on the **26-Day Monthly Plan**, with calories and protein printed on every box and **free delivery** for lunch or dinner, Monday to Saturday. If you cook, follow the plate method and a 1,500–1,700 kcal day below.
+> **Quick answer:** A weight loss meal plan in Coimbatore can be as simple as **one measured, high-protein meal a day** plus a light breakfast and dinner you control. BroTin Box's **Lite box** (about **350–600 kcal**) costs **₹179 a meal** non-veg or **₹159** veg on the **26-Day Monthly Plan**, with calories and protein printed on every box and **free delivery** for lunch or dinner, Monday to Saturday. If you cook, follow the plate method and a 1,500–1,700 kcal day below.
 
 Searching for a weight loss meal plan in Coimbatore usually means one of two things: you want someone to cook for you, or you want a plan you can follow at home. Here are both.
 
@@ -17,7 +17,7 @@ This is what BroTin Box does. We cook fresh every morning in our Kuniyamuthur ki
 
 **Lite box** (for weight loss)
 
-- About **450 kcal**, high in protein
+- About **350–600 kcal**, with the protein printed on the box
 - **Monthly (26 days):** ₹179 non-veg, ₹159 veg
 - **Weekly (6 days):** ₹189 non-veg, ₹169 veg
 - **Trial (one day):** ₹199 non-veg, ₹179 veg
@@ -31,14 +31,14 @@ This is what BroTin Box does. We cook fresh every morning in our Kuniyamuthur ki
 
 **Areas:** Kuniyamuthur, Kovaipudhur, Sundarapuram, Ukkadam, RS Puram, Race Course, Ramanathapuram, Saibaba Colony, Gandhipuram, Lakshmi Mills and Nava India. Ganapathy, Singanallur, Peelamedu and Vadavalli are in our next batch. Check the [delivery areas page](/delivery-areas).
 
-See full prices on the [pricing page](/pricing) and the plans on the [plans page](/plans).
+See full prices and compare plans on the [pricing page](/pricing).
 
 # How to build your day around a Lite box
 
 **Target: about 1,400–1,700 kcal a day**
 
 - **Breakfast (about 300–350 kcal):** 2 idlis with sambar and 2 boiled eggs, or oats upma with a cup of curd
-- **Lunch (about 450 kcal):** BroTin Box Lite box
+- **Lunch (about 350–600 kcal):** BroTin Box Lite box
 - **Evening (about 100–150 kcal):** buttermilk and a small cup of sundal, or a fruit
 - **Dinner (about 400–500 kcal):** 2 chapatis, dal or egg curry, vegetables
 
